@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<interfaces xmlns="http://cthul.org/matcher/fluent/gen/1.0/interfaces.xsd">
+    <factory class="org.cthul.matchers.test.ColorMatchers" />
+    <package name="test">
+        <interface name="ColorFluent">
+            <interface name="Object" itemType="java.lang.Object">
+            </interface>
+            <interface name="String" itemType="java.lang.String" base="Object">
+                <methods />
+            </interface>
+            <interface name="Throwable" itemType="java.lang.Throwable" base="Object">
+                <methods />
+            </interface>
+        </interface>
+    </package>
+</interfaces>

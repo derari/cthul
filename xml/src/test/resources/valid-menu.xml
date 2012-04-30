@@ -1,0 +1,6 @@
+<menu xmlns="http://cthul.org/xml/test/schema/menu">
+    <meal price="1">
+        <name>Soup</name>
+        <description>It's just a soup.</description>
+    </meal>
+</menu>

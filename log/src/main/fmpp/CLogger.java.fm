@@ -1,0 +1,101 @@
+// generated file
+package org.cthul.log;
+
+import org.cthul.log.format.Message;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+
+/**
+ *
+ * @author Arian Treffer
+ */
+public class CLogger {
+    
+    private final Logger logger;
+    private final CLogConfiguration conf;
+
+    public CLogger(Logger logger) {
+        this(logger, CLogConfiguration.getDefault());
+    }
+    
+    public CLogger(Logger logger, CLogConfiguration conf) {
+        CLoggerFix.fix(logger);
+        this.logger = logger;
+        this.conf = conf;
+    }
+    
+<#macro params c>
+<#if (c > 0)><#list 0..c-1 as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
+<#macro args c>
+<#if (c > 0)><#list 0..c-1 as i>, arg${i}</#list><#elseif c == 0>, args</#if></#macro>
+<#macro pItem s c x>
+<#if (c > 0)><#if (x < 0)>, </#if>${s}<#if x==1>, </#if></#if></#macro>
+<#macro paramT c x=1>
+<@pItem "Throwable throwable" c x/></#macro>
+<#macro argT c x=1>
+<@pItem "throwable" c x/></#macro>
+<#macro paramM c x=1>
+<@pItem "Marker marker" c x/></#macro>
+<#macro argM c x=1>
+<@pItem "marker" c x/></#macro>
+<#assign levels = ["trace", "debug", "info", "warn", "error"]>
+<#assign Levels = ["Trace", "Debug", "Info", "Warn", "Error"]>
+<#assign maxArgC = 2>
+<#list levels as level>
+ <#list 0..1 as m>
+    public boolean ${level}(<@paramM m 0/>) {
+        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
+    }
+    
+    public boolean is${Levels[level_index]}Enabled(<@paramM m 0/>) {
+        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
+    }
+
+ </#list>
+</#list>
+<#list levels as level>
+ <#list 0..1 as m>
+  <#list 0..1 as t>
+   <#list -1..maxArgC as argC>
+    public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
+        if (${level}(<@argM m 0/>)) {
+            logger.${level}(<@argM m/>new Message(conf, <@argT t/>message<@args argC/>).toString()<@argT t, -1/>);
+        }
+    }
+
+   </#list>
+  </#list>
+ </#list>
+</#list>
+<#list 0..1 as m>
+    public boolean isEnabled(CLogLevel level<@paramM m, -1/>) {
+        switch (level) {
+ <#list levels as level>
+            case ${Levels[level_index]}:
+                return is${Levels[level_index]}Enabled(<@argM m 0/>);
+ </#list>
+            default:
+                throw new IllegalArgumentException(level.toString());
+        }
+    }
+
+</#list>
+<#list 0..1 as m>
+ <#list 0..1 as t>
+  <#list -1..maxArgC as argC>
+    public void log(CLogLevel level, <@paramM m/><@paramT t/>Object message<@params argC/>) {
+        switch (level) {
+    <#list levels as level>
+            case ${Levels[level_index]}:
+                ${level}(<@argM m/><@argT t/>message<@args argC/>);
+                break;
+    </#list>            
+            default:
+                throw new IllegalArgumentException(level.toString());
+        }
+    }
+
+  </#list>
+ </#list>
+</#list>
+}

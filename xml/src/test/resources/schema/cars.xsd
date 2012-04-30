@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cthul.org/xml/test/schema/cars"
+           xmlns:c="http://cthul.org/xml/test/schema/cars"
+           xmlns="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+
+    <xs:attribute name="color">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Attribute: color</h3>
+                A car should have a color.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+
+    <xs:complexType name="Cars">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Type: Cars</h3>
+                A list of cars.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="car" type="c:Car" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Car">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Type: Car</h3>
+                A car is great.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="brand" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute ref="color" />
+    </xs:complexType>
+
+</xs:schema>

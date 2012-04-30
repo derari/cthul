@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cthul.org/xml/test/schema/menu"
+           xmlns:m="http://cthul.org/xml/test/schema/menu"
+           xmlns="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+               
+    <xs:element name="menu" type="m:Menu">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Element: menu</h3>    
+                Root element.
+            </xs:documentation>    
+        </xs:annotation>
+    </xs:element>
+
+    <!--<xs:attribute name="price" type="xs:integer">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Attribute: price</h3>
+                How much to pay.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:attribute>-->
+
+    <xs:complexType name="Menu">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Type: Menu</h3>
+                What's on the menu?
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="meal" type="m:Meal" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Meal">
+        <xs:annotation>
+            <xs:documentation>
+                <h3>Type: Meal</h3>
+                A meal.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="description" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="price" type="xs:integer" />
+    </xs:complexType>
+
+</xs:schema>

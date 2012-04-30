@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cthul.org/matcher/fluent/gen/1.0/interfaces.xsd"
+           xmlns:g="http://cthul.org/matcher/fluent/gen/1.0/interfaces.xsd"
+           xmlns="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+               
+    <xs:element name="interfaces" type="g:InterfaceGenerator" />
+
+    <xs:complexType name="InterfaceGenerator">
+        <xs:sequence>
+            <xs:element name="factory" type="g:FactoryReference" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="package" type="g:PackageDefinition" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="FactoryReference">
+        <xs:attribute name="class" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="PackageDefinition">
+        <xs:sequence>
+            <xs:element name="interface" type="g:InterfaceDefinition" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="InterfaceDefinition">
+        <xs:choice>
+            <xs:element name="methods" type="g:MethodsFilter" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="interface" type="g:SubInterfaceDefinition" minOccurs="1" maxOccurs="unbounded" />
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="base" type="xs:string" />
+        <xs:attribute name="itemType" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="SubInterfaceDefinition">
+        <xs:sequence>
+            <xs:element name="methods" type="g:MethodsFilter" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="base" type="xs:string" />
+        <xs:attribute name="itemType" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:complexType name="MethodsFilter">
+        <xs:attribute name="itemType" type="xs:string" />
+    </xs:complexType>
+    
+</xs:schema>

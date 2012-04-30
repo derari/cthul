@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-xlint</actionName>
+            <displayName>xlint</displayName>
+            <goals>
+                <goal>clean:clean</goal>
+                <goal>compiler:compile</goal>
+                <goal>compiler:testCompile</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>xlint</activatedProfile>
+            </activatedProfiles>
+        </action>
+    </actions>
