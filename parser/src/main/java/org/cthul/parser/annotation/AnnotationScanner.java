@@ -1,24 +1,12 @@
 package org.cthul.parser.annotation;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import org.cthul.parser.Grammar;
-import org.cthul.parser.Lexer;
-import org.cthul.parser.Parser;
-import org.cthul.parser.Token;
-import org.cthul.parser.TokenFactory;
+import java.lang.reflect.*;
+import java.util.*;
+import org.cthul.parser.*;
 import org.cthul.parser.grammar.earley.EarleyGrammar;
 import org.cthul.parser.grammar.earley.GrammarFactory;
 import org.cthul.parser.grammar.sequence.LeftDeepSequenceFactory;
-import org.cthul.parser.impl.DirectProduction;
-import org.cthul.parser.impl.MethodMatch;
-import org.cthul.parser.impl.MethodProduction;
+import org.cthul.parser.impl.*;
 import org.cthul.parser.lexer.LexerFactory;
 import org.cthul.parser.lexer.RegexLexer;
 

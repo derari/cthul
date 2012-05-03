@@ -1,0 +1,35 @@
+<%@ jet class="ResolverGenerator" package="org.popolvuh.commons.parsergen"  skeleton="FileGenerator.skeleton" %>
+//
+// Generated with PV parser-gen <%= ElementParserGeneratorMojo.Version %><%='\n'%>
+//
+
+package <%= pkg %>;
+
+import org.popolvuh.commons.parser.AbstractElementIDResolver;
+
+/**
+ * Element resolver for <%= clazz %> schema.
+ */
+public class <%= clazz %>Resolver 
+        extends AbstractElementIDResolver
+        implements <%= clazz %>IDs {
+
+    public <%= clazz %>Resolver() {
+        init();
+    }
+
+    protected void init() {
+        this
+<% for (Namespace ns: schema.namespaces) { %>
+<%  if (ns.hasElements()) { %>
+            .namespace(<%= ns.constant %>)
+<%      for (ElementName en: ns.enames) { %>
+                .add(\"<%= en.name %>\", <%= en.constant %>)
+<%      } %>
+<%  } %>
+<% } %>
+            ;
+    }
+
+}
+

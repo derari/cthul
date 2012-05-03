@@ -1,0 +1,21 @@
+package PACKAGE;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class CLASS {
+
+    public String generate(IDCollector schema,
+                           String pkg, String clazz) {
+        return "";
+    }
+
+    public void generate(File file, IDCollector schema,
+                         String pkg, String clazz) throws IOException {
+        FileWriter out = new FileWriter(file);
+        out.append(generate(schema, pkg, clazz));
+        out.close();
+    }
+
+}

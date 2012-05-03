@@ -1,0 +1,89 @@
+<%@ jet class="AbstractHandlerGenerator" package="org.popolvuh.commons.parsergen"  skeleton="FileGenerator.skeleton" %>
+//
+// Generated with PV parser-gen <%= ElementParserGeneratorMojo.Version %>
+//
+
+package <%= pkg %>;
+
+import org.popolvuh.commons.parser.ElementAttributes;
+import org.popolvuh.commons.parser.ElementIDResolver;
+import org.popolvuh.commons.parser.EventParserAdapter;
+<% if (schema.hasPVAttribute()) { %>
+import org.popolvuh.commons.parser.PVModifier;
+<% } %>
+
+/**
+ * Abstract parser handler for <%= clazz %> schema.
+ */
+public abstract class Abstract<%= clazz %>Handler<%= "<T>" %> 
+        implements <%= clazz %>IDs,
+                   EventParserAdapter<%= "<T>" %> {
+
+    protected final <%= clazz %>Resolver resolver;
+
+    public Abstract<%= clazz %>Handler() {
+        resolver = new <%= clazz %>Resolver();
+    }
+
+<% if (schema.hasPVAttribute()) { %>
+    /**
+     * Returns the PV Modifier or <code>null</code> if the isn't any.
+     */
+    protected PVModifier pvModifier(ElementAttributes attributes) {
+        return PVModifier.get(PV, XMLNS, attributes);
+    }
+
+    /**
+     * If the current element has the PV Modifier \"edit\",
+     * returns the element ids of the properties that are marked as edited.
+     */
+    protected int[] getEditedProperties(ElementAttributes attributes) {
+        return PVModifier.getEditedProperties(resolver, PV, XMLNS, attributes);
+    }
+
+<% } %>
+    @Override
+    public ElementIDResolver getTypeResolver() {
+        return resolver;
+    }
+
+    @Override
+    public void startElement(int eID, ElementAttributes attributes) {
+        switch (eID) {
+<% for (ElementName en: schema.enames) { %>
+            case <%= en.constant %>:
+                start<%= en.method %>(attributes);
+                break;
+<% } %>
+        }
+    }
+
+<% for (ElementName en: schema.enames) { %>
+    /**
+     * Start of an \"<%= en.ns_name() %>\" element.
+     */
+    protected void start<%= en.method %>(ElementAttributes attributes) {
+    }
+
+<% } %>
+    @Override
+    public void endElement(int eID) {
+        switch (eID) {
+<% for (ElementName en: schema.enames) { %>
+            case <%= en.constant %>:
+                end<%= en.method %>();
+                break;
+<% } %>
+        }
+    }
+
+<% for (ElementName en: schema.enames) { %>
+    /**
+     * End of an \"<%= en.ns_name() %>\" element.
+     */
+    protected void end<%= en.method %>() {
+    }
+
+<% } %>
+}
+

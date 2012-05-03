@@ -1,15 +1,42 @@
 // generated file
 package org.cthul.log;
 
-import org.cthul.log.format.Message;
+import org.cthul.strings.format.Message;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 /**
+ * Wraps a {@link Logger slf4j Logger}, which is the main user entry point of SLF4J API. 
+ * It is expected that logging takes place through concrete implementations 
+ * of {@code org.slf4j.Logger}.
+ * <p/>
+ * The following example was taken from the slf4j Logger documentation and
+ * adapted to show how to use a Cthul Logger.
  *
+ * <h3>Typical usage pattern:</h3>
+ * <pre>
+ * import org.cthul.log.CLogger;
+ * import org.cthul.log.CLoggerFactory;
+ * 
+ * public class Wombat {
+ *
+ *   <span style="color:green">final static CLogger logger = CLoggerFactory.getLogger(Wombat.class);</span>
+ *   Integer t;
+ *   Integer oldT;
+ *
+ *   public void setTemperature(Integer temperature) {
+ *     oldT = t;        
+ *     t = temperature;
+ *     <span style="color:green">logger.debug("Temperature set to %s. Old temperature was %s.", t, oldT);</span>
+ *     if(temperature.intValue() > 50) {
+ *       <span style="color:green">logger.info("Temperature has risen above 50 degrees.");</span>
+ *     }
+ *   }
+ * }
+ * </pre>
  * @author Arian Treffer
  */
-public class CLogger {
+public final class CLogger {
     
     private final Logger logger;
     private final CLogConfiguration conf;
@@ -25,9 +52,9 @@ public class CLogger {
     }
     
 <#macro params c>
-<#if (c > 0)><#list 0..c-1 as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
+<#if (c > 0)><#list 1..c as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
 <#macro args c>
-<#if (c > 0)><#list 0..c-1 as i>, arg${i}</#list><#elseif c == 0>, args</#if></#macro>
+<#if (c > 0)><#list 1..c as i>, arg${i}</#list><#elseif c == 0>, args</#if></#macro>
 <#macro pItem s c x>
 <#if (c > 0)><#if (x < 0)>, </#if>${s}<#if x==1>, </#if></#if></#macro>
 <#macro paramT c x=1>
@@ -40,13 +67,31 @@ public class CLogger {
 <@pItem "marker" c x/></#macro>
 <#assign levels = ["trace", "debug", "info", "warn", "error"]>
 <#assign Levels = ["Trace", "Debug", "Info", "Warn", "Error"]>
-<#assign maxArgC = 2>
+<#assign maxArgC = 3>
 <#list levels as level>
  <#list 0..1 as m>
+    /**
+     * Is the logger instance enabled for the ${level} level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the ${level} level,
+     * false otherwise.
+     */
     public boolean ${level}(<@paramM m 0/>) {
         return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
     }
-    
+
+    /**
+     * Is the logger instance enabled for the ${level} level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the ${level} level,
+     * false otherwise.
+     */    
     public boolean is${Levels[level_index]}Enabled(<@paramM m 0/>) {
         return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
     }
@@ -57,6 +102,28 @@ public class CLogger {
  <#list 0..1 as m>
   <#list 0..1 as t>
    <#list -1..maxArgC as argC>
+    /**
+     * Log <#if (t > 0)>an exception <#else>a message </#if><#if (m > 0)>with the specific Marker </#if>at the ${level} level<#if (argC >=0)>, according to the specified format and arguments</#if>.
+     * 
+<#if (m > 0)>
+     * @param marker the marker data specific to this log statement
+</#if>
+<#if (t > 0)>
+     * @param throwable the throwable to log
+</#if>
+<#if (argC < 0)>
+     * @param message the message string to be logged
+<#else>
+     * @param message the format string
+ <#if (argC == 0)>
+     * @param args an array of arguments
+ <#else>
+  <#list 1..argC as i>
+     * @param arg${i} argument ${i}
+  </#list>
+ </#if>
+</#if>
+     */
     public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
         if (${level}(<@argM m 0/>)) {
             logger.${level}(<@argM m/>new Message(conf, <@argT t/>message<@args argC/>).toString()<@argT t, -1/>);
@@ -68,6 +135,18 @@ public class CLogger {
  </#list>
 </#list>
 <#list 0..1 as m>
+    /**
+     * Is the logger instance enabled for the given level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+</#if>
+     * @param level the log level
+<#if (m > 0)>
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the given level,
+     * false otherwise.
+     */
     public boolean isEnabled(CLogLevel level<@paramM m, -1/>) {
         switch (level) {
  <#list levels as level>
@@ -83,6 +162,29 @@ public class CLogger {
 <#list 0..1 as m>
  <#list 0..1 as t>
   <#list -1..maxArgC as argC>
+    /**
+     * Log <#if (t > 0)>an exception <#else>a message </#if><#if (m > 0)>with the specific Marker </#if>at the given level<#if (argC >=0)>, according to the specified format and arguments</#if>.
+     * 
+     * @param level the log level
+<#if (m > 0)>
+     * @param marker the marker data specific to this log statement
+</#if>
+<#if (t > 0)>
+     * @param throwable the throwable to log
+</#if>
+<#if (argC < 0)>
+     * @param message the message string to be logged
+<#else>
+     * @param message the format string
+ <#if (argC == 0)>
+     * @param args an array of arguments
+ <#else>
+  <#list 1..argC as i>
+     * @param arg${i} argument ${i}
+  </#list>
+ </#if>
+</#if>
+     */
     public void log(CLogLevel level, <@paramM m/><@paramT t/>Object message<@params argC/>) {
         switch (level) {
     <#list levels as level>

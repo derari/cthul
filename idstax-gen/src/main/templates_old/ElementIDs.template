@@ -1,0 +1,38 @@
+<%@ jet class="ElementIDGenerator" package="org.popolvuh.commons.parsergen"  skeleton="FileGenerator.skeleton" %>
+//
+// Generated with PV parser-gen <%= ElementParserGeneratorMojo.Version %><%='\n'%>
+//
+
+package <%= pkg %>;
+
+/**
+ * Element IDs for <%= clazz %> schema.
+ */
+public interface <%= clazz %>IDs {
+
+<% for (Namespace ns: schema.namespaces) { %>
+<%  if (ns.hasElements()) { %>
+    /**
+     * Namespace <%= ns.isDefault() ? "" : ns.abbrev+" "%>\"<%= ns.uri %>\"
+     */
+    public static final String <%= ns.constant %> = \"<%= ns.uri %>\";
+
+<%  } %>
+<% } %>
+<% for (ElementName en: schema.enames) { %>
+<% String type;
+   if (en.isElement) {
+        if (en.isAttribute) type = "element or attribute";
+        else type = "element";
+   } else {
+        type = "attribute";
+   }
+%>
+    /**
+     * ID of <%= type %> \"<%= en.ns_name() %>\"
+     */
+    public static final int <%= en.constant %> = <%= en.id %>;
+
+<% } %>
+}
+

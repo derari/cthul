@@ -1,6 +1,6 @@
-package org.cthul.log.format;
+package org.cthul.strings.format;
 
-import org.cthul.log.CLogConfiguration;
+import org.cthul.strings.Formatter;
 
 /**
  *
@@ -8,7 +8,7 @@ import org.cthul.log.CLogConfiguration;
  */
 public class Message {
     
-    private final CLogConfiguration conf;
+    private final FormatConfiguration conf;
     private final Throwable throwable;
     private final Object message;
     private final Object[] args;
@@ -18,59 +18,59 @@ public class Message {
     private final Object arg3;
     private final Object arg4;
 
-    public Message(CLogConfiguration conf, Object message, Object... args) {
+    public Message(FormatConfiguration conf, Object message, Object... args) {
         this(conf, null, message, args, null, null, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Object message, Object arg0) {
+    public Message(FormatConfiguration conf, Object message, Object arg0) {
         this(conf, null, message, null, arg0, null, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Object message, Object arg0, Object arg1) {
+    public Message(FormatConfiguration conf, Object message, Object arg0, Object arg1) {
         this(conf, null, message, null, arg0, arg1, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Object message, Object arg0, Object arg1, Object arg2) {
+    public Message(FormatConfiguration conf, Object message, Object arg0, Object arg1, Object arg2) {
         this(conf, null, message, null, arg0, arg1, arg2, null, null);
     }
 
-    public Message(CLogConfiguration conf, Object message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    public Message(FormatConfiguration conf, Object message, Object arg0, Object arg1, Object arg2, Object arg3) {
         this(conf, null, message, null, arg0, arg1, arg2, arg3, null);
     }
 
-    public Message(CLogConfiguration conf, Object message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    public Message(FormatConfiguration conf, Object message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
         this(conf, null, message, null, arg0, arg1, arg2, arg3, arg4);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message) {
         this(conf, throwable, message, null, null, null, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object[] args) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object[] args) {
         this(conf, throwable, message, args, null, null, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object arg0) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object arg0) {
         this(conf, throwable, message, null, arg0, null, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1) {
         this(conf, throwable, message, null, arg0, arg1, null, null, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2) {
         this(conf, throwable, message, null, arg0, arg1, arg2, null, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2, Object arg3) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2, Object arg3) {
         this(conf, throwable, message, null, arg0, arg1, arg2, arg3, null);
     }
 
-    public Message(CLogConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    public Message(FormatConfiguration conf, Throwable throwable, Object message, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
         this(conf, throwable, message, null, arg0, arg1, arg2, arg3, arg4);
     }
 
-    private Message(CLogConfiguration conf, Throwable throwable, Object message, Object[] args, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    private Message(FormatConfiguration conf, Throwable throwable, Object message, Object[] args, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
         this.conf = conf;
         this.throwable = throwable;
         this.message = message;
@@ -86,7 +86,7 @@ public class Message {
         return message.toString();
     }
 
-    public CLogConfiguration getConfiguration() {
+    public FormatConfiguration getConfiguration() {
         return conf;
     }
     
@@ -110,7 +110,7 @@ public class Message {
     }
 
     public void toString(Appendable appendable) {
-        Formatter.format(this, appendable);
+        Formatter.Format(this, appendable);
     }
 
     @Override
