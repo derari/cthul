@@ -6,3 +6,5 @@
 /matcher-fluent-gen/target
 /parser/target
 /xml/target
+/idstax-gen/target/
+/strings/target/
