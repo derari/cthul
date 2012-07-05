@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.cthul.strings.format;
 
 import java.io.IOException;
@@ -9,9 +5,9 @@ import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
 import org.cthul.strings.Formatter;
 import org.junit.Test;
-import static org.cthul.matchers.CthulMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.cthul.matchers.CthulMatchers.raisesException;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *

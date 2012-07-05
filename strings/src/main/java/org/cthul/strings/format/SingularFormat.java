@@ -2,7 +2,7 @@ package org.cthul.strings.format;
 
 import java.io.IOException;
 import org.cthul.strings.Pluralizer;
-import org.cthul.strings.PluralizerRegistry;
+import org.cthul.strings.plural.PluralizerRegistry;
 
 /**
  * {@linkplain Pluralizer Singularizes} the value, using the given locale.

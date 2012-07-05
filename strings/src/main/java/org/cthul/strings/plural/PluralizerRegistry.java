@@ -1,8 +1,8 @@
-package org.cthul.strings;
+package org.cthul.strings.plural;
 
 import java.util.*;
 import java.util.ResourceBundle.Control;
-import org.cthul.strings.plural.DefaultEnglishPluralizer;
+import org.cthul.strings.Pluralizer;
 
 /**
  * Manages {@linkplain Pluralizer pluralizers} for different 

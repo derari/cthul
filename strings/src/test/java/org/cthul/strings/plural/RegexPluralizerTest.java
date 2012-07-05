@@ -1,9 +1,11 @@
 package org.cthul.strings.plural;
 
 import org.cthul.strings.PluralizerTestBase;
-import org.junit.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -25,15 +27,14 @@ public class RegexPluralizerTest extends PluralizerTestBase<RegexPluralizerTest.
     
     private void setUpDefaultRule() {
         instance.plural("$", "s");
-        instance.singular("s", "");
+        instance.singular("s$", "");
     }
     
     @Test
     public void test_simple_convert() {
         setUpDefaultRule();
-        assertThat(pluralOf("item"), is("items"));
-        assertThat(singularOf("items"), is("item"));
-    }
+        assertThat(pluralOf("test"), is("tests"));
+        assertThat(singularOf("tests"), is("test"));    }
     
     @Test
     public void test_convert_ignoring_case() {
@@ -46,7 +47,7 @@ public class RegexPluralizerTest extends PluralizerTestBase<RegexPluralizerTest.
      * Test of irregular method, of class RegexPluralizer.
      */
     @Test
-    public void test_irregular_character_switch() {
+    public void test_irregular_character_case_switch() {
         instance.irregular("cow", "kine");
         setUpDefaultRule();
         

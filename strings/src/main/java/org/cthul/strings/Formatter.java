@@ -23,10 +23,12 @@ import org.cthul.strings.format.*;
  * <pre>
  *   3$ -> third argument
  *   E$ -> exception argument
- *   .$ -> auto index (default)
- *   <$ or < -> last value
- *   >$ or > -> next value
+ *   $ or .$ -> auto index (default)
+ *   <$, <, `$ or ` -> last value
+ *   >$, >, ´$ or ´ -> next value
  * </pre>
+ * If you want to use $, <, >, ` or ´ as a flag, specify $ as argument id to
+ * enforce auto indexing.
  * <p>
  * FLAGS a set of characters, effects depend on format. <br/>
  * The following flags are recommended for formats that support the WIDTH option:
@@ -448,19 +450,26 @@ public class Formatter implements Flushable, Closeable {
             append(formatString, lastPosition, matcher.start());
             lastPosition = matcher.end();
 
-            final String argId = matcher.group(N_ARG_ID);
-            final int index = getArgIndex(argId);
-
             final String fId = matcher.group(N_FORMAT_ID);
             final char f0 = fId.charAt(0);
-            if (f0 == CUSTOM_SHORT || f0 == CUSTOM_SHORT_UC || 
-                    f0 == CUSTOM_LONG || f0 == CUSTOM_LONG_UC) {
-                int n = customFormat(matcher, index, fId, 
-                                     formatString, lastPosition);
-                lastPosition += n;
+
+            if (f0 == '%') {
+                append('%');
+            } else if (f0 == 'n') {
+                append("\n");
             } else {
-                stringFormat(matcher, argId, index);
+                final String argId = matcher.group(N_ARG_ID);
+                final int index = getArgIndex(argId);                
+                if (f0 == CUSTOM_SHORT || f0 == CUSTOM_SHORT_UC || 
+                        f0 == CUSTOM_LONG || f0 == CUSTOM_LONG_UC) {
+                    int n = customFormat(matcher, index, fId, 
+                                        formatString, lastPosition);
+                    lastPosition += n;
+                } else {
+                    stringFormat(matcher, argId, index);
+                }
             }
+
         }
         if (lastPosition < end) {
             append(formatString, lastPosition, end);
@@ -527,11 +536,14 @@ public class Formatter implements Flushable, Closeable {
                 case 'E':
                     lastIndex = 0;
                     break;
+                case '`':
                 case '<':
                     break;
+                case '´':
                 case '>':
                     lastIndex++;
                     break;
+                case '$':
                 case '.':
                     lastIndex = autoIndex++;
                     break;
@@ -650,8 +662,8 @@ public class Formatter implements Flushable, Closeable {
     public static final char CUSTOM_SHORT_UC = 'I';
     public static final char CUSTOM_LONG_UC = 'J';
     
-    private static final String ARG_ID = "(\\d+\\$|E\\$|\\.\\$|<\\$|<|>\\$|>)?";
-    private static final String FLAGS = "([^.1-9a-zA-Z]+)?"; // [-#+ 0,(\\<]
+    private static final String ARG_ID = "(\\d+\\$|E\\$|\\.?\\$|[<>`´]\\$?)?";
+    private static final String FLAGS = "([^.1-9a-zA-Z%]+)?"; // [-#+ 0,(\\<]
     private static final String WIDTH_PRECISION = "(\\d+)?(\\.\\d+)?";
     private static final String FORMAT_ID = "(([jJ][_a-zA-Z0-9]+[;]?)|([tTiI]?[a-zA-Z%]))";
     private static final Pattern PATTERN;

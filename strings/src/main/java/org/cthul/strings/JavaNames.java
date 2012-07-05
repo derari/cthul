@@ -27,60 +27,61 @@ public class JavaNames {
     public static String[] tokenize(String s) {
         List<String> result = new ArrayList<>();
         
-        int nextStart = 0;
-        boolean uppercaseToken = false;
+        int start = 0;                  // start of current token
+        boolean uppercaseToken = false; // current token is all uppercase
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (! Character.isJavaIdentifierPart(c) ||
-                (result.isEmpty() && nextStart == i &&
+                (result.isEmpty() && start == i &&
                     !Character.isJavaIdentifierStart(c))) {
                 // This character should not appear in a Java name at all,
                 // or this would be the first character of the result, 
-                // but it is not valid here.
+                //    but it is not valid here.
                 // Treat it as a separator.
                 c = '_';
             }
             if (Character.isLowerCase(c) || Character.isDigit(c)) {
+                // the token goes on, unless it's all uppercase
                 if (uppercaseToken) {
-                    if (nextStart+1==i) {
+                    if (start+1==i) {
                         // only the first character was uppercase,
                         // this is no uppercase token after all
                         uppercaseToken = false;
                     } else {
                         // uppercase token ends here. The last uppercase
                         // character already was part of the next token.
+                        add(result, start, i-1, s);
+                        start = i-1;
                         // this is no uppercase token
-                        add(result, nextStart, i-1, s);
-                        nextStart = i-1;
                         uppercaseToken = false;
                     }
                 }
             } else if (Character.isUpperCase(c)) {
                 if (! uppercaseToken) {
                     // token ends here, new token starts
-                    add(result, nextStart, i, s);
-                    nextStart = i;
+                    add(result, start, i, s);
+                    start = i;
                 }
-                if (nextStart == i) {
+                if (start == i) {
                     // first character is uppercase, this has potential for
                     // being an uppercase token, such as "HTTP"
                     uppercaseToken = true;
                 }
             } else { // c == '_'
                 // token ends here, next char is start of next token
-                add(result, nextStart, i, s);
-                nextStart = i+1;
+                add(result, start, i, s);
+                start = i+1;
                 // if this was an uppercase token, it ends now anyway
                 uppercaseToken = false;
             }
         }
         // add last token
-        add(result, nextStart, s.length(), s);
+        add(result, start, s.length(), s);
 
         return result.toArray(new String[result.size()]);
     }
 
-    private static void firstToUpper(String s, StringBuilder target) {
+    public static void firstToUpper(String s, StringBuilder target) {
         if (s.isEmpty()) return;
         target.append(Character.toUpperCase(s.charAt(0)));
         if (s.length() == 1) return;

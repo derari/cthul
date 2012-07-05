@@ -4,8 +4,8 @@ import net.sf.twip.TwiP;
 import net.sf.twip.Values;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -65,58 +65,12 @@ public class AlphaIndexTest {
         assertThat(AlphaIndex.FromAlpha(data.a), is(data.b.longValue()));
     }
     
-    private static Object[] convertPrimitiveArray(Object primArray) {
-        Class itemType = primArray.getClass().getComponentType();
-        if (itemType == byte.class) {
-            final byte[] bytes = (byte[]) primArray;
-            final Byte[] result = new Byte[bytes.length];
-            for (int i = 0; i < bytes.length; i++)
-                result[i] = bytes[i];
-            return result;
-        }
-        if (itemType == char.class) {
-            final char[] chars = (char[]) primArray;
-            final Character[] result = new Character[chars.length];
-            for (int i = 0; i < chars.length; i++)
-                result[i] = chars[i];
-            return result;
-        }
-        if (itemType == short.class) {
-            final short[] shorts = (short[]) primArray;
-            final Short[] result = new Short[shorts.length];
-            for (int i = 0; i < shorts.length; i++)
-                result[i] = shorts[i];
-            return result;
-        }
-        if (itemType == int.class) {
-            final int[] ints = (int[]) primArray;
-            final Integer[] result = new Integer[ints.length];
-            for (int i = 0; i < ints.length; i++)
-                result[i] = ints[i];
-            return result;
-        }
-        if (itemType == long.class) {
-            final long[] longs = (long[]) primArray;
-            final Long[] result = new Long[longs.length];
-            for (int i = 0; i < longs.length; i++)
-                result[i] = longs[i];
-            return result;
-        }
-        if (itemType == float.class) {
-            final float[] floats = (float[]) primArray;
-            final Float[] result = new Float[floats.length];
-            for (int i = 0; i < floats.length; i++)
-                result[i] = floats[i];
-            return result;
-        }
-        if (itemType == double.class) {
-            final double[] doubles = (double[]) primArray;
-            final Double[] result = new Double[doubles.length];
-            for (int i = 0; i < doubles.length; i++)
-                result[i] = doubles[i];
-            return result;
-        }
-        throw new IllegalArgumentException("Expected primitive, got " + itemType);
+    @Test
+    public void test_max_value() {
+        String sMax = "CRPXNLSKVLJFHG";
+        long lMax = Long.MAX_VALUE-1;
+        assertThat(AlphaIndex.ToAlpha(lMax), is(sMax));
+        assertThat(AlphaIndex.FromAlpha(sMax), is(lMax));
     }
     
 }

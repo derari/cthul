@@ -1,7 +1,7 @@
 package org.cthul.strings.plural;
 
-import org.cthul.strings.Pluralizer;
 import org.cthul.strings.PluralizerTestBase;
+import org.cthul.strings.Pluralizer;
 import org.junit.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;

@@ -1,9 +1,10 @@
 package org.cthul.strings;
 
-import org.cthul.strings.format.ClassNameFormat;
-import org.cthul.strings.format.FormatConfiguration;
-import org.cthul.strings.format.Message;
+import org.cthul.proc.Proc;
+import org.cthul.proc.Procs;
+import org.cthul.strings.format.*;
 import org.junit.*;
+import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
@@ -41,8 +42,20 @@ public class FormatterTest {
     }
     
     @Test
-    public void testForma2t() {
+    public void testFormat2() {
         Message msg = new Message(conf, "%.$d %>d %<$d %d", 1, 2);
+        assertThat(msg.toString(), is("1 2 2 2"));
+    }
+    
+    @Test
+    public void testFormat3() {
+        Message msg = new Message(conf, "%1$d %`$d %d %d", 1, 2);
+        assertThat(msg.toString(), is("1 1 1 2"));
+    }
+    
+    @Test
+    public void testFormat4() {
+        Message msg = new Message(conf, "%$d %´d %`$d %d", 1, 2);
         assertThat(msg.toString(), is("1 2 2 2"));
     }
     
@@ -52,5 +65,13 @@ public class FormatterTest {
         ClassNameFormat.INSTANCE.register(conf2);
         Message msg = new Message(conf2, "%iC %<IC %<jClass", 1);
         assertThat(msg.toString(), is("java.lang.Integer JAVA.LANG.INTEGER java.lang.Integer"));
+    }
+    
+    @Test
+    public void test_noarg_format() {
+        Proc format = Procs.invoke(Formatter.class, "Format", String.class, Object[].class);
+        assertThat(format.call("%%"), returns("%"));
+        assertThat(format.call("asd%%asd"), returns("asd%asd"));
+        assertThat(format.call("%d%n%d", 1, 2), returns("1\n2"));
     }
 }
