@@ -7,8 +7,8 @@
         <groupId>org.cthul</groupId>
         <version>1.0</version>
     </parent>
-    <groupId>org.cthul.parser</groupId>
-    <artifactId>parser</artifactId>
+    <groupId>org.cthul</groupId>
+    <artifactId>cthul-parser</artifactId>
     <name>Cthul Parser</name>
     <version>1.0</version>
     <build>

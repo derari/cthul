@@ -79,7 +79,7 @@ public final class EarleyGrammar implements Grammar {
         for (int i = 1; i < length; i++) {
             current = scan(ts.next(), current);
             if (current.isEmpty()) {
-                throw noMatch(ts, sets[i-1], startSymbol, ts.previous(), null);
+                throw noMatch(ts, sets[i-1], startSymbol, ts.current(), null);
             }
             sets[i] = current;
             complete(current, sets);

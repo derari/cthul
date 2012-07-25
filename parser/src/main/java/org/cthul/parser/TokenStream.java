@@ -14,6 +14,8 @@ public interface TokenStream {
     
     public <V> Token<V> next(int channel);
     
+    public <V> Token<V> current();
+    
     public <V> Token<V> previous();
     
     public <V> Token<V> previous(int channel);

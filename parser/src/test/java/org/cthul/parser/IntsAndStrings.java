@@ -43,6 +43,10 @@ public class IntsAndStrings {
     @Channel(Channel.Whitespace)
     public void WS() {}
     
+    @Priority(1)
+    @Key
+    @Match("\\$\\$")
+    public void FOO_TOKEN() {}
     // GRAMMAR =================================================================
     
     @Redirect

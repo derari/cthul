@@ -1,8 +1,6 @@
 package org.cthul.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -60,7 +58,7 @@ public class NoMatchException extends RuntimeException {
     
     public static NoMatchException productionFailed(TokenStream tokenStream, Token<?> token, List<NoMatchException> errors, List<String> expected) {
         final StringBuilder sb = new StringBuilder();
-        Token<?> lastToken = tokenStream.previous();
+        Token<?> lastToken = tokenStream.current();
         buildMsg(sb, tokenStream.getString(), token.getStart(), token.toString(), lastToken);
         errorReport(sb, errors);
         expectedReport(sb, expected);

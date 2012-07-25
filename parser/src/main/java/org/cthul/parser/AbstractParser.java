@@ -16,6 +16,10 @@ public abstract class AbstractParser<R> {
     
     protected R parse(String input, String startSymbol) throws NoMatchException {
         final Context context = new Context();
+        return parse(context, input, startSymbol);
+    }
+
+    protected R parse(final Context context, String input, String startSymbol) throws NoMatchException {
         final TokenStream tokenStream = lexer.scan(input, context);
         return (R) grammar.parse(startSymbol, tokenStream, context);
     }

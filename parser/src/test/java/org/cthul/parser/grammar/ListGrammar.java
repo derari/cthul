@@ -2,10 +2,7 @@ package org.cthul.parser.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cthul.parser.annotation.Channel;
-import org.cthul.parser.annotation.Match;
-import org.cthul.parser.annotation.Key;
-import org.cthul.parser.annotation.Production;
+import org.cthul.parser.annotation.*;
 
 /**
  *
@@ -36,7 +33,7 @@ public class ListGrammar {
     
     @Production("list_EMPTY ::= ")
     public List<Integer> listEmpty() {
-        return new ArrayList<Integer>();
+        return new ArrayList<>();
     }
     
     @Production("list_STEP ::= list_STEP , a")

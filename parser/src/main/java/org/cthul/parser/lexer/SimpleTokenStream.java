@@ -14,9 +14,9 @@ public class SimpleTokenStream implements TokenStream {
     
     private final String input;
     
-    private final List<Token<?>> tokens = new ArrayList<Token<?>>();
+    private final List<Token<?>> tokens = new ArrayList<>();
 
-    private int position = 0;
+    private int current = -1;
 
     public SimpleTokenStream(String input) {
         this.input = input;
@@ -24,7 +24,11 @@ public class SimpleTokenStream implements TokenStream {
     
     @Override
     public void start() {
-        position = 0;
+        current = -1;
+    }
+    
+    public void end() {
+        current = tokens.size();
     }
 
     @Override
@@ -35,11 +39,11 @@ public class SimpleTokenStream implements TokenStream {
 
     @SuppressWarnings("unchecked")
     private <V> Token<V> fetch(final int i) {
-        if (position < 0 || position >= tokens.size()) {
+        current += i;
+        if (current < 0 || current >= tokens.size()) {
             return null;
         }
-        position += i;
-        return (Token<V>) tokens.get(position-i);
+        return (Token<V>) tokens.get(current);
     }
     
     private <V> Token<V> fetch(final int i, final int channel) {
@@ -62,6 +66,11 @@ public class SimpleTokenStream implements TokenStream {
     }
 
     @Override
+    public <V> Token<V> current() {
+        return (Token) tokens.get(current);
+    }
+
+    @Override
     public <V> Token<V> previous() {
         return previous(TokenChannel.Default);
     }
@@ -73,7 +82,7 @@ public class SimpleTokenStream implements TokenStream {
 
     @Override
     public <V> Token<V> last() {
-        position = tokens.size();
+        end();
         return previous();
     }
     
@@ -102,9 +111,9 @@ public class SimpleTokenStream implements TokenStream {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(position).append(":");
+        sb.append(current).append(":");
         int c = 0;
-        int i = position;
+        int i = current;
         while (c < 6 && i < tokens.size()) {
             Token<?> t = tokens.get(i);
             if (t.getChannel() == TokenChannel.Default) {

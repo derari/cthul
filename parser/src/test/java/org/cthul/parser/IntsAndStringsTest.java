@@ -1,11 +1,9 @@
 package org.cthul.parser;
 
 import org.cthul.parser.annotation.AnnotationScanner;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import static org.hamcrest.Matchers.*;
+import org.junit.*;
 import static org.cthul.parser.hamcrest.TokenMatcher.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  *
@@ -89,6 +87,16 @@ public class IntsAndStringsTest {
     public void testSymbol() throws NoMatchException {
         String s = parse("2 * \"ab\" * 3 ", "string");
         Assert.assertThat(s, is("abababababab"));
+    }
+    
+    @Test
+    public void test_unexpected_token() {
+        try {
+            parse("22", "string");
+            Assert.fail("Expected failure");
+        } catch (NoMatchException e) {
+            
+        }
     }
     
     private TokenStream scan(String input) throws NoMatchException {

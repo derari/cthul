@@ -1,9 +1,7 @@
 package org.cthul.parser.impl;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import org.cthul.parser.Context;
 import org.cthul.parser.ExecutionException;
 
@@ -77,6 +75,8 @@ public final class Executor<Arg> {
             }
         } catch (IllegalAccessException e) {
             throw new ExecutionException("Can not access " + m, e);
+        } catch (RuntimeException e) {
+            throw new ExecutionException("Can not invoke " + m, e);
         }
     }
     
