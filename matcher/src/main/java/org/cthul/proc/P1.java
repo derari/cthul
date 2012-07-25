@@ -58,12 +58,18 @@ public class P1<A> extends ProcBase<P1<A>> implements Proc1<A> {
      * @param a
      * @return
      */
+    @Override
     public P1 call(A a) {
         return copy(a);
     }
 
     public P1 withArg(A a) {
         return call(a);
+    }
+
+    @Override
+    public Proc0 curry(A a) {
+        return curry((Object) a).asProc0();
     }
 
 }

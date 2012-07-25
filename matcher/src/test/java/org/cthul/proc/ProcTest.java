@@ -20,7 +20,7 @@ public class ProcTest {
                 return total;
             }
         };
-        
+        proc.getResult();
     }
 
 }

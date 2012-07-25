@@ -69,15 +69,15 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
     }
 
     /**
-     * Throws a runtime exception if {@code args.length != count}
+     * Throws a ProcError exception if {@code args.length != count}
      * @param args
      * @param count
      */
     protected void assertArgCount(Object[] args, int count) {
         if (args.length != count) {
-            throw new IllegalArgumentException(String.format(
+            throw illegalArgumentException(String.format(
                     "Wrong number of arguments, expected %d got %d", 
-                    args.length, count));
+                    count, args.length));
         }
     }
 
@@ -120,6 +120,8 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
             try {
                 result = proxySourceOrRun(args);
                 exception = null;
+            } catch (ProcError e) {
+                throw new IllegalArgumentException(e.getMessage(), e.getCause());
             } catch (Throwable t) {
                 exception = t;
                 result = null;
@@ -127,7 +129,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         }
     }
 
-    protected final Object proxySourceOrRun(Object... args) throws Throwable {
+    protected Object proxySourceOrRun(Object... args) throws Throwable {
         if (source != null) return source.run(args);
         return run(args);
     }
@@ -201,6 +203,16 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         return new P4<>(this, args);
     }
 
+    @Override
+    public Proc curry(Object... args) {
+        return new CurryProc(this, args);
+    }
+
+    @Override
+    public Proc curryAt(int i, Object... args) {
+        return new CurryProc(this, i, args);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -239,6 +251,22 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
     @Override
     public String toString() {
         return StringDescription.toString(this);
+    }
+    
+    protected ProcError exception(Class<? extends RuntimeException> reClazz, String message, Throwable cause) {
+        return new ProcError(reClazz, message, cause);
+    }
+    
+    protected ProcError runtimeException(String message) {
+        return exception(RuntimeException.class, message, null);
+    }
+
+    protected ProcError runtimeException(String message, Throwable cause) {
+        return exception(RuntimeException.class, message, cause);
+    }
+
+    protected ProcError illegalArgumentException(String message) {
+        return exception(IllegalArgumentException.class, message, null);
     }
 
 }

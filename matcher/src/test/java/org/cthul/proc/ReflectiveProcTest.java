@@ -1,14 +1,10 @@
 package org.cthul.proc;
 
-import org.cthul.proc.Proc;
-import org.cthul.proc.ReflectiveProc;
-import org.cthul.proc.Procs;
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
 /**
  *

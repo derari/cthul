@@ -18,67 +18,67 @@ public class Procs {
         return ReflectiveProc.anyParameters(i);
     }
     
-    public static PN invoke(Class clazz, String name, Class... paramTypes) {
+    public static Proc invoke(Class clazz, String name, Class... paramTypes) {
         return ReflectiveProc.invoke(clazz, name, paramTypes);
     }
     
-    public static PN invokeWith(Class clazz, String name, Object... args) {
+    public static Proc invokeWith(Class clazz, String name, Object... args) {
         return ReflectiveProc.invokeWith(clazz, name, args);
     }
     
-    public static PN invoke(Class clazz, String name) {
+    public static Proc invoke(Class clazz, String name) {
         return invoke(clazz, name, anyParameters());
     }
     
-    public static PN invoke(Class clazz, String name, int paramCount) {
+    public static Proc invoke(Class clazz, String name, int paramCount) {
         return invoke(clazz, name, ReflectiveProc.unsafeAnyParameters(paramCount));
     }
     
-    public static PN invoke(Object object, String name, Class... paramTypes) {
+    public static Proc invoke(Object object, String name, Class... paramTypes) {
         return ReflectiveProc.invoke(object, name, paramTypes);
     }
     
-    public static PN invoke(Object object, String name, Object... args) {
+    public static Proc invoke(Object object, String name, Object... args) {
         return ReflectiveProc.invokeWith(object, name, args);
     }
     
-    public static PN invoke(Object object, String name) {
+    public static Proc invoke(Object object, String name) {
         return invoke(object, name, anyParameters());
     }
     
-    public static PN invoke(Object object, String name, int paramCount) {
+    public static Proc invoke(Object object, String name, int paramCount) {
         return invoke(object, name, ReflectiveProc.unsafeAnyParameters(paramCount));
     }
     
-    public static PN invoke(String name) {
+    public static Proc invoke(String name) {
         return invoke(detectClass(), name);
     }
     
-    public static PN invoke(String name, Class... paramTypes) {
+    public static Proc invoke(String name, Class... paramTypes) {
         return invoke(detectClass(), name, paramTypes);
     }
     
-    public static PN invoke(String name, int paramCount) {
+    public static Proc invoke(String name, int paramCount) {
         return invoke(detectClass(), name, ReflectiveProc.unsafeAnyParameters(paramCount));
     }
     
-    public static PN invokeWith(String name, Object... args) {
+    public static Proc invokeWith(String name, Object... args) {
         return invokeWith(detectClass(), name, args);
     }
     
-    public static PN newInstance(Class<?> clazz, Class... paramTypes) {
+    public static Proc newInstance(Class<?> clazz, Class... paramTypes) {
         return ReflectiveProc.newInstance(clazz, paramTypes);
     }
     
-    public static PN newInstanceWith(Class<?> clazz, Object... args) {
+    public static Proc newInstanceWith(Class<?> clazz, Object... args) {
         return ReflectiveProc.newInstanceWith(clazz, args);
     }
     
-    public static PN newInstance(Class clazz, int paramCount) {
+    public static Proc newInstance(Class clazz, int paramCount) {
         return ReflectiveProc.newInstance(clazz, ReflectiveProc.unsafeAnyParameters(paramCount));
     }
     
-    public static PN newInstance(Class clazz) {
+    public static Proc newInstance(Class clazz) {
         return ReflectiveProc.newInstance(clazz, anyParameters());
     }
     

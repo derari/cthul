@@ -68,4 +68,14 @@ public class P2<A, B> extends ProcBase<P2<A, B>> implements Proc2<A, B> {
         return call(a, b);
     }
 
+    @Override
+    public Proc1<B> curry(A a) {
+        return curry((Object) a).asProc1();
+    }
+
+    @Override
+    public Proc0 curry(A a, B b) {
+        return curry((Object) a, (Object) b).asProc0();
+    }
+
 }

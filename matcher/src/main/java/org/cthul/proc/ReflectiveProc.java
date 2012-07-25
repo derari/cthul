@@ -1,15 +1,10 @@
 package org.cthul.proc;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 /**
- * A {@link PN} that uses reflection.
+ * A {@link PN} that uses reflection to invoke a method or a constructor.
  * @author Arian Treffer
  */
 public class ReflectiveProc extends PN {

@@ -30,7 +30,7 @@ public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A,
      */
     @Override
     protected P4<A, B, C, D> createCopy(Object[] args) {
-        return new P4<A, B, C, D>(this, args);
+        return new P4<>(this, args);
     }
 
     /**
@@ -44,9 +44,11 @@ public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A,
     }
 
     /**
-     * Executes the asProc.
+     * Executes the proc.
      * @param a
      * @param b
+     * @param c
+     * @param d
      * @return result
      * @throws Throwable
      */
@@ -60,18 +62,33 @@ public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A,
         }
     }
 
-    /**
-     * Creates a new asProc.
-     * @param a
-     * @param b
-     * @return
-     */
+    @Override
     public P4 call(A a, B b, C c, D d) {
         return copy(a, b, c, d);
     }
 
     public P4 withArgs(A a, B b, C c, D d) {
         return call(a, b, c, d);
+    }
+
+    @Override
+    public Proc3<B, C, D> curry(A a) {
+        return curry((Object) a).asProc3();
+    }
+
+    @Override
+    public Proc2<C, D> curry(A a, B b) {
+        return curry((Object) a, (Object) b).asProc2();
+    }
+
+    @Override
+    public Proc1<D> curry(A a, B b, C c) {
+        return curry((Object) a, (Object) b, (Object) c).asProc1();
+    }
+
+    @Override
+    public Proc0 curry(A a, B b, C c, D d) {
+        return curry((Object) a, (Object) b, (Object) c, (Object) d).asProc0();
     }
 
 }

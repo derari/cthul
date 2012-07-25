@@ -76,6 +76,10 @@ public interface Proc extends SelfDescribing {
      */
     Throwable getException();
     
+    Proc curry(Object... args);
+    
+    Proc curryAt(int i, Object... args);
+    
     Proc0 asProc0();
 
     <A> Proc1<A> asProc1();

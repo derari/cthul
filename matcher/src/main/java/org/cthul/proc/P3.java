@@ -60,12 +60,28 @@ public class P3<A, B, C> extends ProcBase<P3<A, B, C>> implements Proc3<A, B, C>
      * @param b
      * @return
      */
+    @Override
     public P3 call(A a, B b, C c) {
         return copy(a, b, c);
     }
 
     public P3 withArgs(A a, B b, C c) {
         return call(a, b, c);
+    }
+
+    @Override
+    public Proc2<B, C> curry(A a) {
+        return curry((Object) a).asProc2();
+    }
+
+    @Override
+    public Proc1<C> curry(A a, B b) {
+        return curry((Object) a, (Object) b).asProc1();
+    }
+
+    @Override
+    public Proc0 curry(A a, B b, C c) {
+        return curry((Object) a, (Object) b, (Object) c).asProc0();
     }
 
 }
