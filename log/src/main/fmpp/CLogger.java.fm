@@ -126,7 +126,12 @@ public final class CLogger {
      */
     public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
         if (${level}(<@argM m 0/>)) {
+<#if (argC < 0 && t == 0)>
+            Throwable t = (message instanceof Throwable) ? (Throwable) message : null;
+            logger.${level}(<@argM m/>new Message(conf, t, message).toString(), t);
+<#else>
             logger.${level}(<@argM m/>new Message(conf, <@argT t/>message<@args argC/>).toString()<@argT t, -1/>);
+</#if>
         }
     }
 
