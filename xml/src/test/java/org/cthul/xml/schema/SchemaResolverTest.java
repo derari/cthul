@@ -25,14 +25,14 @@ public class SchemaResolverTest {
             "http://cthul.org/xml/test/schema/cars";
 
     private static final String _NS_TEST =
-            "http://cthul.org/xml/test/";
+            "http://cthul.org/xml/test/(.*)";
     
     public static SchemaFinder newTestInstance() {
         FileFinder fileFinder = new FileFinder("src/test/resources/");
         fileFinder.addSchemas(
-                NS_MENU, "schema/menu.xsd")
-                .addDomain(
-                _NS_TEST, "schema/");
+                    NS_MENU, "schema/menu.xsd")
+                .addDomainPatterns(
+                    _NS_TEST, "$1.xsd");
 
         return new CompositeFinder(
                 fileFinder,

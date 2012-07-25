@@ -6,7 +6,7 @@ import java.io.InputStream;
  *
  * @author Arian Treffer
  */
-public class CompositeFinder implements SchemaFinder {
+public class CompositeFinder extends AbstractFinder {
 
     private final SchemaFinder[] inputs;
 

@@ -1,24 +1,20 @@
 package org.cthul.xml.schema;
 
-import org.cthul.proc.Proc;
 import java.io.InputStream;
+import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import org.junit.*;
 import static org.cthul.matchers.CthulMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  *
  * @author Arian Treffer
  */
-public class AbstractFinderTest {
+public class MappingFinderTest {
     
-    public AbstractFinderTest() {
+    public MappingFinderTest() {
     }
 
     @BeforeClass
@@ -29,11 +25,11 @@ public class AbstractFinderTest {
     public static void tearDownClass() throws Exception {
     }
     
-    private AbstractFinderImpl instance;
+    private MappingFinderImpl instance;
     
     @Before
     public void setUp() {
-        instance = new AbstractFinderImpl();
+        instance = new MappingFinderImpl();
     }
     
     @After
@@ -58,13 +54,14 @@ public class AbstractFinderTest {
     }
 
 
-    public class AbstractFinderImpl extends AbstractFinder {
+    public class MappingFinderImpl extends MappingFinder {
 
         @Override
         public String resolve(String uri) {
             return super.resolve(uri);
         }
         
+        @Override
         public InputStream get(String source) {
             return null;
         }

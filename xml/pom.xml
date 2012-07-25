@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-matcher</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

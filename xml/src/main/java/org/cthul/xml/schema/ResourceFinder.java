@@ -11,7 +11,7 @@ import java.util.Map;
  *
  * @author Arian Treffer
  */
-public class ResourceFinder extends AbstractFinder {
+public class ResourceFinder extends MappingFinder {
 
     private final Class<?> clazz;
 

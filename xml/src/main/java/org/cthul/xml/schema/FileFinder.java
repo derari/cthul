@@ -14,7 +14,7 @@ import java.io.InputStream;
  *
  * @author Arian Treffer
  */
-public class FileFinder extends AbstractFinder {
+public class FileFinder extends MappingFinder {
 
     private final String prefix;
 

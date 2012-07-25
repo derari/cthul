@@ -6,6 +6,10 @@ import java.io.InputStream;
  * Finds and opens schema files.
  * 
  * @author Arian Treffer
+ * @see AbstractFinder
+ * @see MappingFinder
+ * @see FileFinder
+ * @see CompositeFinder
  */
 public interface SchemaFinder {
 
