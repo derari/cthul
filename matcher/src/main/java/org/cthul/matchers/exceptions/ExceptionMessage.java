@@ -14,6 +14,34 @@ import org.hamcrest.core.Is;
  */
 public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
     
+    private Matcher<? super String> messageMatcher;
+
+    public ExceptionMessage(Matcher<? super String> messageMatcher) {
+        this.messageMatcher = messageMatcher;
+    }
+
+    @Override
+    protected boolean matchesSafely(Throwable ex) {
+        return messageMatcher.matches(ex.getMessage());
+    }
+
+    @Override
+    protected boolean matchesSafely(Throwable ex, Description mismatch) {
+        return quickMatch(messageMatcher, ex.getMessage(), mismatch, "message $1");
+    }
+
+    @Override
+    protected void describeMismatchSafely(Throwable item, Description mismatch) {
+        mismatch.appendText("message ");
+        messageMatcher.describeMismatch(item.getMessage(), mismatch);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("message ");
+        messageMatcher.describeTo(description);
+    }
+    
     @Factory
     public static ExceptionMessage messageIs(String message) {
         return new ExceptionMessage(Is.is(message));
@@ -43,34 +71,5 @@ public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable
     public static ExceptionMessage message(Matcher<? super String> messageMatcher) {
         return new ExceptionMessage(messageMatcher);
     }
-    
-    private Matcher<? super String> messageMatcher;
-
-    public ExceptionMessage(Matcher<? super String> messageMatcher) {
-        this.messageMatcher = messageMatcher;
-    }
-
-    @Override
-    protected boolean matchesSafely(Throwable ex) {
-        return messageMatcher.matches(ex.getMessage());
-    }
-
-    @Override
-    protected boolean matchesSafely(Throwable ex, Description mismatch) {
-        return matches(messageMatcher, ex.getMessage(), mismatch, "message $1");
-    }
-
-    @Override
-    protected void describeMismatchSafely(Throwable item, Description mismatch) {
-        mismatch.appendText("message ");
-        messageMatcher.describeMismatch(item.getMessage(), mismatch);
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("message ");
-        messageMatcher.describeTo(description);
-    }
-
     
 }

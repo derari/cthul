@@ -21,11 +21,11 @@ public abstract class QuickDiagnosingMatcherBase<T>
     @Override
     public abstract void describeMismatch(Object item, Description description);
     
-    protected static boolean matches(Matcher<?> matcher, Object item, Description mismatch) {
+    protected static boolean quickMatch(Matcher<?> matcher, Object item, Description mismatch) {
         return QuickDiagnose.matches(matcher, item, mismatch);
     }
     
-    protected static boolean matches(Matcher<?> matcher, Object item, Description mismatch, String message) {
+    protected static boolean quickMatch(Matcher<?> matcher, Object item, Description mismatch, String message) {
         return QuickDiagnose.matches(matcher, item, mismatch, message);
     }
     

@@ -10,9 +10,64 @@ import org.hamcrest.Matcher;
  * Tests if a string contains a regex pattern.
  * <p/>
  * Use the static factory methods to create instances.
- * @author derari
+ * @author Arian Treffer
  */
 public class ContainsPattern extends TypesafeQuickDiagnoseMatcherBase<String> {
+
+    private final Pattern p;
+    private final boolean match;
+
+    public ContainsPattern(Pattern p, boolean match) {
+        this.p = p;
+        this.match = match;
+    }
+
+    public ContainsPattern(Pattern p) {
+        this(p, false);
+    }
+
+    public ContainsPattern(String regex, boolean match) {
+        this(Pattern.compile(regex), match);
+    }
+
+    public ContainsPattern(String regex) {
+        this(Pattern.compile(regex));
+    }
+
+    @Override
+    protected boolean matchesSafely(String item, Description mismatch) {
+        if (matchesSafely(item)) return true;
+        describeMismatchSafely(item, mismatch);
+        return false;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText(match ? "matches" : "contains")
+                   .appendText(" /")
+                   .appendText(p.pattern())
+                   .appendText("/");
+    }
+
+    @Override
+    protected boolean matchesSafely(String item) {
+        if (match) {
+            if (p.matcher(item).matches()) return true;
+        } else {
+            if (p.matcher(item).find()) return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void describeMismatchSafely(String item, Description mismatch) {
+        mismatch.appendValue(item)
+                .appendText(" did not ")
+                .appendText(match ? "match" : "contain")
+                .appendText(" /")
+                .appendText(p.pattern())
+                .appendText("/");
+    }
 
     /**
      * Can the given pattern be found in the string?
@@ -52,62 +107,6 @@ public class ContainsPattern extends TypesafeQuickDiagnoseMatcherBase<String> {
     @Factory
     public static Matcher<String> matchesPattern(Pattern p) {
         return new ContainsPattern(p, true);
-    }
-
-    private final Pattern p;
-    private final boolean match;
-
-    public ContainsPattern(Pattern p, boolean match) {
-        this.p = p;
-        this.match = match;
-    }
-
-    public ContainsPattern(Pattern p) {
-        this(p, false);
-    }
-
-    public ContainsPattern(String regex, boolean match) {
-        this(Pattern.compile(regex), match);
-    }
-
-    public ContainsPattern(String regex) {
-        this(Pattern.compile(regex));
-    }
-
-    @Override
-    protected boolean matchesSafely(String item, Description mismatchDescription) {
-        if (match) {
-            if (p.matcher(item).matches()) return true;
-        } else {
-            if (p.matcher(item).find()) return true;
-        }
-        mismatchDescription.appendValue(item).
-                            appendText(" could not be matched");
-        return false;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText(match ? "matches" : "contains")
-                   .appendText(" /")
-                   .appendText(p.pattern())
-                   .appendText("/");
-    }
-
-    @Override
-    protected boolean matchesSafely(String item) {
-        if (match) {
-            if (p.matcher(item).matches()) return true;
-        } else {
-            if (p.matcher(item).find()) return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected void describeMismatchSafely(String item, Description mismatchDescription) {
-        mismatchDescription.appendValue(item)
-                           .appendText(" could not be matched");
     }
 
 }

@@ -14,9 +14,9 @@ public abstract class TypesafeQuickDiagnoseMatcherBase<T>
 
     protected abstract boolean matchesSafely(T item);
 
-    protected abstract boolean matchesSafely(T item, Description mismatchDescription);
+    protected abstract boolean matchesSafely(T item, Description mismatch);
 
-    protected abstract void describeMismatchSafely(T item, Description mismatchDescription);
+    protected abstract void describeMismatchSafely(T item, Description mismatch);
     
     final private Class<?> expectedType;
 

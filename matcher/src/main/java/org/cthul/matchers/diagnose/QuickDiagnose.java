@@ -54,7 +54,7 @@ public class QuickDiagnose {
      * but allows to override the mismatch message.
      * <p/>
      * If matching fails, {@code message} will be appended to {@code mismatch}.
-     * Any occurence of {@code "$1"} in (@code message} will be replaced with
+     * Any occurrence of {@code "$1"} in (@code message} will be replaced with
      * the actual mismatch description of {@code matcher}.
      * 
      * @param matcher
@@ -64,48 +64,27 @@ public class QuickDiagnose {
      * @return 
      */
     public static boolean matches(Matcher<?> matcher, Object item, Description mismatch, String message) {
-        if (message == null) {
+        if (mismatch instanceof Description.NullDescription) {
+            return matcher.matches(item);
+        } else if (message == null || message.equals("$1")) {
             return matches(matcher, item, mismatch);
         }
-        final boolean wrapMessage = shouldWrap(mismatch, message);
-        final Description subMismatch;
+        
         final boolean matched;
         
-        if (!wrapMessage) {
-            subMismatch = null;
-            matched = matcher.matches(item);
-        } else if (matcher instanceof QuickDiagnosingMatcher) {
-            subMismatch = new StringDescription();
-            matched = ((QuickDiagnosingMatcher<?>) matcher).matches(item, subMismatch);
-        } else if (matcher instanceof DiagnosingMatcher) {
-            subMismatch = new StringDescription();
-            return DiagnosingHack.matches(matcher, item, subMismatch);
+        if (message.contains("$1")) {
+            final Description subMismatch = new StringDescription();
+            matched = matches(matcher, item, subMismatch);
+            if (!matched) {
+                mismatch.appendText(message.replace("$1", subMismatch.toString()));
+            }
         } else {
             matched = matcher.matches(item);
-            if (matched) {
-                subMismatch = null;
-            } else {
-                subMismatch = new StringDescription();
-                matcher.describeMismatch(item, subMismatch);
-            }
-        }
-        if (!matched) {
-            if (wrapMessage) {
-                mismatch.appendText(message.replace("$1", subMismatch.toString()));
-            } else {
+            if (!matched) {
                 mismatch.appendText(message);
             }
         }
         return matched;
-    }
-    
-    /**
-     * @param mismatch
-     * @param message
-     * @return {@code true} iif the message of the nested matcher is required.
-     */
-    private static boolean shouldWrap(Description mismatch, String message) {
-        return !(mismatch instanceof Description.NullDescription) && message.contains("$1");
     }
     
     private static boolean simpleMatch(Matcher<?> matcher, Object item, Description mismatch) {

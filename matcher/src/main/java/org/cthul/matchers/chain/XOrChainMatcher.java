@@ -11,17 +11,6 @@ import org.hamcrest.Matcher;
  * @param <T> 
  */
 public class XOrChainMatcher<T> extends MatcherChainBase<T> {
-
-    @Factory
-    @SuppressWarnings("unchecked")
-    public static <T> Matcher<T> xor(Matcher<? super T>... matchers) {
-        return new XOrChainMatcher<>(matchers);
-    }
-    
-    @Factory
-    public static <T> Matcher<T> xor(Collection<? extends Matcher<? super T>> matchers) {
-        return new XOrChainMatcher<>(matchers);
-    }
     
     public XOrChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
         super(matchers);
@@ -78,10 +67,22 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 mismatch.appendText(" and ");
             }
-            if (matches(m, item, mismatch)) {
+            // append either fail- or match-description
+            if (quickMatch(m, item, mismatch)) {
                 m.describeTo(mismatch);
             }
         }
+    }
+
+    @Factory
+    @SuppressWarnings("unchecked")
+    public static <T> Matcher<T> xor(Matcher<? super T>... matchers) {
+        return new XOrChainMatcher<>(matchers);
+    }
+    
+    @Factory
+    public static <T> Matcher<T> xor(Collection<? extends Matcher<? super T>> matchers) {
+        return new XOrChainMatcher<>(matchers);
     }
     
     public static final ChainFactory FACTORY = new ChainFactory() {
