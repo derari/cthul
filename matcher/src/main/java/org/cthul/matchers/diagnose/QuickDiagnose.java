@@ -6,7 +6,6 @@ import org.hamcrest.Description;
 import org.hamcrest.DiagnosingMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-//import static org.cthul.matchers.
 
 /**
  *
@@ -106,14 +105,14 @@ public class QuickDiagnose {
      * This method has to be invoked before the hack is executed the first time.
      * @throws IllegalStateException if the hack was already activated.
      */
-    public static void disableDiagnosingHack() {
-        enableDiagnosingHack = false;
+    public static synchronized void disableDiagnosingHack() {
         if (DiagnosingHack.diagnosingMatches != null) {
             throw new IllegalStateException("Diagnosing hack already activated");
         }
+        enableDiagnosingHack = false;
     }
     
-    private static boolean diagnosingHackEnabled() {
+    private static synchronized boolean diagnosingHackEnabled() {
         return enableDiagnosingHack;
     }
     
@@ -131,7 +130,9 @@ public class QuickDiagnose {
                 try {
                     matches = DiagnosingMatcher.class.getMethod("matches", Object.class, Description.class);
                     matches.setAccessible(true);
-                } catch (NoSuchMethodException | SecurityException e) { }
+                } catch (NoSuchMethodException | SecurityException e) { 
+                    // TODO: warn that hack is broken
+                }
             }
             diagnosingMatches = matches;
         }
@@ -142,13 +143,13 @@ public class QuickDiagnose {
             } else {
                 try {
                     return invokeDiagnosingMatches(matcher, item, mismatch);
-                } catch (IllegalAccessException ex) {
+                } catch (IllegalAccessException e) {
                     if (enableDiagnosingHack) {
                         // try to activate hack again
                         try {
                             diagnosingMatches.setAccessible(true);
                             invokeDiagnosingMatches(matcher, item, mismatch);
-                        } catch (SecurityException | IllegalAccessException e) {
+                        } catch (SecurityException | IllegalAccessException e2) {
                             // TODO: warn that hack is broken now
                             enableDiagnosingHack = false;
                         }
