@@ -5,19 +5,25 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- *
+ * A {@link Matcher} that is able to match and diagnose in one step, but, unlike
+ * {@link DiagnosingMatcher}, also provides an efficient implementation for the
+ * simple match.
+ * 
  * @author Arian Treffer
  */
 public abstract class QuickDiagnosingMatcherBase<T> 
                 extends BaseMatcher<T> 
                 implements QuickDiagnosingMatcher<T> {
 
+    /** {@inheritDoc} */
     @Override
     public abstract boolean matches(Object o);
 
+    /** {@inheritDoc} */
     @Override
     public abstract boolean matches(Object item, Description mismatch);
 
+    /** {@inheritDoc} */
     @Override
     public abstract void describeMismatch(Object item, Description description);
     
