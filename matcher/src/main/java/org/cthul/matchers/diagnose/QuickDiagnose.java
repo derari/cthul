@@ -12,6 +12,7 @@ import org.hamcrest.StringDescription;
  * @author Arian Treffer
  */
 public class QuickDiagnose {
+    // implements the under-the-rug pattern
     
     /**
      * Uses the {@code matcher} to validate {@code item}.
@@ -106,10 +107,10 @@ public class QuickDiagnose {
      * @throws IllegalStateException if the hack was already activated.
      */
     public static synchronized void disableDiagnosingHack() {
+        enableDiagnosingHack = false;
         if (DiagnosingHack.diagnosingMatches != null) {
             throw new IllegalStateException("Diagnosing hack already activated");
         }
-        enableDiagnosingHack = false;
     }
     
     private static synchronized boolean diagnosingHackEnabled() {
@@ -121,6 +122,7 @@ public class QuickDiagnose {
      * Is initialized lazy when needed.
      */
     private static class DiagnosingHack {
+        // the rug under the rug
     
         private static final Method diagnosingMatches;
 

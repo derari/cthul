@@ -11,4 +11,14 @@
                 <activatedProfile>xlint</activatedProfile>
             </activatedProfiles>
         </action>
+        <action>
+            <actionName>CUSTOM-test-jdi</actionName>
+            <displayName>test-jdi</displayName>
+            <goals>
+                <goal>test</goal>
+            </goals>
+            <properties>
+                <maven.surefire.debug>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y</maven.surefire.debug>
+            </properties>
+        </action>
     </actions>

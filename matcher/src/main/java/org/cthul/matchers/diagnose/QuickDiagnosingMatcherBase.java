@@ -17,16 +17,20 @@ public abstract class QuickDiagnosingMatcherBase<T>
 
     /** {@inheritDoc} */
     @Override
-    public abstract boolean matches(Object o);
+    public boolean matches(Object o) {
+        return matches(o, Description.NONE);
+    }
 
+    /** {@inheritDoc} */
+    @Override
+    public void describeMismatch(Object item, Description description) {
+        matches(item, description);
+    }
+    
     /** {@inheritDoc} */
     @Override
     public abstract boolean matches(Object item, Description mismatch);
 
-    /** {@inheritDoc} */
-    @Override
-    public abstract void describeMismatch(Object item, Description description);
-    
     /**
      * Uses the {@code matcher} to validate {@code item}.
      * If validation fails, an error message is appended to {@code mismatch}.

@@ -11,6 +11,7 @@ import org.hamcrest.Matcher;
  * @param <T> 
  */
 public class OrChainMatcher<T> extends MatcherChainBase<T> {
+    
     public OrChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
         super(matchers);
     }

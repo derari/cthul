@@ -46,7 +46,7 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         matcher.describeTo(description);
     }
     
-    public Matcher<T> that(Matcher<? super T> m) {
+    public Matcher<Object> that(Matcher<? super T> m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);
         } else {
@@ -54,7 +54,7 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         }
     }
     
-    public Matcher<T> that(Matcher<? super T>... m) {
+    public Matcher<Object> that(Matcher<? super T>... m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);
         } else {
@@ -69,6 +69,16 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
     
     @Factory
     public static <T> InstanceOf<T> instanceOf(Class<T> clazz) {
+        return new InstanceOf<>(clazz);
+    }
+
+    @Factory
+    public static <T> InstanceOf<T> isA(Class<T> clazz) {
+        return new InstanceOf<>(true, clazz);
+    }
+    
+    @Factory
+    public static <T> InstanceOf<T> a(Class<T> clazz) {
         return new InstanceOf<>(clazz);
     }
 
