@@ -110,7 +110,7 @@ public class Message {
     }
 
     public void toString(Appendable appendable) {
-        Formatter.Format(this, appendable);
+//        Formatter.Format(this, appendable);
     }
 
     @Override

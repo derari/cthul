@@ -35,9 +35,9 @@ public class RomansTest {
     public void tearDown() {
     }
     
-    private Proc toRoman = Procs.invoke(Romans.class, "toRoman", int.class);
-    private Proc fromRoman = Procs.invoke(Romans.class, "fromRoman", String.class);
-    private Proc toRoman2 = Procs.invoke(Romans.class, "toRoman2", int.class);
+    private static Proc toRoman = Procs.invoke(Romans.class, "toRoman", int.class);
+    private static Proc fromRoman = Procs.invoke(Romans.class, "fromRoman", String.class);
+    private static Proc toRoman2 = Procs.invoke(Romans.class, "toRoman2", int.class);
     
     private static final Integer[] NUM_SMALL = {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10
@@ -74,28 +74,28 @@ public class RomansTest {
     
     @AutoTwip
     public static final Romans[] ROMANS = {
-        new Romans(new String[]{"I", "V"}),
-        new Romans(new String[]{"I", "V", "X"}),
-        new Romans(new String[]{"I", "V", "X", "L"}),
-        new Romans(new String[]{"I", "V", "X", "L", "C"}),
-        new Romans(new String[]{"I", "V", "X", "L", "C", "D", "M"}),
+        new Romans("I", "V"),
+        new Romans("I", "V", "X"),
+        new Romans("I", "V", "X", "L"),
+        new Romans("I", "V", "X", "L", "C"),
+        new Romans("I", "V", "X", "L", "C", "D", "M"),
     };
 
     @Test
     public void test_roman_small(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X"});
+        Romans r = new Romans("I", "V", "X");
         assertThat(r.toRoman(p.b), is(p.a));
     }
 
     @Test
     public void test_roman_small_2(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X", "L"});
+        Romans r = new Romans("I", "V", "X", "L");
         assertThat(r.toRoman(p.b), is(p.a));
     }
     
     @Test
     public void test_roman_small_3(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V"});
+        Romans r = new Romans("I", "V");
         Proc pr = toRoman.call(r, p.b);
         if (p.b < 9) {
             assertThat(pr, returns(p.a));
@@ -185,7 +185,7 @@ public class RomansTest {
     }
     
     @Test
-    public void test_roman2_large(Romans r, @Values("DATA_LARGE") Pair<String, Integer> p) {
+    public void test_roman2_large(Romans r, @Values("DATA2_LARGE") Pair<String, Integer> p) {
         Proc pr = toRoman2.call(r, p.b);
         if (p.b > getMaxValue(r)) {
             assertThat(pr, raises(IllegalArgumentException.class));

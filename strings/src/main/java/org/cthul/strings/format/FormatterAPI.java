@@ -1,6 +1,7 @@
 package org.cthul.strings.format;
 
 import java.io.IOException;
+import java.util.Locale;
 import org.cthul.strings.Formatter;
 
 /**
@@ -10,6 +11,18 @@ import org.cthul.strings.Formatter;
  * @author Arian Treffer
  */
 public interface FormatterAPI extends Appendable {
+    
+    /** {@inheritDoc} */
+    @Override
+    FormatterAPI append(CharSequence csq) throws IOException;
+    
+    /** {@inheritDoc} */
+    @Override
+    FormatterAPI append(CharSequence csq, int start, int end) throws IOException;
+    
+    /** {@inheritDoc} */
+    @Override
+    FormatterAPI append(char c) throws IOException;
     
     /**
      * Formats the given string using the arguments of the current
@@ -31,10 +44,6 @@ public interface FormatterAPI extends Appendable {
      */
     int format(String format, int start, int end) throws IOException;
     
-    /**
-     * Return the formatter that provides this api.
-     * @return the underlying formatter
-     */
-    Formatter formatter();
+    Locale locale();
     
 }

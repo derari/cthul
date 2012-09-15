@@ -154,15 +154,22 @@ public class Romans implements Serializable {
                     "Zero is not allowed");
             target.append(zero);
         } else {
-            final int mStart = maxLetterIs5 ? maxLetter * 2 : maxLetter;
-            final int iStart = maxLetterIs5 ? letters.length : letters.length-1;
-            for (int i = iStart, m = mStart; m > 0; m/= 10, i -= 2) {
-                int[] d = digits[(number/m)%10];
+            // process number by decimal digits
+            // v: value of current digit, e.g. 1000
+            // i: `letters` index of current digit, e.g. 6 for 1000 (letters[6] == "M")
+            int v = maxLetterIs5 ? maxLetter * 2 : maxLetter;
+            int i = maxLetterIs5 ? letters.length : letters.length-1;
+            for (; v > 0; v/= 10, i -= 2) {
+                // select and append encoding for current digit
+                int[] d = digits[(number/v)%10];
                 for (int n: d) target.append(letters[i+n]);
             }
         }
     }
     
+    /**
+     * @see #toRoman2(int) 
+     */
     public static void ToRoman2(int number, final StringBuilder target,
                                 final String zero, final String[] letters,
                                 final int maxLetter) {
@@ -175,31 +182,39 @@ public class Romans implements Serializable {
                     "Zero is not allowed");
             target.append(zero);
         } else {
-            int i = letters.length - 1;
+            // process number by roman digits
+            // v: value of current roman digit, e.g. 500
+            // i: `letters` index of current digit, e.g. 5 for 500 (letters[5] == "D")
             int v = maxLetter;
-            while (number > 0) {
+            int i = letters.length - 1;
+            for (;number > 0; v /= (is5(i) ? 5 : 2), i -= 1) {
+                // append current digit as often as possible
                 while (number >= v) {
                     target.append(letters[i]);
                     number -= v;
                 }
-                int i2 = i - (is5(i) ? 1 :  2);
-                int v2 = v / (is5(i) ? 5 : 10);
-                while (v2 > 0) {
+                // try to find a smaller digit that is a power of 10 and, when
+                // added to `number`, allows appending current digit once more
+                int i2 = 0;
+                int v2 = 1;
+                while (i2 < i) {
                     if (number + v2 >= v) {
+                        // smaller digit found, append subtraction construct
                         target.append(letters[i2]);
                         target.append(letters[i]);
                         number -= v - v2;
                         break;
                     }
-                    i2 -= 2;
-                    v2 /= 10;
+                    i2 += 2;
+                    v2 *= 10;
                 }
-                v /= is5(i) ? 5 : 2;
-                i -= 1;
             }
         }
     }
     
+    /**
+     * @return true iif {@code i} is the index of a 5-digit (V, L, D, ...)
+     */
     private static boolean is5(int i) {
         return i % 2 != 0;
     }
@@ -276,7 +291,7 @@ public class Romans implements Serializable {
         this.max = MaxRomanLetterValue(this.letters);
     }
 
-    public Romans(String[] letters) {
+    public Romans(String... letters) {
         this(letters, ZERO, DIGITS);
     }
 
@@ -303,6 +318,9 @@ public class Romans implements Serializable {
         return sb.toString();
     }
     
+    /**
+     * @see #toRoman2(int) 
+     */
     public void toRoman2(int number, StringBuilder target) {
         ToRoman2(number, target, zero, letters, max);
     }

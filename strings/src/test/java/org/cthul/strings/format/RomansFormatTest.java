@@ -23,9 +23,13 @@ public class RomansFormatTest {
     }
 
     @Test
-    public void test_format() {
+    public void test_format1() {
         assertThat(format("%4ir %4Ir", 4, 19), is("  iv  XIX"));
-        assertThat(format("%ir", 5951), is("mmmmmcmli"));
     }
 
+    @Test
+    public void test_format2() {
+        assertThat(format("%ir", 5951), is("mmmmmcmli"));
+    }
+    
 }
