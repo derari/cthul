@@ -12,6 +12,7 @@ public class EachOfStrategy<T> implements AssertionStrategy<T> {
         this.collection = collection;
     }
 
+    @Override
     public Object validate(Matcher<T> matcher) {
         for (T o: collection) {
             if (!matcher.matches(o)) {

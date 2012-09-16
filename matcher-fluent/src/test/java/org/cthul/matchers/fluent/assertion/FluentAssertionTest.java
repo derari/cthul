@@ -1,7 +1,7 @@
 package org.cthul.matchers.fluent.assertion;
 
-import org.cthul.matchers.test.ColorFluent;
-import org.cthul.matchers.test.MColorFluents;
+import org.cthul.matchers.testold.ColorFluent;
+import org.cthul.matchers.testold.MColorFluents;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.cthul.matchers.test.ColorMatchers.*;
+import static org.cthul.matchers.testold.ColorMatchers.*;
 
 /**
  *

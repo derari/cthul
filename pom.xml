@@ -9,7 +9,7 @@
     <url>http://maven.apache.org</url>
     <modules>
         <module>matcher</module>
-        <!--<module>matcher-fluent</module>
+        <module>matcher-fluent</module><!--
         <module>matcher-fluent-gen</module>-->
         <module>parser</module>
         <module>strings</module>

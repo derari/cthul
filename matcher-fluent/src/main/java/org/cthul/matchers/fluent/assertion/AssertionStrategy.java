@@ -6,7 +6,7 @@ public interface AssertionStrategy<T> {
     
     /**
      * As a result of {@link #validate(org.hamcrest.Matcher)},
-     * indicates that the assertion was succesful.
+     * indicates that the assertion was successful.
      */
     public static final Object VALID = new Object();
 

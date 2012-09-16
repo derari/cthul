@@ -1,8 +1,8 @@
-package org.cthul.matchers.test;
+package org.cthul.matchers.testold;
 
 /**
  *
- * @author derari
+ * @author Arian Treffer
  */
 public interface CoreInstanceThatFluent<FString, FInteger, FLong> {
     

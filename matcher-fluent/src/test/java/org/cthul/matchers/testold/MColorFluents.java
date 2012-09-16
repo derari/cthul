@@ -1,4 +1,4 @@
-package org.cthul.matchers.test;
+package org.cthul.matchers.testold;
 
 import org.cthul.matchers.fluent.assertion.AssertionStrategy;
 import org.cthul.matchers.fluent.AssertUtils;

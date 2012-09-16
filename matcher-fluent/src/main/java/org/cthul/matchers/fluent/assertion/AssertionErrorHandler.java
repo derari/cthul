@@ -8,6 +8,7 @@ public class AssertionErrorHandler implements FailureHandler {
 
     public static final AssertionErrorHandler INSTANCE = new AssertionErrorHandler();
 
+    @Override
     public void mismatch(String reason, Object actual, Matcher<?> matcher) {
         Description description = new StringDescription();
         if (reason != null) {

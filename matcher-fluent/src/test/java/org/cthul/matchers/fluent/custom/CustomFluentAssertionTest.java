@@ -1,8 +1,8 @@
 package org.cthul.matchers.fluent.custom;
 
 import org.cthul.matchers.fluent.assertion.FluentAssertionTest;
-import org.cthul.matchers.test.ColorFluents;
-import org.cthul.matchers.test.ColorFluent;
+import org.cthul.matchers.testold.ColorFluents;
+import org.cthul.matchers.testold.ColorFluent;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.AfterClass;
