@@ -51,7 +51,7 @@ public abstract class FormatAlignmentBase extends FormatBase {
         }
     }
     
-    @Override
+    //@Override
     public int format(FormatterAPI formatter, Object value, Locale locale, String flags, int width, int precision, String formatString, int position) throws IOException {
         ensureValidFlags(flags, getValidFlags());
         if (width < 0) {

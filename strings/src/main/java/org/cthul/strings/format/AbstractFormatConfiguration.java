@@ -1,43 +1,26 @@
 package org.cthul.strings.format;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Manages short and long formats.
- * The {@link #getDefault() default} configuration has all formats of this 
- * package registered.
  * 
  * @author Arian Treffer
  */
-public class FormatConfiguration {
+public abstract class AbstractFormatConfiguration<Format> {
     
-    private static final FormatConfiguration Default = new FormatConfiguration(null);
-
-    public static FormatConfiguration getDefault() {
-        return Default;
-    }
-    
-    static {
-        AlphaIndexFormat.INSTANCE.register(Default);
-        ClassNameFormat.INSTANCE.register(Default);
-        PluralFormat.INSTANCE.register(Default);
-        RomansFormat.INSTANCE.register(Default);
-        SingularFormat.INSTANCE.register(Default);
-    }
-
-    private FormatConfiguration parent;
+    private final AbstractFormatConfiguration<Format> parent;
     private Locale locale = null;
-    private Format[] shortFormats = new Format[26*2];
-    private Map<String, Format> longFormats = new ConcurrentSkipListMap<>();
+    private final Format[] shortFormats;
+    private final Map<String, Format> longFormats = new ConcurrentSkipListMap<>();
 
-    public FormatConfiguration() {
-        this(getDefault());
-    }
-
-    public FormatConfiguration(FormatConfiguration parent) {
+    public AbstractFormatConfiguration(AbstractFormatConfiguration parent, Class<Format> formatClass) {
         this.parent = parent;
+        shortFormats = (Format[]) Array.newInstance(formatClass, 2*26);
     }
 
     public Locale getLocale() {
@@ -59,9 +42,10 @@ public class FormatConfiguration {
         return locale;
     }
     
-    public FormatConfiguration forLocale(Locale locale) {
-        if (locale.equals(this.locale)) return this;
-        FormatConfiguration c = new FormatConfiguration(this);
+    protected abstract AbstractFormatConfiguration createChildConfig();
+    
+    public AbstractFormatConfiguration forLocale(Locale locale) {
+        AbstractFormatConfiguration c = createChildConfig();
         c.setLocale(locale);
         return c;
     }
@@ -85,13 +69,15 @@ public class FormatConfiguration {
         setShortFormat(c, null);
     }
     
+    protected abstract Format nullFormat();
+    
     public void clearShortFormat(char c) {
-        setShortFormat(c, NullFormat.INSTANCE);
+        setShortFormat(c, nullFormat());
     }
     
     private Format shortFormat(int i) {
         Format f = shortFormats[i];
-        if (f == NullFormat.INSTANCE) return null;
+        if (f == nullFormat()) return null;
         if (f != null) return f;
         if (parent == null) return null;
         return parent.shortFormat(i);
@@ -114,7 +100,7 @@ public class FormatConfiguration {
     }
     
     public void clearLongFormat(String key) {
-        setLongFormat(key, NullFormat.INSTANCE);
+        setLongFormat(key, nullFormat());
     }
     
     public Format longFormat(String key) {
