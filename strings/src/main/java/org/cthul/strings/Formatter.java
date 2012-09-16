@@ -529,7 +529,7 @@ public class Formatter implements Flushable, AutoCloseable {
         return this;
     }
     
-    protected class Parser extends FormatPatternParser<IOException> {
+    protected class Parser extends FormatStringParser<IOException> {
         
         protected final FormatConfiguration conf;
         protected final Locale locale;
@@ -605,7 +605,7 @@ public class Formatter implements Flushable, AutoCloseable {
         }
 
         @Override
-        protected void standardFormat(Matcher matcher, String fId) throws IOException {
+        protected int standardFormat(Matcher matcher, String fId, CharSequence formatString, int lastPosition) throws IOException {
             final String argId = matcher.group(G_ARG_ID);
             final String group = matcher.group();
             final String format;
@@ -619,6 +619,7 @@ public class Formatter implements Flushable, AutoCloseable {
             }
             Object arg = arg(parseArgIndex(argId));
             standardFormat(locale, format, arg);
+            return 0;
         }
         
         @Override

@@ -5,7 +5,6 @@ import org.cthul.proc.Procs;
 import org.cthul.strings.format.*;
 import org.junit.*;
 import static org.cthul.matchers.CthulMatchers.*;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
 /**
