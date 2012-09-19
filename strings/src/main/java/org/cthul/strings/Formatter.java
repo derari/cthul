@@ -154,50 +154,6 @@ public class Formatter implements Flushable, AutoCloseable {
         this(out, FormatConfiguration.getDefault().forLocale(l));
     }
     
-    
-//    /**
-//     * Constructs a new formatter with the specified destination and configuration.
-//     *
-//     * @param  appendable
-//     *         Destination for the formatted output.  If {@code appendable} is
-//     *         {@code null} then a {@link StringBuilder} will be created.
-//     *
-//     * @param  conf
-//     *         The {@linkplain FormatConfiguration configuration} used for
-//     *         formatting.
-//     */
-//    public Formatter(Appendable appendable, FormatConfiguration conf) {
-//        this(null, conf, appendable);
-//    }
-//    
-//    /**
-//     * Constructs a new formatter with the specified destination and locale.
-//     *
-//     * @param  appendable
-//     *         Destination for the formatted output.  If {@code appendable} is
-//     *         {@code null} then a {@link StringBuilder} will be created.
-//     *
-//     * @param  locale
-//     *         The {@linkplain java.util.Locale locale} to apply during
-//     *         formatting.  If {@code locale} is {@code null} then no localization
-//     *         is applied.
-//     */
-//    public Formatter(Appendable appendable, Locale locale) {
-//        this(null, FormatConfiguration.getDefault().forLocale(locale), appendable);
-//    }
-//
-//    public Formatter(Appendable appendable, FormatConfiguration conf, Locale) {
-//        this.appendable = appendable;
-//        this.conf = conf;
-//        this.locale = locale;
-//    }
-//
-//
-//    
-//    protected Formatter(Message message, Appendable appendable) {
-//        this(message, message.getConfiguration(), appendable);
-//    }
-
     private void ensureOpen() {
         if (closed) {
             throw new FormatterClosedException();
@@ -698,34 +654,6 @@ public class Formatter implements Flushable, AutoCloseable {
             return locale;
         }
         
-    }
-    
-    public static final char CUSTOM_SHORT = 'i';
-    public static final char CUSTOM_LONG = 'j';
-    
-    public static final char CUSTOM_SHORT_UC = 'I';
-    public static final char CUSTOM_LONG_UC = 'J';
-    
-    private static final String ARG_ID = "(\\d+\\$|[a-zA-Z]\\$|\\.?\\$|[<>`´]\\$?)?";
-    private static final String FLAGS = "([^.1-9a-zA-Z%]+)?"; // [-#+ 0,(\\<]
-    private static final String WIDTH_PRECISION = "(\\d+)?(\\.\\d+)?";
-    private static final String FORMAT_ID = "(([jJ][_a-zA-Z0-9]+[;]?)|([tTiI]?[a-zA-Z%]))";
-    private static final Pattern PATTERN;
-    
-    private static final int N_ARG_ID    = 1;
-    private static final int N_FLAGS     = 2;
-    private static final int N_WIDTH     = 3;
-    private static final int N_PRECISION = 4;
-    private static final int N_FORMAT_ID = 5;
-    
-    static {
-        try {
-            PATTERN = Pattern.compile(
-                      "%" + ARG_ID + FLAGS + WIDTH_PRECISION + FORMAT_ID);
-        } catch (PatternSyntaxException e) {
-            System.err.println(e);
-            throw e;
-        }
     }
     
 }

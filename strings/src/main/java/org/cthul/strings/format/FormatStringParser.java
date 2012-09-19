@@ -27,6 +27,16 @@ public abstract class FormatStringParser<E extends Exception> {
 
     protected abstract void standardFormat(String formatId, int argId, String flags, int width, int precision) throws E;
 
+    protected int appendPercent(Matcher matcher, String fId, CharSequence formatString, int lastPosition) throws E {
+        appendPercent();
+        return 0;
+    }
+
+    protected int appendNewLine(Matcher matcher, String fId, CharSequence formatString, int lastPosition) throws E {
+        appendNewLine();
+        return 0;
+    }
+    
     protected int customShortFormat(Matcher matcher, String fId, CharSequence formatString, int lastPosition, boolean uppercase) throws E {
         final char formatId = getShortFormatId(fId);
         final int argId = getArgIndex(matcher);
@@ -108,11 +118,9 @@ public abstract class FormatStringParser<E extends Exception> {
         boolean uppercase = false;
         switch (f0) {
             case '%':
-                appendPercent();
-                return 0;
+                return appendPercent(matcher, fId, formatString, lastPosition);
             case 'n':
-                appendNewLine();
-                return 0;
+                return appendNewLine(matcher, fId, formatString, lastPosition);
             case CUSTOM_SHORT_UC:
                 uppercase = true;
             case CUSTOM_SHORT:
@@ -206,7 +214,7 @@ public abstract class FormatStringParser<E extends Exception> {
     public static final char CUSTOM_LONG_UC = 'J';
     
     protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|\\.?\\$|[<>`´]\\$?)?";
-    protected static final String P_FLAGS     = "([^.1-9a-zA-Z%]+)?"; // [-#+ 0,(\\<]
+    protected static final String P_FLAGS     = "([^a-zA-Z%]*[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
     protected static final String P_PRECISION = "(\\.\\d+)?";
     protected static final String P_FORMAT_ID = "((?:[jJ][_a-zA-Z0-9]+[;]?)|(?:[tTiI]?[a-zA-Z])|%)";
