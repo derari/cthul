@@ -1,11 +1,8 @@
 package org.cthul.strings.format;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import static org.mockito.Mockito.*;
@@ -19,15 +16,11 @@ public class FormatStringParserTest {
     public FormatStringParserTest() {
     }
     
-    @Spy FormatStringParserMock parser;
+    @Spy TestFormatStringParser parser;
     
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-    }
-    
-    @After
-    public void tearDown() {
     }
     
     @Test
@@ -128,7 +121,16 @@ public class FormatStringParserTest {
         verify(parser).standardFormat("b", 2, "$", -1, -1);
     }
     
-    public static class FormatStringParserMock extends FormatStringParser<RuntimeException> {
+//    @Test
+//    public void test_width_precision() {
+//        parser.parse("%1a %.2b %1.2c %$1$2d");
+//        verify(parser).standardFormat("a", 1, null, 1, -1);
+//        verify(parser).standardFormat("b", 2, null, -1, 2);
+//        verify(parser).standardFormat("c", 3, null, 1, 2);
+//        verify(parser).standardFormat("d", 4, "1$", 2, -1);
+//    }
+    
+    public static class TestFormatStringParser extends FormatStringParser<RuntimeException> {
 
         @Override
         protected void appendText(CharSequence csq, int start, int end) throws RuntimeException {

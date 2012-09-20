@@ -208,7 +208,7 @@ public abstract class FormatStringParser<E extends Exception> {
     protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|\\.?\\$|[<>`´]\\$?)?";
     protected static final String P_FLAGS     = "([^.1-9a-zA-Z%]+)?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
-    protected static final String P_PRECISION = "(\\.\\d+)?";
+    protected static final String P_PRECISION = "(?:\\.(\\d+))?";
     protected static final String P_FORMAT_ID = "((?:[jJ][_a-zA-Z0-9]+[;]?)|(?:[tTiI]?[a-zA-Z])|%)";
     protected static final Pattern PATTERN;
     

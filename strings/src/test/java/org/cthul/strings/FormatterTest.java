@@ -71,4 +71,7 @@ public class FormatterTest {
         assertThat(format(null, "asd%%asd"), returns("asd%asd"));
         assertThat(format(null, "%d%n%d", 1, 2), returns("1\n2"));
     }
+    
+    
+    
 }
