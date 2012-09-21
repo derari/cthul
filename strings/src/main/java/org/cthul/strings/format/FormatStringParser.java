@@ -4,7 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * Implements a template method that parses format strings.
+ * Subclasses define how the formats are interpreted.
+ * 
  * @author Arian Treffer
  */
 public abstract class FormatStringParser<E extends Exception> {
@@ -27,32 +29,44 @@ public abstract class FormatStringParser<E extends Exception> {
 
     protected abstract void standardFormat(String formatId, int argId, String flags, int width, int precision) throws E;
 
-    protected int customShortFormat(Matcher matcher, String fId, CharSequence formatString, int lastPosition, boolean uppercase) throws E {
+    protected int appendPercent(Matcher matcher, String fId, CharSequence formatString) throws E {
+        appendPercent();
+        return matcher.end();
+    }
+
+    protected int appendNewLine(Matcher matcher, String fId, CharSequence formatString) throws E {
+        appendNewLine();
+        return matcher.end();
+    }
+    
+    protected int customShortFormat(Matcher matcher, String fId, CharSequence formatString, boolean uppercase) throws E {
         final char formatId = getShortFormatId(fId);
         final int argId = getArgIndex(matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
-        return customShortFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
+        final int lastPosition = matcher.end();
+        return lastPosition + customShortFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
     }
 
-    protected int customLongFormat(Matcher matcher, String fId, CharSequence formatString, int lastPosition, boolean uppercase) throws E {
+    protected int customLongFormat(Matcher matcher, String fId, CharSequence formatString, boolean uppercase) throws E {
         final String formatId = getLongFormatId(fId);
         final int argId = getArgIndex(matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
-        return customLongFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
+        final int lastPosition = matcher.end();
+        return lastPosition + customLongFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
     }
 
-    protected int standardFormat(Matcher matcher, String fId, CharSequence formatString, int lastPosition) throws E {
+    protected int standardFormat(Matcher matcher, String fId, CharSequence formatString) throws E {
         final String formatId = getStandardFormatId(fId);
         final int argId = getArgIndex(matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
         standardFormat(formatId, argId, flags, width, precision);
-        return 0;
+        return matcher.end();
     }
     
     protected int autoIndex() {
@@ -76,7 +90,7 @@ public abstract class FormatStringParser<E extends Exception> {
     }
     
     protected int parseCharIndex(char c) {
-        throw new UnsupportedOperationException("character index not supported");
+        throw new IllegalArgumentException("character index not supported");
     }
     
     public int parse(CharSequence formatString) throws E {
@@ -91,8 +105,7 @@ public abstract class FormatStringParser<E extends Exception> {
             int mStart = matcher.start();
             if (lastPosition < mStart)
                 appendText(formatString, lastPosition, mStart);
-            lastPosition = matcher.end();
-            lastPosition += applyFormat(matcher, formatString, lastPosition);
+            lastPosition = applyFormat(matcher, formatString);
         }
         if (lastPosition < end) {
             appendText(formatString, lastPosition, end);
@@ -101,28 +114,26 @@ public abstract class FormatStringParser<E extends Exception> {
         return lastPosition;
     }
     
-    protected int applyFormat(Matcher matcher, CharSequence formatString, int lastPosition) throws E {
+    protected int applyFormat(Matcher matcher, CharSequence formatString) throws E {
         final String fId = getFormatId(matcher);
         final char f0 = fId.charAt(0);
 
         boolean uppercase = false;
         switch (f0) {
             case '%':
-                appendPercent();
-                return 0;
+                return appendPercent(matcher, fId, formatString);
             case 'n':
-                appendNewLine();
-                return 0;
+                return appendNewLine(matcher, fId, formatString);
             case CUSTOM_SHORT_UC:
                 uppercase = true;
             case CUSTOM_SHORT:
-                return customShortFormat(matcher, fId, formatString, lastPosition, uppercase);
+                return customShortFormat(matcher, fId, formatString, uppercase);
             case CUSTOM_LONG_UC:
                 uppercase = true;
             case CUSTOM_LONG:
-                return customLongFormat(matcher, fId, formatString, lastPosition, uppercase);
+                return customLongFormat(matcher, fId, formatString, uppercase);
             default:
-                return standardFormat(matcher, fId, formatString, lastPosition);
+                return standardFormat(matcher, fId, formatString);
         }
     }
     
@@ -206,7 +217,7 @@ public abstract class FormatStringParser<E extends Exception> {
     public static final char CUSTOM_LONG_UC = 'J';
     
     protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|\\.?\\$|[<>`´]\\$?)?";
-    protected static final String P_FLAGS     = "([^.1-9a-zA-Z%]+)?"; // [-#+ 0,(\\<]
+    protected static final String P_FLAGS     = "([^a-zA-Z%]*[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
     protected static final String P_PRECISION = "(?:\\.(\\d+))?";
     protected static final String P_FORMAT_ID = "((?:[jJ][_a-zA-Z0-9]+[;]?)|(?:[tTiI]?[a-zA-Z])|%)";
@@ -220,6 +231,6 @@ public abstract class FormatStringParser<E extends Exception> {
     
     static {
         PATTERN = Pattern.compile(
-                    "%" + P_ARG_ID + P_FLAGS + P_WIDTH + P_PRECISION + P_FORMAT_ID);
+            "%" + P_ARG_ID + P_FLAGS + P_WIDTH + P_PRECISION + P_FORMAT_ID);
     }
 }

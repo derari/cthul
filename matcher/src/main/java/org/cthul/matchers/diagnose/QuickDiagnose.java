@@ -6,13 +6,13 @@ import org.hamcrest.Description;
 import org.hamcrest.DiagnosingMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-//import static org.cthul.matchers.
 
 /**
  *
  * @author Arian Treffer
  */
 public class QuickDiagnose {
+    // implements the under-the-rug pattern
     
     /**
      * Uses the {@code matcher} to validate {@code item}.
@@ -54,7 +54,7 @@ public class QuickDiagnose {
      * but allows to override the mismatch message.
      * <p/>
      * If matching fails, {@code message} will be appended to {@code mismatch}.
-     * Any occurence of {@code "$1"} in (@code message} will be replaced with
+     * Any occurrence of {@code "$1"} in (@code message} will be replaced with
      * the actual mismatch description of {@code matcher}.
      * 
      * @param matcher
@@ -64,48 +64,27 @@ public class QuickDiagnose {
      * @return 
      */
     public static boolean matches(Matcher<?> matcher, Object item, Description mismatch, String message) {
-        if (message == null) {
+        if (mismatch instanceof Description.NullDescription) {
+            return matcher.matches(item);
+        } else if (message == null || message.equals("$1")) {
             return matches(matcher, item, mismatch);
         }
-        final boolean wrapMessage = shouldWrap(mismatch, message);
-        final Description subMismatch;
+        
         final boolean matched;
         
-        if (!wrapMessage) {
-            subMismatch = null;
-            matched = matcher.matches(item);
-        } else if (matcher instanceof QuickDiagnosingMatcher) {
-            subMismatch = new StringDescription();
-            matched = ((QuickDiagnosingMatcher<?>) matcher).matches(item, subMismatch);
-        } else if (matcher instanceof DiagnosingMatcher) {
-            subMismatch = new StringDescription();
-            return DiagnosingHack.matches(matcher, item, subMismatch);
+        if (message.contains("$1")) {
+            final Description subMismatch = new StringDescription();
+            matched = matches(matcher, item, subMismatch);
+            if (!matched) {
+                mismatch.appendText(message.replace("$1", subMismatch.toString()));
+            }
         } else {
             matched = matcher.matches(item);
-            if (matched) {
-                subMismatch = null;
-            } else {
-                subMismatch = new StringDescription();
-                matcher.describeMismatch(item, subMismatch);
-            }
-        }
-        if (!matched) {
-            if (wrapMessage) {
-                mismatch.appendText(message.replace("$1", subMismatch.toString()));
-            } else {
+            if (!matched) {
                 mismatch.appendText(message);
             }
         }
         return matched;
-    }
-    
-    /**
-     * @param mismatch
-     * @param message
-     * @return {@code true} iif the message of the nested matcher is required.
-     */
-    private static boolean shouldWrap(Description mismatch, String message) {
-        return !(mismatch instanceof Description.NullDescription) && message.contains("$1");
     }
     
     private static boolean simpleMatch(Matcher<?> matcher, Object item, Description mismatch) {
@@ -127,14 +106,14 @@ public class QuickDiagnose {
      * This method has to be invoked before the hack is executed the first time.
      * @throws IllegalStateException if the hack was already activated.
      */
-    public static void disableDiagnosingHack() {
+    public static synchronized void disableDiagnosingHack() {
         enableDiagnosingHack = false;
         if (DiagnosingHack.diagnosingMatches != null) {
             throw new IllegalStateException("Diagnosing hack already activated");
         }
     }
     
-    private static boolean diagnosingHackEnabled() {
+    private static synchronized boolean diagnosingHackEnabled() {
         return enableDiagnosingHack;
     }
     
@@ -143,6 +122,7 @@ public class QuickDiagnose {
      * Is initialized lazy when needed.
      */
     private static class DiagnosingHack {
+        // the rug under the rug
     
         private static final Method diagnosingMatches;
 
@@ -152,7 +132,9 @@ public class QuickDiagnose {
                 try {
                     matches = DiagnosingMatcher.class.getMethod("matches", Object.class, Description.class);
                     matches.setAccessible(true);
-                } catch (NoSuchMethodException | SecurityException e) { }
+                } catch (NoSuchMethodException | SecurityException e) { 
+                    // TODO: warn that hack is broken
+                }
             }
             diagnosingMatches = matches;
         }
@@ -163,13 +145,13 @@ public class QuickDiagnose {
             } else {
                 try {
                     return invokeDiagnosingMatches(matcher, item, mismatch);
-                } catch (IllegalAccessException ex) {
+                } catch (IllegalAccessException e) {
                     if (enableDiagnosingHack) {
                         // try to activate hack again
                         try {
                             diagnosingMatches.setAccessible(true);
                             invokeDiagnosingMatches(matcher, item, mismatch);
-                        } catch (SecurityException | IllegalAccessException e) {
+                        } catch (SecurityException | IllegalAccessException e2) {
                             // TODO: warn that hack is broken now
                             enableDiagnosingHack = false;
                         }

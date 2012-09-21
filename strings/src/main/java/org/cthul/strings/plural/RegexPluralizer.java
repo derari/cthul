@@ -12,7 +12,7 @@ import org.cthul.strings.Pluralizer;
  * overwrite {@code initUncountables, initIrregulars} and {@code initRules}.
  * @author derari
  */
-public abstract class RegexPluralizer implements Pluralizer {
+public class RegexPluralizer implements Pluralizer {
 
     protected final Set<String> uncountables;
 

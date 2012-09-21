@@ -1,23 +1,15 @@
 package org.cthul.matchers.test;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
+import static org.cthul.matchers.fluent.CoreFluents.*;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
- * @author 
+ * @author Arian Treffer
  */
 public class Concept {
+    
     {
-        
+        assertThat(2).is(either(is(3)));
     }
-
-    /*
-     * List<String> strings;
-     * that(strings).is(hasSize(lessThan(5))
-     * that(strings).hasSize(lessThan(5))
-     * 
-     * that(object).isListThat().hasSize(5)
-     * 
-     */
 }

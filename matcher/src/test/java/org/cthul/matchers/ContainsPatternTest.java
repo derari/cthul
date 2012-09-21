@@ -22,7 +22,7 @@ public class ContainsPatternTest {
         
         StringDescription desc = new StringDescription();
         hasPattern.describeMismatch(string, desc);
-        assertThat(desc.toString(), is("\"No value!\" could not be matched"));
+        assertThat(desc.toString(), is("\"No value!\" did not contain /no value/"));
     }
 
 }

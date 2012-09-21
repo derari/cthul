@@ -58,7 +58,7 @@ public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A,
 
     protected class Runner {
         public Object doRun(Object a, Object b, Object c, Object d) throws Throwable {
-            return proxySourceOrRun(a, b, c, d);
+            return executeProc(a, b, c, d);
         }
     }
 

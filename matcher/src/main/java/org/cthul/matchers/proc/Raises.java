@@ -9,9 +9,48 @@ import org.hamcrest.Matcher;
 
 /**
  *
- * @author derari
+ * @author Arian Treffer
  */
 public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
+
+    private final Matcher<? super Throwable> exceptionMatcher;
+
+    public Raises(Matcher<? super Throwable> matcher) {
+        exceptionMatcher = matcher;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("throws ");
+        exceptionMatcher.describeTo(description);
+    }
+
+    @Override
+    protected boolean matchesSafely(Proc proc) {
+        if (proc.hasResult()) {
+            return false;
+        }
+        return exceptionMatcher.matches(proc.getException());
+    }
+
+    @Override
+    protected void describeMismatchSafely(Proc proc, Description mismatchDescription) {
+        if (proc.hasResult()) {
+            mismatchDescription.appendText("threw no exception");
+        } else {
+            exceptionMatcher.describeMismatch(proc.getException(), mismatchDescription);
+        }
+    }
+
+    @Override
+    protected boolean matchesSafely(Proc proc, Description mismatchDescription) {
+        if (proc.hasResult()) {
+            mismatchDescription.appendText("threw no exception");
+            return false;
+        } else {
+            return quickMatch(exceptionMatcher, proc.getException(), mismatchDescription);
+        }
+    }
 
     /**
      * Does the proc raise a throwable that satisfies the condition?
@@ -120,45 +159,6 @@ public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     @Factory
     public static Matcher<Proc> raisesException(Class<? extends Exception> clazz, String regex) {
         return new Raises(IsThrowable.exception(clazz, regex));
-    }
-
-    private final Matcher<? super Throwable> exceptionMatcher;
-
-    public Raises(Matcher<? super Throwable> matcher) {
-        exceptionMatcher = matcher;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("throws ");
-        exceptionMatcher.describeTo(description);
-    }
-
-    @Override
-    protected boolean matchesSafely(Proc proc) {
-        if (proc.hasResult()) {
-            return false;
-        }
-        return exceptionMatcher.matches(proc.getException());
-    }
-
-    @Override
-    protected void describeMismatchSafely(Proc proc, Description mismatchDescription) {
-        if (proc.hasResult()) {
-            mismatchDescription.appendText("threw no exception");
-        } else {
-            exceptionMatcher.describeMismatch(proc.getException(), mismatchDescription);
-        }
-    }
-
-    @Override
-    protected boolean matchesSafely(Proc proc, Description mismatchDescription) {
-        if (proc.hasResult()) {
-            mismatchDescription.appendText("threw no exception");
-            return false;
-        } else {
-            return matches(exceptionMatcher, proc.getException(), mismatchDescription);
-        }
     }
 
 }

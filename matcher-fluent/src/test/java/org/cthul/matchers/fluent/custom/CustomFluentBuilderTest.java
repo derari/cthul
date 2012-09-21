@@ -1,8 +1,8 @@
 package org.cthul.matchers.fluent.custom;
 
 import org.cthul.matchers.fluent.builder.FluentBuilderTest;
-import org.cthul.matchers.test.ColorFluents;
-import org.cthul.matchers.test.ColorFluent;
+import org.cthul.matchers.testold.ColorFluents;
+import org.cthul.matchers.testold.ColorFluent;
 
 /**
  *

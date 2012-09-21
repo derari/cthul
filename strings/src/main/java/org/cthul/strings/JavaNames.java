@@ -24,11 +24,11 @@ public class JavaNames {
      * @param s string to tokenize
      * @return array of strings
      */
-    public static String[] tokenize(String s) {
-        List<String> result = new ArrayList<>();
+    public static String[] tokenize(final String s) {
+        final List<String> result = new ArrayList<>();
         
         int start = 0;                  // start of current token
-        boolean uppercaseToken = false; // current token is all uppercase
+        boolean uppercaseToken = false; // if current token is all uppercase
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (! Character.isJavaIdentifierPart(c) ||
@@ -43,21 +43,15 @@ public class JavaNames {
             if (Character.isLowerCase(c) || Character.isDigit(c)) {
                 // the token goes on, unless it's all uppercase
                 if (uppercaseToken) {
-                    if (start+1==i) {
-                        // only the first character was uppercase,
-                        // this is no uppercase token after all
-                        uppercaseToken = false;
-                    } else {
-                        // uppercase token ends here. The last uppercase
-                        // character already was part of the next token.
-                        add(result, start, i-1, s);
-                        start = i-1;
-                        // this is no uppercase token
-                        uppercaseToken = false;
-                    }
+                    // uppercase token ends here. The last uppercase
+                    // character already was part of the next token.
+                    add(result, start, i-1, s);
+                    start = i-1;
+                    // this is no uppercase token
+                    uppercaseToken = false;
                 }
             } else if (Character.isUpperCase(c)) {
-                if (! uppercaseToken) {
+                if (!uppercaseToken) {
                     // token ends here, new token starts
                     add(result, start, i, s);
                     start = i;
@@ -66,6 +60,8 @@ public class JavaNames {
                     // first character is uppercase, this has potential for
                     // being an uppercase token, such as "HTTP"
                     uppercaseToken = true;
+                } else {
+                    assert uppercaseToken : "token should be uppercase";
                 }
             } else { // c == '_'
                 // token ends here, next char is start of next token
@@ -81,13 +77,26 @@ public class JavaNames {
         return result.toArray(new String[result.size()]);
     }
 
-    public static void firstToUpper(String s, StringBuilder target) {
-        if (s.isEmpty()) return;
+    public static StringBuilder appendFirstToUpper(String s, StringBuilder target) {
+        if (s.isEmpty()) return target;
         target.append(Character.toUpperCase(s.charAt(0)));
-        if (s.length() == 1) return;
+        if (s.length() == 1) return target;
         target.append(s.substring(1).toLowerCase());
+        return target;
+    }
+    
+    public static String[] allToLower(final String[] tokens) {
+        for (int i = 0; i < tokens.length; i++)
+            tokens[i] = tokens[i].toLowerCase();
+        return tokens;
     }
 
+    public static String[] allToUpper(final String[] tokens) {
+        for (int i = 0; i < tokens.length; i++)
+            tokens[i] = tokens[i].toUpperCase();
+        return tokens;
+    }
+    
     /**
      * Converts {@code string} into CamelCase format, the first
      * character being in lower case.
@@ -109,10 +118,7 @@ public class JavaNames {
     }
 
     private static String camelCase(String s, boolean firstToLower) {
-        String[] tokens = tokenize(s);
-        StringBuilder sb = new StringBuilder();
-        camelCase(tokens, sb, firstToLower);
-        return sb.toString();
+        return camelCase(tokenize(s), new StringBuilder(), firstToLower).toString();
     }
 
     /**
@@ -121,28 +127,51 @@ public class JavaNames {
      * @param target string builder the word is appended to
      * @param firstToLower if true, the first character will be in lowercase
      */
-    public static void camelCase(String[] tokens, StringBuilder target, boolean firstToLower) {
+    public static StringBuilder camelCase(final String[] tokens, final StringBuilder target, boolean firstToLower) {
         for (String t: tokens) {
-            if (firstToLower && target.length() == 0) {
+            if (firstToLower) {
+                firstToLower = false;
                 target.append(t.toLowerCase());
             } else {
-                firstToUpper(t, target);
+                appendFirstToUpper(t, target);
             }
         }
+        return target;
     }
 
     /**
-     * Appends {@code tokens} to {@code target}, separated by under_scores.
+     * Appends {@code tokens} to {@code target}, separated by {@code sep}.
      * @param tokens
      * @param sb
      */
-    public static void under_score(String[] tokens, StringBuilder sb) {
+    public static StringBuilder Join(final String[] tokens, final String sep, final StringBuilder sb) {
         boolean first = true;
         for (String t: tokens) {
-            if (!first) sb.append('_');
+            if (!first) sb.append(sep);
             first = false;
             sb.append(t);
         }
+        return sb;
+    }
+
+    /**
+     * Appends {@code tokens} to {@code target}, all lower case,
+     * separated by under_scores.
+     * @param tokens
+     * @param sb
+     */
+    public static StringBuilder under_score(final String[] tokens, final StringBuilder sb) {
+        return Join(allToLower(tokens), "_", sb);
+    }
+
+    /**
+     * Appends {@code tokens} to {@code target}, all upper case,
+     * separated by under_scores.
+     * @param tokens
+     * @param sb
+     */
+    public static StringBuilder UNDER_SCORE(final String[] tokens, final StringBuilder sb) {
+        return Join(allToUpper(tokens), "_", sb);
     }
 
     /**
@@ -151,10 +180,7 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String under_score(String string) {
-        String[] tokens = tokenize(string);
-        StringBuilder sb = new StringBuilder();
-        under_score(tokens, sb);
-        return sb.toString().toLowerCase();
+        return under_score(tokenize(string), new StringBuilder()).toString();
     }
 
     /**
@@ -163,10 +189,7 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String UNDER_SCORE(String string) {
-        String[] tokens = tokenize(string);
-        StringBuilder sb = new StringBuilder();
-        under_score(tokens, sb);
-        return sb.toString().toUpperCase();
+        return UNDER_SCORE(tokenize(string), new StringBuilder()).toString();
     }
 
 }

@@ -10,15 +10,19 @@ import org.hamcrest.internal.ReflectiveTypeFinder;
 public abstract class TypesafeQuickDiagnoseMatcherBase<T> 
                 extends QuickDiagnosingMatcherBase<T> {
     
-    private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 1, 0);
+    private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 2, 0);
 
-    protected abstract boolean matchesSafely(T item);
+    protected boolean matchesSafely(T item) {
+        return matchesSafely(item, Description.NONE);
+    }
 
-    protected abstract boolean matchesSafely(T item, Description mismatchDescription);
-
-    protected abstract void describeMismatchSafely(T item, Description mismatchDescription);
+    protected void describeMismatchSafely(T item, Description mismatch) {
+        matchesSafely(item, mismatch);
+    }
     
-    final private Class<?> expectedType;
+    protected abstract boolean matchesSafely(T item, Description mismatch);
+
+    private final Class<?> expectedType;
 
     public TypesafeQuickDiagnoseMatcherBase(Class<?> expectedType) {
         this.expectedType = expectedType;

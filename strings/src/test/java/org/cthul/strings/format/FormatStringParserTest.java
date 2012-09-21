@@ -97,38 +97,47 @@ public class FormatStringParserTest {
     
     @Test
     public void test_argId_alt() {
-        parser.parse("%a %´b %`c %d");
+        parser.parse("%a %`b %´c %d");
         verify(parser).standardFormat("a", 1, null, -1, -1);
-        verify(parser).standardFormat("b", 2, null, -1, -1);
+        verify(parser).standardFormat("b", 1, null, -1, -1);
         verify(parser).standardFormat("c", 2, null, -1, -1);
         verify(parser).standardFormat("d", 2, null, -1, -1);
     }
     
     @Test
-    public void test_argId_explicit() {
-        parser.parse("%$a %1$b %.$c %d$d");
+    public void test_argId_dollar() {
+        parser.parse("%$a %`$b %>$c");
         verify(parser).standardFormat("a", 1, null, -1, -1);
         verify(parser).standardFormat("b", 1, null, -1, -1);
         verify(parser).standardFormat("c", 2, null, -1, -1);
-        verify(parser).parseCharIndex('d');
-        verify(parser).standardFormat("d", -'d', null, -1, -1);
+    }
+    
+    @Test
+    public void test_argId_explicit() {
+        parser.parse("%1$a %.$b %c$c");
+        verify(parser).standardFormat("a", 1, null, -1, -1);
+        verify(parser).standardFormat("b", 1, null, -1, -1);
+        verify(parser).parseCharIndex('c');
+        verify(parser).standardFormat("c", -'c', null, -1, -1);
     }
     
     @Test
     public void test_flags() {
-        parser.parse("% =!a %$$b");
+        parser.parse("% =!a %$$b %1 c %1.1$d");
         verify(parser).standardFormat("a", 1, " =!", -1, -1);
         verify(parser).standardFormat("b", 2, "$", -1, -1);
+        verify(parser).standardFormat("c", 3, "1 ", -1, -1);
+        verify(parser).standardFormat("d", 4, "1.1$", -1, -1);
     }
     
-//    @Test
-//    public void test_width_precision() {
-//        parser.parse("%1a %.2b %1.2c %$1$2d");
-//        verify(parser).standardFormat("a", 1, null, 1, -1);
-//        verify(parser).standardFormat("b", 2, null, -1, 2);
-//        verify(parser).standardFormat("c", 3, null, 1, 2);
-//        verify(parser).standardFormat("d", 4, "1$", 2, -1);
-//    }
+    @Test
+    public void test_width_precision() {
+        parser.parse("%1a %.2b %1.2c %$1$2d");
+        verify(parser).standardFormat("a", 1, null, 1, -1);
+        verify(parser).standardFormat("b", 2, null, -1, 2);
+        verify(parser).standardFormat("c", 3, null, 1, 2);
+        verify(parser).standardFormat("d", 4, "1$", 2, -1);
+    }
     
     public static class TestFormatStringParser extends FormatStringParser<RuntimeException> {
 
@@ -160,7 +169,7 @@ public class FormatStringParserTest {
 
         @Override
         protected int parseCharIndex(char c) {
-            return - (int) c;
+            return -c;
         }
         
     }

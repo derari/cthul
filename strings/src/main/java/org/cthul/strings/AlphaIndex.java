@@ -42,7 +42,7 @@ public class AlphaIndex {
      * @return aplha-index of {@code i}
      */
     public static String ToAlpha(long i, boolean uppercase) {
-        final char A = uppercase ? 'A' : 'a';
+        final int A = (uppercase ? 'A' : 'a') - 1;
         if (i < 0)
             throw new IllegalArgumentException(
                     "Argument must be non-negative");
@@ -54,7 +54,7 @@ public class AlphaIndex {
         while (i > 0) {
             long d = i%26;
             if (d == 0) d = 26;
-            sb.append((char)(A-1 + d));
+            sb.append((char)(A + d));
             i = (i-d)/26;
         }
         return sb.reverse().toString();

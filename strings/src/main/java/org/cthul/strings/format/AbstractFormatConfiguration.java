@@ -1,7 +1,6 @@
 package org.cthul.strings.format;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -14,9 +13,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public abstract class AbstractFormatConfiguration<Format> {
     
     private final AbstractFormatConfiguration<Format> parent;
-    private Locale locale = null;
     private final Format[] shortFormats;
     private final Map<String, Format> longFormats = new ConcurrentSkipListMap<>();
+    private Locale locale = null;
 
     public AbstractFormatConfiguration(AbstractFormatConfiguration parent, Class<Format> formatClass) {
         this.parent = parent;
@@ -105,7 +104,7 @@ public abstract class AbstractFormatConfiguration<Format> {
     
     public Format longFormat(String key) {
         Format f = longFormats.get(key);
-        if (f == NullFormat.INSTANCE) return null;
+        if (f == nullFormat()) return null;
         if (f != null) return f;
         if (parent == null) return null;
         return parent.longFormat(key);

@@ -12,25 +12,14 @@ import static org.cthul.strings.JavaNames.*;
  */
 public class JavaNamesTest {
     
-    public JavaNamesTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
+    
+    private StringBuilder sb;
     
     @Before
     public void setUp() {
+        sb = new StringBuilder();
     }
     
-    @After
-    public void tearDown() {
-    }
-
     private static Matcher<String[]> isArray(String... values) {
         return arrayContaining(values);
     }
@@ -50,22 +39,30 @@ public class JavaNamesTest {
     
     @Test
     public void test_camelCase() {
-        assertThat(camelCase("Ab_CD_ef"), is("abCdEf"));
+        String[] tokens = {"Ab", "CD", "ef"};
+        camelCase(tokens, sb, true);
+        assertThat(sb.toString(), is("abCdEf"));
     }
     
     @Test
     public void test_CamelCase() {
-        assertThat(CamelCase("Ab_CD_ef"), is("AbCdEf"));
+        String[] tokens = {"Ab", "CD", "ef"};
+        camelCase(tokens, sb, false);
+        assertThat(sb.toString(), is("AbCdEf"));
     }
     
     @Test
     public void test_under_score() {
-        assertThat(under_score("Ab_CD_ef"), is("ab_cd_ef"));
+        String[] tokens = {"Ab", "CD", "ef"};
+        under_score(tokens, sb);
+        assertThat(sb.toString(), is("ab_cd_ef"));
     }
     
     @Test
     public void test_UNDER_SCORE() {
-        assertThat(UNDER_SCORE("Ab_CD_ef"), is("AB_CD_EF"));
+        String[] tokens = {"Ab", "CD", "ef"};
+        UNDER_SCORE(tokens, sb);
+        assertThat(sb.toString(), is("AB_CD_EF"));
     }
     
 }

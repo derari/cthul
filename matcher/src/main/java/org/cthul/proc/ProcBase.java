@@ -33,7 +33,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
      */
     protected ProcBase(ProcBase source) {
         name(source.name);
-        while (source.source != null) source = source.source;
+        //while (source.source != null) source = source.source;
         this.source = source;
     }
 
@@ -118,7 +118,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         if (!isRun) {
             isRun = true;
             try {
-                result = proxySourceOrRun(args);
+                result = executeProc(args);
                 exception = null;
             } catch (ProcError e) {
                 throw new IllegalArgumentException(e.getMessage(), e.getCause());
@@ -129,8 +129,8 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         }
     }
 
-    protected Object proxySourceOrRun(Object... args) throws Throwable {
-        if (source != null) return source.run(args);
+    protected Object executeProc(Object... args) throws Throwable {
+        if (source != null) return source.executeProc(args);
         return run(args);
     }
 
@@ -218,11 +218,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
      */
     @Override
     public void describeTo(Description description) {
-        description.appendText("{")
-                   .appendText(name)
-                   .appendText("}(");
-        describeArgs(description);
-        description.appendText(")");
+        describeKeyTo(description);
         if (isRun) {
             if (hasResult()) {
                 description.appendText(" = ")
@@ -233,16 +229,33 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
             }
         }
     }
+    
+    protected void describeKeyTo(Description description) {
+        description.appendText("{");
+        describeNameTo(description);
+        description.appendText("}(");
+        describeArgsTo(description);
+        description.appendText(")");
+    }
+    
+    protected void describeNameTo(Description description) {
+        if (name != null) {
+            description.appendText(name);
+        } else if (source != null) {
+            source.describeNameTo(description);
+        }
+    }
 
     /**
      * Describes the arguments that are used for execution this asProc.
      * @param description
      */
-    protected void describeArgs(Description description) {
+    protected int describeArgsTo(Description description) {
         for (int i = 0; i < args.length; i++) {
             if (i > 0) description.appendText(", ");
             description.appendValue(args[i]);
         }
+        return args.length;
     }
 
     /**

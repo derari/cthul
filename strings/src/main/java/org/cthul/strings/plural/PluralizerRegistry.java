@@ -55,7 +55,7 @@ public class PluralizerRegistry {
      * @return a pluralizer
      * @see #getExact(java.util.Locale) 
      */
-    public synchronized Pluralizer get(Locale l) {
+    public synchronized Pluralizer find(Locale l) {
         while (l != null) {
             List<Locale> candidates = control
                                     .getCandidateLocales(PLURALIZER_CLASS, l);
@@ -74,7 +74,7 @@ public class PluralizerRegistry {
      * @return a pluralizer
      * @see #get(java.util.Locale)
      */
-    public synchronized Pluralizer getExact(Locale l) {
+    public synchronized Pluralizer getRegistered(Locale l) {
         return pluralizers.get(l);
     }
 

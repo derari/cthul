@@ -2,9 +2,9 @@ package org.cthul.matchers.fluent.builder;
 
 import org.cthul.matchers.fluent.FluentMatcher;
 import org.hamcrest.Matcher;
-import org.cthul.matchers.test.ColorFluent;
-import org.cthul.matchers.test.ColorMatchers;
-import org.cthul.matchers.test.MColorFluents;
+import org.cthul.matchers.testold.ColorFluent;
+import org.cthul.matchers.testold.ColorMatchers;
+import org.cthul.matchers.testold.MColorFluents;
 import org.hamcrest.Description;
 import org.hamcrest.StringDescription;
 import org.junit.After;

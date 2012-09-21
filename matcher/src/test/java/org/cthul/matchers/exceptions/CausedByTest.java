@@ -38,8 +38,8 @@ public class CausedByTest {
         StringDescription desc = new StringDescription();
         hasCause.describeMismatch(t, desc);
         assertThat(desc.toString(), 
-                is("cause 1 message \"b\" could not be matched, "
-                 + "cause 2 message \"c\" could not be matched"));
+                is("cause 1 message \"b\" did not contain /x/, "
+                 + "cause 2 message \"c\" did not contain /x/"));
     }
 
 }

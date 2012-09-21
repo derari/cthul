@@ -12,17 +12,6 @@ import org.hamcrest.Matcher;
  */
 public class OrChainMatcher<T> extends MatcherChainBase<T> {
     
-    @Factory
-    @SuppressWarnings("unchecked")
-    public static <T> Matcher<T> or(Matcher<? super T>... matchers) {
-        return new OrChainMatcher<>(matchers);
-    }
-
-    @Factory
-    public static <T> Matcher<T> or(Collection<? extends Matcher<? super T>> matchers) {
-        return new OrChainMatcher<>(matchers);
-    }
-
     public OrChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
         super(matchers);
     }
@@ -84,10 +73,22 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         }
     }
     
+    @Factory
+    @SuppressWarnings("unchecked")
+    public static <T> Matcher<T> or(Matcher<? super T>... matchers) {
+        return new OrChainMatcher<>(matchers);
+    }
+
+    @Factory
+    public static <T> Matcher<T> or(Collection<? extends Matcher<? super T>> matchers) {
+        return new OrChainMatcher<>(matchers);
+    }
+    
     public static final ChainFactory FACTORY = new ChainFactory() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new OrChainMatcher<>(chain);
         }
     };
+    
 }

@@ -22,7 +22,7 @@ public class ExceptionMessageTest {
         
         StringDescription desc = new StringDescription();
         hasValidMessage.describeMismatch(t, desc);
-        assertThat(desc.toString(), is("message \"No value!\" could not be matched"));
+        assertThat(desc.toString(), is("message \"No value!\" did not contain /no value/"));
     }
     
     @Test

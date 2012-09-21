@@ -2,8 +2,11 @@ package org.cthul.strings;
 
 import net.sf.twip.TwiP;
 import net.sf.twip.Values;
-import org.junit.*;
+import org.cthul.proc.Proc1;
+import org.cthul.proc.Procs;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.cthul.matchers.CthulMatchers.raises;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -14,25 +17,6 @@ import static org.hamcrest.Matchers.is;
 @RunWith(TwiP.class)
 public class AlphaIndexTest {
     
-    public AlphaIndexTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-    
     private static final String[] ALPHA = {
             "A", "B", "C", "Z", "AA", "AB", "AZ", "ZZ", "AAA",
     };
@@ -41,13 +25,10 @@ public class AlphaIndexTest {
             0, 1, 2, 25, 26, 27, 51, 701, 702,
     };
     
-    public static final Pair[] DATA = Pair.merge(ALPHA, NUM);
+    public static Pair[] DATA = Pair.merge(ALPHA, NUM);
     
-//    {
-//            p("A", 0), p("B", 1), p("C", 2), p("Z", 25),
-//            p("AA", 26), p("AB", 27), p("AZ", 51),
-//            p("ZZ", 701), p("AAA", 702)
-//    };
+    private static Proc1<Long> ToAlpha = Procs.invoke(AlphaIndex.class, "ToAlpha", 1).asProc1();
+    private static Proc1<String> FromAlpha = Procs.invoke(AlphaIndex.class, "FromAlpha").asProc1();
     
     /**
      * Test of ToAlpha method, of class AlphaIndex.
@@ -73,4 +54,13 @@ public class AlphaIndexTest {
         assertThat(AlphaIndex.FromAlpha(sMax), is(lMax));
     }
     
+    @Test
+    public void test_max_value_fail() {
+        long lMax = Long.MAX_VALUE;
+        assertThat(ToAlpha.call(lMax), raises(IllegalArgumentException.class));
+        
+        String sMax = "CRPXNLSKVLJFHH";
+        assertThat(FromAlpha.call(sMax), raises(IllegalArgumentException.class));
+    }
+
 }

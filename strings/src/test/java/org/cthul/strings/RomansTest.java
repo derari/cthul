@@ -6,8 +6,8 @@ import org.cthul.proc.Procs;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import static org.cthul.matchers.CthulMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -48,17 +48,17 @@ public class RomansTest {
     };
     
     private static final Integer[] NUM_LARGE = {
-            1, 4, 8, 9, 19, 38, 39, 40,
+            19, 38, 39, 40,
             89, 90, 399, 400, 2992, 2999
     };
     
     private static final String[] ROMAN_LARGE = {
-            "I", "IV", "VIII", "IX", "XIX", "XXXVIII", "XXXIX", "XL",
+            "XIX", "XXXVIII", "XXXIX", "XL",
             "LXXXIX", "XC", "CCCXCIX", "CD", "MMCMXCII", "MMCMXCIX"
     };
     
     private static final String[] ROMAN2_LARGE = {
-            "I", "IV", "VIII", "IX", "XIX", "XXXVIII", "XXXIX", "XL",
+            "XIX", "XXXVIII", "XXXIX", "XL",
             "LXXXIX", "XC", "CCCIC", "CD", "MMXMII", "MMIM"
     };
     
@@ -72,49 +72,95 @@ public class RomansTest {
     
     public static final Pair[] DATA2_LARGE = Pair.merge(ROMAN2_LARGE, NUM_LARGE);
     
-    @AutoTwip
-    public static final Romans[] ROMANS = {
+    public static final Romans[] ROMANS_SMALL = {
         new Romans("I", "V"),
         new Romans("I", "V", "X"),
         new Romans("I", "V", "X", "L"),
-        new Romans("I", "V", "X", "L", "C"),
+    };
+
+    public static final Romans[] ROMANS_LARGE = {
+        new Romans("I", "V", "X", "L"),
         new Romans("I", "V", "X", "L", "C", "D", "M"),
     };
 
     @Test
-    public void test_roman_small(@Values("DATA_SMALL") Pair<String, Integer> p) {
+    public void test_toRoman_small(@Values("ROMANS_SMALL") Romans r, @Values("DATA_SMALL") Pair<String, Integer> p) {
+        test_toRoman(r, p.b, p.a);
+    }
+    
+    @Test
+    public void test_toRoman_large(@Values("ROMANS_LARGE") Romans r, @Values("DATA_LARGE") Pair<String, Integer> p) {
+        test_toRoman(r, p.b, p.a);
+    }
+    
+    public void test_toRoman(Romans r, int n, String s) {
+        Proc call = toRoman.call(r, n);
+        if (n > getMaxValue(r)) {
+            assertThat(call, raises(IllegalArgumentException.class));
+        } else {
+            assertThat(call, returns(s));
+        }
+    }
+    
+    @Test
+    public void test_toRoman2_small(@Values("ROMANS_SMALL") Romans r, @Values("DATA_SMALL") Pair<String, Integer> p) {
+        test_toRoman2(r, p.b, p.a);
+    }
+    
+    @Test
+    public void test_toRoman2_large(@Values("ROMANS_LARGE") Romans r, @Values("DATA2_LARGE") Pair<String, Integer> p) {
+        test_toRoman2(r, p.b, p.a);
+    }
+    
+    public void test_toRoman2(Romans r, int n, String s) {
+        Proc call = toRoman2.call(r, n);
+        if (n > getMaxValue(r)) {
+            assertThat(call, raises(IllegalArgumentException.class));
+        } else {
+            assertThat(call, returns(s));
+        }
+    }
+    
+    @Test
+    public void test_fromRoman_small(@Values("ROMANS_SMALL") Romans r, @Values("DATA_SMALL") Pair<String, Integer> p) {
+        test_fromRoman(r, p.a, p.b);
+    }
+    
+    @Test
+    public void test_fromRoman_large(@Values("ROMANS_LARGE") Romans r, @Values("DATA_LARGE") Pair<String, Integer> p) {
+        test_fromRoman(r, p.a, p.b);
+    }
+    
+    @Test
+    public void test_fromRoman_2_large(@Values("ROMANS_LARGE") Romans r, @Values("DATA2_LARGE") Pair<String, Integer> p) {
+        test_fromRoman(r, p.a, p.b);
+    }
+    
+    @Test
+    public void test_fromRoman_variations(@Values("SIX_VARIATIONS") String s) {
         Romans r = new Romans("I", "V", "X");
-        assertThat(r.toRoman(p.b), is(p.a));
+        test_fromRoman(r, s, 6);
     }
 
-    @Test
-    public void test_roman_small_2(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans("I", "V", "X", "L");
-        assertThat(r.toRoman(p.b), is(p.a));
-    }
-    
-    @Test
-    public void test_roman_small_3(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans("I", "V");
-        Proc pr = toRoman.call(r, p.b);
-        if (p.b < 9) {
-            assertThat(pr, returns(p.a));
+    public void test_fromRoman(Romans r, String s, int n) {
+        Proc call = fromRoman.call(r, s);
+        if (n > getMaxValue(r)) {
+            assertThat(call, raises(IllegalArgumentException.class));
         } else {
-            assertThat(pr, raises(IllegalArgumentException.class));
+            assertThat(call, returns(n));
         }
     }
     
     @Test
-    public void test_roman_large(Romans r, @Values("DATA_LARGE") Pair<String, Integer> p) {
-        Proc pr = toRoman.call(r, p.b);
-        if (p.b > getMaxValue(r)) {
-            assertThat(pr, raises(IllegalArgumentException.class));
-        } else {
-            assertThat(pr, returns(p.a));
-        }
+    public void test_max_small(@Values("ROMANS_SMALL") Romans r) {
+        test_max(r);
     }
     
     @Test
+    public void test_max_large(@Values("ROMANS_LARGE") Romans r) {
+        test_max(r);
+    }
+    
     public void test_max(Romans r) {
         int max = getMaxValue(r);
         assertThat(toRoman.call(r, max), returns());
@@ -131,67 +177,6 @@ public class RomansTest {
             case 1000:  return 3999;
         }
         return -2;
-    }
-    
-    @Test
-    public void test_from_roman_small(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X"});
-        assertThat(r.fromRoman(p.a), is(p.b));
-    }
-    
-    @Test
-    public void test_from_roman_small_2(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X", "L"});
-        assertThat(r.fromRoman(p.a), is(p.b));
-    }
-    
-    @Test
-    public void test_from_roman_large(Romans r, @Values("DATA_LARGE") Pair<String, Integer> p) {
-        Proc pr = fromRoman.call(r, p.a);
-        if (p.b > getMaxValue(r)) {
-            assertThat(pr, raises(IllegalArgumentException.class));
-        } else {
-            assertThat(pr, returns(p.b));
-        }
-    }
-    
-    @Test
-    public void test_from_roman_variations(@Values("SIX_VARIATIONS") String s) {
-        Romans r = new Romans(new String[]{"I", "V", "X"});
-        assertThat(r.fromRoman(s), is(6));
-    }
-
-    @Test
-    public void test_roman2_small(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X"});
-        assertThat(r.toRoman2(p.b), is(p.a));
-    }
-
-    @Test
-    public void test_roman2_small_2(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V", "X", "L"});
-        assertThat(r.toRoman2(p.b), is(p.a));
-    }
-    
-    @Test
-    public void test_roman2_small_3(@Values("DATA_SMALL") Pair<String, Integer> p) {
-        Romans r = new Romans(new String[]{"I", "V"});
-        Proc pr = toRoman2.call(r, p.b);
-        if (p.b < 9) {
-            assertThat(pr, returns(p.a));
-        } else {
-            assertThat(pr, raises(IllegalArgumentException.class));
-        }
-    }
-    
-    @Test
-    public void test_roman2_large(Romans r, @Values("DATA2_LARGE") Pair<String, Integer> p) {
-        Proc pr = toRoman2.call(r, p.b);
-        if (p.b > getMaxValue(r)) {
-            assertThat(pr, raises(IllegalArgumentException.class));
-        } else {
-            assertThat(pr, returns(p.a));
-        }
     }
     
 }

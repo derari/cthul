@@ -26,7 +26,7 @@ public class MatcherDescription<T> extends QuickDiagnosingMatcherBase<T> {
     /** {@inheritDoc} */
     @Override
     public boolean matches(Object item, Description mismatch) {
-        return matches(matcher, item, mismatch);
+        return quickMatch(matcher, item, mismatch);
     }
 
     /** {@inheritDoc} */

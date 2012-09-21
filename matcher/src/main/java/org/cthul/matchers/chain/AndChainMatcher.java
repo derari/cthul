@@ -12,17 +12,6 @@ import org.hamcrest.Matcher;
  * @param <T> 
  */
 public class AndChainMatcher<T> extends MatcherChainBase<T> {
-    
-    @Factory
-    @SuppressWarnings("unchecked")
-    public static <T> Matcher<T> and(Matcher<? super T>... matchers) {
-        return new AndChainMatcher<>(matchers);
-    }
-    
-    @Factory
-    public static <T> Matcher<T> and(Collection<? extends Matcher<? super T>> matchers) {
-        return new AndChainMatcher<>(matchers);
-    }
 
     public AndChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
         super(matchers);
@@ -63,7 +52,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     public boolean matches(Object item, Description mismatch) {
         for (Matcher<? super T> m: matchers) {
             // the first matcher that fails describes the mismatch
-            if (!matches(m, item, mismatch)) {
+            if (!quickMatch(m, item, mismatch)) {
                 return false;
             }
         }
@@ -74,6 +63,17 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     @Override
     public void describeMismatch(Object item, Description description) {
         matches(item, description);
+    }
+    
+    @Factory
+    @SuppressWarnings("unchecked")
+    public static <T> Matcher<T> and(Matcher<? super T>... matchers) {
+        return new AndChainMatcher<>(matchers);
+    }
+    
+    @Factory
+    public static <T> Matcher<T> and(Collection<? extends Matcher<? super T>> matchers) {
+        return new AndChainMatcher<>(matchers);
     }
     
     public static final ChainFactory FACTORY = new ChainFactory() {

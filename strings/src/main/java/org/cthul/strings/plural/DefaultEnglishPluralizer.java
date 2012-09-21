@@ -1,10 +1,25 @@
 package org.cthul.strings.plural;
 
+import java.util.Locale;
+
 /**
  *
  * @author Arian Treffer
  */
 public class DefaultEnglishPluralizer extends RegexPluralizer {
+    
+    /* Rules taken from Ruby on Rails, 
+     *   activesupport / lib / active_support / inflections.rb 
+     * 
+     * which was released under the MIT license:
+     *   http://opensource.org/licenses/MIT
+     * 
+     */
+
+    @Override
+    protected Locale locale() {
+        return Locale.ENGLISH;
+    }
 
     @Override
     protected void initUncountables() {
@@ -12,8 +27,10 @@ public class DefaultEnglishPluralizer extends RegexPluralizer {
                 "equipment",
                 "fish",
                 "information",
+                "jeans",
                 "money",
                 "news",
+                "police",
                 "rice",
                 "series",
                 "sheep",
@@ -27,7 +44,9 @@ public class DefaultEnglishPluralizer extends RegexPluralizer {
                 "child",    "children",
                 "man",      "men",
                 "person",   "people",
+                "sex",      "sexes",
                 "woman",    "women",
+                "zombie",   "zombies",
         });
 
         plural(new String[]{
@@ -58,12 +77,9 @@ public class DefaultEnglishPluralizer extends RegexPluralizer {
                 "(alias|status|bus)es$",        "$1",
                 "(octop|vir)i$",                "$1us",
                 "(cris|ax|test)es$",            "$1is",
+                "(o)es$",                       "$1",
+                "(shoe)s",                      "$1",
         });
-
-        /*
-            singular(/(o)es$/i, '\1')
-            singular(/(shoe)s$/i, '\1')
-         */
     }
 
     @Override

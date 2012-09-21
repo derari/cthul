@@ -6,11 +6,11 @@ import org.hamcrest.Matcher;
 import java.util.ArrayList;
 import java.util.List;
 import org.cthul.matchers.diagnose.MatcherDescription;
-import org.cthul.matchers.diagnose.QuickDiagnoseMatcherBase;
 import org.cthul.matchers.chain.AndChainMatcher;
 import org.cthul.matchers.chain.ChainFactory;
 import org.cthul.matchers.chain.OrChainMatcher;
 import org.cthul.matchers.chain.XOrChainMatcher;
+import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
 import org.cthul.matchers.fluent.Fluent;
 import org.cthul.matchers.fluent.FluentMatcher;
 import org.hamcrest.core.IsNot;
@@ -22,7 +22,7 @@ import org.hamcrest.core.IsNot;
  * @param <T> 
  */
 public class FluentBuilder<T> 
-        extends QuickDiagnoseMatcherBase<T> 
+        extends QuickDiagnosingMatcherBase<T> 
         implements FluentMatcher<T> {
 
     private List<Matcher<? super T>> matchers = new ArrayList<>();
@@ -42,17 +42,13 @@ public class FluentBuilder<T>
         }
     }
     
-    protected void raiseInvalidChain(Object expected) {
-        throw new IllegalStateException(
-                "Chain type is " + chainFactory + 
-                ", but required was " + expected);
-    }
-    
     protected void ensureChain(ChainFactory f) {
         if (chainFactory == null) {
             chainFactory = f;
         } else if (chainFactory != f) {
-            raiseInvalidChain(f);
+            throw new IllegalStateException(
+                    "Chain type is " + chainFactory + 
+                    ", but required was " + f);
         }
     }
 
@@ -60,16 +56,16 @@ public class FluentBuilder<T>
         this.description = reason;
     }
     
-    protected void _is(Matcher<?> matcher) {
+    protected void _is(Matcher<? super T> matcher) {
         modify();
         if (matcher instanceof FluentMatcher) {
-            matcher = ((FluentMatcher<?>) matcher).getMatcher();
+            matcher = ((FluentMatcher<? super T>) matcher).getMatcher();
         }
         if (negated) {
             matcher = IsNot.not(matcher);
             negated = false;
         }
-        matchers.add((Matcher) matcher);
+        matchers.add(matcher);
     }
 
     protected void _not() {
@@ -264,7 +260,7 @@ public class FluentBuilder<T>
 
     @Override
     public boolean matches(Object item, Description mismatch) {
-        return matches(getMatcher(), item, mismatch);
+        return quickMatch(getMatcher(), item, mismatch);
     }
 
     @Override

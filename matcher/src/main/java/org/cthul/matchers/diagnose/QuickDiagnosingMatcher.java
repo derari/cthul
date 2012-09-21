@@ -17,6 +17,16 @@ import org.hamcrest.Matcher;
  */
 public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
     
+    /**
+     * Evaluates the matcher for argument {@code item}.
+     * <p/>
+     * A mismatch description is appended to {@code mismatch} 
+     * if and only if the match fails.
+     *
+     * @param item The object against which the matcher is evaluated.
+     * @param nismatch The description to be built or appended to.
+     * @return {@code true} if {@code item} matches, otherwise {@code false}.
+     */
     public boolean matches(Object item, Description mismatch);
     
 }

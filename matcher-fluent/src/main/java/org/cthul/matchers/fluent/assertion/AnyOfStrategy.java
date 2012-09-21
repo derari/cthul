@@ -15,6 +15,7 @@ public class AnyOfStrategy<T> implements AssertionStrategy<T> {
         this.set = new HashSet<>(collection);
     }
 
+    @Override
     public Object validate(Matcher<T> matcher) {
         T lastMismatch = null;
         Iterator<T> it = set.iterator();

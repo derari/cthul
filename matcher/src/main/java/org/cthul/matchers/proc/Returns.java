@@ -18,6 +18,51 @@ import org.hamcrest.core.IsEqual;
  */
 public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
 
+    private final Matcher<?> resultMatcher;
+    
+    public Returns(Matcher<?> resultMatcher) {
+        this.resultMatcher = resultMatcher;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("returns ")
+                   .appendDescriptionOf(resultMatcher);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected boolean matchesSafely(Proc proc) {
+        if (!proc.hasResult()) {
+            return false;
+        }
+        return resultMatcher.matches(proc.getResult());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void describeMismatchSafely(Proc proc, Description mismatch) {
+        if (!proc.hasResult()) {
+            mismatch.appendText("threw ")
+                    .appendValue(proc.getException());
+        } else {
+            mismatch.appendText("returned ");
+            resultMatcher.describeMismatch(proc.getResult(), mismatch);
+        }
+    }
+
+    @Override
+    protected boolean matchesSafely(Proc proc, Description mismatch) {
+        if (!proc.hasResult()) {
+            mismatch.appendText("threw ")
+                    .appendValue(proc.getException());
+            return false;
+        } else {
+            return quickMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
+        }
+    }
+    
     /**
      * Does the proc return a value equal to {@code value}?
      * @param value
@@ -74,51 +119,6 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     @Factory
     public static Matcher<Proc> returns() {
         return new Returns(IsAnything.anything());
-    }
-
-    private final Matcher<?> resultMatcher;
-    
-    public Returns(Matcher<?> resultMatcher) {
-        this.resultMatcher = resultMatcher;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("returns ")
-                   .appendDescriptionOf(resultMatcher);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected boolean matchesSafely(Proc proc) {
-        if (!proc.hasResult()) {
-            return false;
-        }
-        return resultMatcher.matches(proc.getResult());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void describeMismatchSafely(Proc proc, Description mismatch) {
-        if (!proc.hasResult()) {
-            mismatch.appendText("threw ")
-                    .appendValue(proc.getException());
-        } else {
-            mismatch.appendText("returned ");
-            resultMatcher.describeMismatch(proc.getResult(), mismatch);
-        }
-    }
-
-    @Override
-    protected boolean matchesSafely(Proc proc, Description mismatch) {
-        if (!proc.hasResult()) {
-            mismatch.appendText("threw ")
-                    .appendValue(proc.getException());
-            return false;
-        } else {
-            return matches(resultMatcher, proc.getResult(), mismatch, "returned $1");
-        }
     }
 
 }

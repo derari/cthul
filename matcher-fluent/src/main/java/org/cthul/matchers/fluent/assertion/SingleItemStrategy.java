@@ -10,6 +10,7 @@ public class SingleItemStrategy<T> implements AssertionStrategy<T> {
         this.item = item;
     }
 
+    @Override
     public Object validate(Matcher<T> matcher) {
         if (matcher.matches(item)) {
             return VALID;
