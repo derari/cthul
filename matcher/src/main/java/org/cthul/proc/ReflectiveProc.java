@@ -35,32 +35,32 @@ public class ReflectiveProc extends PN {
         return new Class[c];
     }
     
-    public static ReflectiveProc newInstance(Class<?> clazz, Class[] paramTypes) {
+    public static ReflectiveProc newInstance(Class<?> clazz, Class... paramTypes) {
         Constructor<?> c = selectConstructor(clazz, paramTypes);
         return new ReflectiveProc(c);
     }
     
-    public static PN newInstanceWith(Class<?> clazz, Object[] args) {
+    public static PN newInstanceWith(Class<?> clazz, Object... args) {
         Class[] paramTypes = argsToTypes(args);
         return newInstance(clazz, paramTypes).call(args);
     }
     
-    public static ReflectiveProc invoke(Class clazz, String name, Class[] paramTypes) {
+    public static ReflectiveProc invoke(Class clazz, String name, Class... paramTypes) {
         Method m = selectMethod(clazz, name, paramTypes);
         return new ReflectiveProc(null, m);
     }
     
-    public static ReflectiveProc invoke(Object object, String name, Class[] paramTypes) {
+    public static ReflectiveProc invoke(Object object, String name, Class... paramTypes) {
         Method m = selectMethod(object.getClass(), name, paramTypes);
         return new ReflectiveProc(object, m);
     }
     
-    public static PN invokeWith(Class clazz, String name, Object[] args) {
+    public static PN invokeWith(Class clazz, String name, Object... args) {
         Class[] paramTypes = argsToTypes(args);
         return invoke(clazz, name, paramTypes).call(args);
     }
     
-    public static PN invokeWith(Object object, String name, Object[] args) {
+    public static PN invokeWith(Object object, String name, Object... args) {
         Class[] paramTypes = argsToTypes(args);
         return invoke(object, name, paramTypes).call(args);
     }
