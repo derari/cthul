@@ -1,7 +1,7 @@
 package org.cthul.log;
 
 import java.util.Locale;
-import org.cthul.strings.format.FormatConfiguration;
+import org.cthul.strings.format.FormatterConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Arian Treffer
  */
-public class CLogConfiguration extends FormatConfiguration {
+public class CLogConfiguration extends FormatterConfiguration {
     
-    private static final CLogConfiguration Default = new CLogConfiguration(FormatConfiguration.getDefault());
+    private static final CLogConfiguration Default = new CLogConfiguration(FormatterConfiguration.getDefault());
 
     public static CLogConfiguration getDefault() {
         return Default;
@@ -24,7 +24,7 @@ public class CLogConfiguration extends FormatConfiguration {
         this.parent = parent;
     }
     
-    public CLogConfiguration(FormatConfiguration parent) {
+    public CLogConfiguration(FormatterConfiguration parent) {
         super(parent);
         this.parent = null;
     }

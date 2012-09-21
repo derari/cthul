@@ -3,7 +3,7 @@ package org.cthul.log;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
-import static org.cthul.strings.Formatter.*;
+import static org.cthul.strings.Formatter.Format;
 
 /**
  * Wraps a {@link Logger slf4j Logger}, which is the main user entry point of SLF4J API. 
@@ -127,10 +127,13 @@ public final class CLogger {
     public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
         if (${level}(<@argM m 0/>)) {
 <#if (argC < 0 && t == 0)>
-            Throwable t = (message instanceof Throwable) ? (Throwable) message : null;
-            logger.${level}(<@argM m/>Format(conf, t, message), t);
+            if (message instanceof Throwable) {
+                logger.${level}(<@argM m/>String.valueOf(message), (Throwable) message);
+            } else {
+                logger.${level}(<@argM m/>String.valueOf(message));
+            }
 <#else>
-            logger.${level}(<@argM m/>Format(conf, <@argT t/>message<@args argC/>)<@argT t, -1/>);
+            logger.${level}(<@argM m/>Format(conf, <@argT t/>String.valueOf(message)<@args argC/>)<@argT t, -1/>);
 </#if>
         }
     }
