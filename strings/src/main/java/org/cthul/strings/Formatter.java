@@ -2,12 +2,13 @@ package org.cthul.strings;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Matcher;
 import org.cthul.strings.format.*;
+import org.cthul.strings.format.conversion.*;
 
 /**
  * A reimplementation of {@link java.util.Formatter} that allows to use
- * custom {@link Format} implementations.
+ * custom {@link FormatConversion} implementations.
  * <p>
  * Custom formats must be registered and can be identified either by
  * {@code %iX}, where X is their short ID, or {@code %jXxx}, where Xxx is their
@@ -50,11 +51,12 @@ import org.cthul.strings.format.*;
  * custom formats are explained above.
  * By default, the following formats are registered:
  * <pre>
- *   ia and jAlpha: {@link AlphaIndexFormat}
- *   iC and jClass: {@link ClassNameFormat}
- *   iP and jPlural: {@link PluralFormat}
- *   ir and jRomans: {@link RomansFormat}
- *   iS and jSingular: {@link SingularFormat}
+ *   ia and jAlpha: {@link AlphaIndexConversion}
+ *   iC and jClass: {@link ClassNameConversion}
+ *   if and jCase: {@link ConditionalConversion}
+ *   iP and jPlural: {@link PluralConversion}
+ *   ir and jRomans: {@link RomansConversion}
+ *   iS and jSingular: {@link SingularConversion}
  * </pre>
  * 
  * @author Arian Treffer
@@ -62,63 +64,45 @@ import org.cthul.strings.format.*;
 public class Formatter implements Flushable, AutoCloseable {
     
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments.
-     * 
-     * @param formatString a format string
-     * @param args Arguments referenced by the format specifiers in the format
-     *         string.
-     * @return A formatted string
-     * @see java.util.Formatter
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public static String Format(String formatString, Object... args) {
+    public static String Format(Object formatString, Object... args) {
         return Format((FormatterConfiguration) null, formatString, args);
     }
     
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments.
-     * 
-     * @param t error argument
-     * @param formatString a format string
-     * @param args Arguments referenced by the format specifiers in the format
-     *         string.
-     * @return A formatted string
-     * @see java.util.Formatter
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public static String Format(Throwable t, String formatString, Object... args) {
-        return Format(FormatterConfiguration.getDefault(), t, formatString, args);
+    public static String Format(Throwable t, Object formatString, Object... args) {
+        return Format(null, t, formatString, args);
     }
 
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments.
-     * 
-     * @param c A {@linkplain FormatConfiguration format configuration}.
-     * @param formatString a format string
-     * @param args Arguments referenced by the format specifiers in the format
-     *         string.
-     * @return A formatted string
-     * @see java.util.Formatter
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public static String Format(FormatterConfiguration c, String formatString, Object... args) {
+    public static String Format(FormatterConfiguration c, Object formatString, Object... args) {
         return Format(c, null, formatString, args);
     }
     
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments.
-     * 
-     * @param c A {@linkplain FormatConfiguration format configuration}.
-     * @param t error argument
-     * @param formatString a format string
-     * @param args Arguments referenced by the format specifiers in the format
-     *         string.
-     * @return A formatted string
-     * @see java.util.Formatter
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public static String Format(FormatterConfiguration c, Throwable t, String formatString, Object... args) {
+    public static String Format(FormatterConfiguration c, Throwable t, Object formatString, Object... args) {
         return new Formatter(c).format(t, formatString, args).toString();
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
+     */
+    public static String Format(Object formatString, FormatArgs args) {
+        return Format(null, formatString, args);
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
+     */
+    public static String Format(FormatterConfiguration c, Object formatString, FormatArgs args) {
+        return new Formatter(c).format(formatString, args).toString();
     }
     
     private final Appendable out;
@@ -134,7 +118,7 @@ public class Formatter implements Flushable, AutoCloseable {
     }
 
     public Formatter(Appendable out) {
-        this(out,(FormatterConfiguration) null);
+        this(out, (FormatterConfiguration) null);
     }
     
     public Formatter(FormatterConfiguration conf) {
@@ -216,7 +200,7 @@ public class Formatter implements Flushable, AutoCloseable {
     /**
      * Returns the locale set by the construction of this formatter.
      *
-     * <p> The {@link #format(java.util.Locale,String,Object...) format} method
+     * <p> The {@link #format(java.util.Locale, java.lang.Object, java.lang.Object[]) format} method
      * for this object which has a locale argument does not change this value.
      *
      * @return  {@code null} if no localization is applied, otherwise a
@@ -227,6 +211,7 @@ public class Formatter implements Flushable, AutoCloseable {
      *          #close()} method
      */
     public Locale locale() {
+        ensureOpen();
         return conf.locale();
     }
     
@@ -240,6 +225,7 @@ public class Formatter implements Flushable, AutoCloseable {
      *          #close()} method
      */
     public Appendable out() {
+        ensureOpen();
         return out;
     }
 
@@ -318,142 +304,96 @@ public class Formatter implements Flushable, AutoCloseable {
     }
     
     /**
-     * Writes a formatted string to this object's destination using the
-     * specified format string and arguments.  The locale used is the one
-     * defined during the construction of this formatter.
-     *
-     * @param  format
-     *         A format string as described in Format string
-     *         syntax.
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.
-     *
-     * @throws  IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.
-     *
-     * @throws  FormatterClosedException
-     *          If this formatter has been closed by invoking its {@link
-     *          #close()} method
-     *
-     * @return  This formatter
-     * @see java.util.Formatter#format(java.lang.String, java.lang.Object[])
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public Formatter format(final String format, final Object... args) {
-        return format(conf, format, args);
+    public Formatter format(Object format, Object... args) {
+        return format(null, null, null, format, 0, -1, args);
     }
     
     /**
-     * Writes a formatted string to this object's destination using the
-     * specified locale, format string, and arguments.
-     *
-     * @param  locale
-     *         The {@linkplain java.util.Locale locale} to apply during
-     *         formatting.
-     *
-     * @param  format
-     *         A format string as described in Format string
-     *         syntax.
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.
-     *
-     * @throws  IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.
-     *
-     * @throws  FormatterClosedException
-     *          If this formatter has been closed by invoking its {@link
-     *          #close()} method
-     *
-     * @return  This formatter
-     * @see java.util.Formatter#format(java.util.Locale, java.lang.String, java.lang.Object[]) 
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public Formatter format(final Locale locale, final String format, final Object... args) {
-        return format(conf.forLocale(locale), format, args);
+    public Formatter format(Locale locale, Object format, Object... args) {
+        return format(null, locale, null, format, 0, -1, args);
     }
     
     /**
-     * Writes a formatted string to this object's destination using the
-     * specified format string and arguments.  The locale used is the one
-     * defined during the construction of this formatter.
-     *
-     * @param  format
-     *         A format string as described in Format string
-     *         syntax.
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.
-     *
-     * @throws  IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.
-     *
-     * @throws  FormatterClosedException
-     *          If this formatter has been closed by invoking its {@link
-     *          #close()} method
-     *
-     * @return  This formatter
-     * @see java.util.Formatter#format(java.lang.String, java.lang.Object[])
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public Formatter format(final Object e, final String format, final Object... args) {
-        return format(conf, e, format, args);
+    public Formatter format(Throwable e, Object format, Object... args) {
+        return format(null, null, e, format, 0, -1, args);
     }
     
     /**
-     * Writes a formatted string to this object's destination using the
-     * specified locale, format string, and arguments.
-     *
-     * @param  locale
-     *         The {@linkplain java.util.Locale locale} to apply during
-     *         formatting.
-     *
-     * @param  format
-     *         A format string as described in Format string
-     *         syntax.
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.
-     *
-     * @throws  IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.
-     *
-     * @throws  FormatterClosedException
-     *          If this formatter has been closed by invoking its {@link
-     *          #close()} method
-     *
-     * @return  This formatter
-     * @see java.util.Formatter#format(java.util.Locale, java.lang.String, java.lang.Object[]) 
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
      */
-    public Formatter format(final FormatterConfiguration conf, final String format, final Object... args) {
-        return format(conf, null, format, args);
+    public Formatter format(FormatterConfiguration conf, Object format, Object... args) {
+        return format(conf, null, format, 0, -1, args);
     }
 
     /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
+     */
+    public Formatter format(FormatterConfiguration conf, Throwable e, Object format, Object... args) {
+        return format(conf, e, format, 0, -1, args);
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
+     */
+    public Formatter format(FormatterConfiguration conf, Object e, Object format, int start, int end, Object... args) {
+        return format(conf, null, e, format, start, end, args);
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
+     */
+    public Formatter format(Object format, FormatArgs args) {
+        return format(null, null, format, 0, -1, args);
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
+     */
+    public Formatter format(FormatterConfiguration conf, Object format, FormatArgs args) {
+        return format(conf, null, format, 0, -1, args);
+    }
+    
+    /**
+     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
+     */
+    public Formatter format(FormatterConfiguration conf, Object format, int start, int end, FormatArgs args) {
+        return format(conf, null, format, start, end, args);
+    }
+    
+    /**
      * Writes a formatted string to this object's destination using the
-     * specified locale, format string, and arguments.
-     *
+     * specified format string and arguments. 
+     * 
+     * @param  conf
+     *         The formatter configuration, provides additional formats and
+     *         the default locale. If {@code null}, the configuration specified
+     *         at the construction of this formatter is used.
+     * 
      * @param  locale
      *         The {@linkplain java.util.Locale locale} to apply during
-     *         formatting.
+     *         formatting. If {@code null}, the configuration will be used to
+     *         obtain a locale.
+     * 
+     * @param  e
+     *         The object that is used as exception argument {@code E}.
      *
      * @param  format
-     *         A format string as described in Format string
-     *         syntax.
+     *         A format string as described in Format string syntax. If the
+     *         object does not implement {@link Localizable}, it is converted
+     *         into a string.
+     * 
+     * @param  start 
+     *         The index where parsing the format string begins.
+     * 
+     * @param  end 
+     *         The index where parsing the format string ends 
+     *         (-1 for the entire string).
      *
      * @param  args
      *         Arguments referenced by the format specifiers in the format
@@ -470,35 +410,121 @@ public class Formatter implements Flushable, AutoCloseable {
      *          #close()} method
      *
      * @return  This formatter
-     * @see java.util.Formatter#format(java.util.Locale, java.lang.String, java.lang.Object[]) 
+     * @see java.util.Formatter#format(java.lang.String, java.lang.Object[])
      */
-    public Formatter format(final FormatterConfiguration conf, final Object e, final String format, final Object... args) {
-        return format(conf, e, format, 0, format.length(), args);
-    }
-    
-    public Formatter format(final FormatterConfiguration conf, final Object e, final String format, int start, int end, final Object... args) {
+    protected Formatter format(FormatterConfiguration conf, Locale locale, Object e, Object format, int start, int end, Object... args) {
         try {
-            new Parser(conf, e, args, false).parse(format, start, end);
+            if (conf == null) conf = this.conf;
+            if (locale == null) locale = conf.locale();
+            if (locale == null) locale = Locale.ROOT;
+            String fString = toFormatString(format, locale);
+            if (end < 0) end = fString.length() - end - 1;
+            new Parser(conf, locale, e, args).parse(fString, start, end);
         } catch (IOException ex) {
             lastIOException = ex;
         }
         return this;
     }
+
+    /**
+     * Writes a formatted string to this object's destination using the
+     * specified format string and arguments. 
+     * 
+     * @param  conf
+     *         The formatter configuration, provides additional formats and
+     *         the default locale. If {@code null}, the configuration specified
+     *         at the construction of this formatter is used.
+     * 
+     * @param  locale
+     *         The {@linkplain java.util.Locale locale} to apply during
+     *         formatting. If {@code null}, the configuration will be used to
+     *         obtain a locale.
+     * 
+     * @param  format
+     *         A format string as described in Format string syntax. If the
+     *         object does not implement {@link Localizable}, it is converted
+     *         into a string.
+     * 
+     * @param  start 
+     *         The index where parsing the format string begins.
+     * 
+     * @param  end 
+     *         The index where parsing the format string ends 
+     *         (-1 for the entire string).
+     *
+     * @param  args
+     *         Arguments referenced by the format specifiers in the format
+     *         string.
+     *
+     * @throws  IllegalFormatException
+     *          If a format string contains an illegal syntax, a format
+     *          specifier that is incompatible with the given arguments,
+     *          insufficient arguments given the format string, or other
+     *          illegal conditions.
+     *
+     * @throws  FormatterClosedException
+     *          If this formatter has been closed by invoking its {@link
+     *          #close()} method
+     *
+     * @return  This formatter
+     * @see java.util.Formatter#format(java.lang.String, java.lang.Object[])
+     */
+    protected Formatter format(FormatterConfiguration conf, Locale locale, Object format, int start, int end, FormatArgs args) {
+        try {
+            if (locale == null) locale = conf.locale();
+            if (locale == null) locale = Locale.ROOT;
+            String fString = toFormatString(format, locale);
+            if (end < 0) end = fString.length() - end - 1;
+            new Parser(conf, locale, args).parse(fString, start, end);
+        } catch (IOException ex) {
+            lastIOException = ex;
+        }
+        return this;
+    }
+
+    protected String toFormatString(Object format, Locale locale) {
+        if (format instanceof Localizable) {
+            return ((Localizable) format).toString(locale);
+        } else {
+            return String.valueOf(format);
+        }
+    }
     
-    protected class Parser extends FormatStringParser<IOException> {
+    protected class Parser extends FormatStringParser<IOException> implements FormatArgs {
         
         protected final FormatterConfiguration conf;
         protected final Locale locale;
+        protected final FormatArgs fArgs;
         protected final Object e;
         protected final Object[] args;
         protected int ucCounter = 0;
         private API api;
 
-        public Parser(FormatterConfiguration conf, Object e, Object[] args, boolean uppercase) {
+        private Parser(FormatterConfiguration conf, Locale locale, Object e, Object[] args, FormatArgs fArgs) {
             this.conf = conf;
-            this.locale = conf.locale();
+            this.locale = locale != null ? locale : conf.locale();
             this.e = e;
             this.args = args;
+            this.fArgs = fArgs != null ? fArgs : this;
+        }
+        
+        public Parser(FormatterConfiguration conf, Locale locale, Object e, Object[] args) {
+            this(conf, locale, e, args, null);
+        }
+
+        public Parser(FormatterConfiguration conf, Locale locale, FormatArgs fArgs) {
+            this(conf, locale, null, null, fArgs);
+        }
+
+        @Override
+        public Object get(int i) {
+            return args[i];
+        }
+
+        @Override
+        public Object get(char c) {
+            if (c == 'E') return e;
+            throw new IllegalArgumentException("Invalid index '" + c + "'");
         }
         
         protected boolean uppercase() {
@@ -511,14 +537,16 @@ public class Formatter implements Flushable, AutoCloseable {
         }
         
         protected Object arg(int i) {
-            if (i == 0) return e;
-            return args[i-1];
+            if (i < 1) {
+                return fArgs.get((char) -i);
+            } else {
+                return fArgs.get(i - 1);
+            }
         }
 
         @Override
         protected int parseCharIndex(char c) {
-            if (c == 'E') return 0;
-            throw new IllegalArgumentException("Invalid index '" + c + "'");
+            return -c;
         }
         
         @Override

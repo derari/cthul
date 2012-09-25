@@ -6,7 +6,7 @@ import org.cthul.strings.Formatter;
 
 /**
  * A special interface the {@link Formatter} publishes to 
- * {@link Format} implementations.
+ * {@link FormatConversion} implementations.
  * 
  * @author Arian Treffer
  */

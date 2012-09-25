@@ -27,9 +27,7 @@ public class RegexPluralizer implements Pluralizer {
         plurals = newRuleList();
         singulars = newRuleList();
         locale = locale();
-        initUncountables();
-        initIrregulars();
-        initRules();
+        initialize();
     }
 
     /**
@@ -52,6 +50,12 @@ public class RegexPluralizer implements Pluralizer {
      */
     protected Locale locale() {
         return Locale.ROOT;
+    }
+    
+    protected void initialize() {
+        initUncountables();
+        initIrregulars();
+        initRules();
     }
 
     /**
@@ -156,10 +160,10 @@ public class RegexPluralizer implements Pluralizer {
      * the first letter is taken over.
      * <pre> {@code
      * irregular("cow", "kine");
-     * pluralize("cow"); // -> "kine"
-     * pluralize("Cow"); // -> "Kine"
-     * singularize("kine"); // -> "cow"
-     * singularize("Kine"); // -> "Cow"
+     * pluralOf("cow"); // -> "kine"
+     * pluralOf("Cow"); // -> "Kine"
+     * singularOf("kine"); // -> "cow"
+     * singularOf("Kine"); // -> "Cow"
      * }</pre>
      * The implementation of this method relies on
      * {@code plural} and {@code singular}.
@@ -223,14 +227,14 @@ public class RegexPluralizer implements Pluralizer {
     }
 
     /**
-     * Defines a rule that is used by {@code singularize}.
+     * Defines a rule that is used by {@code singularOf}.
      * Rules will be applied in the order they are defined.
      * <p/>
      * Uses {@code p} to compile the regex.
      * @param pluralRegex
      * @param singularReplace
      * @see RegexPluralizer#p(java.lang.String) 
-     * @see RegexPluralizer#singularize(java.lang.String) 
+     * @see RegexPluralizer#singularOf(java.lang.String) 
      */
     protected void singular(String pluralRegex, String singularReplace) {
         singular(p(pluralRegex), singularReplace);
@@ -259,14 +263,14 @@ public class RegexPluralizer implements Pluralizer {
     }
 
     /**
-     * Defines a rule that is used by {@code pluralize}.
+     * Defines a rule that is used by {@code pluralOf}.
      * Rules will be applied in the order they are defined.
      * <p/>
      * Uses {@code p} to compile the regex.
      * @param singularRegex
      * @param pluralReplace
      * @see RegexPluralizer#p(java.lang.String)
-     * @see RegexPluralizer#pluralize(java.lang.String)
+     * @see RegexPluralizer#pluralOf(java.lang.String)
      */
     protected void plural(String singularRegex, String pluralReplace) {
         plural(p(singularRegex), pluralReplace);
@@ -289,12 +293,12 @@ public class RegexPluralizer implements Pluralizer {
      * If it is not, the first rule that matches is applied to the word.
      * If no rule matches, returns {@code word}
      * <p/>
-     * Is used by {@code pluralize} and {@code singularize}
+     * Is used by {@code pluralOf} and {@code singularOf}
      * @param word
      * @param rules
      * @return tranformed word
-     * @see RegexPluralizer#pluralize(java.lang.String)
-     * @see RegexPluralizer#singularize(java.lang.String) 
+     * @see RegexPluralizer#pluralOf(java.lang.String)
+     * @see RegexPluralizer#singularOf(java.lang.String) 
      */
     protected String transform(String word, List<Rule> rules) {
         int i = word.lastIndexOf(' ');
@@ -314,7 +318,7 @@ public class RegexPluralizer implements Pluralizer {
      * {@inheritDoc}
      */
     @Override
-    public String pluralize(String word) {
+    public String pluralOf(String word) {
         return transform(word, plurals);
     }
 
@@ -322,7 +326,7 @@ public class RegexPluralizer implements Pluralizer {
      * {@inheritDoc}
      */
     @Override
-    public String singularize(String word) {
+    public String singularOf(String word) {
         return transform(word, singulars);
     }
 

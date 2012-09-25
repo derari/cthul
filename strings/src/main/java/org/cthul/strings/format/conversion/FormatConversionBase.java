@@ -105,9 +105,4 @@ public abstract class FormatConversionBase
         }
     }
 
-    @Override
-    public String toString() {
-        return getFormatName();
-    }
-            
 }

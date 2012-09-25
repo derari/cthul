@@ -40,7 +40,7 @@ public class SingularConversion extends FormatAlignmentBase {
     protected int format(Appendable a, Object value, Locale locale, String flags, int precision, String formatString, int position) throws IOException {
         ensureNoPrecision(precision);
         Pluralizer p = reg.find(locale);
-        a.append(p.singularize(value.toString()));
+        a.append(p.singularOf(value.toString()));
         return 0;
     }
     

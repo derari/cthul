@@ -32,6 +32,10 @@ public class FormatException {
         return new CustomIllegalFormatFlagsException(flags, format);
     }
     
+    public static DuplicateFormatFlagsException duplicateFlags(String flags) {
+        return new DuplicateFormatFlagsException(flags);
+    }
+    
     public static UnknownFormatConversionException unknownFormat(char format) {
         return new UnknownFormatConversionException(String.valueOf(format));
     }
@@ -62,6 +66,11 @@ public class FormatException {
     
     public static IllegalFormatWidthException illegalWidth(String format, int w, Integer min, Integer max) {
         return new CustomIllegalWidthException(format, w, min, max);
+    }
+    
+    public static IllegalArgumentException illegalArgument(String message, Object... args) {
+        // use inbuild format to avoid recursion
+        return new IllegalArgumentException(String.format(message, args));
     }
     
     public static class ShortFormatFlagsConversionMismatchException extends FormatFlagsConversionMismatchException {

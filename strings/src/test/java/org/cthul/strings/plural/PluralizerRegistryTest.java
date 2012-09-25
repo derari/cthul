@@ -17,7 +17,7 @@ public class PluralizerRegistryTest {
      */
     @Test
     public void test_default_english() {
-        Pluralizer pEn = PluralizerRegistry.INSTANCE.find(Locale.ENGLISH);
-        assertThat(pEn.pluralize("sheep"), is("sheep"));
+        Pluralizer pEn = PluralizerRegistry.INSTANCE.find(Locale.UK);
+        assertThat(pEn.pluralOf("sheep"), is("sheep"));
     }
 }

@@ -28,7 +28,7 @@ public class AlphaIndex {
      * </pre>
      * Maximum value is {@code Long.MAX_VALUE-1}
      * @param i number to convert
-     * @return aplha-index of {@code i}
+     * @return alpha-index of {@code i}
      * @see Long#MAX_VALUE
      */
     public static String ToAlpha(long i) {
@@ -45,7 +45,7 @@ public class AlphaIndex {
         final int A = (uppercase ? 'A' : 'a') - 1;
         if (i < 0)
             throw new IllegalArgumentException(
-                    "Argument must be non-negative");
+                    "Argument must be non-negative, was " + i);
         if (i == Long.MAX_VALUE)
             throw new IllegalArgumentException(
                     "Argument must be smaller than Long.MAX_VALUE");
@@ -94,5 +94,36 @@ public class AlphaIndex {
         }
         return result-1;
     }
+    
+    /**
+     * Converts a number to one-based alpha-index.
+     * For zero, an empty string is returned.
+     * @see #ToAlpha(long)
+     */
+    public static String ToAlpha1(long i) {
+       if (i == 0) return ""; 
+       return ToAlpha(i-1);
+    }
+    
+    /**
+     * Converts a number to one-based alpha-index.
+     * For zero, an empty string is returned.
+     * @see #ToAlpha(long, boolean)
+     */
+    public static String ToAlpha1(long i, boolean uppercase) {
+       if (i == 0) return ""; 
+       return ToAlpha(i-1, uppercase);
+    }
 
+    /**
+     * Parses a one-based alpha-index.
+     * An empty string will be parsed as zero.
+     * @see #FromAlpha(java.lang.String) 
+     */
+    public static long FromAlpha1(String s) {
+        s = s.trim();
+        if (s.isEmpty()) return 0;
+        return FromAlpha(s) + 1;
+    }
+    
 }

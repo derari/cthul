@@ -1,19 +1,24 @@
 package org.cthul.strings.format.conversion;
 
-import java.util.*;
+import java.util.IllegalFormatPrecisionException;
+import java.util.Locale;
 import org.cthul.proc.Proc;
+import org.cthul.strings.Romans;
 import org.cthul.strings.format.FormatterAPIStub;
-import org.cthul.strings.format.conversion.RomansConversion;
-import org.junit.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.cthul.matchers.CthulMatchers.*;
+import org.junit.Test;
+import static org.cthul.matchers.CthulMatchers.raises;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
  * @author Arian Treffer
  */
-public class RomansFormatTest {
+public class RomansConversionTest {
+    
+    private String format(RomansConversion c, int value, String flags, int width, int precision) {
+        return FormatterAPIStub.format(c, value, Locale.ENGLISH, flags, width, precision, "", 0);
+    }
     
     private String format(int value, String flags, int width, int precision) {
         return FormatterAPIStub.format(RomansConversion.INSTANCE, value, Locale.ENGLISH, flags, width, precision, "", 0);
@@ -46,6 +51,12 @@ public class RomansFormatTest {
         assertThat(format(999, null, -1, 2), is("im"));
         
         assertThat(formatCall(0, null, -1, 3), raises(IllegalFormatPrecisionException.class));
+    }
+    
+    @Test
+    public void test_max_value() {
+        RomansConversion c = new RomansConversion(new Romans("i", "v", "x"));
+        assertThat(format(c, 44, null, -1, -1), is("xxxxiv"));
     }
     
 }

@@ -2,6 +2,7 @@ package org.cthul.strings.format;
 
 import java.io.IOException;
 import java.util.Locale;
+import org.cthul.strings.format.conversion.FormatConversionBase;
 
 /**
  *
@@ -11,7 +12,7 @@ public interface FormatConversion {
     
     /**
      * Appends a string representation of {@code value} to the {@code formatter}.
-     * Implementations should extend {@link FormatBase}
+     * Implementations should extend {@link FormatConversionBase}
      * @param formatter
      * @param value
      * @param flags flags parameter, non-empty string or {@code null}

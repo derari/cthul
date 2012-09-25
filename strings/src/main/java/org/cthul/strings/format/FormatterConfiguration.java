@@ -5,8 +5,8 @@ import org.cthul.strings.format.conversion.*;
 
 /**
  * Manages short and long formats.
- * The {@link #getDefault() default} configuration has all formats of this 
- * package registered.
+ * The {@link #getDefault() default} configuration has all formats of the 
+ * {@code conversion} package registered.
  * 
  * @author Arian Treffer
  */
@@ -21,6 +21,7 @@ public class FormatterConfiguration extends AbstractFormatConfiguration<FormatCo
     static {
         AlphaIndexConversion.INSTANCE.register(Default);
         ClassNameConversion.INSTANCE.register(Default);
+        ConditionalConversion.INSTANCE.register(Default);
         PluralConversion.INSTANCE.register(Default);
         RomansConversion.INSTANCE.register(Default);
         SingularConversion.INSTANCE.register(Default);

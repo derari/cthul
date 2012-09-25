@@ -1,6 +1,5 @@
 package org.cthul.strings.format;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;

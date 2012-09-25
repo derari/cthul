@@ -1,12 +1,11 @@
 package org.cthul.strings.format;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.FormatFlagsConversionMismatchException;
 
 /**
  * Provides some utility methods for implementing a {@link FormatConversion} or
- * {@link FormatPattern}.
+ * {@link ConversionPattern}.
  * @author Arian Treffer
  */
 public abstract class FormatImplBase {
@@ -18,22 +17,30 @@ public abstract class FormatImplBase {
     private static final char[] F_JUST = flags(F_JUSTIFICATION);
     
     /**
+     * Converts strings of flags into a sorted flag array,
+     * that can be passed as a parameter to other utility methods.
+     * @param flagStrings
+     * @return flag array
+     */
+    protected static char[] flags(final CharSequence... flagStrings) {
+        final StringBuilder sb = new StringBuilder();
+        for (CharSequence flags: flagStrings) sb.append(flags);
+        return flags(sb.toString());
+    }
+    
+    /**
      * Converts a string of flags into a sorted flag array,
      * that can be passed as a parameter to other utility methods.
      * @param flagString
      * @return flag array
      */
-    protected static char[] flags(String flagString) {
+    protected static char[] flags(final String flagString) {
         if (flagString == null || flagString.isEmpty()) {
             return NO_FLAGS;
         }
+        noDupsExcept(flagString, NO_FLAGS);
         final char[] flags = flagString.toCharArray();
         Arrays.sort(flags);
-        for (int i = 0; i < flags.length-1; i++) {
-            if (flags[i] == flags[i+1]) {
-                throw FormatException.duplicateFormatFlags(flagString);
-            }
-        }
         return flags;
     }
     
@@ -49,18 +56,18 @@ public abstract class FormatImplBase {
     
     /**
      * Ensures that {@code actual} only contains {@code expected} flags.
-     * @param actual
+     * @param flags
      * @param expected a {@link #flags(java.lang.String) flags} array
      * @throws FormatException if invalid flags are found
      */
-    protected void ensureValidFlags(final String actual, 
+    protected void ensureValidFlags(final String flags, 
                                     final char[] expected) {
-        if (actual == null) return;
+        if (flags == null) return;
         StringBuilder unexpected = null;
-        for (int i = 0; i < actual.length(); i++) {
-            char c = actual.charAt(i);
+        for (int i = 0; i < flags.length(); i++) {
+            char c = flags.charAt(i);
             if (Arrays.binarySearch(expected, c) < 0) {
-                if (unexpected == null) unexpected = new StringBuilder(actual.length());
+                if (unexpected == null) unexpected = new StringBuilder();
                 unexpected.append(c);
             }
         }
@@ -70,20 +77,53 @@ public abstract class FormatImplBase {
         }
     }
     
+    protected void ensureNoDuplicates(final String flags) {
+        ensureNoDuplicatesExcept(flags, NO_FLAGS);
+    }
+    
+    protected void ensureNoDuplicatesExcept(final String flags, final char[] dups) {
+        noDupsExcept(flags, dups);
+    }
+    
+    private static void noDupsExcept(final String flags, final char[] dups) {
+        if (flags == null) return;
+        StringBuilder duplicates = null;
+        for (int i = 0; i < flags.length(); i++) {
+            char c = flags.charAt(i);
+            if (oneOf(c, dups)) continue;
+            boolean dup = false;
+            for (int j = i+1; j < flags.length(); j++) {
+                if (flags.charAt(j) == c) {
+                    dup = true;
+                    break;
+                }
+            }
+            if (dup) {
+                if (duplicates == null) duplicates = new StringBuilder();
+                if (duplicates.indexOf(flags.substring(i, i+1)) < 0) {
+                    duplicates.append(c);
+                }
+            }
+        }
+        if (duplicates != null) {
+            throw FormatException.duplicateFlags(duplicates.toString());
+        }        
+    }
+    
     /**
      * Ensures that {@code actual} contains no {@code invalid} flags.
-     * @param actual
+     * @param flags
      * @param invalid a {@link #flags(java.lang.String) flags} array
      * @throws FormatException if invalid flags are found
      */
-    protected void ensureNoInvalidFlags(final String actual, 
+    protected void ensureNoInvalidFlags(final String flags, 
                                         final char[] invalid) {
-        if (actual == null) return;
+        if (flags == null) return;
         StringBuilder unexpected = null;
-        for (int i = 0; i < actual.length(); i++) {
-            char c = actual.charAt(i);
-            if (Arrays.binarySearch(invalid, c) >= 0) {
-                if (unexpected == null) unexpected = new StringBuilder(actual.length());
+        for (int i = 0; i < flags.length(); i++) {
+            char c = flags.charAt(i);
+            if (oneOf(c, invalid)) {
+                if (unexpected == null) unexpected = new StringBuilder();
                 unexpected.append(c);
             }
         }
@@ -127,9 +167,9 @@ public abstract class FormatImplBase {
         char found = 0;
         for (int i = 0; i < flags.length(); i++) {
             char f = flags.charAt(i);
-            if (Arrays.binarySearch(choice, f) >= 0) {
+            if (oneOf(f, choice)) {
                 if (found != 0) {
-                    if (conflict == null) conflict = new StringBuilder(choice.length).append(found);
+                    if (conflict == null) conflict = new StringBuilder().append(found);
                     conflict.append(f);
                 } else {
                     found = f;
@@ -141,6 +181,10 @@ public abstract class FormatImplBase {
                 conflict.toString(), getFormatName());
         }
         return found;
+    }
+    
+    protected static boolean oneOf(char c, char[] flags) {
+        return Arrays.binarySearch(flags, c) >= 0;
     }
     
     /**
@@ -174,7 +218,7 @@ public abstract class FormatImplBase {
     }
     
     protected static enum Justification {
-        Left, Right, Center, None;
+        None, Left, Right, Center;
     }
     
     protected Justification getJustification(String flags, int width) {

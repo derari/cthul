@@ -12,7 +12,7 @@ public interface ConversionPattern {
     /**
      * Appends pattern to regex
      * 
-     * @param regex
+     * @param pattern
      * @param locale
      * @param flags
      * @param width

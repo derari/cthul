@@ -14,8 +14,8 @@ public class PluralizerRegistry {
 
     public static PluralizerRegistry INSTANCE;
 
-    private static ResourceBundle.Control defControl = new ResourceBundle.Control() { };
-    private static String PLURALIZER_CLASS = Pluralizer.class.getName();
+    private static final ResourceBundle.Control defControl = new ResourceBundle.Control() { };
+    private static final String PLURALIZER_CLASS = Pluralizer.class.getName();
 
     static {
         PluralizerRegistry reg = new PluralizerRegistry();
@@ -50,10 +50,10 @@ public class PluralizerRegistry {
     }
 
     /**
-     * Finds a pluralizer for a locale.
+     * Finds the best pluralizer for a locale.
      * @param l
      * @return a pluralizer
-     * @see #getExact(java.util.Locale) 
+     * @see #getRegistered(java.util.Locale) 
      */
     public synchronized Pluralizer find(Locale l) {
         while (l != null) {
@@ -72,7 +72,7 @@ public class PluralizerRegistry {
      * Returns the pluralizer that is registered for a locale, or {@code null}.
      * @param l
      * @return a pluralizer
-     * @see #get(java.util.Locale)
+     * @see #find(java.util.Locale) 
      */
     public synchronized Pluralizer getRegistered(Locale l) {
         return pluralizers.get(l);

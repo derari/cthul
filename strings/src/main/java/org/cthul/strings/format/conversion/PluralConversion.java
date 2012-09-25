@@ -40,7 +40,7 @@ public class PluralConversion extends FormatAlignmentBase {
     protected int format(Appendable a, Object value, Locale locale, String flags, int precision, String formatString, int position) throws IOException {
         ensureNoPrecision(precision);
         Pluralizer p = reg.find(locale);
-        a.append(p.pluralize(value.toString()));
+        a.append(p.pluralOf(value.toString()));
         return 0;
     }
     

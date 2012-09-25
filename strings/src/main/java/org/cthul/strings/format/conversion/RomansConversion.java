@@ -19,12 +19,12 @@ import org.cthul.strings.format.FormatterConfiguration;
  * @author Arian Treffer
  */
 public class RomansConversion extends FormatAlignmentBase {
-
     private static final Romans R0 = new Romans(new String[]{"i", "v", "x", "l", "c", "d", "m"}, "n", Romans.DIGITS_SIMPLE);
-    private static final Romans R = new Romans(new String[]{"i", "v", "x", "l", "c", "d", "m"}, "n", Romans.DIGITS);
+    private static final Romans R  = new Romans(new String[]{"i", "v", "x", "l", "c", "d", "m"}, "n", Romans.DIGITS);
     
     public static final RomansConversion INSTANCE = new RomansConversion();
     
+    private final String maxL;
     private final long maxVal;
     private final Romans r;
     private final Romans r0;
@@ -33,16 +33,21 @@ public class RomansConversion extends FormatAlignmentBase {
         this(R, R0);
     }
 
+    public RomansConversion(Romans r) {
+        this(r, null);
+    }
+    
     public RomansConversion(Romans r, Romans r0) {
         this.r = r;
         this.r0 = r0;
         String[] letters = r.getLetters();
-        if (letters.length != r0.getLetters().length) {
+        if (r0 != null && letters.length != r0.getLetters().length) {
             throw new IllegalArgumentException(
                     "Both romans need same number of letters, but was " +
                     letters.length + " and " + r0.getLetters().length);
         }
         maxVal = Romans.MaxRomanLetterValue(letters);
+        maxL = letters[letters.length-1];
     }
     
     /**
@@ -61,13 +66,17 @@ public class RomansConversion extends FormatAlignmentBase {
         }
         int i = cast(value, Number.class).intValue();
         while (i > maxVal) {
-            a.append('m');
-            i -= 1000;
+            a.append(maxL);
+            i -= maxVal;
         }
         final StringBuilder sb = (a instanceof StringBuilder) ? 
                                     (StringBuilder) a : new StringBuilder();
         switch (precision) {
             case 0:
+                if (r0 == null)
+                    throw FormatException.illegalPrecision(
+                            getFormatName() + "(zero-precision not configured)", 
+                            0, 1, 2);
                 r0.toRoman(i, sb);
                 break;
             case 2:

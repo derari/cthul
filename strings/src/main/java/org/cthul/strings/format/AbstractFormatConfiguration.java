@@ -31,12 +31,8 @@ public abstract class AbstractFormatConfiguration<Format> {
     }
     
     public Locale locale() {
-        if (locale == null) {
-            if (parent == null) {
-                return Locale.getDefault();
-            } else {
-                return parent.locale();
-            }
+        if (locale == null && parent != null) {
+            return parent.locale();
         }
         return locale;
     }

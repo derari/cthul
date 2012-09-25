@@ -77,6 +77,10 @@ public class JavaNames {
         return result.toArray(new String[result.size()]);
     }
 
+    public static String firstToUpper(String s) {
+        return appendFirstToUpper(s, new StringBuilder()).toString();
+    }
+    
     public static StringBuilder appendFirstToUpper(String s, StringBuilder target) {
         if (s.isEmpty()) return target;
         target.append(Character.toUpperCase(s.charAt(0)));
@@ -94,6 +98,12 @@ public class JavaNames {
     public static String[] allToUpper(final String[] tokens) {
         for (int i = 0; i < tokens.length; i++)
             tokens[i] = tokens[i].toUpperCase();
+        return tokens;
+    }
+    
+    public static String[] allToCamel(final String[] tokens) {
+        for (int i = 0; i < tokens.length; i++)
+            tokens[i] = firstToUpper(tokens[i]);
         return tokens;
     }
     
@@ -148,7 +158,7 @@ public class JavaNames {
         boolean first = true;
         for (String t: tokens) {
             if (!first) sb.append(sep);
-            first = false;
+            else first = false;
             sb.append(t);
         }
         return sb;
