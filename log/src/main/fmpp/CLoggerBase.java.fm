@@ -1,0 +1,106 @@
+// generated file
+package org.cthul.log;
+
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import org.slf4j.spi.LocationAwareLogger;
+
+/**
+ * CLogger Base
+ *
+ * @author Arian Treffer
+ */
+public class CLoggerBase {
+
+    protected final LocationAwareLogger laLogger;
+    protected final Logger logger;
+    protected final CLogConfigurationBase conf;
+
+    public CLoggerBase(Logger logger) {
+        this(logger, null);
+    }
+    
+    public CLoggerBase(Logger logger, CLogConfigurationBase conf) {
+        if (logger instanceof LocationAwareLogger) {
+            this.laLogger = (LocationAwareLogger) logger;
+        } else {
+            this.laLogger = null;
+        }
+        this.logger = logger;
+        this.conf = conf != null ? conf : CLogConfiguration.getDefault();
+    }
+    
+<#macro params c>
+<#if (c > 0)><#list 1..c as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
+<#macro args c>
+<#if (c > 0)><#list 1..c as i>, arg${i}</#list><#elseif c == 0>, args</#if></#macro>
+<#macro pItem s c x>
+<#if (c > 0)><#if (x < 0)>, </#if>${s}<#if x==1>, </#if></#if></#macro>
+<#macro paramT c x=1>
+<@pItem "Throwable throwable" c x/></#macro>
+<#macro argT c x=1>
+<@pItem "throwable" c x/></#macro>
+<#macro paramM c x=1>
+<@pItem "Marker marker" c x/></#macro>
+<#macro argM c x=1>
+<@pItem "marker" c x/></#macro>
+<#assign levels = ["trace", "debug", "info", "warn", "error"]>
+<#assign Levels = ["Trace", "Debug", "Info", "Warn", "Error"]>
+<#assign LEVELS = ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"]>
+<#assign maxArgC = 3>
+<#list levels as level>
+ <#list 0..1 as m>
+    /**
+     * Is the logger instance enabled for the ${level} level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the ${level} level,
+     * false otherwise.
+     */
+    public boolean ${level}(<@paramM m 0/>) {
+        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
+    }
+
+    /**
+     * Is the logger instance enabled for the ${level} level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the ${level} level,
+     * false otherwise.
+     */    
+    public boolean is${Levels[level_index]}Enabled(<@paramM m 0/>) {
+        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
+    }
+
+ </#list>
+</#list>
+<#list 0..1 as m>
+    /**
+     * Is the logger instance enabled for the given level?
+<#if (m > 0)>
+     * The marker data is taken into account.
+</#if>
+     * @param level the log level
+<#if (m > 0)>
+     * @param marker The marker data to take into consideration
+</#if>
+     * @return True if this CLogger is enabled for the given level,
+     * false otherwise.
+     */
+    public boolean isEnabled(CLogLevel level<@paramM m, -1/>) {
+        switch (level) {
+ <#list levels as level>
+            case ${Levels[level_index]}:
+                return is${Levels[level_index]}Enabled(<@argM m 0/>);
+ </#list>
+            default:
+                throw new IllegalArgumentException(level.toString());
+        }
+    }
+
+</#list>
+}

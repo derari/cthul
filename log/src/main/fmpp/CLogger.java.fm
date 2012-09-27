@@ -3,6 +3,7 @@ package org.cthul.log;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+import org.slf4j.spi.LocationAwareLogger;
 import static org.cthul.strings.Formatter.Format;
 
 /**
@@ -36,19 +37,16 @@ import static org.cthul.strings.Formatter.Format;
  * </pre>
  * @author Arian Treffer
  */
-public final class CLogger {
-    
-    private final Logger logger;
-    private final CLogConfiguration conf;
+public class CLogger extends CLoggerBase{
 
+    private static final String FQCN = CLogger.class.getName();
+    
     public CLogger(Logger logger) {
-        this(logger, CLogConfiguration.getDefault());
+        super(logger);
     }
     
     public CLogger(Logger logger, CLogConfiguration conf) {
-        CLoggerFix.fix(logger);
-        this.logger = logger;
-        this.conf = conf;
+        super(logger, conf);
     }
     
 <#macro params c>
@@ -67,37 +65,8 @@ public final class CLogger {
 <@pItem "marker" c x/></#macro>
 <#assign levels = ["trace", "debug", "info", "warn", "error"]>
 <#assign Levels = ["Trace", "Debug", "Info", "Warn", "Error"]>
+<#assign LEVELS = ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"]>
 <#assign maxArgC = 3>
-<#list levels as level>
- <#list 0..1 as m>
-    /**
-     * Is the logger instance enabled for the ${level} level?
-<#if (m > 0)>
-     * The marker data is taken into account.
-     * @param marker The marker data to take into consideration
-</#if>
-     * @return True if this CLogger is enabled for the ${level} level,
-     * false otherwise.
-     */
-    public boolean ${level}(<@paramM m 0/>) {
-        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
-    }
-
-    /**
-     * Is the logger instance enabled for the ${level} level?
-<#if (m > 0)>
-     * The marker data is taken into account.
-     * @param marker The marker data to take into consideration
-</#if>
-     * @return True if this CLogger is enabled for the ${level} level,
-     * false otherwise.
-     */    
-    public boolean is${Levels[level_index]}Enabled(<@paramM m 0/>) {
-        return logger.is${Levels[level_index]}Enabled(<@argM m 0/>);
-    }
-
- </#list>
-</#list>
 <#list levels as level>
  <#list 0..1 as m>
   <#list 0..1 as t>
@@ -126,46 +95,34 @@ public final class CLogger {
      */
     public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
         if (${level}(<@argM m 0/>)) {
-<#if (argC < 0 && t == 0)>
-            if (message instanceof Throwable) {
-                logger.${level}(<@argM m/>String.valueOf(message), (Throwable) message);
-            } else {
-                logger.${level}(<@argM m/>String.valueOf(message));
-            }
-<#else>
-            logger.${level}(<@argM m/>Format(conf, <@argT t/>String.valueOf(message)<@args argC/>)<@argT t, -1/>);
+<#assign formatMsg=t/>
+<#if t == 0>
+ <#if (argC < 0)>
+            final Throwable throwable = message instanceof Throwable ? (Throwable) message : null;
+ <#elseif argC == 0>
+            final Throwable throwable = (args.length > 0 && args[0] instanceof Throwable) ? (Throwable) args[0] : null;
+            <#assign formatMsg=1/>
+ <#else>
+            final Throwable throwable = arg1 instanceof Throwable ? (Throwable) arg1 : null;
+            <#assign formatMsg=1/>
+ </#if>
 </#if>
+<#if formatMsg == 1>
+            String msg = Format(conf, throwable, message<@args argC/>);
+<#else>
+            String msg = String.valueOf(message);
+</#if>
+            if (laLogger != null) {
+                laLogger.log(<#if (m>0)>marker<#else>null</#if>, FQCN, LocationAwareLogger.${LEVELS[level_index]}_INT, msg, null, throwable);
+            } else {
+                logger.${level}(<@argM m/>msg, throwable);
+            }
         }
     }
 
    </#list>
   </#list>
  </#list>
-</#list>
-<#list 0..1 as m>
-    /**
-     * Is the logger instance enabled for the given level?
-<#if (m > 0)>
-     * The marker data is taken into account.
-</#if>
-     * @param level the log level
-<#if (m > 0)>
-     * @param marker The marker data to take into consideration
-</#if>
-     * @return True if this CLogger is enabled for the given level,
-     * false otherwise.
-     */
-    public boolean isEnabled(CLogLevel level<@paramM m, -1/>) {
-        switch (level) {
- <#list levels as level>
-            case ${Levels[level_index]}:
-                return is${Levels[level_index]}Enabled(<@argM m 0/>);
- </#list>
-            default:
-                throw new IllegalArgumentException(level.toString());
-        }
-    }
-
 </#list>
 <#list 0..1 as m>
  <#list 0..1 as t>

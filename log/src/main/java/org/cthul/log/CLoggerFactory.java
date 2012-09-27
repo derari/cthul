@@ -14,7 +14,7 @@ public class CLoggerFactory {
         return CLogConfiguration.getDefault().getLogger(name);
     }
     
-    public static CLogger getClasslogger() {
+    public static CLogger getClassLogger() {
         return CLogConfiguration.getDefault().getClassLogger(1);
     }
     

@@ -28,8 +28,8 @@ public class CLoggerTest {
     }
 
     @Test
-    public void testFix() {
-        CLogger log = CLoggerFactory.getClasslogger();
+    public void testMessage() {
+        CLogger log = CLoggerFactory.getClassLogger();
         log.error("hello world");
     }
 }
