@@ -4,6 +4,8 @@
 
 package org.cthul.matchers.proc;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
 import org.cthul.proc.Proc;
 import org.hamcrest.Description;
@@ -46,6 +48,9 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
         if (!proc.hasResult()) {
             mismatch.appendText("threw ")
                     .appendValue(proc.getException());
+            StringWriter sw = new StringWriter();
+            proc.getException().printStackTrace(new PrintWriter(sw));
+            mismatch.appendText(" ").appendText(sw.toString());
         } else {
             mismatch.appendText("returned ");
             resultMatcher.describeMismatch(proc.getResult(), mismatch);
@@ -55,8 +60,7 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     @Override
     protected boolean matchesSafely(Proc proc, Description mismatch) {
         if (!proc.hasResult()) {
-            mismatch.appendText("threw ")
-                    .appendValue(proc.getException());
+            describeMismatchSafely(proc, mismatch);
             return false;
         } else {
             return quickMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
