@@ -301,15 +301,17 @@ public class RegexPluralizer implements Pluralizer {
      * @see RegexPluralizer#singularOf(java.lang.String) 
      */
     protected String transform(String word, List<Rule> rules) {
-        int i = word.lastIndexOf(' ');
-        if (i > -1) {
-            return word.substring(0, i+1) +
-                   transform(word.substring(i+1), rules);
+        String wordLower = lower(word);
+        for (String u: uncountables) {
+            if (wordLower.endsWith(u)) return word;
         }
-        if (uncountables.contains(word.toLowerCase(locale))) return word;
         for (Rule r: rules) {
             Matcher m = r.pattern.matcher(word);
-            if (m.find()) return m.replaceAll(r.replacement);
+            if (m.find()) {
+                StringBuffer sb = new StringBuffer();
+                m.appendReplacement(sb, r.replacement);
+                return m.appendTail(sb).toString();
+            }
         }
         return word;
     }
