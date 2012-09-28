@@ -357,7 +357,11 @@ public class Romans implements Serializable {
 
     @Override
     public String toString() {
-        return "Romans (" + Arrays.toString(letters) + ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Romans(");
+        JavaNames.Join(letters, " ", sb);
+        sb.append(")");
+        return sb.toString();
     }
 
     public String[] getLetters() {

@@ -15,7 +15,7 @@ import org.w3c.dom.ls.LSResourceResolver;
  */
 public class SchemaResolver implements LSResourceResolver {
     
-    static final CLogger log = CLoggerFactory.getClasslogger();
+    static final CLogger log = CLoggerFactory.getClassLogger();
 
     /**
      * Provides the W3 schemas.
