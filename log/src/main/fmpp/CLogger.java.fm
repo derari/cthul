@@ -4,7 +4,7 @@ package org.cthul.log;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
-import static org.cthul.strings.Formatter.Format;
+import static org.cthul.strings.Strings.format;
 
 /**
  * Wraps a {@link Logger slf4j Logger}, which is the main user entry point of SLF4J API. 
@@ -108,7 +108,7 @@ public class CLogger extends CLoggerBase{
  </#if>
 </#if>
 <#if formatMsg == 1>
-            String msg = Format(conf, throwable, message<@args argC/>);
+            String msg = format(conf, throwable, message<@args argC/>);
 <#else>
             String msg = String.valueOf(message);
 </#if>
