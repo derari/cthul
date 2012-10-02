@@ -18,7 +18,7 @@ import org.w3c.dom.ls.LSResourceResolver;
  * or
  * <pre>
  * SchemaFinder finder = new CompositeFinder(
- *          SchemaResolver.ORG_W3_SCHEMA_FINDER,
+ *          OrgW3Finder.INSTANCE,
  *          myFinder1,
  *          myFinder2
  *      );
@@ -30,28 +30,6 @@ import org.w3c.dom.ls.LSResourceResolver;
 public class SchemaResolver implements LSResourceResolver {
     
     static final CLogger log = CLoggerFactory.getClassLogger();
-
-    /**
-     * Provides the W3 schemas.
-     */
-    public static final SchemaFinder ORG_W3_SCHEMA_FINDER;
-
-    public static final String NS_W3_XMLSCHEMA =
-            "http://www.w3.org/2001/XMLSchema";
-    public static final String NS_W3_XML =
-            "http://www.w3.org/XML/1998/namespace";
-    public static final String NS_W3_XML_XSD =
-            "http://www.w3.org/2001/xml.xsd";
-
-    static {
-        Map<String, String> orgW3 = new HashMap<>();
-        orgW3.put(NS_W3_XMLSCHEMA,    "/org/w3/XMLSchema.xsd");
-        orgW3.put(NS_W3_XML,          "/org/w3/xml.xsd");
-        orgW3.put(NS_W3_XML_XSD,      "/org/w3/xml.xsd");
-
-        ORG_W3_SCHEMA_FINDER = new ResourceFinder(SchemaResolver.class)
-                .addSchemas(orgW3).immutable();
-    }
 
     private final SchemaFinder finder;
 

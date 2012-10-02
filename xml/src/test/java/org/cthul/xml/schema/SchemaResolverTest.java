@@ -36,7 +36,7 @@ public class SchemaResolverTest {
 
         return new CompositeFinder(
                 fileFinder,
-                SchemaResolver.ORG_W3_SCHEMA_FINDER);
+                OrgW3Finder.INSTANCE);
     }
 
     private SchemaFinder instance;
@@ -59,14 +59,14 @@ public class SchemaResolverTest {
 
     @Test
     public void w3XMLSchema_resource_exists() throws Exception {
-        InputStream is = instance.find(SchemaResolver.NS_W3_XMLSCHEMA);
+        InputStream is = instance.find(OrgW3Finder.NS_W3_XMLSCHEMA);
         assertThat(is, is(notNullValue()));
         assertThat(is.read(), is(greaterThan(-1)));
     }
 
     @Test
     public void w3XML_resource_exists() throws Exception {
-        InputStream is = instance.find(SchemaResolver.NS_W3_XML);
+        InputStream is = instance.find(OrgW3Finder.NS_W3_XML);
         assertThat(is, is(notNullValue()));
         assertThat(is.read(), is(greaterThan(-1)));
     }

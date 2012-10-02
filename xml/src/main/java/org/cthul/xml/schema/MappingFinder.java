@@ -1,7 +1,3 @@
-/*
- * 
- */
-
 package org.cthul.xml.schema;
 
 import java.io.InputStream;
@@ -9,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.cthul.strings.RegEx;
 
 /**
  *
@@ -16,6 +13,7 @@ import java.util.regex.Pattern;
  */
 public abstract class MappingFinder extends AbstractFinder {
 
+    private boolean simpleQuote = false;
     private final Map<String, String> schemaMap = new HashMap<>();
     private final Map<Pattern, String> domainMap = new HashMap<>();
 
@@ -31,6 +29,19 @@ public abstract class MappingFinder extends AbstractFinder {
     }
 
     public MappingFinder() {
+    }
+    
+    public MappingFinder useSimpleQuoting() {
+        simpleQuote = true;
+        return this;
+    }
+    
+    protected String quote(String pattern) {
+        if (simpleQuote) {
+            return Pattern.quote(pattern);
+        } else {
+            return RegEx.quote(pattern);
+        }
     }
     
     public MappingFinder addSchema(String uri, String resource) {
@@ -55,7 +66,7 @@ public abstract class MappingFinder extends AbstractFinder {
     }
     
     public MappingFinder addDomain(String domain, String altPath) {
-        Pattern domainPattern = Pattern.compile(Pattern.quote(domain));
+        Pattern domainPattern = Pattern.compile(quote(domain));
         addDomainPattern(domainPattern, altPath);
         return this;
     }
