@@ -168,7 +168,7 @@ public class RomansTest {
     }
 
     private int getMaxValue(Romans r) {
-        int max = Romans.MaxRomanLetterValue(r.getLetters());
+        int max = Romans.maxLetterValue(r.getLetters());
         switch (max) {
             case 5:     return 8;   // viii
             case 10:    return 39;  // xxxix

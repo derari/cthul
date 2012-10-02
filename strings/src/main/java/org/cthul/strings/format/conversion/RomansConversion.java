@@ -46,7 +46,7 @@ public class RomansConversion extends FormatAlignmentBase {
                     "Both romans need same number of letters, but was " +
                     letters.length + " and " + r0.getLetters().length);
         }
-        maxVal = Romans.MaxRomanLetterValue(letters);
+        maxVal = Romans.maxLetterValue(letters);
         maxL = letters[letters.length-1];
     }
     
@@ -77,13 +77,13 @@ public class RomansConversion extends FormatAlignmentBase {
                     throw FormatException.illegalPrecision(
                             getFormatName() + "(zero-precision not configured)", 
                             0, 1, 2);
-                r0.toRoman(i, sb);
+                r0.toRoman(sb, i);
                 break;
             case 2:
-                r.toRoman2(i, sb);
+                r.toRoman2(sb, i);
                 break;
             default:
-                r.toRoman(i, sb);
+                r.toRoman(sb, i);
         }
         if (sb != a) a.append(sb);
         return 0;

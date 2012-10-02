@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class FormatterTest {
     
-    static Proc format = Procs.invoke(Formatter.class, "Format", FormatterConfiguration.class, String.class, Object[].class);
+    static Proc format = Procs.invoke(Strings.class, "format", FormatterConfiguration.class, String.class, Object[].class);
 
     static Proc format(FormatterConfiguration c, String s, Object... args) {
         return format.call(c, s, args);

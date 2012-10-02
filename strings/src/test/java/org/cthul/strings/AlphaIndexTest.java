@@ -27,31 +27,31 @@ public class AlphaIndexTest {
     
     public static Pair[] DATA = Pair.merge(ALPHA, NUM);
     
-    private static Proc1<Long> ToAlpha = Procs.invoke(AlphaIndex.class, "ToAlpha", 1).asProc1();
-    private static Proc1<String> FromAlpha = Procs.invoke(AlphaIndex.class, "FromAlpha").asProc1();
+    private static Proc1<Long> ToAlpha = Procs.invoke(AlphaIndex.class, "toAlpha", 1).asProc1();
+    private static Proc1<String> FromAlpha = Procs.invoke(AlphaIndex.class, "fromAlpha").asProc1();
     
     /**
-     * Test of ToAlpha method, of class AlphaIndex.
+     * Test of toAlpha method, of class AlphaIndex.
      */
     @Test
     public void test_ToAlpha(@Values("DATA") Pair<String, Integer> data) {
-        assertThat(AlphaIndex.ToAlpha(data.b), is(data.a));
+        assertThat(AlphaIndex.toAlpha(data.b), is(data.a));
     }
 
     /**
-     * Test of FromAlpha method, of class AlphaIndex.
+     * Test of fromAlpha method, of class AlphaIndex.
      */
     @Test
     public void test_FromAlpha(@Values("DATA") Pair<String, Integer> data) {
-        assertThat(AlphaIndex.FromAlpha(data.a), is(data.b.longValue()));
+        assertThat(AlphaIndex.fromAlpha(data.a), is(data.b.longValue()));
     }
     
     @Test
     public void test_max_value() {
         String sMax = "CRPXNLSKVLJFHG";
         long lMax = Long.MAX_VALUE-1;
-        assertThat(AlphaIndex.ToAlpha(lMax), is(sMax));
-        assertThat(AlphaIndex.FromAlpha(sMax), is(lMax));
+        assertThat(AlphaIndex.toAlpha(lMax), is(sMax));
+        assertThat(AlphaIndex.fromAlpha(sMax), is(lMax));
     }
     
     @Test

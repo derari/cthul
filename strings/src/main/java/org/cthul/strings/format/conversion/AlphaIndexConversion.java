@@ -47,7 +47,7 @@ public class AlphaIndexConversion extends FormatAlignmentBase {
             n -= precision;
             if (n == -1 && containsFlag(' ', flags)) return 0;
         }
-        a.append(AlphaIndex.ToAlpha(n, false));
+        a.append(AlphaIndex.toAlpha(n, false));
         return 0;
     }
     

@@ -63,48 +63,6 @@ import org.cthul.strings.format.conversion.*;
  */
 public class Formatter implements Flushable, AutoCloseable {
     
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
-     */
-    public static String Format(Object formatString, Object... args) {
-        return Format((FormatterConfiguration) null, formatString, args);
-    }
-    
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
-     */
-    public static String Format(Throwable t, Object formatString, Object... args) {
-        return Format(null, t, formatString, args);
-    }
-
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
-     */
-    public static String Format(FormatterConfiguration c, Object formatString, Object... args) {
-        return Format(c, null, formatString, args);
-    }
-    
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, java.lang.Object, int, int, java.lang.Object[]) 
-     */
-    public static String Format(FormatterConfiguration c, Throwable t, Object formatString, Object... args) {
-        return new Formatter(c).format(t, formatString, args).toString();
-    }
-    
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
-     */
-    public static String Format(Object formatString, FormatArgs args) {
-        return Format(null, formatString, args);
-    }
-    
-    /**
-     * @see #format(org.cthul.strings.format.FormatterConfiguration, java.util.Locale, java.lang.Object, int, int, org.cthul.strings.format.FormatArgs) 
-     */
-    public static String Format(FormatterConfiguration c, Object formatString, FormatArgs args) {
-        return new Formatter(c).format(formatString, args).toString();
-    }
-    
     private final Appendable out;
     private final FormatterConfiguration conf;
     private IOException lastIOException = null;

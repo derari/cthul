@@ -31,17 +31,17 @@ public class AlphaIndex {
      * @return alpha-index of {@code i}
      * @see Long#MAX_VALUE
      */
-    public static String ToAlpha(long i) {
-        return ToAlpha(i, true);
+    public static String toAlpha(long i) {
+        return toAlpha(i, true);
     }
     
     /**
-     * Like {@link #ToAlpha(long)}, but allows to choose lower case.
+     * Like {@link #toAlpha(long)}, but allows to choose lower case.
      * @param i number to convert
      * @param uppercase whether output will be in upper case
      * @return aplha-index of {@code i}
      */
-    public static String ToAlpha(long i, boolean uppercase) {
+    public static String toAlpha(long i, boolean uppercase) {
         final int A = (uppercase ? 'A' : 'a') - 1;
         if (i < 0)
             throw new IllegalArgumentException(
@@ -78,7 +78,7 @@ public class AlphaIndex {
      * @return value of {@code s}
      * @see Long#MAX_VALUE
      */
-    public static long FromAlpha(String s) {
+    public static long fromAlpha(String s) {
         s = s.trim().toUpperCase();
         if (s.isEmpty()) throw new IllegalArgumentException(
                 "Empty string not allowed");
@@ -98,32 +98,32 @@ public class AlphaIndex {
     /**
      * Converts a number to one-based alpha-index.
      * For zero, an empty string is returned.
-     * @see #ToAlpha(long)
+     * @see #toAlpha(long)
      */
-    public static String ToAlpha1(long i) {
+    public static String toAlpha1(long i) {
        if (i == 0) return ""; 
-       return ToAlpha(i-1);
+       return toAlpha(i-1);
     }
     
     /**
      * Converts a number to one-based alpha-index.
      * For zero, an empty string is returned.
-     * @see #ToAlpha(long, boolean)
+     * @see #toAlpha(long, boolean)
      */
-    public static String ToAlpha1(long i, boolean uppercase) {
+    public static String toAlpha1(long i, boolean uppercase) {
        if (i == 0) return ""; 
-       return ToAlpha(i-1, uppercase);
+       return toAlpha(i-1, uppercase);
     }
 
     /**
      * Parses a one-based alpha-index.
      * An empty string will be parsed as zero.
-     * @see #FromAlpha(java.lang.String) 
+     * @see #fromAlpha(java.lang.String) 
      */
-    public static long FromAlpha1(String s) {
+    public static long fromAlpha1(String s) {
         s = s.trim();
         if (s.isEmpty()) return 0;
-        return FromAlpha(s) + 1;
+        return fromAlpha(s) + 1;
     }
     
 }

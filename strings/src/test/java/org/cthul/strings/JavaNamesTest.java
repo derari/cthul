@@ -40,28 +40,28 @@ public class JavaNamesTest {
     @Test
     public void test_camelCase() {
         String[] tokens = {"Ab", "CD", "ef"};
-        camelCase(tokens, sb, true);
+        camelCase(sb, true, tokens);
         assertThat(sb.toString(), is("abCdEf"));
     }
     
     @Test
     public void test_CamelCase() {
         String[] tokens = {"Ab", "CD", "ef"};
-        camelCase(tokens, sb, false);
+        camelCase(sb, false, tokens);
         assertThat(sb.toString(), is("AbCdEf"));
     }
     
     @Test
     public void test_under_score() {
         String[] tokens = {"Ab", "CD", "ef"};
-        under_score(tokens, sb);
+        under_score(sb, tokens);
         assertThat(sb.toString(), is("ab_cd_ef"));
     }
     
     @Test
     public void test_UNDER_SCORE() {
         String[] tokens = {"Ab", "CD", "ef"};
-        UNDER_SCORE(tokens, sb);
+        UNDER_SCORE(sb, tokens);
         assertThat(sb.toString(), is("AB_CD_EF"));
     }
     

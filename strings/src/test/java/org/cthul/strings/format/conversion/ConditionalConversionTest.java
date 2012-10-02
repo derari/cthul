@@ -2,7 +2,7 @@ package org.cthul.strings.format.conversion;
 
 import java.util.Locale;
 import org.cthul.proc.Proc;
-import org.cthul.strings.Formatter;
+import org.cthul.strings.Strings;
 import org.cthul.strings.format.FormatterAPIStub;
 import org.junit.Test;
 import static org.cthul.matchers.CthulMatchers.*;
@@ -28,9 +28,9 @@ public class ConditionalConversionTest {
     
     @Test
     public void test_format() {
-        assertThat(Formatter.Format("Total: %if0[no files]1[one file]<15[%<d files][many files] found", 12), 
+        assertThat(Strings.format("Total: %if0[no files]1[one file]<15[%<d files][many files] found", 12), 
                    is("Total: 12 files found"));
-        assertThat(Formatter.Format("%d %<if=1[%s][%iP]", 12, "file"), 
+        assertThat(Strings.format("%d %<if=1[%s][%iP]", 12, "file"), 
                    is("12 files"));
     }
     

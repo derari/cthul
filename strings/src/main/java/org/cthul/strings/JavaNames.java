@@ -78,10 +78,10 @@ public class JavaNames {
     }
 
     public static String firstToUpper(String s) {
-        return appendFirstToUpper(s, new StringBuilder()).toString();
+        return appendFirstToUpper(new StringBuilder(), s).toString();
     }
     
-    public static StringBuilder appendFirstToUpper(String s, StringBuilder target) {
+    public static StringBuilder appendFirstToUpper(StringBuilder target, String s) {
         if (s.isEmpty()) return target;
         target.append(Character.toUpperCase(s.charAt(0)));
         if (s.length() == 1) return target;
@@ -89,19 +89,19 @@ public class JavaNames {
         return target;
     }
     
-    public static String[] allToLower(final String[] tokens) {
+    public static String[] allToLower(final String... tokens) {
         for (int i = 0; i < tokens.length; i++)
             tokens[i] = tokens[i].toLowerCase();
         return tokens;
     }
 
-    public static String[] allToUpper(final String[] tokens) {
+    public static String[] allToUpper(final String... tokens) {
         for (int i = 0; i < tokens.length; i++)
             tokens[i] = tokens[i].toUpperCase();
         return tokens;
     }
     
-    public static String[] allToCamel(final String[] tokens) {
+    public static String[] allToCamel(final String... tokens) {
         for (int i = 0; i < tokens.length; i++)
             tokens[i] = firstToUpper(tokens[i]);
         return tokens;
@@ -114,7 +114,7 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String camelCase(String string) {
-        return camelCase(string, true);
+        return camelCase(true, string);
     }
 
     /**
@@ -124,11 +124,11 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String CamelCase(String string) {
-        return camelCase(string, false);
+        return camelCase(false, string);
     }
 
-    private static String camelCase(String s, boolean firstToLower) {
-        return camelCase(tokenize(s), new StringBuilder(), firstToLower).toString();
+    private static String camelCase(boolean firstToLower, String string) {
+        return camelCase(new StringBuilder(), firstToLower, tokenize(string)).toString();
     }
 
     /**
@@ -137,31 +137,16 @@ public class JavaNames {
      * @param target string builder the word is appended to
      * @param firstToLower if true, the first character will be in lowercase
      */
-    public static StringBuilder camelCase(final String[] tokens, final StringBuilder target, boolean firstToLower) {
+    public static StringBuilder camelCase(final StringBuilder target, boolean firstToLower, final String... tokens) {
         for (String t: tokens) {
             if (firstToLower) {
                 firstToLower = false;
                 target.append(t.toLowerCase());
             } else {
-                appendFirstToUpper(t, target);
+                appendFirstToUpper(target, t);
             }
         }
         return target;
-    }
-
-    /**
-     * Appends {@code tokens} to {@code target}, separated by {@code sep}.
-     * @param tokens
-     * @param sb
-     */
-    public static StringBuilder Join(final String[] tokens, final String sep, final StringBuilder sb) {
-        boolean first = true;
-        for (String t: tokens) {
-            if (!first) sb.append(sep);
-            else first = false;
-            sb.append(t);
-        }
-        return sb;
     }
 
     /**
@@ -170,8 +155,8 @@ public class JavaNames {
      * @param tokens
      * @param sb
      */
-    public static StringBuilder under_score(final String[] tokens, final StringBuilder sb) {
-        return Join(allToLower(tokens), "_", sb);
+    public static StringBuilder under_score(final StringBuilder sb, final String... tokens) {
+        return Strings.join(sb, "_", allToLower(tokens));
     }
 
     /**
@@ -180,8 +165,8 @@ public class JavaNames {
      * @param tokens
      * @param sb
      */
-    public static StringBuilder UNDER_SCORE(final String[] tokens, final StringBuilder sb) {
-        return Join(allToUpper(tokens), "_", sb);
+    public static StringBuilder UNDER_SCORE(final StringBuilder sb, final String... tokens) {
+        return Strings.join(sb, "_", allToUpper(tokens));
     }
 
     /**
@@ -190,7 +175,7 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String under_score(String string) {
-        return under_score(tokenize(string), new StringBuilder()).toString();
+        return under_score(new StringBuilder(), tokenize(string)).toString();
     }
 
     /**
@@ -199,7 +184,7 @@ public class JavaNames {
      * @return String in camel case
      */
     public static String UNDER_SCORE(String string) {
-        return UNDER_SCORE(tokenize(string), new StringBuilder()).toString();
+        return UNDER_SCORE(new StringBuilder(), tokenize(string)).toString();
     }
 
 }

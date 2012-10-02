@@ -19,7 +19,7 @@ public class Romans implements Serializable {
     public static final String[] LETTERS_ALT =
             {"I", "V", "X", "L", "C", "D", "M", "ↁ", "ↂ"};
 
-    public static final int LETTERS_ALT_MAXL = MaxRomanLetterValue(LETTERS_ALT);
+    public static final int LETTERS_ALT_MAXL = maxLetterValue(LETTERS_ALT);
 
     /**
      * Default letters used for generating roman numbers: <p/>
@@ -30,7 +30,7 @@ public class Romans implements Serializable {
             {"I", "V", "X", "L", "C", "D", "M", "V\u0305", "X\u0305",
              "L\u0305", "C\u0305", "D\u0305", "M\u0305"};
 
-    public static final int LETTERS_MAXL = MaxRomanLetterValue(LETTERS);
+    public static final int LETTERS_MAXL = maxLetterValue(LETTERS);
 
     /**
      * Default value for zero.
@@ -70,9 +70,18 @@ public class Romans implements Serializable {
      * @param letters
      * @return value of highest
      */
-    public static int MaxRomanLetterValue(final String... letters) {
+    public static int maxLetterValue(String... letters) {
+        return maxLetterValue(letters.length);
+    }
+    
+    /**
+     * Given an array of letters, returns the value of the highest letter.
+     * @param numberOfLetters
+     * @return value of highest
+     */
+    public static int maxLetterValue(final int numberOfLetters) {
         int v = 1;
-        for (int i = 1; i < letters.length; i++) {
+        for (int i = 1; i < numberOfLetters; i++) {
             v *= i%2==0 ? 2 : 5;
         }
         return v;
@@ -118,17 +127,15 @@ public class Romans implements Serializable {
      *          too large to be represented with the given letters or if
      *          {@code number} is 0 and {@code zero} is null.
      */
-    public static String ToRoman(final int number, final int[][] digits,
+    public static String toRoman(final int number, final int[][] digits,
                                final String zero, final String[] letters) {
-        StringBuilder sb = new StringBuilder();
-        int maxVal = MaxRomanLetterValue(letters);
-        ToRoman(number, sb, digits, zero, letters, maxVal);
-        return sb.toString();
+        int maxVal = maxLetterValue(letters);
+        return toRoman(new StringBuilder(), number, digits, zero, letters, maxVal).toString();
     }
 
     /**
-     * Converts an integer into a roman number. See {@link Romans#ToRoman(int,
-     * int[][], java.lang.String, java.lang.String[]) ToRoman\4}
+     * Converts an integer into a roman number. See {@link Romans#toRoman(int,
+     * int[][], java.lang.String, java.lang.String[]) toRoman\4}
      * for more documentation.
      * 
      * @param number    the value to convert
@@ -138,13 +145,14 @@ public class Romans implements Serializable {
      * @param letters   letters to use for roman number
      * @param maxLetter integer value of the highest letter,
      *          can be computed with
-     *          {@link Romans#MaxRomanLetterValue MaxRomanLetterValue}
+     *          {@link Romans#maxLetterValue maxLetterValue}
      * @throws IllegalArgumentException if {@code number} is invalid.
-     * @see Romans#ToRoman(int, int[][], java.lang.String, java.lang.String[])
+     * @see Romans#toRoman(int, int[][], java.lang.String, java.lang.String[])
      */
-    public static void ToRoman(final int number, final StringBuilder target,
-                               final int[][] digits, final String zero,
-                               final String[] letters, final int maxLetter) {
+    public static StringBuilder toRoman(final StringBuilder target, 
+                    final int number, final int[][] digits, final String zero, 
+                    final String[] letters, final int maxLetter) {
+        
         final boolean maxLetterIs5 = letters.length%2 == 0;
         final int maxVal = maxLetterIs5 ? 9*maxLetter/5 : 4*maxLetter;
         if (number < 0 || number >= maxVal) throw new IllegalArgumentException(
@@ -156,7 +164,8 @@ public class Romans implements Serializable {
         } else {
             // process number by decimal digits
             // v: value of current digit, e.g. 1000
-            // i: `letters` index of current digit, e.g. 6 for 1000 (letters[6] == "M")
+            // i: `letters` index of current digit, 
+            //    e.g. 6 for 1000 (letters[6] == "M")
             int v = maxLetterIs5 ? maxLetter * 2 : maxLetter;
             int i = maxLetterIs5 ? letters.length : letters.length-1;
             for (; v > 0; v/= 10, i -= 2) {
@@ -165,14 +174,15 @@ public class Romans implements Serializable {
                 for (int n: d) target.append(letters[i+n]);
             }
         }
+        return target;
     }
     
     /**
      * @see #toRoman2(int) 
      */
-    public static void ToRoman2(int number, final StringBuilder target,
-                                final String zero, final String[] letters,
-                                final int maxLetter) {
+    public static StringBuilder toRoman2(final StringBuilder target, 
+                    int number, final String zero, final String[] letters, 
+                    final int maxLetter) {
         final boolean maxLetterIs5 = letters.length%2 == 0;
         final int maxVal = maxLetterIs5 ? 9*maxLetter/5 : 4*maxLetter;
         if (number < 0 || number >= maxVal) throw new IllegalArgumentException(
@@ -184,10 +194,11 @@ public class Romans implements Serializable {
         } else {
             // process number by roman digits
             // v: value of current roman digit, e.g. 500
-            // i: `letters` index of current digit, e.g. 5 for 500 (letters[5] == "D")
+            // i: `letters` index of current digit, 
+            //    e.g. 5 for 500 (letters[5] == "D")
             int v = maxLetter;
             int i = letters.length - 1;
-            for (;number > 0; v /= (is5(i) ? 5 : 2), i -= 1) {
+            for (;number > 0; v /= (is5(i) ? 5 : 2), i--) {
                 // append current digit as often as possible
                 while (number >= v) {
                     target.append(letters[i]);
@@ -195,14 +206,14 @@ public class Romans implements Serializable {
                 }
                 // try to find a smaller digit that is a power of 10 and, when
                 // added to `number`, allows appending current digit once more
-                int i2 = 0;
-                int v2 = 1;
+                int i2 = 0; // `letters` index
+                int v2 = 1; // value
                 while (i2 < i) {
                     if (number + v2 >= v) {
                         // smaller digit found, append subtraction construct
                         target.append(letters[i2]);
                         target.append(letters[i]);
-                        number -= v - v2;
+                        number = number + v2 - v;
                         break;
                     }
                     i2 += 2;
@@ -210,6 +221,7 @@ public class Romans implements Serializable {
                 }
             }
         }
+        return target;
     }
     
     /**
@@ -230,7 +242,7 @@ public class Romans implements Serializable {
      * @param zero
      * @return integer value of {@code number}
      */
-    public static int FromRoman(final String number, final String[] letters, final String zero) {
+    public static int fromRoman(final String number, final String[] letters, final String zero) {
         if (number.equals(zero)) {
             return 0;
         }
@@ -288,7 +300,7 @@ public class Romans implements Serializable {
         this.digits = new int[10][];
         for (int i = 0; i < 10; i++)
             this.digits[i] = Arrays.copyOf(digits[i], digits[i].length);
-        this.max = MaxRomanLetterValue(this.letters);
+        this.max = maxLetterValue(this.letters);
     }
 
     public Romans(String... letters) {
@@ -299,8 +311,8 @@ public class Romans implements Serializable {
         this(LETTERS, ZERO, DIGITS);
     }
 
-    public void toRoman(int number, StringBuilder target) {
-        ToRoman(number, target, digits, zero, letters, max);
+    public StringBuilder toRoman(StringBuilder target, int number) {
+        return toRoman(target, number, digits, zero, letters, max);
     }
 
     /**
@@ -313,16 +325,14 @@ public class Romans implements Serializable {
      * @return a roman number
      */
     public String toRoman(int number) {
-        StringBuilder sb = new StringBuilder();
-        toRoman(number, sb);
-        return sb.toString();
+        return toRoman(new StringBuilder(), number).toString();
     }
     
     /**
      * @see #toRoman2(int) 
      */
-    public void toRoman2(int number, StringBuilder target) {
-        ToRoman2(number, target, zero, letters, max);
+    public StringBuilder toRoman2(StringBuilder target, int number) {
+        return toRoman2(target, number, zero, letters, max);
     }
 
     /**
@@ -335,9 +345,7 @@ public class Romans implements Serializable {
      * @return a roman number
      */
     public String toRoman2(int number) {
-        StringBuilder sb = new StringBuilder();
-        toRoman2(number, sb);
-        return sb.toString();
+        return toRoman2(new StringBuilder(), number).toString();
     }
     
     /**
@@ -352,14 +360,14 @@ public class Romans implements Serializable {
      * @return integer value of {@code number}
      */
     public int fromRoman(String number) {
-        return FromRoman(number, letters, zero);
+        return fromRoman(number, letters, zero);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Romans(");
-        JavaNames.Join(letters, " ", sb);
+        Strings.join(sb, " ", letters);
         sb.append(")");
         return sb.toString();
     }
