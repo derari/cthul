@@ -1,13 +1,13 @@
 package org.cthul.strings;
 
-import net.sf.twip.*;
+import net.sf.twip.TwiP;
+import net.sf.twip.Values;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 /**
  *

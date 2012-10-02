@@ -1,17 +1,17 @@
 package org.cthul.strings;
 
 import org.hamcrest.Matcher;
-import org.junit.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import org.junit.Before;
+import org.junit.Test;
 import static org.cthul.strings.JavaNames.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  *
  * @author Arian Treffer
  */
 public class JavaNamesTest {
-    
     
     private StringBuilder sb;
     

@@ -3,9 +3,9 @@ package org.cthul.strings;
 import java.util.List;
 import java.util.regex.MatchResult;
 import org.junit.Test;
-import static org.cthul.matchers.CthulMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.cthul.matchers.CthulMatchers.isInstanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 /**

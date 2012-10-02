@@ -34,7 +34,7 @@ public class AlphaIndexTest {
      * Test of toAlpha method, of class AlphaIndex.
      */
     @Test
-    public void test_ToAlpha(@Values("DATA") Pair<String, Integer> data) {
+    public void test_toAlpha(@Values("DATA") Pair<String, Integer> data) {
         assertThat(AlphaIndex.toAlpha(data.b), is(data.a));
     }
 
@@ -42,7 +42,7 @@ public class AlphaIndexTest {
      * Test of fromAlpha method, of class AlphaIndex.
      */
     @Test
-    public void test_FromAlpha(@Values("DATA") Pair<String, Integer> data) {
+    public void test_fromAlpha(@Values("DATA") Pair<String, Integer> data) {
         assertThat(AlphaIndex.fromAlpha(data.a), is(data.b.longValue()));
     }
     

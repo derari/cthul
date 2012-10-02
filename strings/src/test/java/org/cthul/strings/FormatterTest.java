@@ -47,12 +47,12 @@ public class FormatterTest {
     }
 
     @Test
-    public void testFormat() {
+    public void test_format() {
         assertThat(format("%d %ir %JAlpha", 1, 2, 3), returns("1 ii D"));
     }
     
     @Test
-    public void testConfiguration() {
+    public void test_configuration() {
         FormatterConfiguration conf2 = new FormatterConfiguration(null);
         ClassNameConversion.INSTANCE.register(conf2);
         assertThat(format(conf2, "%iC", 1), returns("java.lang.Integer"));
