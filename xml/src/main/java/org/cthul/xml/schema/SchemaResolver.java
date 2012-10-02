@@ -10,6 +10,20 @@ import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * Returns the schema file for a namespace uri.
+ * <p/>
+ * Usage:
+ * <pre>
+ * new SchemaResolver(SchemaResolver.ORG_W3_SCHEMA_FINDER, myFinder1, myFinder2);
+ * </pre>
+ * or
+ * <pre>
+ * SchemaFinder finder = new CompositeFinder(
+ *          SchemaResolver.ORG_W3_SCHEMA_FINDER,
+ *          myFinder1,
+ *          myFinder2
+ *      );
+ * new SchemaResolver(finder);
+ * </pre>
  * 
  * @author Arian Treffer
  */

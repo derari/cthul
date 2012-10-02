@@ -9,7 +9,7 @@ public abstract class AbstractFinder implements SchemaFinder {
     /**
      * Returns a schema finder that uses this schema finder for look-up,
      * but is not mutable.
-     * @return 
+     * @return schema finder
      */
     public SchemaFinder immutable() {
         return new CompositeFinder(this);

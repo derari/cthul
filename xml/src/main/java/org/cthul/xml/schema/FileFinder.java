@@ -1,14 +1,6 @@
-/*
- * 
- */
-
 package org.cthul.xml.schema;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  *
@@ -28,7 +20,7 @@ public class FileFinder extends MappingFinder {
 
     @Override
     protected InputStream get(String source) {
-        File f = new File(prefix + source);
+        File f = new File(prefix, source);
         if (!f.exists()) return null;
         try {
             return new BufferedInputStream(new FileInputStream(f));

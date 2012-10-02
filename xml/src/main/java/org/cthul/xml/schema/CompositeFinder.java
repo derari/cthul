@@ -23,4 +23,13 @@ public class CompositeFinder extends AbstractFinder {
         return null;
     }
 
+    /**
+     * CompositeFinders are always immutable.
+     * @return this instance
+     */
+    @Override
+    public SchemaFinder immutable() {
+        return this;
+    }
+
 }

@@ -1,10 +1,6 @@
 package org.cthul.xml.validation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import javax.xml.XMLConstants;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
@@ -12,9 +8,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.cthul.xml.schema.SchemaResolver;
 import org.w3c.dom.ls.LSResourceResolver;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 /**
  * A SAX parser that validates the input against schemas on the fly.

@@ -1,24 +1,8 @@
 package org.cthul.xml.validation;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
+import java.io.*;
 import javax.xml.XMLConstants;
-import javax.xml.stream.EventFilter;
-import javax.xml.stream.StreamFilter;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLReporter;
-import javax.xml.stream.XMLResolver;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import javax.xml.stream.util.XMLEventAllocator;
 import javax.xml.transform.Source;
 import javax.xml.transform.stax.StAXResult;
