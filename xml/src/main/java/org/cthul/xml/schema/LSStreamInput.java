@@ -1,6 +1,7 @@
 package org.cthul.xml.schema;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.Reader;
 import org.w3c.dom.ls.LSInput;
 
 /**
@@ -10,15 +11,12 @@ import org.w3c.dom.ls.LSInput;
 public class LSStreamInput implements LSInput {
 
     private InputStream input;
-    private String /*type, namespaceURI,*/ publicId, systemId, baseURI;
-    private String stringData = null;
+    private String publicId, systemId, baseURI;
 
-    public LSStreamInput(InputStream input, //String type, String namespaceURI,
+    public LSStreamInput(InputStream input, 
                          String publicId, String systemId, String baseURI,
                          String actualUri) {
         this.input = input;
-//        this.type = type;
-//        this.namespaceURI = namespaceURI != null ? namespaceURI : actualUri;
         this.publicId = publicId != null ? publicId : actualUri;
         this.systemId = systemId != null ? systemId : actualUri;
         this.baseURI = baseURI != null ? baseURI : actualUri;
@@ -32,7 +30,7 @@ public class LSStreamInput implements LSInput {
 
     @Override
     public Reader getCharacterStream() {
-        return null;//new StringReader(getStringData());
+        return null;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class LSStreamInput implements LSInput {
 
     @Override
     public InputStream getByteStream() {
-        return input; //new ByteArrayInputStream(getStringData().getBytes());
+        return input;
     }
 
     @Override
@@ -53,22 +51,6 @@ public class LSStreamInput implements LSInput {
     @Override
     public String getStringData() {
         return null;
-//        if (stringData == null) {
-//            try {
-//                StringBuilder sb = new StringBuilder();
-//                BufferedReader br = new BufferedReader(
-//                                            new InputStreamReader(input));
-//                String line = br.readLine();
-//                while (line != null) {
-//                    sb.append(line).append('\n');
-//                    line = br.readLine();
-//                }
-//                stringData = sb.toString();
-//            } catch (IOException ex) {
-//                throw new RuntimeException(ex);
-//            }
-//        }
-//        return stringData;
     }
 
     @Override
@@ -108,7 +90,7 @@ public class LSStreamInput implements LSInput {
 
     @Override
     public String getEncoding() {
-        return "UTF-8";
+        return null;
     }
 
     @Override
@@ -118,7 +100,7 @@ public class LSStreamInput implements LSInput {
 
     @Override
     public boolean getCertifiedText() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
