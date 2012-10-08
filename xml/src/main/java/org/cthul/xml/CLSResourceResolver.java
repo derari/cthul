@@ -1,0 +1,172 @@
+package org.cthul.xml;
+
+import java.io.InputStream;
+import java.io.Reader;
+import org.cthul.log.CLogger;
+import org.cthul.log.CLoggerFactory;
+import org.cthul.resolve.*;
+import org.w3c.dom.ls.*;
+
+/**
+ * Returns the schema file for a namespace uri.
+ * <p/>
+ * Usage:
+ * <pre>
+ * new CLSResourceResolver(OrgW3Resolver.INSTANCE, myFinder1, myFinder2);
+ * </pre>
+ * or
+ * <pre>
+ * ResourceResolver resolver = new CompositeResolver(
+ *          OrgW3Finder.INSTANCE,
+ *          myFinder1,
+ *          myFinder2
+ *      );
+ * new CLSResourceResolver(resolver);
+ * </pre>
+ * 
+ * @author Arian Treffer
+ */
+public class CLSResourceResolver implements LSResourceResolver {
+    
+    static final CLogger log = CLoggerFactory.getClassLogger();
+
+    protected final DOMImplementationLS ls;
+    protected final ResourceResolver resolver;
+
+    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver resolver) {
+        this.ls = ls;
+        this.resolver = resolver;
+    }
+    
+    public CLSResourceResolver(ResourceResolver resolver) {
+        this(null, resolver);
+    }
+    
+    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver... resolver) {
+        this(ls, new CompositeResolver(resolver));
+    }
+
+    public CLSResourceResolver(ResourceResolver... resolver) {
+        this(null, resolver);
+    }
+
+    @Override
+    public LSInput resolveResource(String type, String namespaceURI,
+                            String publicId, String systemId, String baseURI) {
+        
+        RRequest req = new RRequest(namespaceURI, publicId, systemId, baseURI);
+        RResult res = resolver.resolve(req);
+
+        if (res == null) {
+            log.warn("Could not resolve schema %s %if[as %<s]", namespaceURI, systemId);
+            return null;
+        }
+
+        log.info("Resolved %s %if[as %<s]", namespaceURI, res.getSystemId());
+        return newInput(res);
+    }
+    
+    protected LSInput newInput(RResult result) {
+        if (ls != null) {
+            LSInput lsi = ls.createLSInput();
+            lsi.setPublicId(result.getPublicId());
+            lsi.setSystemId(result.getSystemId());
+            lsi.setBaseURI(result.getBaseUri());
+            lsi.setCharacterStream(result.getReader());
+            lsi.setByteStream(result.getInputStream());
+            lsi.setStringData(result.getString());
+        }
+        return new LSInputResult(result); 
+    }
+    
+    public static class LSInputResult implements LSInput {
+        
+        private final RResult result;
+
+        public LSInputResult(RResult result) {
+            this.result = result;
+        }
+
+        @Override
+        public Reader getCharacterStream() {
+            return result.getReader();
+        }
+
+        @Override
+        public void setCharacterStream(Reader characterStream) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public InputStream getByteStream() {
+            return result.getInputStream();
+        }
+
+        @Override
+        public void setByteStream(InputStream byteStream) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getStringData() {
+            return result.getString();
+        }
+
+        @Override
+        public void setStringData(String stringData) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getSystemId() {
+            return result.getSystemId();
+        }
+
+        @Override
+        public void setSystemId(String systemId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getPublicId() {
+            return result.getPublicId();
+        }
+
+        @Override
+        public void setPublicId(String publicId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getBaseURI() {
+            return result.getBaseUri();
+        }
+
+        @Override
+        public void setBaseURI(String baseURI) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getEncoding() {
+            return null;
+        }
+
+        @Override
+        public void setEncoding(String encoding) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean getCertifiedText() {
+            return false;
+        }
+
+        @Override
+        public void setCertifiedText(boolean certifiedText) {
+            throw new UnsupportedOperationException();
+        }
+        
+    }
+
+}

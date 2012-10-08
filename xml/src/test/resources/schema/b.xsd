@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cthul.org/xml/test/schema/b"
+           xmlns:b="http://cthul.org/xml/test/schema/b"
+           xmlns="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+
+    <xs:attribute id="attrB" name="b" type="xs:string" default="default" />
+
+</xs:schema>

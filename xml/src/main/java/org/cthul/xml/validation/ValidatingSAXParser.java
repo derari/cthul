@@ -6,7 +6,7 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import org.cthul.xml.schema.SchemaResolver;
+import org.cthul.xml.CLSResourceResolver;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.*;
 
@@ -16,7 +16,7 @@ import org.xml.sax.*;
  * {@link LSResourceResolver }.
  * 
  * @author Arian Treffer
- * @see SchemaResolver
+ * @see CLSResourceResolver
  */
 public class ValidatingSAXParser {
 

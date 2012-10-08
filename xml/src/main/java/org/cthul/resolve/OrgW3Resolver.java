@@ -1,4 +1,4 @@
-package org.cthul.xml.schema;
+package org.cthul.resolve;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,14 +7,12 @@ import java.util.Map;
  *
  * @author Arian Treffer
  */
-public class OrgW3Finder {
+public class OrgW3Resolver extends ClassResourceResolver {
     
-    public static final SchemaFinder INSTANCE ;
-
     /**
      * @return {@link #INSTANCE}
      */
-    public static SchemaFinder getInstance() {
+    public static ResourceResolver getInstance() {
         return INSTANCE;
     }
     
@@ -36,8 +34,14 @@ public class OrgW3Finder {
         return result;
     }
     
-    static {
-        INSTANCE = new ResourceFinder(OrgW3Finder.class, getSchemaMap()).immutable();
+    public static final ResourceResolver INSTANCE = new OrgW3Resolver().immutable();
+    
+    public OrgW3Resolver(Class<?> clazz) {
+        super(clazz, getSchemaMap());
     }
-
+    
+    public OrgW3Resolver() {
+        this(OrgW3Resolver.class);
+    }
+    
 }

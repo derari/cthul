@@ -1,6 +1,5 @@
-package org.cthul.xml.schema;
+package org.cthul.resolve;
 
-import java.io.InputStream;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
 import org.junit.*;
@@ -12,9 +11,9 @@ import static org.hamcrest.Matchers.*;
  *
  * @author Arian Treffer
  */
-public class MappingFinderTest {
+public class UriMappingResolverTest {
     
-    public MappingFinderTest() {
+    public UriMappingResolverTest() {
     }
 
     @BeforeClass
@@ -25,11 +24,11 @@ public class MappingFinderTest {
     public static void tearDownClass() throws Exception {
     }
     
-    private MappingFinderImpl instance;
+    private UriMappingResolverImpl instance;
     
     @Before
     public void setUp() {
-        instance = new MappingFinderImpl();
+        instance = new UriMappingResolverImpl();
     }
     
     @After
@@ -53,17 +52,17 @@ public class MappingFinderTest {
                    is("./example/a/b/c.xsd"));
     }
 
-
-    public class MappingFinderImpl extends MappingFinder {
+    public class UriMappingResolverImpl extends UriMappingResolver {
 
         @Override
         public String resolve(String uri) {
             return super.resolve(uri);
         }
-        
+
         @Override
-        public InputStream get(String source) {
+        protected RResult get(RRequest request, String source) {
             return null;
         }
+        
     }
 }

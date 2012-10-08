@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cthul.org/xml/test/schema/a"
+           xmlns:a="http://cthul.org/xml/test/schema/a"
+           xmlns:b="http://cthul.org/xml/test/schema/b"
+           xmlns="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+
+    <xs:import namespace="http://cthul.org/xml/test/schema/b" schemaLocation="b.xsd" />
+    
+    <xs:element name="a">
+        <xs:complexType>
+            <xs:attribute ref="b:b" />
+        </xs:complexType>
+    </xs:element>
+    
+</xs:schema>
