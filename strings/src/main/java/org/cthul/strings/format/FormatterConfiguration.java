@@ -12,19 +12,20 @@ import org.cthul.strings.format.conversion.*;
  */
 public class FormatterConfiguration extends AbstractFormatConfiguration<FormatConversion> {
     
-    private static final FormatterConfiguration Default = new FormatterConfiguration(null);
+    private static final FormatterConfiguration DEFAULT = new FormatterConfiguration(null);
+    static { DEFAULT.setLocale(Locale.getDefault()); }
 
     public static FormatterConfiguration getDefault() {
-        return Default;
+        return DEFAULT;
     }
     
     static {
-        AlphaIndexConversion.INSTANCE.register(Default);
-        ClassNameConversion.INSTANCE.register(Default);
-        ConditionalConversion.INSTANCE.register(Default);
-        PluralConversion.INSTANCE.register(Default);
-        RomansConversion.INSTANCE.register(Default);
-        SingularConversion.INSTANCE.register(Default);
+        AlphaIndexConversion.INSTANCE.register(DEFAULT);
+        ClassNameConversion.INSTANCE.register(DEFAULT);
+        ConditionalConversion.INSTANCE.register(DEFAULT);
+        PluralConversion.INSTANCE.register(DEFAULT);
+        RomansConversion.INSTANCE.register(DEFAULT);
+        SingularConversion.INSTANCE.register(DEFAULT);
     }
 
     public FormatterConfiguration() {

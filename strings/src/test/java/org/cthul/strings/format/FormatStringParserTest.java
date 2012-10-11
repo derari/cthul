@@ -77,8 +77,7 @@ public class FormatStringParserTest {
         parser.parse("%jFoo");
         verify(parser).customLongFormat("Foo", 1, null, -1, -1, "%jFoo", 5, false);
     }
-    
-    
+        
     @Test
     public void test_customLongFormat_2() {
         parser.parse("  %Jbar  ");
@@ -121,7 +120,7 @@ public class FormatStringParserTest {
         verify(parser).getArg("named");
         verify(parser).standardFormat("d", "named", null, -1, -1);
     }
-    
+        
     @Test
     public void test_flags() {
         parser.parse("% =!a %$$b %1 c %1.1$d");

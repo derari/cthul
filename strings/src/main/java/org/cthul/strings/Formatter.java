@@ -429,6 +429,7 @@ public class Formatter implements Flushable, AutoCloseable {
      */
     protected Formatter format(FormatterConfiguration conf, Locale locale, Object format, int start, int end, FormatArgs args) {
         try {
+            if (conf == null) conf = this.conf;
             if (locale == null) locale = conf.locale();
             if (locale == null) locale = Locale.ROOT;
             String fString = toFormatString(format, locale);
