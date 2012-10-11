@@ -476,13 +476,18 @@ public class Formatter implements Flushable, AutoCloseable {
 
         @Override
         public Object get(int i) {
-            return args[i];
+            return args[i-1];
         }
 
         @Override
         public Object get(char c) {
             if (c == 'E') return e;
             throw new IllegalArgumentException("Invalid index '" + c + "'");
+        }
+
+        @Override
+        public Object get(String s) {
+            throw new UnsupportedOperationException();
         }
         
         protected boolean uppercase() {
@@ -493,18 +498,20 @@ public class Formatter implements Flushable, AutoCloseable {
             if (api == null) api = new API(this);
             return api;
         }
-        
-        protected Object arg(int i) {
-            if (i < 1) {
-                return fArgs.get((char) -i);
-            } else {
-                return fArgs.get(i - 1);
-            }
+
+        @Override
+        protected Object getArg(int i) {
+            return fArgs.get(i);
         }
 
         @Override
-        protected int parseCharIndex(char c) {
-            return -c;
+        protected Object getArg(char c) {
+            return fArgs.get(c);
+        }
+
+        @Override
+        protected Object getArg(String s) {
+            return fArgs.get(s);
         }
         
         @Override
@@ -527,50 +534,48 @@ public class Formatter implements Flushable, AutoCloseable {
         }
 
         @Override
-        protected int customShortFormat(char formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
+        protected int customShortFormat(char formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
             FormatConversion f = conf.shortFormat(formatId);
             if (f == null) {
                 throw FormatException.unknownFormat("i" + formatId);
             }
-            return format(f, argId, flags, width, precision, formatString, lastPosition, uppercase);
+            return format(f, arg, flags, width, precision, formatString, lastPosition, uppercase);
         }
 
         @Override
-        protected int customLongFormat(String formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
+        protected int customLongFormat(String formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
             FormatConversion f = conf.longFormat(formatId);
             if (f == null) {
                 throw FormatException.unknownFormat("j" + formatId);
             }
-            return format(f, argId, flags, width, precision, formatString, lastPosition, uppercase);
+            return format(f, arg, flags, width, precision, formatString, lastPosition, uppercase);
         }
 
         @Override
         protected int standardFormat(Matcher matcher, String fId, CharSequence formatString) throws IOException {
-            final String argId = matcher.group(G_ARG_ID);
-            final String group = matcher.group();
             final String format;
-            if (argId == null || argId.isEmpty()) {
-                format = group;
+            if (matcher.start(G_ARG_ID) < 0) {
+                format = matcher.group();
             } else {
-                final StringBuilder sb = new StringBuilder(group.length());
+                final StringBuilder sb = new StringBuilder(matcher.end()-matcher.start());
                 sb.append('%');
-                sb.append(group, 1 + argId.length(), group.length());
+                sb.append(formatString, matcher.end(G_ARG_ID), matcher.end());
                 format = sb.toString();
             }
-            Object arg = arg(parseArgIndex(argId));
+            Object arg = getArg(formatString, matcher, G_ARG_ID);
             standardFormat(locale, format, arg);
             return matcher.end();
         }
         
         @Override
-        protected void standardFormat(String formatId, int argId, String flags, int width, int precision) {
+        protected void standardFormat(String formatId, Object arg, String flags, int width, int precision) {
             throw new UnsupportedOperationException();
         }
 
-        protected int format(FormatConversion f, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
+        protected int format(FormatConversion f, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws IOException {
             if (uppercase) ucCounter++;
             try {
-                return f.format(api(), arg(argId), locale, flags, width, precision, formatString.toString(), lastPosition);
+                return f.format(api(), arg, locale, flags, width, precision, formatString.toString(), lastPosition);
             } finally {
                 if (uppercase) ucCounter--;
             }

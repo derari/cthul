@@ -63,7 +63,8 @@ public class FormatPattern {
         new Parser(regex, Locale.getDefault()).parse(formatString);
     }
     
-    protected void addPattern(ConversionPattern p, int argId) {
+    protected void addPattern(ConversionPattern p, Object arg) {
+        int argId = (Integer) arg;
         if (patternCount + 1 == matches.length) {
             int newLen = matches.length * 2;
             matches = Arrays.copyOf(matches, newLen);
@@ -96,6 +97,21 @@ public class FormatPattern {
         }
 
         @Override
+        protected Object getArg(int i) {
+            return i;
+        }
+
+        @Override
+        protected Object getArg(char c) {
+            throw new UnsupportedOperationException("Only integer-indices supported");
+        }
+
+        @Override
+        protected Object getArg(String s) {
+            throw new UnsupportedOperationException("Only integer-indices supported");
+        }
+
+        @Override
         protected void appendText(CharSequence csq, int start, int end) throws RuntimeException {
             regex.append(Pattern.quote(csq.subSequence(start, end).toString()));
         }
@@ -111,42 +127,42 @@ public class FormatPattern {
         }
 
         @Override
-        protected int customShortFormat(char formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
+        protected int customShortFormat(char formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
             ConversionPattern p = conf.getShortFormat(formatId);
             if (p == null) {
                 throw FormatException.unknownFormat("i" + formatId);
             }
-            return applyPattern(p, argId, flags, width, precision, formatString, lastPosition);
+            return applyPattern(p, arg, flags, width, precision, formatString, lastPosition);
         }
 
         @Override
-        protected int customLongFormat(String formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
+        protected int customLongFormat(String formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
             ConversionPattern p = conf.getLongFormat(formatId);
             if (p == null) {
                 throw FormatException.unknownFormat("j" + formatId);
             }
-            return applyPattern(p, argId, flags, width, precision, formatString, lastPosition);
+            return applyPattern(p, arg, flags, width, precision, formatString, lastPosition);
         }
 
         @Override
         protected int standardFormat(Matcher matcher, String fId, CharSequence formatString) throws RuntimeException {
             final String formatId = getStandardFormatId(fId);
-            final int argId = getArgIndex(matcher);
+            final Object arg = getArg(formatString, matcher, G_ARG_ID);
             final String flags = getFlags(matcher);
             final int width = getWidth(matcher);
             final int precision = getPrecision(matcher);
             ConversionPattern p = getStandardPattern(formatId);
             final int end = matcher.end();
-            return end + applyPattern(p, argId, flags, width, precision, formatString, end);
+            return end + applyPattern(p, arg, flags, width, precision, formatString, end);
         }
         
         @Override
-        protected void standardFormat(String formatId, int argId, String flags, int width, int precision) throws RuntimeException {
+        protected void standardFormat(String formatId, Object arg, String flags, int width, int precision) throws RuntimeException {
             throw new UnsupportedOperationException();
         }
 
-        protected int applyPattern(ConversionPattern p, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition) {
-           addPattern(p, argId);
+        protected int applyPattern(ConversionPattern p, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition) {
+           addPattern(p, arg);
            return p.toRegex(api, locale, flags, width, precision, formatString.toString(), lastPosition);
         }
     

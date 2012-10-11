@@ -10,4 +10,6 @@ public interface FormatArgs {
     
     Object get(char c);
     
+    Object get(String s);
+    
 }

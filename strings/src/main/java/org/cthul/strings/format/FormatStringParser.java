@@ -23,11 +23,11 @@ public abstract class FormatStringParser<E extends Exception> {
 
     protected abstract void appendNewLine() throws E;
     
-    protected abstract int customShortFormat(char formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws E;
+    protected abstract int customShortFormat(char formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws E;
 
-    protected abstract int customLongFormat(String formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws E;
+    protected abstract int customLongFormat(String formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws E;
 
-    protected abstract void standardFormat(String formatId, int argId, String flags, int width, int precision) throws E;
+    protected abstract void standardFormat(String formatId, Object arg, String flags, int width, int precision) throws E;
 
     protected int appendPercent(Matcher matcher, String fId, CharSequence formatString) throws E {
         appendPercent();
@@ -41,31 +41,31 @@ public abstract class FormatStringParser<E extends Exception> {
     
     protected int customShortFormat(Matcher matcher, String fId, CharSequence formatString, boolean uppercase) throws E {
         final char formatId = getShortFormatId(fId);
-        final int argId = getArgIndex(matcher);
+        final Object arg = getArg(formatString, matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
         final int lastPosition = matcher.end();
-        return lastPosition + customShortFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
+        return lastPosition + customShortFormat(formatId, arg, flags, width, precision, formatString, lastPosition, uppercase);
     }
 
     protected int customLongFormat(Matcher matcher, String fId, CharSequence formatString, boolean uppercase) throws E {
         final String formatId = getLongFormatId(fId);
-        final int argId = getArgIndex(matcher);
+        final Object arg = getArg(formatString, matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
         final int lastPosition = matcher.end();
-        return lastPosition + customLongFormat(formatId, argId, flags, width, precision, formatString, lastPosition, uppercase);
+        return lastPosition + customLongFormat(formatId, arg, flags, width, precision, formatString, lastPosition, uppercase);
     }
 
     protected int standardFormat(Matcher matcher, String fId, CharSequence formatString) throws E {
         final String formatId = getStandardFormatId(fId);
-        final int argId = getArgIndex(matcher);
+        final Object arg = getArg(formatString, matcher);
         final String flags = getFlags(matcher);
         final int width = getWidth(matcher);
         final int precision = getPrecision(matcher);
-        standardFormat(formatId, argId, flags, width, precision);
+        standardFormat(formatId, arg, flags, width, precision);
         return matcher.end();
     }
     
@@ -85,12 +85,12 @@ public abstract class FormatStringParser<E extends Exception> {
         return lastIndex = i;
     }
 
-    protected int charIndex(char c) {
-        return lastIndex = parseCharIndex(c);
+    protected char charIndex(char c) {
+        return c;
     }
     
-    protected int parseCharIndex(char c) {
-        throw new IllegalArgumentException("character index not supported");
+    protected String stringIndex(String s) {
+        return s;
     }
     
     public int parse(CharSequence formatString) throws E {
@@ -158,31 +158,41 @@ public abstract class FormatStringParser<E extends Exception> {
         return formatId;
     }
     
-    protected int getArgIndex(Matcher matcher) {
-        return parseArgIndex(matcher.group(G_ARG_ID));
+    protected abstract Object getArg(int i);
+    
+    protected abstract Object getArg(char c);
+    
+    protected abstract Object getArg(String s);
+    
+    protected Object getArg(CharSequence csq, Matcher matcher) {
+        return getArg(csq, matcher, G_ARG_ID);
     }
     
-    protected int parseArgIndex(String argId) {
-        if (argId == null || argId.isEmpty()) {
-            return autoIndex();
-        }
-        char c = argId.charAt(0);
+    protected Object getArg(final CharSequence csq, final Matcher matcher, final int gId) {
+        int start = matcher.start(gId);
+        int end = matcher.end(gId);
+        if (start < 0 || start == end) return getArg(autoIndex());
+        char c = csq.charAt(start);
         switch (c) {
             case '`':
             case '<':
-                return prevIndex();
+                return getArg(prevIndex());
             case '´':
             case '>':
-                return nextIndex();
+                return getArg(nextIndex());
             case '$':
             case '.':
-                return autoIndex();
+                return getArg(autoIndex());
+            case '?':
+            case ':':
+                String s = csq.subSequence(start+1, end-1).toString();
+                return getArg(stringIndex(s));
         }
         if (c >= '0' && c <= '9') {
-            int i = Integer.parseInt(argId.substring(0, argId.length()-1));
-            return intIndex(i);
+            int i = Integer.parseInt(csq.subSequence(start, end-1).toString());
+            return getArg(intIndex(i));
         }
-        return charIndex(c);
+        return getArg(charIndex(c));
     }
     
     protected String getFlags(Matcher matcher) {
@@ -216,7 +226,7 @@ public abstract class FormatStringParser<E extends Exception> {
     public static final char CUSTOM_SHORT_UC = 'I';
     public static final char CUSTOM_LONG_UC = 'J';
     
-    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|\\.?\\$|[<>`´]\\$?)?";
+    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|[?:][^$]*\\$|\\.?\\$|[<>`´]\\$?)?";
     protected static final String P_FLAGS     = "([^a-zA-Z%]*[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
     protected static final String P_PRECISION = "(?:\\.(\\d+))?";

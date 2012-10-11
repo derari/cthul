@@ -113,11 +113,13 @@ public class FormatStringParserTest {
     
     @Test
     public void test_argId_explicit() {
-        parser.parse("%1$a %.$b %c$c");
+        parser.parse("%1$a %.$b %c$c %?named$d");
         verify(parser).standardFormat("a", 1, null, -1, -1);
         verify(parser).standardFormat("b", 1, null, -1, -1);
-        verify(parser).parseCharIndex('c');
-        verify(parser).standardFormat("c", -'c', null, -1, -1);
+        verify(parser).getArg('c');
+        verify(parser).standardFormat("c", 'c', null, -1, -1);
+        verify(parser).getArg("named");
+        verify(parser).standardFormat("d", "named", null, -1, -1);
     }
     
     @Test
@@ -153,22 +155,32 @@ public class FormatStringParserTest {
         }
 
         @Override
-        protected int customShortFormat(char formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
+        protected int customShortFormat(char formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
             return 0;
         }
 
         @Override
-        protected int customLongFormat(String formatId, int argId, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
+        protected int customLongFormat(String formatId, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition, boolean uppercase) throws RuntimeException {
             return 0;
         }
 
         @Override
-        protected void standardFormat(String formatId, int argId, String flags, int width, int precision) throws RuntimeException {
+        protected void standardFormat(String formatId, Object arg, String flags, int width, int precision) throws RuntimeException {
         }
 
         @Override
-        protected int parseCharIndex(char c) {
-            return -c;
+        protected Object getArg(int i) {
+            return i;
+        }
+
+        @Override
+        protected Object getArg(char c) {
+            return c;
+        }
+
+        @Override
+        protected Object getArg(String s) {
+            return s;
         }
         
     }
