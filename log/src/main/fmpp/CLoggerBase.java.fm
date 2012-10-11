@@ -29,6 +29,14 @@ public class CLoggerBase {
         this.logger = logger;
         this.conf = conf != null ? conf : CLogConfiguration.getDefault();
     }
+
+    protected static Throwable t(Object o) {
+        return o instanceof Throwable ? (Throwable) o : null;
+    }
+    
+    protected static Throwable t(Object[] o) {
+        return o.length > 0 && o[0] instanceof Throwable ? (Throwable) o[0] : null;
+    }
     
 <#macro params c>
 <#if (c > 0)><#list 1..c as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>

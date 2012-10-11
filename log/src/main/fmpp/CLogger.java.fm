@@ -1,10 +1,10 @@
 // generated file
 package org.cthul.log;
 
+import org.cthul.strings.Strings;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
-import static org.cthul.strings.Strings.format;
 
 /**
  * Wraps a {@link Logger slf4j Logger}, which is the main user entry point of SLF4J API. 
@@ -48,7 +48,19 @@ public class CLogger extends CLoggerBase{
     public CLogger(Logger logger, CLogConfiguration conf) {
         super(logger, conf);
     }
-    
+
+    protected String f(Object message) {
+        return String.valueOf(message);
+    }
+
+    protected String f(Throwable throwable, Object message) {
+        return Strings.format(conf, throwable, message);
+    }
+
+    protected String f(Throwable throwable, Object message, Object... args) {
+        return Strings.format(conf, throwable, message, args);
+    }
+
 <#macro params c>
 <#if (c > 0)><#list 1..c as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
 <#macro args c>
@@ -95,22 +107,21 @@ public class CLogger extends CLoggerBase{
      */
     public void ${level}(<@paramM m/><@paramT t/>Object message<@params argC/>) {
         if (${level}(<@argM m 0/>)) {
-<#assign formatMsg=t/>
+<#assign formatMsg=1/>
 <#if t == 0>
  <#if (argC < 0)>
-            final Throwable throwable = message instanceof Throwable ? (Throwable) message : null;
+            final Throwable throwable = t(message);
+            <#assign formatMsg=0/>
  <#elseif argC == 0>
-            final Throwable throwable = (args.length > 0 && args[0] instanceof Throwable) ? (Throwable) args[0] : null;
-            <#assign formatMsg=1/>
+            final Throwable throwable = t(args);
  <#else>
-            final Throwable throwable = arg1 instanceof Throwable ? (Throwable) arg1 : null;
-            <#assign formatMsg=1/>
+            final Throwable throwable = t(arg1);
  </#if>
 </#if>
 <#if formatMsg == 1>
-            String msg = format(conf, throwable, message<@args argC/>);
+            final String msg = f(throwable, message<@args argC/>);
 <#else>
-            String msg = String.valueOf(message);
+            final String msg = f(message);
 </#if>
             if (laLogger != null) {
                 laLogger.log(<#if (m>0)>marker<#else>null</#if>, FQCN, LocationAwareLogger.${LEVELS[level_index]}_INT, msg, null, throwable);
