@@ -1,0 +1,195 @@
+// generated file
+package org.cthul.log;
+
+import org.cthul.strings.Strings;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import org.slf4j.spi.LocationAwareLogger;
+
+/**
+ * Wraps a {@link Logger slf4j Logger}, which is the main user entry point of SLF4J API. 
+ * It is expected that logging takes place through concrete implementations 
+ * of {@code org.slf4j.Logger}.
+ * <p/>
+ * The following example was taken from the slf4j Logger documentation and
+ * adapted to show how to use a Cthul Logger.
+ *
+ * <h3>Typical usage pattern:</h3>
+ * <pre>
+ * import org.cthul.log.CLogger;
+ * import org.cthul.log.CLoggerFactory;
+ * 
+ * public class Wombat {
+ *
+ *   <span style="color:green">final static CLogger logger = CLoggerFactory.getLogger(Wombat.class);</span>
+ *   Integer t;
+ *   Integer oldT;
+ *
+ *   public void setTemperature(Integer temperature) {
+ *     oldT = t;        
+ *     t = temperature;
+ *     <span style="color:green">logger.debug("Temperature set to %s. Old temperature was %s.", t, oldT);</span>
+ *     if(temperature.intValue() > 50) {
+ *       <span style="color:green">logger.info("Temperature has risen above 50 degrees.");</span>
+ *     }
+ *   }
+ * }
+ * </pre>
+ * @author Arian Treffer
+ */
+public class CLocLogger<E extends Enum<?>> extends CLoggerBase{
+
+    private static final String FQCN = CLogger.class.getName();
+    
+    protected final CLocLogConfiguration locConf;
+
+    public CLocLogger(Logger logger) {
+        this(logger, CLocLogConfiguration.getDefault());
+    }
+    
+    public CLocLogger(Logger logger, CLocLogConfiguration conf) {
+        super(logger, conf);
+        if (this.conf instanceof CLocLogConfiguration) {
+            this.locConf = (CLocLogConfiguration) this.conf;
+        } else {
+            this.locConf = new CLocLogConfiguration(this.conf);
+        }
+    }
+
+    protected String m(E message) {
+        return locConf.getMessage(message);
+    }
+
+    protected String f(E message) {
+        return m(message);
+    }
+
+    protected String f(Throwable throwable, E message) {
+        return Strings.format(conf, throwable, m(message));
+    }
+
+    protected String f(Throwable throwable, E message, Object... args) {
+        if (message instanceof NamedParameters) {
+            LocFormatArgs fargs = new LocFormatArgs(throwable, ((NamedParameters) message).getNames(), args);
+            return Strings.format(conf, m(message), fargs);
+        } else {
+            return Strings.format(conf, throwable, m(message), args);
+        }
+    }
+
+<#macro params c>
+<#if (c > 0)><#list 1..c as i>, Object arg${i}</#list><#elseif c == 0>, Object... args</#if></#macro>
+<#macro args c>
+<#if (c > 0)><#list 1..c as i>, arg${i}</#list><#elseif c == 0>, args</#if></#macro>
+<#macro pItem s c x>
+<#if (c > 0)><#if (x < 0)>, </#if>${s}<#if x==1>, </#if></#if></#macro>
+<#macro paramT c x=1>
+<@pItem "Throwable throwable" c x/></#macro>
+<#macro argT c x=1>
+<@pItem "throwable" c x/></#macro>
+<#macro paramM c x=1>
+<@pItem "Marker marker" c x/></#macro>
+<#macro argM c x=1>
+<@pItem "marker" c x/></#macro>
+<#assign levels = ["trace", "debug", "info", "warn", "error"]>
+<#assign Levels = ["Trace", "Debug", "Info", "Warn", "Error"]>
+<#assign LEVELS = ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"]>
+<#assign maxArgC = 3>
+<#list levels as level>
+ <#list 0..1 as m>
+  <#list 0..1 as t>
+   <#list -1..maxArgC as argC>
+    /**
+     * Log <#if (t > 0)>an exception <#else>a message </#if><#if (m > 0)>with the specific Marker </#if>at the ${level} level<#if (argC >=0)>, according to the specified format and arguments</#if>.
+     * 
+<#if (m > 0)>
+     * @param marker the marker data specific to this log statement
+</#if>
+<#if (t > 0)>
+     * @param throwable the throwable to log
+</#if>
+<#if (argC < 0)>
+     * @param message the message string to be logged
+<#else>
+     * @param message the format string
+ <#if (argC == 0)>
+     * @param args an array of arguments
+ <#else>
+  <#list 1..argC as i>
+     * @param arg${i} argument ${i}
+  </#list>
+ </#if>
+</#if>
+     */
+    public void ${level}(<@paramM m/><@paramT t/>E message<@params argC/>) {
+        if (${level}(<@argM m 0/>)) {
+<#assign formatMsg=1/>
+<#if t == 0>
+ <#if (argC < 0)>
+            final Throwable throwable = t(message);
+            <#assign formatMsg=0/>
+ <#elseif argC == 0>
+            final Throwable throwable = t(args);
+ <#else>
+            final Throwable throwable = t(arg1);
+ </#if>
+</#if>
+<#if formatMsg == 1>
+            final String msg = f(throwable, message<@args argC/>);
+<#else>
+            final String msg = f(message);
+</#if>
+            if (laLogger != null) {
+                laLogger.log(<#if (m>0)>marker<#else>null</#if>, FQCN, LocationAwareLogger.${LEVELS[level_index]}_INT, msg, null, throwable);
+            } else {
+                logger.${level}(<@argM m/>msg, throwable);
+            }
+        }
+    }
+
+   </#list>
+  </#list>
+ </#list>
+</#list>
+<#list 0..1 as m>
+ <#list 0..1 as t>
+  <#list -1..maxArgC as argC>
+    /**
+     * Log <#if (t > 0)>an exception <#else>a message </#if><#if (m > 0)>with the specific Marker </#if>at the given level<#if (argC >=0)>, according to the specified format and arguments</#if>.
+     * 
+     * @param level the log level
+<#if (m > 0)>
+     * @param marker the marker data specific to this log statement
+</#if>
+<#if (t > 0)>
+     * @param throwable the throwable to log
+</#if>
+<#if (argC < 0)>
+     * @param message the message string to be logged
+<#else>
+     * @param message the format string
+ <#if (argC == 0)>
+     * @param args an array of arguments
+ <#else>
+  <#list 1..argC as i>
+     * @param arg${i} argument ${i}
+  </#list>
+ </#if>
+</#if>
+     */
+    public void log(CLogLevel level, <@paramM m/><@paramT t/>E message<@params argC/>) {
+        switch (level) {
+    <#list levels as level>
+            case ${Levels[level_index]}:
+                ${level}(<@argM m/><@argT t/>message<@args argC/>);
+                break;
+    </#list>            
+            default:
+                throw new IllegalArgumentException(level.toString());
+        }
+    }
+
+  </#list>
+ </#list>
+</#list>
+}
