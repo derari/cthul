@@ -4,16 +4,22 @@ import java.io.*;
 import javax.xml.XMLConstants;
 import javax.xml.stream.*;
 import javax.xml.stream.util.XMLEventAllocator;
-import javax.xml.transform.Source;
+import javax.xml.transform.*;
+import javax.xml.transform.sax.*;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.w3c.dom.ls.LSResourceResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
  * Creates a StAX reader that validates the input file.
+ * <p/>
+ * Kind of a hack, until StAX with proper validation is available.
  * @author Arian Treffer
  */
 public class ValidatingXMLInputFactory extends XMLInputFactory {
@@ -34,40 +40,71 @@ public class ValidatingXMLInputFactory extends XMLInputFactory {
         this.schemaFactory = schemaFactory;
     }
     
-//    public XMLStreamReader createXMLStreamReader(String systemId, InputStream input) throws SAXException, XMLStreamException, IOException {
-//        
-//        XMLStreamReader unvalidatedInput = inputFactory.createXMLStreamReader(systemId, input);
-//        
-//        ByteArrayInputStream validatedData = validate(unvalidatedInput);
-//        
-//        return inputFactory.createXMLStreamReader(systemId, validatedData);
-//    }
-
-    private ByteArrayInputStream validate(XMLEventReader unvalidatedInput) throws XMLStreamException {
+    private ByteArrayOutputStream buffer() {
+        return new ByteArrayOutputStream(8*1024);
+    }
+    
+    private InputStream is(ByteArrayOutputStream buf) {
+        return is(buf.toByteArray());
+    }
+    
+    private InputStream is(byte[] bytes) {
+        int skip = skipWhitespace(bytes);
+        return new ByteArrayInputStream(bytes, skip, bytes.length-skip);        
+    }
+    
+    private InputStream validate(XMLEventReader unvalidatedInput) throws XMLStreamException {
         return validate(new StAXSource(unvalidatedInput));
     }
     
-    private ByteArrayInputStream validate(XMLStreamReader unvalidatedInput) throws XMLStreamException {
+    private InputStream validate(XMLStreamReader unvalidatedInput) throws XMLStreamException {
         return validate(new StAXSource(unvalidatedInput));
     }
         
-    private ByteArrayInputStream validate(StAXSource unvalidatedInput) throws XMLStreamException {
+    private InputStream validate(StAXSource unvalidatedInput) throws XMLStreamException {
+        ByteArrayOutputStream buf = buffer();
+        // validate the file, the output is enriched with data from the schema
+        // (e.g., default values) and is then used for parsing.
+        XMLStreamWriter validatedOutput = outputFactory.createXMLStreamWriter(buf);
+        validate(unvalidatedInput, new StAXResult(validatedOutput));
+        return is(buf);
+    }
+    
+    private InputStream validate(InputStream is, String systemId, String encoding) throws XMLStreamException {
+        InputSource input = new InputSource(is);
+        input.setEncoding(encoding);
+        input.setSystemId(systemId);
+        return validate(input);
+    }
+    
+    private InputStream validate(Reader r, String systemId) throws XMLStreamException {
+        InputSource input = new InputSource(r);
+        input.setSystemId(systemId);
+        return validate(input);
+    }
+    
+    static final SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    
+    private InputStream validate(InputSource unvalidatedInput) throws XMLStreamException {
+        try {
+            ByteArrayOutputStream buf = buffer();
+            TransformerHandler t = tf.newTransformerHandler();
+            t.setResult(new StreamResult(buf));
+            
+            validate(new SAXSource(unvalidatedInput), new SAXResult(t));
+            return is(buf);
+        } catch (TransformerConfigurationException e) {
+            throw new XMLStreamException(e);
+        }
+    }
+    
+    // validate the file, the output is enriched with data from the schema
+    // (e.g., default values) and is then used for parsing.    
+    private void validate(Source src, Result res) throws XMLStreamException {
         try {
             Validator v = schemaFactory.newSchema().newValidator();
             v.setResourceResolver(schemaFactory.getResourceResolver());
-            ByteArrayOutputStream validatedDataCache = new ByteArrayOutputStream(8*1024);
-            
-            // validate the file, the output is enriched with data from the schema
-            // (e.g., default values) and is then used for parsing.
-            XMLStreamWriter validatedOutput = outputFactory.createXMLStreamWriter(validatedDataCache);
-            v.validate(unvalidatedInput, new StAXResult(validatedOutput));
-            validatedOutput.flush();
-            
-            // sometimes the validated output begins with extra whitespace which 
-            // somehow makes it invalid, so the first whitespace is skipped here
-            byte[] bytes = validatedDataCache.toByteArray();
-            int skip = skipWhitespace(bytes);
-            return new ByteArrayInputStream(bytes, skip, bytes.length-skip);
+            v.validate(src, res);
         } catch (SAXException | IOException e) {
             throw new XMLStreamException(e);
         }
@@ -99,8 +136,7 @@ public class ValidatingXMLInputFactory extends XMLInputFactory {
 
     @Override
     public XMLStreamReader createXMLStreamReader(Reader reader) throws XMLStreamException {
-        return stream(null, validate(
-                inputFactory.createXMLStreamReader(reader)));
+        return stream(null, validate(reader, null));
     }
 
     @Override
@@ -111,44 +147,37 @@ public class ValidatingXMLInputFactory extends XMLInputFactory {
 
     @Override
     public XMLStreamReader createXMLStreamReader(InputStream stream) throws XMLStreamException {
-        return stream(null, validate(
-                inputFactory.createXMLStreamReader(stream)));
+        return stream(null, validate(stream, null, null));
     }
 
     @Override
     public XMLStreamReader createXMLStreamReader(InputStream stream, String encoding) throws XMLStreamException {
-        return stream(null, validate(
-                inputFactory.createXMLStreamReader(stream, encoding)));
+        return stream(null, validate(stream, null, encoding));
     }
 
     @Override
     public XMLStreamReader createXMLStreamReader(String systemId, InputStream stream) throws XMLStreamException {
-        return stream(systemId, validate(
-                inputFactory.createXMLStreamReader(systemId, stream)));
+        return stream(systemId, validate(stream, systemId, null));
     }
 
     @Override
     public XMLStreamReader createXMLStreamReader(String systemId, Reader reader) throws XMLStreamException {
-        return stream(systemId, validate(
-                inputFactory.createXMLStreamReader(systemId, reader)));
+        return stream(systemId, validate(reader, systemId));
     }
 
     @Override
     public XMLEventReader createXMLEventReader(Reader reader) throws XMLStreamException {
-        return event(null, validate(
-                inputFactory.createXMLStreamReader(reader)));
+        return event(null, validate(reader, null));
     }
 
     @Override
     public XMLEventReader createXMLEventReader(String systemId, Reader reader) throws XMLStreamException {
-        return event(systemId, validate(
-                inputFactory.createXMLStreamReader(systemId, reader)));
+        return event(systemId, validate(reader, systemId));
     }
 
     @Override
     public XMLEventReader createXMLEventReader(XMLStreamReader reader) throws XMLStreamException {
-        return event(null, validate(
-                reader));
+        return event(null, validate(reader));
     }
 
     @Override
@@ -159,20 +188,17 @@ public class ValidatingXMLInputFactory extends XMLInputFactory {
 
     @Override
     public XMLEventReader createXMLEventReader(InputStream stream) throws XMLStreamException {
-        return event(null, validate(
-                inputFactory.createXMLStreamReader(stream)));
+        return event(null, validate(stream, null, null));
     }
 
     @Override
     public XMLEventReader createXMLEventReader(InputStream stream, String encoding) throws XMLStreamException {
-        return event(null, validate(
-                inputFactory.createXMLStreamReader(stream, encoding)));
+        return event(null, validate(stream, null, encoding));
     }
 
     @Override
     public XMLEventReader createXMLEventReader(String systemId, InputStream stream) throws XMLStreamException {
-        return event(systemId, validate(
-                inputFactory.createXMLStreamReader(systemId, stream)));
+        return event(systemId, validate(stream, systemId, null));
     }
 
     @Override

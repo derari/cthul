@@ -59,4 +59,12 @@ public class RRequest {
         return baseId.substring(0, lastSep+1) + systemId;
     }
     
+    @Override
+    public String toString() {
+        String s = getSystemId();
+        if (s == null) s = getPublicId();
+        if (s == null) s = getUri();
+        return "RRequest(" + s + ")";
+    }
+    
 }

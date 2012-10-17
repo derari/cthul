@@ -14,6 +14,7 @@
         <module>parser</module>
         <module>strings</module>
         <module>log</module>
+        <module>log-cal10n</module>
         <module>idstax</module>
         <module>idstax-gen</module>
         <module>xml</module>

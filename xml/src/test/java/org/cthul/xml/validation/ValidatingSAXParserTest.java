@@ -6,10 +6,11 @@ import org.cthul.proc.Procs;
 import org.cthul.resolve.ResourceResolverTest;
 import org.cthul.xml.CLSResourceResolver;
 import org.junit.*;
-import org.xml.sax.SAXParseException;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import static org.cthul.matchers.CthulMatchers.raises;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -42,6 +43,8 @@ public class ValidatingSAXParserTest {
         TestHandler handler = new TestHandler();
         File f = new File("src/test/resources/valid-menu.xml");
         new ValidatingSAXParser(schemas).parse(f, handler);
+        assertThat(handler.code1, is("1"));
+        assertThat(handler.code2, is("2"));
     }
     
     @Test
@@ -71,6 +74,16 @@ public class ValidatingSAXParserTest {
     }
     
     private static class TestHandler extends DefaultHandler {
+        
+        String code1, code2;
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if (localName.equals("menu")) {
+                code1 = attributes.getValue("code1");
+                code2 = attributes.getValue("code2");
+            }
+        }
         
     }
 }

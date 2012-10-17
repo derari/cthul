@@ -2,8 +2,6 @@ package org.cthul.xml;
 
 import java.io.InputStream;
 import java.io.Reader;
-import org.cthul.log.CLogger;
-import org.cthul.log.CLoggerFactory;
 import org.cthul.resolve.*;
 import org.w3c.dom.ls.*;
 
@@ -26,47 +24,37 @@ import org.w3c.dom.ls.*;
  * 
  * @author Arian Treffer
  */
-public class CLSResourceResolver implements LSResourceResolver {
+public class CLSResourceResolver extends AbstractResolver<LSInput, RuntimeException>
+                                 implements LSResourceResolver {
     
-    static final CLogger log = CLoggerFactory.getClassLogger();
-
     protected final DOMImplementationLS ls;
-    protected final ResourceResolver resolver;
 
-    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver resolver) {
-        this.ls = ls;
-        this.resolver = resolver;
-    }
-    
     public CLSResourceResolver(ResourceResolver resolver) {
         this(null, resolver);
-    }
-    
-    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver... resolver) {
-        this(ls, new CompositeResolver(resolver));
     }
 
     public CLSResourceResolver(ResourceResolver... resolver) {
         this(null, resolver);
     }
 
+    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver resolver) {
+        super(resolver);
+        this.ls = ls;
+    }
+
+    public CLSResourceResolver(DOMImplementationLS ls, ResourceResolver... resolver) {
+        super(resolver);
+        this.ls = ls;
+    }
+    
     @Override
     public LSInput resolveResource(String type, String namespaceURI,
                             String publicId, String systemId, String baseURI) {
-        
-        RRequest req = new RRequest(namespaceURI, publicId, systemId, baseURI);
-        RResult res = resolver.resolve(req);
-
-        if (res == null) {
-            log.warn("Could not resolve schema %s %if[as %<s]", namespaceURI, systemId);
-            return null;
-        }
-
-        log.info("Resolved %s %if[as %<s]", namespaceURI, res.getSystemId());
-        return newInput(res);
+        return resolve(namespaceURI, publicId, systemId, baseURI);
     }
-    
-    protected LSInput newInput(RResult result) {
+
+    @Override
+    protected LSInput result(RResult result) {
         if (ls != null) {
             LSInput lsi = ls.createLSInput();
             lsi.setPublicId(result.getPublicId());

@@ -72,5 +72,17 @@ public class RResult {
     public String getString() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        String s = getSystemId();
+        if (s == null) s = getUri();
+        if (s == null) s = getPublicId();
+        Class clazz = getClass();
+        String cn = clazz.isAnonymousClass() ? "RResult" : clazz.getSimpleName();
+        Class decl = clazz.getEnclosingClass();
+        return (decl != null ? decl.getSimpleName() + "." : "") + 
+                cn + "(" + s + ")";
+    }
     
 }

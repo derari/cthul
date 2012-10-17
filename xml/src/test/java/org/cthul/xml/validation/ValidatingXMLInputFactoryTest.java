@@ -10,6 +10,7 @@ import org.junit.*;
 import org.xml.sax.SAXParseException;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  *
@@ -42,7 +43,9 @@ public class ValidatingXMLInputFactoryTest {
         File f = new File("src/test/resources/valid-menu.xml");
         XMLStreamReader reader = new ValidatingXMLInputFactory(schemas).createXMLStreamReader(f);
         reader.next();
-        reader.require(XMLStreamConstants.START_ELEMENT, null, null);
+        reader.require(XMLStreamConstants.START_ELEMENT, null, "menu");
+        assertThat(reader.getAttributeValue(null, "code1"), is("1"));
+        assertThat(reader.getAttributeValue(null, "code2"), is("2"));
     }
 
     @Test

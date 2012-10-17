@@ -21,7 +21,7 @@ public class FileResolver extends UriMappingResolver {
     @Override
     protected RResult get(RRequest request, String source) {
         final File f = new File(prefix, source);
-        if (!f.exists()) return null;
+        if (!f.isFile()) return null;
         return new RResult(request, f.toURI().toString()){
             @Override
             public InputStream createInputStream() throws FileNotFoundException {

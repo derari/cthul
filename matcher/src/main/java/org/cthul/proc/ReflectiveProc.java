@@ -15,24 +15,24 @@ public class ReflectiveProc extends PN {
         new Class[5], new Class[6], new Class[7], new Class[8], new Class[9]};
     public static final Class[] NO_PARAMETERS = PARAM_COUNT[0];
     
-    public static Class[] anyParameters(int c) {
-        if (c < 0) {
+    public static Class[] anyParameters(int count) {
+        if (count < 0) {
             return ANY_PARAMETERS;
         }
-        if (c == 0) {
+        if (count == 0) {
             return NO_PARAMETERS;
         }
-        return new Class[c];
+        return new Class[count];
     }
     
-    static Class[] unsafeAnyParameters(int c) {
-        if (c < 0) {
+    static Class[] unsafeAnyParameters(int count) {
+        if (count < 0) {
             return ANY_PARAMETERS;
         }
-        if (c < PARAM_COUNT.length) {
-            return PARAM_COUNT[c];
+        if (count < PARAM_COUNT.length) {
+            return PARAM_COUNT[count];
         }
-        return new Class[c];
+        return new Class[count];
     }
     
     public static ReflectiveProc newInstance(Class<?> clazz, Class... paramTypes) {

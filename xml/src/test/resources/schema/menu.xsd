@@ -33,6 +33,8 @@
         <xs:sequence>
             <xs:element name="meal" type="m:Meal" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="code1" type="xs:string" default="1"/>
+        <xs:attribute name="code2" type="xs:string" fixed="2"/>
     </xs:complexType>
 
     <xs:complexType name="Meal">

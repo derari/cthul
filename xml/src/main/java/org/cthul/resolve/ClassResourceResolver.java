@@ -30,6 +30,7 @@ public class ClassResourceResolver extends UriMappingResolver {
     @Override
     protected RResult get(RRequest request, String source) {
         final URL url = clazz.getResource(source);
+        if (url == null) return null;
         return new RResult(request, url.toString()){
             @Override
             public InputStream createInputStream() throws IOException {

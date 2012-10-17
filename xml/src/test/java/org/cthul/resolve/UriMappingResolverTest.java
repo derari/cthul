@@ -1,5 +1,6 @@
 package org.cthul.resolve;
 
+import java.util.Iterator;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
 import org.junit.*;
@@ -42,21 +43,31 @@ public class UriMappingResolverTest {
         assertThat(addSchemas.call("a", "b", "c"), 
                 raises(IllegalArgumentException.class));
     }
+    
+    @Test
+    public void test_addDomain() {
+        instance.addDomain("http://example.org", "./example$1.xsd");
+        
+        assertThat(resolve("http://example.org/b/c"), is("./example/b/c.xsd"));
+    }
 
     @Test
     public void resolveDomain() {
         instance.addDomainPatterns(
                 "http://(.*)\\.example\\.org/(.*)", "./example/$1/$2.xsd");
         
-        assertThat(instance.resolve("http://a.example.org/b/c"), 
-                   is("./example/a/b/c.xsd"));
+        assertThat(resolve("http://a.example.org/b/c"), is("./example/a/b/c.xsd"));
+    }
+
+    private String resolve(String uri) {
+        return instance.resolver(uri).next();
     }
 
     public class UriMappingResolverImpl extends UriMappingResolver {
 
         @Override
-        public String resolve(String uri) {
-            return super.resolve(uri);
+        protected Iterator<String> resolver(String uri) {
+            return super.resolver(uri);
         }
 
         @Override

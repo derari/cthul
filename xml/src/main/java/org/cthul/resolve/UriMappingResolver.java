@@ -1,6 +1,7 @@
 package org.cthul.resolve;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,8 +65,12 @@ public abstract class UriMappingResolver extends AbstractResolver {
         return this;
     }
     
+    public UriMappingResolver addDomain(String domain) {
+        return addDomain(domain, "$1");
+    }
+    
     public UriMappingResolver addDomain(String domain, String altPath) {
-        Pattern domainPattern = Pattern.compile(quote(domain));
+        Pattern domainPattern = Pattern.compile(quote(domain) + "(.*)");
         addDomainPattern(domainPattern, altPath);
         return this;
     }
@@ -103,31 +108,93 @@ public abstract class UriMappingResolver extends AbstractResolver {
         return this;
     }
 
-    protected String resolve(String uri) {
-        String result = schemaMap.get(uri);
-        if (result != null) return result;
-
-        for (Map.Entry<Pattern, String> domain: domainMap.entrySet()) {
-            Matcher m = domain.getKey().matcher(uri);
-            if (m.find()) {
-                StringBuffer sb = new StringBuffer();
-                m.appendReplacement(sb, domain.getValue());
-                m.appendTail(sb);
-                return sb.toString();
-            }
-        }
-        
-        return null;
+    protected Iterator<String> resolver(String uri) {
+        return new Resolver(uri);
+    }
+    
+    protected String mapSchema(String uri) {
+        return schemaMap.get(uri);
+    }
+    
+    protected Iterator<Map.Entry<Pattern, String>> domains() {
+        return domainMap.entrySet().iterator();
+    }
+    
+    protected String mapDomain(Map.Entry<Pattern, String> domain, String uri) {
+        Matcher m = domain.getKey().matcher(uri);
+        if (!m.find()) return null;
+        StringBuffer sb = new StringBuffer();
+        m.appendReplacement(sb, domain.getValue());
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     @Override
     public RResult resolve(RRequest request) {
-        String source = resolve(request.getUri());
-        if (source == null) return null;
-        return get(request, source);
+        return resolve(request, request.getUri());
     }
     
+    protected RResult resolve(RRequest request, String uri) {
+        final Iterator<String> resolver = resolver(uri);
+        while (resolver.hasNext()) {
+            String src = resolver.next();
+            if (src == null) continue;
+            RResult res = get(request, src);
+            if (res != null) return res;
+        }
+        return null;
+    }
+
     protected abstract RResult get(RRequest request, String source);
+    
+    protected class Resolver implements Iterator<String> {
+        
+        protected final String uri;
+        protected int stage = 0;
+        protected String next = null;
+        protected Iterator<Map.Entry<Pattern, String>> patterns = null;
+
+        public Resolver(String uri) {
+            this.uri = uri;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return checkNext();
+        }
+
+        @Override
+        public String next() {
+            if (!checkNext()) {
+                throw new IllegalStateException("No more elements");
+            }
+            final String result = next;
+            next = null;
+            return result;
+        }
+        
+        protected boolean checkNext() {
+            if (next != null) return true;
+            if (stage == 0) {
+                stage++;
+                next = mapSchema(uri);
+                if (next != null) return true;
+            }
+            if (stage == 1) {
+                stage++;
+                patterns = domains();
+            }
+            while (patterns.hasNext()) {
+                next = mapDomain(patterns.next(), uri);
+                if (next != null) return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void remove() { throw new UnsupportedOperationException(); }
+        
+    }
 
     /** for debugging purposes */
     protected String getMappingString() {
