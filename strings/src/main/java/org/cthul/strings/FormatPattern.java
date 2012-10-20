@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.cthul.strings.format.*;
-import org.cthul.strings.format.pattern.Standard;
+import org.cthul.strings.format.pattern.StandardPattern;
 
 /**
  *
@@ -76,9 +76,9 @@ public class FormatPattern {
     protected ConversionPattern getStandardPattern(String formatId) {
         switch (formatId.charAt(0)) {
             case 'd':
-                return Standard.DECIMAL;
+                return StandardPattern.DECIMAL;
             case 's':
-                return Standard.STRING;
+                return StandardPattern.STRING;
             default:
                 throw FormatException.unknownFormat(formatId);
         }
