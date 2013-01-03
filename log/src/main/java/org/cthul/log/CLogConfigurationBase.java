@@ -29,7 +29,7 @@ public abstract class CLogConfigurationBase extends FormatterConfiguration {
     }
 
     @Override
-    protected abstract CLogConfigurationBase createChildConfig();
+    public abstract CLogConfigurationBase newSubconfiguration();
 
     @Override
     public CLogConfigurationBase forLocale(Locale locale) {

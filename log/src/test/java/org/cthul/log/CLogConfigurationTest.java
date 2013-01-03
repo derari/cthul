@@ -1,13 +1,10 @@
 package org.cthul.log;
 
-import java.util.Locale;
 import org.junit.*;
-import org.slf4j.Logger;
-import static org.junit.Assert.*;
 
 /**
  *
- * @author derari
+ * @author Arian Treffer
  */
 public class CLogConfigurationTest {
     

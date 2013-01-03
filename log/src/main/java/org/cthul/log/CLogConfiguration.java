@@ -29,7 +29,7 @@ public class CLogConfiguration extends CLogConfigurationBase {
     }
 
     @Override
-    protected CLogConfiguration createChildConfig() {
+    public CLogConfiguration newSubconfiguration() {
         return new CLogConfiguration(this);
     }
 
@@ -53,7 +53,6 @@ public class CLogConfiguration extends CLogConfigurationBase {
     /**
      * Chooses a logger based on the class name of the caller of this method.
      * Equivalent to {@link #getClassLogger(int) getClassLogger(0)}.
-     * @param i
      * @return a logger
      */
     public CLogger getClassLogger() {
