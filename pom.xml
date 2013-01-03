@@ -6,29 +6,34 @@
     <packaging>pom</packaging>
     <version>1.0</version>
     <name>Cthul POM</name>
-    <url>http://maven.apache.org</url>
+    <url>http://turtlecat.de/cthul/</url>
     <modules>
         <module>matcher</module>
-        <module>matcher-fluent</module><!--
-        <module>matcher-fluent-gen</module>-->
         <module>parser</module>
         <module>strings</module>
         <module>log</module>
         <module>log-cal10n</module>
-        <module>idstax</module>
-        <module>idstax-gen</module>
         <module>xml</module>
-        <!--
-        <module>config</module>
-        <module>parser</module>
-        <module>factory</module>
-        <module>processing</module>
-        -->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.dependencies.hamcrest.version>1.3.RC2</project.dependencies.hamcrest.version>
     </properties>
+    <licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>http://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/derari/cthul.git</url>
+    </scm>
+    <distributionManagement>
+        <site>
+            <id>cthul-maven-docs</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
     <build>
         <pluginManagement>
             <plugins>
@@ -53,7 +58,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.0</version>
+                    <version>3.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -84,22 +89,6 @@
             </plugins>
         </pluginManagement>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.2</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.9</version>
-            </plugin>
-        </plugins>
-    </reporting>
     <profiles>
         <profile>
             <id>xlint</id>
@@ -119,6 +108,58 @@
         </profile>    
         <profile>
             <id>site</id>
+            <reporting>
+                <excludeDefaults>true</excludeDefaults>
+                <outputDirectory>${project.build.directory}/site</outputDirectory>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                            <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                            <linkOnly>true</linkOnly>
+                        </configuration>
+                        <reportSets>
+                            <reportSet>
+                                <inherited>false</inherited>
+                                <reports>
+                                    <report>index</report>
+                                    <report>dependencies</report>
+                                    <report>dependency-management</report>
+                                    <report>license</report>
+                                    <report>modules</report>
+                                    <report>scm</report>
+                                    <report>summary</report>
+                                </reports>
+                            </reportSet>
+                            <reportSet>
+                                <reports>
+                                    <report>index</report>
+                                    <report>dependencies</report>
+                                    <report>license</report>
+                                    <report>modules</report>
+                                    <report>scm</report>
+                                    <report>summary</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9</version>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jxr-plugin</artifactId>
+                        <version>2.3</version>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-report-plugin</artifactId>
+                        <version>2.12.4</version>
+                    </plugin>
+                </plugins>
+            </reporting>
         </profile>
     </profiles>
     <dependencyManagement>
