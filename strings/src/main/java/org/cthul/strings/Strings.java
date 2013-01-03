@@ -50,7 +50,6 @@ public class Strings {
     public static String format(FormatterConfiguration c, Object formatString, FormatArgs args) {
         return new Formatter(c).format(formatString, args).toString();
     }
-    
 
     /**
      * Appends {@code tokens} to {@code target}, separated by {@code sep}.

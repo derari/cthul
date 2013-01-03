@@ -41,7 +41,7 @@ public class RegEx {
     
     /** @return true if the character cannot be escaped with backslash */
     private static boolean needsBlockQuoting(char c) {
-        return c < 33 || Character.isWhitespace(c);
+        return c < 33 || c > 255 || Character.isWhitespace(c);
     }
     
     private static final int MAX_UNQUOTE_LEN = 6;
