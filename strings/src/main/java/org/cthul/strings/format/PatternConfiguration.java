@@ -9,14 +9,14 @@ import org.cthul.strings.format.pattern.RegexPattern;
  */
 public class PatternConfiguration extends AbstractFormatConfiguration<ConversionPattern> {
 
-    private static final PatternConfiguration Default = new PatternConfiguration(null);
+    private static final PatternConfiguration DEFAULT = new PatternConfiguration(null);
 
     public static PatternConfiguration getDefault() {
-        return Default;
+        return DEFAULT;
     }
     
     static {
-        RegexPattern.INSTANCE.register(Default);
+        RegexPattern.INSTANCE.register(DEFAULT);
     }
     
     public PatternConfiguration() {
@@ -33,7 +33,7 @@ public class PatternConfiguration extends AbstractFormatConfiguration<Conversion
     }
 
     @Override
-    protected PatternConfiguration createChildConfig() {
+    public PatternConfiguration newSubconfiguration() {
         return new PatternConfiguration(this);
     }
 

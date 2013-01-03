@@ -44,6 +44,7 @@ public abstract class FormatImplBase {
         return flags;
     }
     
+    @SuppressWarnings("unchecked")
     protected <T> T cast(Object arg, Class<T> type) {
         if (arg == null) {
             throw new NullPointerException("Argument is null");

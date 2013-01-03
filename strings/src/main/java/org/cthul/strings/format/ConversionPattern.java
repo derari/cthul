@@ -22,9 +22,9 @@ public interface ConversionPattern {
      * @return additional characters that were read from {@code formatString},
      *         should be zero for most implementations.
      */
-    public int toRegex(PatternAPI pattern, Locale locale, String flags, int width, int precision, String formatString, int position);
+    int toRegex(PatternAPI pattern, Locale locale, String flags, int width, int precision, String formatString, int position);
     
-    public Object parse(Matcher matcher, int capturingBase, Object memento, Object lastArgValue);
+    Object parse(MatcherAPI matcherAPI, Matcher matcher, int capturingBase, Object memento, Object lastArgValue);
     
     static interface Intermediate {
         

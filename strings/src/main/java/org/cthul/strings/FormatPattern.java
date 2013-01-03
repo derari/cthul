@@ -1,13 +1,16 @@
 package org.cthul.strings;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.cthul.strings.format.*;
 import org.cthul.strings.format.pattern.StandardPattern;
 
 /**
- *
+ * The opposite of {@link Formatter}: takes a string and a format string,
+ * and tries to parse the original values.
+ * 
  * @author Arian Treffer
  */
 public class FormatPattern {
@@ -31,9 +34,7 @@ public class FormatPattern {
     private final PatternConfiguration conf;
     private final Pattern pattern;
     
-    private int patternCount = 0;
-    private Match[] matches = new Match[5];
-    private int nextCaptureBase = 1;
+    private final PatternData data;
 
     public FormatPattern(String formatString) {
         this(null, formatString);
@@ -43,7 +44,7 @@ public class FormatPattern {
     public FormatPattern(PatternConfiguration conf, String formatString) {
         this.conf = conf != null ? conf : PatternConfiguration.getDefault();
         StringBuilder regex = new StringBuilder();
-        parseFormatString(formatString, regex);
+        data = new API(regex).parse(null, formatString);
         pattern = Pattern.compile(regex.toString());
     }
 
@@ -56,21 +57,8 @@ public class FormatPattern {
     }
     
     public FormatMatcher matcher(CharSequence csq) {
-        return new FormatMatcher(this, regexMatcher(csq), patternCount, matches);
-    }
-    
-    protected void parseFormatString(String formatString, StringBuilder regex) {
-        new Parser(regex, Locale.getDefault()).parse(formatString);
-    }
-    
-    protected void addPattern(ConversionPattern p, Object arg) {
-        int argId = (Integer) arg;
-        if (patternCount + 1 == matches.length) {
-            int newLen = matches.length * 2;
-            matches = Arrays.copyOf(matches, newLen);
-        }
-        matches[patternCount] = new Match(p, nextCaptureBase, argId);
-        patternCount++;
+        Matcher m = regexMatcher(csq);
+        return new FormatMatcher(this, m, data);
     }
     
     protected ConversionPattern getStandardPattern(String formatId) {
@@ -86,44 +74,44 @@ public class FormatPattern {
     
     protected class Parser extends FormatStringParser<RuntimeException> {
         
-        private final StringBuilder regex;
-        private final Locale locale;
-        private final API api;
+        protected final PatternData.Builder pattern;
+        protected final Locale locale;
 
-        public Parser(StringBuilder regex, Locale locale) {
-            this.regex = regex;
-            this.locale = locale;
-            this.api = new API(regex);
+        public Parser(PatternAPI api) {
+            this.pattern = new PatternData.Builder(api);
+            Locale l = conf.locale();
+            this.locale = l;
         }
 
         @Override
         protected Object getArg(int i) {
-            return i;
+            // careful! format strings use one-based indices
+            return i-1;
         }
 
         @Override
         protected Object getArg(char c) {
-            throw new UnsupportedOperationException("Only integer-indices supported");
+            return c;
         }
 
         @Override
         protected Object getArg(String s) {
-            throw new UnsupportedOperationException("Only integer-indices supported");
+            return s;
         }
 
         @Override
         protected void appendText(CharSequence csq, int start, int end) throws RuntimeException {
-            regex.append(Pattern.quote(csq.subSequence(start, end).toString()));
+            pattern.append(Pattern.quote(csq.subSequence(start, end).toString()));
         }
 
         @Override
         protected void appendPercent() throws RuntimeException {
-            regex.append("%");
+            pattern.append("%");
         }
 
         @Override
         protected void appendNewLine() throws RuntimeException {
-            regex.append("\\n");
+            pattern.append("\\n");
         }
 
         @Override
@@ -162,8 +150,11 @@ public class FormatPattern {
         }
 
         protected int applyPattern(ConversionPattern p, Object arg, String flags, int width, int precision, CharSequence formatString, int lastPosition) {
-           addPattern(p, arg);
-           return p.toRegex(api, locale, flags, width, precision, formatString.toString(), lastPosition);
+            return pattern.addConversion(p, arg, locale, flags, width, precision, formatString.toString(), lastPosition);
+        }
+        
+        protected PatternData patternData() {
+            return pattern.data();
         }
     
    }
@@ -195,54 +186,31 @@ public class FormatPattern {
         }
 
         @Override
-        public PatternAPI addedCapturingGroup() {
-            nextCaptureBase++;
+        public PatternAPI addedCapturingGroup() { 
             return this;
         }
 
         @Override
-        public PatternAPI addedCapturingGroups(int i) {
-            nextCaptureBase += i;
-            return this;
+        public PatternAPI addedCapturingGroups(int i) { 
+            return this; 
         }
 
         @Override
         public Object putMemento(Object newMemento) {
-            Match match = matches[patternCount-1];
-            Object old = match.memento;
-            match.memento = newMemento;
-            return old;
-        }
-        
-    }
-    
-    protected class Match {
-        
-        protected final ConversionPattern pattern;
-        protected final int captureBase;
-        protected final int argId;
-        protected Object memento;
-
-        public Match(ConversionPattern pattern, int captureBase, int argId) {
-            this.pattern = pattern;
-            this.captureBase = captureBase;
-            this.argId = argId;
+            throw new UnsupportedOperationException();
         }
 
-        public ConversionPattern getPattern() {
-            return pattern;
+        @Override
+        public PatternData parse(PatternAPI api, String format) {
+            return parse(api, format, 0, format.length());
         }
 
-        public int getCaptureBase() {
-            return captureBase;
-        }
-
-        public int getArgId() {
-            return argId;
-        }
-
-        public Object getMemento() {
-            return memento;
+        @Override
+        public PatternData parse(PatternAPI api, String format, int start, int end) {
+            if (api == null) api = this;
+            Parser parser = new Parser(api);
+            parser.parse(format, start, end);
+            return parser.patternData();
         }
         
     }

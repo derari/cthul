@@ -17,7 +17,8 @@ public abstract class AbstractFormatConfiguration<Format> {
     private final Map<String, Format> longFormats = new ConcurrentSkipListMap<>();
     private Locale locale = null;
 
-    public AbstractFormatConfiguration(AbstractFormatConfiguration parent, Class<Format> formatClass) {
+    @SuppressWarnings("unchecked")
+    public AbstractFormatConfiguration(AbstractFormatConfiguration<Format> parent, Class<Format> formatClass) {
         this.parent = parent;
         shortFormats = (Format[]) Array.newInstance(formatClass, 2*26);
     }
@@ -37,10 +38,10 @@ public abstract class AbstractFormatConfiguration<Format> {
         return locale;
     }
     
-    protected abstract AbstractFormatConfiguration createChildConfig();
+    public abstract AbstractFormatConfiguration newSubconfiguration();
     
     public AbstractFormatConfiguration forLocale(Locale locale) {
-        AbstractFormatConfiguration c = createChildConfig();
+        AbstractFormatConfiguration c = newSubconfiguration();
         c.setLocale(locale);
         return c;
     }

@@ -6,6 +6,9 @@ package org.cthul.strings.format;
  */
 public interface FormatArgs {
     
+    /**
+     * @param i zero-based index
+     */
     Object get(int i);
     
     Object get(char c);

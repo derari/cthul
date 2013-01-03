@@ -13,7 +13,6 @@ import org.cthul.strings.format.conversion.*;
 public class FormatterConfiguration extends AbstractFormatConfiguration<FormatConversion> {
     
     private static final FormatterConfiguration DEFAULT = new FormatterConfiguration(null);
-    static { DEFAULT.setLocale(Locale.getDefault()); }
 
     public static FormatterConfiguration getDefault() {
         return DEFAULT;
@@ -42,7 +41,7 @@ public class FormatterConfiguration extends AbstractFormatConfiguration<FormatCo
     }
     
     @Override
-    protected AbstractFormatConfiguration createChildConfig() {
+    public FormatterConfiguration newSubconfiguration() {
         return new FormatterConfiguration(this);
     }
 

@@ -1,9 +1,8 @@
 package org.cthul.strings;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import org.cthul.strings.format.ConversionPattern;
+import org.cthul.strings.format.*;
 
 /**
  *
@@ -13,67 +12,87 @@ public class FormatMatcher {
     
     private final FormatPattern pattern;
     private final Matcher matcher;
-    private final int patternCount;
-    private final FormatPattern.Match[] matches;
+    private final PatternData data;
+    
 
-    protected FormatMatcher(FormatPattern pattern, Matcher matcher, int patternCount, FormatPattern.Match[] matches) {
+    protected FormatMatcher(FormatPattern pattern, Matcher matcher, PatternData data) {
         this.pattern = pattern;
         this.matcher = matcher;
-        this.patternCount = patternCount;
-        this.matches = matches;
+        this.data = data;
     }
 
     public FormatPattern pattern() {
         return pattern;
     }
     
+    /**
+     * Matches the entire input and returns a list of extracted values.
+     * @return list of values, or null if match failed
+     */
     public List<Object> match() {
-        final List<Object> result = new ArrayList<>();
+        final IntMatchResults result = new IntMatchResults();
         if (matches(result)) {
-            return result;
+            return result.getIntResultList();
         } else {
             return null;
         }
     }
     
-    public boolean matches(List<Object> result) {
+    /**
+     * Matches the entire input and fills the result.
+     * @param result
+     * @return true iff match was successfull
+     */
+    public boolean matches(MatchResults result) {
         if (!matcher.matches()) return false;
         applyMatch(result);
         return true;
     }
     
-    public boolean find(List<Object> result) {
+    /**
+     * Finds the next match and fills the result
+     * @param result
+     * @return true iff match was found
+     */
+    public boolean find(MatchResults result) {
         if (!matcher.find()) return false;
         applyMatch(result);
         return true;
     }
     
-    public boolean find(int start, List<Object> result) {
+    /**
+     * Finds the next match and fills the result
+     * @param start
+     * @param result
+     * @return true iff match was found
+     */
+    public boolean find(int start, MatchResults result) {
         if (!matcher.find(start)) return false;
         applyMatch(result);
         return true;
     }
     
-    protected void applyMatch(List<Object> result) {
-        for (int i = 0; i < patternCount; i++) {
-            FormatPattern.Match match = matches[i];
-            Object value = getArg(result, match.getArgId());
-            value = match.getPattern().parse(matcher, match.getCaptureBase(), match.getMemento(), value);
-            result.set(i, value);
-        }
-        final int length = result.size();
-        for (int i = 0; i < length; i++) {
-            Object o = result.get(i);
-            if (o instanceof ConversionPattern.Intermediate) {
-                o = ((ConversionPattern.Intermediate) o).complete();
-                result.set(i, o);
-            }
-        }
+    protected void applyMatch(MatchResults result) {
+        applyMatch(result, 0);
+    }
+    
+    protected void applyMatch(MatchResults result, int caputingBase) {
+        new API(result).apply(data, caputingBase);
     }
 
-    protected Object getArg(List<Object> result, int argId) {
-        while (result.size() <= argId) result.add(null);
-        return result.get(argId);
+    protected class API implements MatcherAPI {
+        
+        protected final MatchResults results;
+
+        public API(MatchResults results) {
+            this.results = results;
+        }
+
+        @Override
+        public void apply(PatternData data, int caputingBase) {
+            data.apply(this, matcher, caputingBase, results);
+        }
+        
     }
     
 }

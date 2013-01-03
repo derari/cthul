@@ -7,24 +7,10 @@ import java.util.Map.Entry;
  *
  * @author Arian Treffer
  */
-public class SimpleArgs implements FormatArgs {
+public class SimpleArgs extends AbstractArgs implements FormatArgs {
     
     protected static final Object[] EMPTY = {};
     protected static final String[] EMPTY_S = {};
-    
-    protected static int cToI(char c) {
-        if (c < 'A') throw invalidCIndex(c);
-        if (c > 'Z') {
-            if (c < 'a' || c > 'z') throw invalidCIndex(c);
-            c -= 'a';
-        }
-        c -= 'A';
-        return c;
-    }
-    
-    protected static IllegalArgumentException invalidCIndex(char c) {
-        return new IllegalArgumentException("Expected [A-Za-z], got " + c);
-    }
     
     protected static void fill(Map<Object, Object> args, List<Object> intArgs, List<Object> charArgs, Map<String, Object> stringArgs) {
         for (Map.Entry<Object, Object> a: args.entrySet()) {
@@ -163,7 +149,7 @@ public class SimpleArgs implements FormatArgs {
     
     @Override
     public Object get(int i) {
-        return intArgs[i-1];
+        return intArgs[i];
     }
 
     @Override

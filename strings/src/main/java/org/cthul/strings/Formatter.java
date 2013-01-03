@@ -3,6 +3,7 @@ package org.cthul.strings;
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
+import org.cthul.strings.Formatter;
 import org.cthul.strings.format.*;
 import org.cthul.strings.format.conversion.*;
 
@@ -477,7 +478,7 @@ public class Formatter implements Flushable, AutoCloseable {
 
         @Override
         public Object get(int i) {
-            return args[i-1];
+            return args[i];
         }
 
         @Override
@@ -502,7 +503,8 @@ public class Formatter implements Flushable, AutoCloseable {
 
         @Override
         protected Object getArg(int i) {
-            return fArgs.get(i);
+            // careful! format strings use one-based indices
+            return fArgs.get(i-1);
         }
 
         @Override

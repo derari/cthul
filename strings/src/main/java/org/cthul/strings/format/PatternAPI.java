@@ -21,4 +21,8 @@ public interface PatternAPI extends Appendable {
     
     Object putMemento(Object newMemento);
     
+    PatternData parse(PatternAPI api, String format);
+    
+    PatternData parse(PatternAPI api, String format, int start, int end);
+    
 }

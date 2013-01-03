@@ -2,8 +2,7 @@ package org.cthul.strings.format.pattern;
 
 import java.util.Locale;
 import java.util.regex.*;
-import org.cthul.strings.format.PatternAPI;
-import org.cthul.strings.format.PatternConfiguration;
+import org.cthul.strings.format.*;
 
 /**
  * Allows to use regular expressions in a format string.
@@ -40,7 +39,7 @@ public class RegexPattern extends FormatPatternBase {
     }
 
     @Override
-    public Object parse(Matcher matcher, int capturingBase, Object memento, Object lastArgValue) {
+    public Object parse(MatcherAPI matcherAPI, Matcher matcher, int capturingBase, Object memento, Object lastArgValue) {
         return ((Memento) memento).getResult(matcher, capturingBase);
     }
 
@@ -77,12 +76,7 @@ public class RegexPattern extends FormatPatternBase {
         int groupCount = Pattern.compile(regex).matcher("").groupCount();
         memento.setGroupCount(groupCount);
         pattern.addedCapturingGroups(groupCount);
-
-        pattern.append('(');
         pattern.append(regex);
-        pattern.append(')');
-        pattern.addedCapturingGroup();
-
         return n;
     }
 
