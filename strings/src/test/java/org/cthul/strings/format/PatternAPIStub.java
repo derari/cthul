@@ -12,13 +12,26 @@ import org.cthul.proc.Procs;
  */
 public class PatternAPIStub implements PatternAPI {
     
+    public static Proc toRegexCall = Procs.invoke("toRegex", 7);
     public static Proc parseCall = Procs.invoke("parse", 8);
+
+    public static String toRegex(ConversionPattern pattern, Locale locale, String flags, int width, int precision, String formatString, int position) {
+        PatternAPIStub api = new PatternAPIStub();
+        pattern.toRegex(api, locale, flags, width, precision, formatString, position);
+        return api.toString();
+    }
     
     public static Object parse(ConversionPattern pattern, String input, Locale locale, String flags, int width, int precision, String formatString, int position) {
         PatternAPIStub api = new PatternAPIStub();
         pattern.toRegex(api, locale, flags, width, precision, formatString, position);
         Matcher matcher = Pattern.compile(api.toString()).matcher(input);
-        return pattern.parse(matcher, 1, api.getMemento(), null);
+        MatcherAPIStub mApi = new MatcherAPIStub(null, matcher);
+        if (!matcher.matches()) throw new AssertionError("no match");
+        return pattern.parse(mApi, matcher, 0, api.getMemento(), null);
+    }
+    
+    public static Proc toRegexCall(ConversionPattern pattern, String input, Locale locale, String flags, int width, int precision, String formatString, int position) {
+        return toRegexCall.call(pattern, input, locale, flags, width, precision, formatString, position);
     }
     
     public static Proc parseCall(ConversionPattern pattern, String input, Locale locale, String flags, int width, int precision, String formatString, int position) {
@@ -77,6 +90,16 @@ public class PatternAPIStub implements PatternAPI {
     @Override
     public String toString() {
         return sb.toString();
+    }
+
+    @Override
+    public PatternData parse(PatternAPI api, String format) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public PatternData parse(PatternAPI api, String format, int start, int end) {
+        throw new UnsupportedOperationException();
     }
     
 }
