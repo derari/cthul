@@ -5,7 +5,7 @@
             <displayName>xlint</displayName>
             <goals>
                 <goal>clean:clean</goal>
-                <goal>compiler:compile</goal>
+                <goal>install</goal>
             </goals>
             <activatedProfiles>
                 <activatedProfile>xlint</activatedProfile>

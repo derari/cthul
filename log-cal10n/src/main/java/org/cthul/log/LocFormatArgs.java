@@ -21,7 +21,7 @@ public class LocFormatArgs implements FormatArgs {
 
     @Override
     public Object get(int i) {
-        return values[i-1];
+        return values[i];
     }
 
     @Override

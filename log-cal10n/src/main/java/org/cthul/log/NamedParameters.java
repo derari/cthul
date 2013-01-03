@@ -1,5 +1,6 @@
 package org.cthul.log;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public interface NamedParameters {
     static class ParamUtils {
         
         public static List<String> wrap(String[] names) {
-            return new UnmodifiableArrayList<>(names);
+            return Arrays.asList(names);
         }
         
     }

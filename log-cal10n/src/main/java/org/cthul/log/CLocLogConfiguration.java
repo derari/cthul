@@ -34,7 +34,7 @@ public class CLocLogConfiguration extends CLogConfigurationBase {
     }
 
     @Override
-    protected CLocLogConfiguration createChildConfig() {
+    public CLocLogConfiguration newSubconfiguration() {
         return new CLocLogConfiguration(this);
     }
 
@@ -58,7 +58,6 @@ public class CLocLogConfiguration extends CLogConfigurationBase {
     /**
      * Chooses a logger based on the class name of the caller of this method.
      * Equivalent to {@link #getClassLogger(int) getClassLogger(0)}.
-     * @param i
      * @return a logger
      */
     public <E extends Enum<?>> CLocLogger<E> getClassLogger() {

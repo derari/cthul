@@ -11,6 +11,13 @@
     <artifactId>cthul-log-cal10n</artifactId>
     <version>1.0</version>
     <name>Cthul Logger CAL10N</name>
+    <url>http://turtlecat.de/cthul/log-cal10n</url>
+    <distributionManagement>
+        <site>
+            <id>cthul-log-cal10n-maven-docs</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
     <properties>
         <build.freemarker.sourceDirectory>target/generated-sources/freemarker</build.freemarker.sourceDirectory>
     </properties>
