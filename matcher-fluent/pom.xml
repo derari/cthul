@@ -11,7 +11,13 @@
     <artifactId>cthul-matcher-fluent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Cthul Fluent Matchers</name>
-    <url>${parent.url}/cthul-matcher-fluent</url>
+    <url>http://turtlecat.de/cthul/matcher-fluent</url>
+    <distributionManagement>
+        <site>
+            <id>cthul-matcher-fluent-maven-docs</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
     <properties>
         <generated-matcher-dir>${project.build.directory}/generated-sources/hamcrest</generated-matcher-dir>
     </properties>
