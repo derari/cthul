@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.is;
 
 /**
  *
- * @author derari
+ * @author Arian Treffer
  */
 public class ValidatingSAXParserTest {
     

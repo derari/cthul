@@ -11,6 +11,13 @@
     <artifactId>cthul-xml</artifactId>
     <version>1.0</version>
     <name>Cthul XML</name>
+    <url>http://turtlecat.de/cthul/xml</url>
+    <distributionManagement>
+        <site>
+            <id>cthul-xml-maven-docs</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -31,6 +38,11 @@
             <groupId>org.cthul</groupId>
             <artifactId>cthul-matcher</artifactId>
             <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>    
+            <artifactId>hamcrest-library</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
