@@ -54,19 +54,13 @@ public class P2<A, B> extends ProcBase<P2<A, B>> implements Proc2<A, B> {
         throw notImplemented("run(A, B)");
     }
 
-    /**
-     * Creates a new ProcBase.
-     * @param a
-     * @param b
-     * @return
-     */
     @Override
-    public P2 call(A a, B b) {
+    public P2<A, B> call(A a, B b) {
         return copy(a, b);
     }
 
     @Override
-    public P2 with(A a, B b) {
+    public P2<A, B> with(A a, B b) {
         return call(a, b);
     }
 

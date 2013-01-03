@@ -190,7 +190,7 @@ public class ReflectiveProc extends PN {
         }
         return assignableResult;
     }
-    
+
     private static enum Match {
         NONE, ASSIGNABLE, EXACT;
     }
@@ -234,7 +234,7 @@ public class ReflectiveProc extends PN {
         return exactMatch ? Match.EXACT : Match.ASSIGNABLE;
     }
     
-    private static boolean isAssignable(Class expected, Class given) {
+    private static boolean isAssignable(Class<?> expected, Class<?> given) {
         if (expected.isAssignableFrom(given)) return true;
         if (!expected.isPrimitive()) return false;
         if (expected == byte.class) return given == Byte.class;
@@ -359,54 +359,63 @@ public class ReflectiveProc extends PN {
     }
     
     private Object copyVarArgs(Object[] args, int len) {
-        Class c = varArgType.getComponentType();
+        Class<?> c = varArgType.getComponentType();
         if (c.isPrimitive()) {
-            int vargC = args.length - paramCount + 1;
-            if (c == byte.class) {
-                byte[] vargs = new byte[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Byte) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == char.class) {
-                char[] vargs = new char[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Character) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == short.class) {
-                short[] vargs = new short[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Short) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == int.class) {
-                int[] vargs = new int[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Integer) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == long.class) {
-                long[] vargs = new long[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Long) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == float.class) {
-                float[] vargs = new float[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Float) args[paramCount + i - 1];
-                }
-                return vargs;
-            } else if (c == double.class) {
-                double[] vargs = new double[vargC];
-                for (int i = 0; i < vargC; i++) {
-                    vargs[i] = (Double) args[paramCount + i - 1];
-                }
-                return vargs;
-            }
-            throw new AssertionError(c);
+            return copyPrimitiveVarArgs(args, c);
         }
+        return copyObjectVarArgs(args, len);
+    }
+    
+protected Object copyPrimitiveVarArgs(Object[] args, Class<?> c) throws AssertionError {
+        int vargC = args.length - paramCount + 1;
+        if (c == byte.class) {
+            byte[] vargs = new byte[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Byte) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == char.class) {
+            char[] vargs = new char[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Character) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == short.class) {
+            short[] vargs = new short[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Short) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == int.class) {
+            int[] vargs = new int[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Integer) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == long.class) {
+            long[] vargs = new long[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Long) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == float.class) {
+            float[] vargs = new float[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Float) args[paramCount + i - 1];
+            }
+            return vargs;
+        } else if (c == double.class) {
+            double[] vargs = new double[vargC];
+            for (int i = 0; i < vargC; i++) {
+                vargs[i] = (Double) args[paramCount + i - 1];
+            }
+            return vargs;
+        }
+        throw new AssertionError(c);
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected final Object copyObjectVarArgs(Object[] args, int len) {
         return Arrays.copyOfRange(args, paramCount-1, len, varArgType);
     }
 

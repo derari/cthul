@@ -59,7 +59,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
     }
 
     /**
-     * Sets the name of this asProc.
+     * Sets the name of this proc.
      * It will be used as description and has no functional purpose.
      * @param name
      */

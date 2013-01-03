@@ -58,7 +58,7 @@ public class QuickDiagnose {
      * @param item
      * @param mismatch
      * @param message
-     * @return 
+     * @return match result
      */
     public static boolean matches(Matcher<?> matcher, Object item, Description mismatch, String message) {
         if (mismatch instanceof Description.NullDescription) {

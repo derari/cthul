@@ -56,7 +56,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
     }
     
     /**
-     * Similar to {@link #matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)},
+     * Similar to {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)},
      * but allows to override the mismatch message.
      * <p/>
      * If matching fails, {@code message} will be appended to {@code mismatch}.

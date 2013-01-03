@@ -53,11 +53,6 @@ public class P1<A> extends ProcBase<P1<A>> implements Proc1<A> {
         throw notImplemented("run(A)");
     }
     
-    /**
-     * Creates a new asProc.
-     * @param a
-     * @return
-     */
     @Override
     public P1<A> call(A a) {
         return copy(a);

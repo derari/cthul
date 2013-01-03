@@ -57,6 +57,7 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         return that(Is.is(m));
     }
     
+    @SuppressWarnings("unchecked")
     public <X> Matcher<X> that(Matcher... m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);

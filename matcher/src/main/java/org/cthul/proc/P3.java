@@ -44,7 +44,7 @@ public class P3<A, B, C> extends ProcBase<P3<A, B, C>> implements Proc3<A, B, C>
     }
 
     /**
-     * Executes the asProc.
+     * Executes the proc.
      * @param a
      * @param b
      * @return result
@@ -54,12 +54,6 @@ public class P3<A, B, C> extends ProcBase<P3<A, B, C>> implements Proc3<A, B, C>
         throw notImplemented("run(A, B, C)");
     }
 
-    /**
-     * Creates a new asProc.
-     * @param a
-     * @param b
-     * @return
-     */
     @Override
     public P3<A, B, C> call(A a, B b, C c) {
         return copy(a, b, c);
