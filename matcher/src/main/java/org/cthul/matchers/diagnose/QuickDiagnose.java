@@ -2,10 +2,7 @@ package org.cthul.matchers.diagnose;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.hamcrest.Description;
-import org.hamcrest.DiagnosingMatcher;
-import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
+import org.hamcrest.*;
 
 /**
  *
@@ -70,21 +67,19 @@ public class QuickDiagnose {
             return matches(matcher, item, mismatch);
         }
         
-        final boolean matched;
-        
         if (message.contains("$1")) {
             final Description subMismatch = new StringDescription();
-            matched = matches(matcher, item, subMismatch);
-            if (!matched) {
+            if (!matches(matcher, item, subMismatch)) {
                 mismatch.appendText(message.replace("$1", subMismatch.toString()));
+                return false;
             }
         } else {
-            matched = matcher.matches(item);
-            if (!matched) {
+            if (!matcher.matches(item)) {
                 mismatch.appendText(message);
+                return false;
             }
         }
-        return matched;
+        return true;
     }
     
     private static boolean simpleMatch(Matcher<?> matcher, Object item, Description mismatch) {
@@ -117,6 +112,10 @@ public class QuickDiagnose {
         return enableDiagnosingHack;
     }
     
+    public static synchronized boolean diagnosingHackActivated() {
+        return DiagnosingHack.hackEnabled;
+    }
+    
     /**
      * Wrapper class for the diagnosing hack.
      * Is initialized lazy when needed.
@@ -125,17 +124,21 @@ public class QuickDiagnose {
         // the rug under the rug
     
         private static final Method diagnosingMatches;
+        private static final boolean hackEnabled;
 
         static {
             Method matches = null;
+            boolean success = false;
             if (diagnosingHackEnabled()) {
                 try {
                     matches = DiagnosingMatcher.class.getMethod("matches", Object.class, Description.class);
                     matches.setAccessible(true);
+                    success = true;
                 } catch (NoSuchMethodException | SecurityException e) { 
-                    // TODO: warn that hack is broken
+                    success = false;
                 }
             }
+            hackEnabled = success;
             diagnosingMatches = matches;
         }
         

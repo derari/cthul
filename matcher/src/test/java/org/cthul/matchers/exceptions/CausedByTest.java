@@ -1,13 +1,13 @@
 package org.cthul.matchers.exceptions;
 
-import org.junit.Test;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.cthul.matchers.exceptions.ExceptionMessage.*;
-import static org.cthul.matchers.exceptions.CausedBy.*;
-import static org.cthul.matchers.InstanceThat.*;
+import org.junit.Test;
+import static org.cthul.matchers.exceptions.CausedBy.causedBy;
+import static org.cthul.matchers.exceptions.ExceptionMessage.messageContains;
+import static org.cthul.matchers.exceptions.IsThrowable.throwable;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -22,8 +22,7 @@ public class CausedByTest {
         assertThat(r, causedBy(RuntimeException.class));
         
         Object o = r;
-        assertThat(o, isInstanceThat(Throwable.class, 
-                                     is(causedBy(RuntimeException.class))));
+        assertThat(o, is(throwable(causedBy(RuntimeException.class))));
     }
 
     @Test

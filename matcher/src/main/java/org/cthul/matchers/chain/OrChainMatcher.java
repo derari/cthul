@@ -1,9 +1,7 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * 
@@ -31,7 +29,7 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 description.appendText(" or ");
             }
-            m.describeTo(description);
+            nestedDescribe(description, m);
         }
     }
 
@@ -69,8 +67,13 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 description.appendText(" and ");
             }
-            m.describeMismatch(item, description);
+            nestedDescribeMismatch(description, m, item);
         }
+    }
+
+    @Override
+    public int getPrecedence() {
+        return P_OR;
     }
     
     @Factory

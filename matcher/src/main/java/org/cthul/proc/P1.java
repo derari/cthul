@@ -59,11 +59,12 @@ public class P1<A> extends ProcBase<P1<A>> implements Proc1<A> {
      * @return
      */
     @Override
-    public P1 call(A a) {
+    public P1<A> call(A a) {
         return copy(a);
     }
 
-    public P1 withArg(A a) {
+    @Override
+    public P1<A> with(A a) {
         return call(a);
     }
 

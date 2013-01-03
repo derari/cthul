@@ -1,11 +1,11 @@
 package org.cthul.matchers;
 
-import org.junit.Test;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.cthul.matchers.ContainsPattern.*;
+import org.junit.Test;
+import static org.cthul.matchers.ContainsPattern.containsPattern;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *

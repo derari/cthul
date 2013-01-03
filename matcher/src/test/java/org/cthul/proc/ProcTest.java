@@ -10,7 +10,7 @@ import org.junit.Test;
 public class ProcTest {
         
     @Test
-    public void test() {
+    public void test_test() {
         Proc proc = new PN() {
             {name("sum");}
             @Override protected Object runN(Object[] args) throws Throwable {

@@ -1,25 +1,17 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.cthul.matchers.exceptions;
 
-import org.hamcrest.StringDescription;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.hamcrest.StringDescription;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.cthul.matchers.exceptions.IsThrowable.*;
-import static org.cthul.matchers.exceptions.CausedBy.*;
+import static org.cthul.matchers.exceptions.CausedBy.causedBy;
+import static org.cthul.matchers.exceptions.IsThrowable.throwable;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 /**
  *
- * @author derari
+ * @author Arian Treffer
  */
 public class IsThrowableTest {
     

@@ -70,12 +70,12 @@ public class ConceptTest {
      * If a proc is not called explicitly, it is executed with default arguments.
      */
     @Test
-    public void testSimpleResult() {
+    public void test_simpleResult() {
         assertThat(magicNumber, returns(10));
         assertThat(add, returns(5));
         assertThat(add.call(1, 2), returns(3));
-        assertThat(add.call(3, 4), returns(7));
-        assertThat(add.call(3, 4), result(is(not(3))));
+        assertThat(add.with(3, 4), returns(7));
+        assertThat(add.with(3, 4), result(is(not(3))));
         assertThat(parseInt.call("12"), returns(12));
     }
 
@@ -85,7 +85,7 @@ public class ConceptTest {
      * Calling a proc actually creates a new one.
      */
     @Test
-    public void testResultCaching() {
+    public void test_resultCaching() {
         assertThat(magicNumber, returns(10));
         assertThat(magicNumber, returns(10));
         magicNumber.retry();
@@ -101,7 +101,7 @@ public class ConceptTest {
      * There are special matchers to test the class and message of a throwable.
      */
     @Test
-    public void testExceptions() {
+    public void test_exceptions() {
         Proc parseFoo = parseInt.call("foo");
         assertThat(parseFoo, raisesException());
         assertThat(parseFoo, raises(NumberFormatException.class));
@@ -116,7 +116,7 @@ public class ConceptTest {
      * Such chains can be matched as well.
      */
     @Test
-    public void testNestedExceptions() {
+    public void test_nestedExceptions() {
         assertThat(nestedException, raisesException());
         assertThat(nestedException, raises(RuntimeException.class));
         assertThat(nestedException, raisesException(causedBy(IllegalArgumentException.class)));

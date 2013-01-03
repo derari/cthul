@@ -146,11 +146,11 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         return copy(args);
     }
 
-//    /** {@inheritDoc} */
-//    @Override
-//    public This withArgs(Object... args) {
-//        return call(args);
-//    }
+    /** {@inheritDoc} */
+    @Override
+    public This with(Object... args) {
+        return call(args);
+    }
 
     /** {@inheritDoc} */
     @Override

@@ -46,11 +46,11 @@ public interface Proc extends SelfDescribing {
      */
     Proc call(Object... args);
     
-//    /**
-//     * Alias for {@link #call(java.lang.Object[]) }.
-//     * @see Proc#call(java.lang.Object[]) 
-//     */
-//    Proc withArgs(Object... args);
+    /**
+     * Alias for {@link #call(java.lang.Object[])}.
+     * @see Proc#call(java.lang.Object[]) 
+     */
+    Proc with(Object... args);
     
     /**
      * Returns true iff executing this Proc caused no exceptions.

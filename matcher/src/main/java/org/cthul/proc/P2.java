@@ -30,7 +30,7 @@ public class P2<A, B> extends ProcBase<P2<A, B>> implements Proc2<A, B> {
      */
     @Override
     protected P2<A, B> createCopy(Object[] args) {
-        return new P2<A, B>(this, args);
+        return new P2<>(this, args);
     }
 
     /**
@@ -60,11 +60,13 @@ public class P2<A, B> extends ProcBase<P2<A, B>> implements Proc2<A, B> {
      * @param b
      * @return
      */
+    @Override
     public P2 call(A a, B b) {
         return copy(a, b);
     }
 
-    public P2 withArgs(A a, B b) {
+    @Override
+    public P2 with(A a, B b) {
         return call(a, b);
     }
 

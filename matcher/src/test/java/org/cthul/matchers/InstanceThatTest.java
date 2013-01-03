@@ -37,7 +37,7 @@ public class InstanceThatTest {
     }
 
     @Test
-    public void testSyntax() {
+    public void test_syntax() {
         Object o = Integer.valueOf(2);
         // assertThat(o, greaterThan(1)); should not work
         assertThat(o, isInstanceThat(Integer.class, greaterThan(1)));

@@ -1,8 +1,9 @@
 package org.cthul.matchers.chain;
 
+import org.cthul.matchers.diagnose.NestedMatcher;
 import java.util.Collection;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Combines multiple matchers.
@@ -11,7 +12,7 @@ import org.hamcrest.Matcher;
  * @param <T> 
  * @see Matcher
  */
-public abstract class MatcherChainBase<T> extends QuickDiagnosingMatcherBase<T> {
+public abstract class MatcherChainBase<T> extends NestedMatcher<T> {
 
     protected final Matcher<? super T>[] matchers;
 
@@ -24,5 +25,5 @@ public abstract class MatcherChainBase<T> extends QuickDiagnosingMatcherBase<T> 
     public MatcherChainBase(Collection<? extends Matcher<? super T>> matchers) {
         this.matchers = matchers.toArray(new Matcher[matchers.size()]);
     }
-    
+        
 }

@@ -63,11 +63,12 @@ public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A,
     }
 
     @Override
-    public P4 call(A a, B b, C c, D d) {
+    public P4<A, B, C, D> call(A a, B b, C c, D d) {
         return copy(a, b, c, d);
     }
 
-    public P4 withArgs(A a, B b, C c, D d) {
+    @Override
+    public P4<A, B, C, D> with(A a, B b, C c, D d) {
         return call(a, b, c, d);
     }
 

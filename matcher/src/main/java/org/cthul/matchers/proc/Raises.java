@@ -3,9 +3,7 @@ package org.cthul.matchers.proc;
 import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
 import org.cthul.matchers.exceptions.IsThrowable;
 import org.cthul.proc.Proc;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  *

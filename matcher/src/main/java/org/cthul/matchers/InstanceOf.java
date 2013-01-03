@@ -2,10 +2,11 @@ package org.cthul.matchers;
 
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
 import org.hamcrest.*;
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;
 
 /**
- *
+ * 
  * @author Arian Treffer
  */
 public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
@@ -44,7 +45,7 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         matcher.describeTo(description);
     }
     
-    public Matcher<Object> that(Matcher<? super T> m) {
+    public <X> Matcher<X> that(Matcher<? super T> m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);
         } else {
@@ -52,7 +53,11 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         }
     }
     
-    public Matcher<Object> that(Matcher<? super T>... m) {
+    public <X> Matcher<X> thatIs(Matcher<? super T> m) {
+        return that(Is.is(m));
+    }
+    
+    public <X> Matcher<X> that(Matcher... m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);
         } else {
@@ -72,6 +77,16 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
 
     @Factory
     public static <T> InstanceOf<T> isA(Class<T> clazz) {
+        return new InstanceOf<>(true, clazz);
+    }
+    
+    @Factory
+    public static <T> InstanceOf<T> _instanceOf(Class<T> clazz) {
+        return new InstanceOf<>(clazz);
+    }
+
+    @Factory
+    public static <T> InstanceOf<T> _isA(Class<T> clazz) {
         return new InstanceOf<>(true, clazz);
     }
     

@@ -1,9 +1,7 @@
 package org.cthul.matchers.exceptions;
 
 import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Matches exception chains.

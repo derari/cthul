@@ -2,9 +2,7 @@ package org.cthul.matchers;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.diagnose.TypesafeQuickMatcherBase;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Tests if a string contains a regex pattern.

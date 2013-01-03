@@ -1,11 +1,11 @@
 package org.cthul.matchers.exceptions;
 
-import org.junit.Test;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
+import org.junit.Test;
 import static org.cthul.matchers.exceptions.ExceptionMessage.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *

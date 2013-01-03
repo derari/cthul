@@ -2,7 +2,9 @@ package org.cthul.proc;
 
 public interface Proc3<A, B, C> extends Proc {
     
-    Proc3 call(A a, B b, C c);
+    Proc3<A, B, C> call(A a, B b, C c);
+    
+    Proc3<A, B, C> with(A a, B b, C c);
     
     Proc2<B, C> curry(A a);
     

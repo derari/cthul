@@ -30,7 +30,7 @@ public class P3<A, B, C> extends ProcBase<P3<A, B, C>> implements Proc3<A, B, C>
      */
     @Override
     protected P3<A, B, C> createCopy(Object[] args) {
-        return new P3<A, B, C>(this, args);
+        return new P3<>(this, args);
     }
 
     /**
@@ -61,11 +61,12 @@ public class P3<A, B, C> extends ProcBase<P3<A, B, C>> implements Proc3<A, B, C>
      * @return
      */
     @Override
-    public P3 call(A a, B b, C c) {
+    public P3<A, B, C> call(A a, B b, C c) {
         return copy(a, b, c);
     }
 
-    public P3 withArgs(A a, B b, C c) {
+    @Override
+    public P3<A, B, C> with(A a, B b, C c) {
         return call(a, b, c);
     }
 

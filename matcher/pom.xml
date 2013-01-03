@@ -11,7 +11,13 @@
     <artifactId>cthul-matcher</artifactId>
     <version>1.0</version>
     <name>Cthul Matchers</name>
-    <url>${parent.url}/cthul-matcher</url>
+    <url>http://turtlecat.de/cthul/matcher</url>
+    <distributionManagement>
+        <site>
+            <id>cthul-matcher-maven-docs</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
     <properties>
         <generated-matcher-dir>${project.build.directory}/generated-sources/hamcrest</generated-matcher-dir>
     </properties>
@@ -104,6 +110,18 @@
                             </dependency>    
                         </dependencies>
                     </plugin>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>compile-generated-matchers</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -111,7 +129,12 @@
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

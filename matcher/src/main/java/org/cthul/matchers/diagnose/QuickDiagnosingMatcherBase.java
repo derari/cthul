@@ -1,8 +1,6 @@
 package org.cthul.matchers.diagnose;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * A {@link Matcher} that is able to match and diagnose in one step, but, unlike

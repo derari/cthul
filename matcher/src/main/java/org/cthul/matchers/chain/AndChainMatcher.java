@@ -1,9 +1,7 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Conjunction of multiple matchers.
@@ -32,7 +30,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 description.appendText(" and ");
             }
-            m.describeTo(description);
+            nestedDescribe(description, m);
         }
     }
 
@@ -63,6 +61,11 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     @Override
     public void describeMismatch(Object item, Description description) {
         matches(item, description);
+    }
+
+    @Override
+    public int getPrecedence() {
+        return P_AND;
     }
     
     @Factory

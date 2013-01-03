@@ -1,10 +1,7 @@
 package org.cthul.proc;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import static org.cthul.matchers.proc.Returns.returns;
-import static org.cthul.matchers.proc.Raises.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -45,30 +42,30 @@ public class CurryProcTest {
     }
     
     @Test
-    public void basic() {
+    public void test_basic() {
         assertThat(combine.call(1,2,3,4,5), returns(12345));
     }
     
     @Test
-    public void curry1() {
+    public void test_curry1() {
         Proc c1 = combine.curry(9, 8);
         assertThat(c1.call(1, 2, 3), returns(98123));
     }
     
     @Test
-    public void curry2() {
+    public void test_curry2() {
         Proc c1 = combine.curry(9).curry(8);
         assertThat(c1.call(1, 2, 3), returns(98123));
     }
     
     @Test
-    public void curryAt1() {
+    public void test_curryAt1() {
         Proc c1 = combine.curryAt(1, 9, 8);
         assertThat(c1.call(1, 2, 3), returns(19823));
     }
     
     @Test
-    public void curryAt2() {
+    public void test_curryAt2() {
         Proc c1 = combine.curryAt(1, 9).curryAt(2, 8);
         assertThat(c1.call(1, 2, 3), returns(19283));
     }

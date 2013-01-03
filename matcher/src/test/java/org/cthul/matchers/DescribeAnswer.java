@@ -1,20 +1,17 @@
-/*
- * 
- */
-
 package org.cthul.matchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 /**
  * A mockito answer that appends a fixed string to
  * Hamcrest descriptions that are passed as parameters.
  * 
- * @author derari
+ * @author Arian Treffer
  */
 public class DescribeAnswer implements Answer {
     
