@@ -2,8 +2,8 @@ package org.cthul.parser.earleyx.factory;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cthul.parser.api.Match;
 import org.cthul.parser.api.MatchEval;
+import org.cthul.parser.api.XMatch;
 
 public class EXRules {
     
@@ -60,14 +60,14 @@ public class EXRules {
     
     public static class ArgsArrayEval implements MatchEval {
         @Override
-        public Object eval(Match match) {
+        public Object eval(XMatch match) {
             return match.getArgs();
         }
     }
     
-    private static void addItemsToList(int first, Match itemSeq, List<Object> list) {
-        Match[] items = (Match[]) itemSeq.eval();
-        for (Match item: items) {
+    private static void addItemsToList(int first, XMatch itemSeq, List<Object> list) {
+        XMatch[] items = (XMatch[]) itemSeq.eval();
+        for (XMatch item: items) {
             list.add(item.eval());
         }
     }
@@ -79,9 +79,9 @@ public class EXRules {
 
     public static class ListOriginEval implements MatchEval {
         @Override
-        public Object eval(Match match) {
+        public Object eval(XMatch match) {
             List<Object> list = new ArrayList<>();
-            Match[] args = match.getArgs();
+            XMatch[] args = match.getArgs();
             if (args.length > 0) {
                 addItemsToList(0, match.getArgs()[0], list);
             }
@@ -92,7 +92,7 @@ public class EXRules {
 
     public static class ListStepEval implements MatchEval {
         @Override
-        public Object eval(Match match) {
+        public Object eval(XMatch match) {
             List<Object> list = (List) match.getArgs()[0].eval();
             addItemsToList(1, match.getArgs()[1], list);
             return list;
@@ -101,7 +101,7 @@ public class EXRules {
 
     public static class ListSepStepEval implements MatchEval {
         @Override
-        public Object eval(Match match) {
+        public Object eval(XMatch match) {
             List<Object> list = (List) match.getArgs()[0].eval();
             addItemsToList(1, match.getArgs()[2], list);
             return list;
@@ -110,7 +110,7 @@ public class EXRules {
     
     public static class SingleProxyEval implements MatchEval {
         @Override
-        public Object eval(Match match) {
+        public Object eval(XMatch match) {
             return match.getArgs()[0].eval();
         }
     }

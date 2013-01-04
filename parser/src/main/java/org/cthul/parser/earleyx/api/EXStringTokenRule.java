@@ -17,7 +17,7 @@ public class EXStringTokenRule<C extends Context<? extends StringInput>> extends
     public EXMatch match(C context, int start, int end, EXMatch[] right) {
         StringInput input = context.getInput();
         if (start >= input.getLength()) return null;
-        String str = ((StringInput) input).getInput();
+        String str = ((StringInput) input).getString();
         for (String s: strings) {
             if (str.startsWith(s, start)) {
                 return token(context, start, start + s.length());

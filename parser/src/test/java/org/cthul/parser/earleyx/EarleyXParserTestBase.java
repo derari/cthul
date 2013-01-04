@@ -1,17 +1,12 @@
 package org.cthul.parser.earleyx;
 
-import org.cthul.parser.earleyx.api.EXMatch;
 import java.util.Iterator;
 import java.util.Random;
-import org.cthul.parser.api.*;
+import org.cthul.parser.api.Context;
 import org.cthul.parser.earleyx.api.*;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import org.junit.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  *

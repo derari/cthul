@@ -1,6 +1,5 @@
 package org.cthul.parser.packratx;
 
-import org.cthul.parser.earleyx.*;
 import org.cthul.parser.util.PriorityOrderedSet;
 
 /**

@@ -9,7 +9,7 @@ public class StringInput extends CharInput {
     }
 
     @Override
-    public String getInput() {
+    public String getString() {
         return input;
     }
 

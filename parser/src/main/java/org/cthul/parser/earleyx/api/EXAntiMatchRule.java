@@ -1,6 +1,8 @@
 package org.cthul.parser.earleyx.api;
 
-import org.cthul.parser.api.*;
+import org.cthul.parser.api.Context;
+import org.cthul.parser.api.MatchEval;
+import org.cthul.parser.api.Rule;
 
 public class EXAntiMatchRule<C extends Context<?>> extends EXRule<C> {
 

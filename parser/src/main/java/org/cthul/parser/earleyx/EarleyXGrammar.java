@@ -1,8 +1,10 @@
 package org.cthul.parser.earleyx;
 
-import org.cthul.parser.earleyx.api.EXRuleSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.cthul.parser.earleyx.api.EXRule;
-import java.util.*;
+import org.cthul.parser.earleyx.api.EXRuleSet;
 import org.cthul.parser.util.Format;
 
 public class EarleyXGrammar {

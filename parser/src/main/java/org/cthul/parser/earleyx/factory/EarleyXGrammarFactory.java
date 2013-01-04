@@ -2,8 +2,8 @@ package org.cthul.parser.earleyx.factory;
 
 import java.util.*;
 import org.cthul.parser.earleyx.EarleyXGrammar;
-import org.cthul.parser.earleyx.api.*;
-import org.cthul.parser.factory.RuleKey;
+import org.cthul.parser.earleyx.api.EXRule;
+import org.cthul.parser.earleyx.api.EXStringTokenRule;
 import org.cthul.parser.util.Format;
 
 public class EarleyXGrammarFactory {

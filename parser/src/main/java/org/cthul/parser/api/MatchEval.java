@@ -2,6 +2,6 @@ package org.cthul.parser.api;
 
 public interface MatchEval {
     
-    Object eval(Match match);
+    Object eval(XMatch match);
     
 }

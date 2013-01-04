@@ -1,6 +1,8 @@
 package org.cthul.parser.earleyx.api;
 
-import org.cthul.parser.api.*;
+import org.cthul.parser.api.Context;
+import org.cthul.parser.api.Rule;
+import org.cthul.parser.api.StringInput;
 
 public class EXToken extends EXMatch {
     
@@ -18,7 +20,7 @@ public class EXToken extends EXMatch {
     }
     
     protected String token() {
-        return context.getInput().getInput().substring(getStart(), getEnd());
+        return context.getInput().getString().substring(getStart(), getEnd());
     }
 
 }

@@ -11,7 +11,16 @@ public class Context<I extends Input<?>> {
     public Context(I input) {
         this.input = input;
     }
+    
+    public Context(Context<?> c, I input) {
+        this.input = input;
+    }
 
+    public <T extends Input<?>> Context<T> forInput(T input) {
+        if (this.input == input) return (Context) this;
+        return new Context<>(this, input);
+    }
+    
     public I getInput() {
         return input;
     }

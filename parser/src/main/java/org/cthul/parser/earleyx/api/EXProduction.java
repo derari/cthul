@@ -1,6 +1,7 @@
 package org.cthul.parser.earleyx.api;
 
-import org.cthul.parser.api.*;
+import org.cthul.parser.api.Context;
+import org.cthul.parser.api.MatchEval;
 
 public class EXProduction<C extends Context<?>> extends EXRule<C> {
     

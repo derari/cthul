@@ -1,6 +1,5 @@
 package org.cthul.parser.api;
 
-import org.cthul.parser.earleyx.*;
 import org.cthul.parser.util.Format;
 import org.cthul.parser.util.PriorityOrderedSet;
 

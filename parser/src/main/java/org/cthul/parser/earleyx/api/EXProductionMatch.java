@@ -2,7 +2,6 @@ package org.cthul.parser.earleyx.api;
 
 import org.cthul.parser.api.MatchEval;
 import org.cthul.parser.api.Rule;
-import org.cthul.parser.util.Format;
 
 public class EXProductionMatch extends EXMatch {
 

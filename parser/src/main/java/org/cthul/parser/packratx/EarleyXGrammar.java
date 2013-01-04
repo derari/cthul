@@ -1,7 +1,8 @@
 package org.cthul.parser.packratx;
 
-import org.cthul.parser.earleyx.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EarleyXGrammar {
     

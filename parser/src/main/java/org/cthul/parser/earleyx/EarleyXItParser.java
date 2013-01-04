@@ -1,12 +1,11 @@
 package org.cthul.parser.earleyx;
 
-import org.cthul.parser.earleyx.api.EXRuleSet;
-import org.cthul.parser.earleyx.api.EXRule;
-import org.cthul.parser.earleyx.api.EXMatch;
 import java.util.*;
 import org.cthul.parser.api.Context;
-import org.cthul.parser.earleyx.api.EXAntiMatchRule;
-import org.cthul.parser.util.*;
+import org.cthul.parser.earleyx.api.*;
+import org.cthul.parser.util.Format;
+import org.cthul.parser.util.IntMap;
+import org.cthul.parser.util.LinkedQueue;
 
 public class EarleyXItParser extends EarleyXParserBase {
 

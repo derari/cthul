@@ -1,6 +1,5 @@
 package org.cthul.parser.packratx;
 
-import org.cthul.parser.earleyx.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
