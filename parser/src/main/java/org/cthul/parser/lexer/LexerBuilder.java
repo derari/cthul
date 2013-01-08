@@ -14,11 +14,11 @@ import org.cthul.parser.lexer.api.TokenMatcher;
  */
 public interface LexerBuilder<Token, I extends Input<?>> {
 
-    void addRegexToken(RuleKey key, InputEval<? extends Token, MatchResult> eval, Pattern pattern);
+    void addRegexToken(RuleKey key, InputEval<? extends Token, ? super MatchResult> eval, Pattern pattern);
 
-    void addStringToken(RuleKey key, InputEval<? extends Token, String> eval, String string);
+    void addStringToken(RuleKey key, InputEval<? extends Token, ? super String> eval, String string);
 
-    void addStringToken(RuleKey key, InputEval<? extends Token, String> eval, String... strings);
+    void addStringToken(RuleKey key, InputEval<? extends Token, ? super String> eval, String... strings);
     
     List<TokenMatcher<? super I>> getTokenMatchers();
 

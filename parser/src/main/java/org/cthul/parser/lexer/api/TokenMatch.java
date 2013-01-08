@@ -5,13 +5,13 @@ import org.cthul.parser.api.Match;
 /**
  * An atomic match for the parser, that contains one or more input tokens.
  */
-public interface TokenMatch extends Match {
+public interface TokenMatch<V> extends Match<V> {
 
     @Override
-    int getStart();
+    int getInputStart();
     
     @Override
-    int getEnd();
+    int getInputEnd();
    
     @Override
     int getStartIndex();
@@ -20,6 +20,6 @@ public interface TokenMatch extends Match {
     int getEndIndex();
     
     @Override
-    Object eval();
+    V eval();
     
 }

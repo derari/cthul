@@ -1,15 +1,20 @@
 package org.cthul.parser.api;
 
-public interface Match {
-
-    int getStart();
+public interface Match<V> extends Value<V> {
     
-    int getEnd();
+    String getSymbol();
+    
+    int getPriority();
+
+    int getInputStart();
+    
+    int getInputEnd();
     
     int getStartIndex();
     
     int getEndIndex();
     
-    Object eval();
+    @Override
+    V eval();
     
 }

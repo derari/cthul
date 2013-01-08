@@ -9,10 +9,10 @@ import org.cthul.parser.lexer.api.TokenMatcherBase;
 
 public class LazyStringTokenMatcher extends TokenMatcherBase<StringInput> {
     
-    private final InputEval<?, String> eval;
+    private final InputEval<?, ? super String> eval;
     private final String[] strings;
 
-    public LazyStringTokenMatcher(RuleKey key, InputEval<?, String> eval, String... strings) {
+    public LazyStringTokenMatcher(RuleKey key, InputEval<?, ? super String> eval, String... strings) {
         super(key);
         this.eval = eval;
         this.strings = strings;
@@ -23,7 +23,7 @@ public class LazyStringTokenMatcher extends TokenMatcherBase<StringInput> {
         String input = context.getInput().getString();
         for (String s: strings) {
             if (input.startsWith(s, start)) {
-                return new LazyTokenMatch<>(start, end, context, s, eval);
+                return new LazyTokenMatch<>(key, start, start+s.length(), context, s, eval);
             }
         }
         return null;

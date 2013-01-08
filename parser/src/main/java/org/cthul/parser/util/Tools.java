@@ -1,9 +1,14 @@
 package org.cthul.parser.util;
 
 import java.util.List;
+import org.cthul.parser.api.RuleKey;
 
 public class Tools {
 
+    public static RuleKey[] keys(RuleKey... keys) {
+        return keys;
+    }
+    
     public static String[] strings(String... strings) {
         return strings;
     }

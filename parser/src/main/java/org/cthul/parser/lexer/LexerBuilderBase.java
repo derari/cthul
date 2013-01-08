@@ -22,6 +22,7 @@ public abstract class LexerBuilderBase<Token, I extends Input<?>> implements Lex
         matchers.add(m);
     }
 
+    @Override
     public List<TokenMatcher<? super I>> getTokenMatchers() {
         return publicMatchers;
     }

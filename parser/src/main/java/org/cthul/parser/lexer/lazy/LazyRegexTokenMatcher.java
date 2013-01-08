@@ -12,10 +12,10 @@ import org.cthul.parser.lexer.api.TokenMatcherBase;
 
 public class LazyRegexTokenMatcher extends TokenMatcherBase<StringInput> {
     
-    private final InputEval<?, MatchResult> eval;
+    private final InputEval<?, ? super MatchResult> eval;
     private final Pattern pattern;
 
-    public LazyRegexTokenMatcher(RuleKey key, InputEval<?, MatchResult> eval, Pattern pattern) {
+    public LazyRegexTokenMatcher(RuleKey key, InputEval<?, ? super MatchResult> eval, Pattern pattern) {
         super(key);
         this.eval = eval;
         this.pattern = pattern;
@@ -25,8 +25,8 @@ public class LazyRegexTokenMatcher extends TokenMatcherBase<StringInput> {
     public TokenMatch scan(Context<? extends StringInput> context, int start, int end) {
         String input = context.getInput().getString();
         Matcher m = pattern.matcher(input);
-        if (!m.find(start)) return null;
-        return new LazyTokenMatch<>(start, end, context, m, eval);
+        if (!m.find(start) || m.start() != start) return null;
+        return new LazyTokenMatch<>(key, start, m.end(), context, m, eval);
     }
     
 }

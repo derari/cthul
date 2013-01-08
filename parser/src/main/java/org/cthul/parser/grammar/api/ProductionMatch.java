@@ -5,13 +5,13 @@ import org.cthul.parser.api.Match;
 /**
  * Created by a parser, may contain other matches.
  */
-public interface ProductionMatch extends Match {
+public interface ProductionMatch<V> extends Match<V> {
 
     @Override
-    int getStart();
+    int getInputStart();
     
     @Override
-    int getEnd();
+    int getInputEnd();
    
     @Override
     int getStartIndex();
@@ -20,6 +20,8 @@ public interface ProductionMatch extends Match {
     int getEndIndex();
     
     @Override
-    Object eval();
+    V eval();
+    
+    Match[] matches();
     
 }

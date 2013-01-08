@@ -1,19 +1,23 @@
 package org.cthul.parser.token;
 
 import org.cthul.parser.api.RuleKey;
+import org.cthul.parser.lexer.api.TokenMatch;
 
-public class Token {
+/**
+ *
+ * @author Arian Treffer
+ */
+public interface Token<V> extends TokenMatch<V> {
     
-    public RuleKey getKey() {
-        return null;
-    }
+    @Override
+    public V eval();
     
-    public int getStart() {
-        return 0;
-    }
+    boolean match(RuleKey key);
     
-    public int getEnd() {
-        return 0;
-    }
+    int getChannel();
+    
+    int getInputIndex();
+    
+    StringBuilder toString(StringBuilder sb);
     
 }

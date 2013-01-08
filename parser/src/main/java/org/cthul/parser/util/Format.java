@@ -4,14 +4,14 @@ import java.util.Arrays;
 
 public class Format {
     
-    public static String productionKey(String left, int priority) {
+    public static String productionKey(String symbol, int priority) {
         StringBuilder sb = new StringBuilder();
-        productionKey(sb, left, priority, 0);
+        productionKey(sb, symbol, priority, 0);
         return sb.toString();
     }
     
-    private static void productionKey(StringBuilder sb, String left, int priority, int defaultPriority) {
-        sb.append(left);
+    private static void productionKey(StringBuilder sb, String symbol, int priority, int defaultPriority) {
+        sb.append(symbol);
         if (priority != defaultPriority)
             sb.append('[').append(priority).append(']');
     }

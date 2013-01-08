@@ -1,9 +1,12 @@
 package org.cthul.parser.api;
 
+import java.util.List;
 import java.util.Objects;
 import org.cthul.parser.util.Format;
 
 public class RuleKey {
+    
+    public static final RuleKey[] EMPTY_ARRAY = new RuleKey[0];
     
     final String symbol;
     final int priority;
@@ -50,6 +53,34 @@ public class RuleKey {
             return false;
         }
         return true;
+    }
+    
+    public static String[] collectSymbols(RuleKey... keys) {
+        final String[] result = new String[keys.length];
+        for (int i = 0; i < result.length; i++)
+            result[i] = keys[i].getSymbol();
+        return result;
+    }
+    
+    public static int[] collectPriorities(RuleKey... keys) {
+        final int[] result = new int[keys.length];
+        for (int i = 0; i < result.length; i++)
+            result[i] = keys[i].getPriority();
+        return result;
+    }
+    
+    public static String[] collectSymbols(List<RuleKey> keys) {
+        final String[] result = new String[keys.size()];
+        for (int i = 0; i < result.length; i++)
+            result[i] = keys.get(i).getSymbol();
+        return result;
+    }
+    
+    public static int[] collectPriorities(List<RuleKey> keys) {
+        final int[] result = new int[keys.size()];
+        for (int i = 0; i < result.length; i++)
+            result[i] = keys.get(i).getPriority();
+        return result;
     }
     
 }

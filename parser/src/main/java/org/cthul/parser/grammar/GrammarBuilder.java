@@ -6,6 +6,7 @@ import org.cthul.parser.api.Input;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.grammar.api.RuleEval;
 import org.cthul.parser.lexer.api.TokenMatcher;
+import org.cthul.parser.rule.Rule;
 
 /**
  * 
@@ -42,6 +43,12 @@ public interface GrammarBuilder<I extends Input<?>> {
     static interface MultiAntiMatch<I extends Input<?>> extends GrammarBuilder<I> {
 
         void addAntiMatch(RuleKey key, RuleKey[] match, RuleEval eval);
+        
+    }
+    
+    static interface ComplexRule<I extends Input<?>> extends GrammarBuilder<I> {
+        
+        void addRule(RuleKey key, Rule rule, RuleEval eval);
         
     }
     

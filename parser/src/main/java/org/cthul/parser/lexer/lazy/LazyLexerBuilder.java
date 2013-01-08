@@ -9,7 +9,7 @@ import org.cthul.parser.lexer.LexerBuilder;
 import org.cthul.parser.lexer.LexerBuilderBase;
 import org.cthul.parser.lexer.api.InputEval;
 
-public class LazyLexerBuilder extends LexerBuilderBase<Object, StringInput> {
+public class LazyLexerBuilder<Token> extends LexerBuilderBase<Token, StringInput> {
 
     public LazyLexerBuilder() {
     }
@@ -24,22 +24,22 @@ public class LazyLexerBuilder extends LexerBuilderBase<Object, StringInput> {
     }
 
     @Override
-    public void addStringToken(RuleKey key, InputEval<?, String> eval, String string) {
+    public void addStringToken(RuleKey key, InputEval<? extends Token, ? super String> eval, String string) {
         addMatcher(new LazyStringTokenMatcher(key, eval, string));
     }
 
     @Override
-    public void addStringToken(RuleKey key, InputEval<?, String> eval, String... strings) {
+    public void addStringToken(RuleKey key, InputEval<? extends Token, ? super String> eval, String... strings) {
         addMatcher(new LazyStringTokenMatcher(key, eval, strings));
     }
 
     @Override
-    public void addRegexToken(RuleKey key, InputEval<?, MatchResult> eval, Pattern pattern) {
+    public void addRegexToken(RuleKey key, InputEval<? extends Token, ? super MatchResult> eval, Pattern pattern) {
         addMatcher(new LazyRegexTokenMatcher(key, eval, pattern));
     }
 
     @Override
-    public LexerBuilder<Object, StringInput> copy() {
+    public LexerBuilder<Token, StringInput> copy() {
         return new LazyLexerBuilder(this);
     }
     
