@@ -3,7 +3,9 @@ package org.cthul.matchers.proc;
 import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
 import org.cthul.matchers.exceptions.IsThrowable;
 import org.cthul.proc.Proc;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 
 /**
  *
@@ -14,6 +16,7 @@ public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     private final Matcher<? super Throwable> exceptionMatcher;
 
     public Raises(Matcher<? super Throwable> matcher) {
+        super(Proc.class);
         exceptionMatcher = matcher;
     }
 

@@ -2,7 +2,9 @@ package org.cthul.matchers;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.diagnose.TypesafeQuickMatcherBase;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 
 /**
  * Tests if a string contains a regex pattern.
@@ -16,6 +18,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
     private final boolean match;
 
     public ContainsPattern(Pattern p, boolean match) {
+        super(String.class);
         this.p = p;
         this.match = match;
     }

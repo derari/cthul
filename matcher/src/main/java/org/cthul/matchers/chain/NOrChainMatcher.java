@@ -6,19 +6,18 @@ import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 /**
- * Conjunction of multiple matchers.
  * 
  * @author Arian Treffer
  * @param <T> 
  */
-public class AndChainMatcher<T> extends MatcherChainBase<T> {
+public class NOrChainMatcher<T> extends MatcherChainBase<T> {
 
-    public AndChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
+    public NOrChainMatcher(Collection<? extends Matcher<? super T>> matchers) {
         super(matchers);
     }
 
     @SuppressWarnings("unchecked")
-    public AndChainMatcher(Matcher<? super T>... matchers) {
+    public NOrChainMatcher(Matcher<? super T>... matchers) {
         super(matchers);
     }
 
@@ -29,8 +28,13 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         for (Matcher<?> m: matchers) {
             if (first) {
                 first = false;
+                if (matchers.length == 1) {
+                    description.appendText("not ");
+                } else {
+                    description.appendText("neither ");
+                }
             } else {
-                description.appendText(" and ");
+                description.appendText(" nor ");
             }
             nestedDescribe(description, m);
         }
@@ -40,7 +44,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     @Override
     public boolean matches(Object item) {
         for (Matcher<?> m: matchers) {
-            if (!m.matches(item)) {
+            if (m.matches(item)) {
                 return false;
             }
         }
@@ -51,8 +55,9 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     @Override
     public boolean matches(Object item, Description mismatch) {
         for (Matcher<? super T> m: matchers) {
-            // the first matcher that fails describes the mismatch
-            if (!quickMatch(m, item, mismatch)) {
+            // the first matcher that succeeds describes the mismatch
+            if (m.matches(item)) {
+                m.describeTo(mismatch);
                 return false;
             }
         }
@@ -67,44 +72,34 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
 
     @Override
     public int getPrecedence() {
-        return P_AND;
+        return P_NOR;
     }
     
     @Factory
     @SuppressWarnings("unchecked")
-    public static <T> Matcher<T> and(Matcher<? super T>... matchers) {
-        return new AndChainMatcher<>(matchers);
+    public static <T> Matcher<T> nor(Matcher<? super T>... matchers) {
+        return new NOrChainMatcher<>(matchers);
     }
     
     @Factory
-    public static <T> Matcher<T> and(Collection<? extends Matcher<? super T>> matchers) {
-        return new AndChainMatcher<>(matchers);
+    public static <T> Matcher<T> nor(Collection<? extends Matcher<? super T>> matchers) {
+        return new NOrChainMatcher<>(matchers);
     }
     
     @Factory
-    public static <T> Builder<T> both(Matcher<? super T> m) {
-        return new Builder<T>().and(m);
+    public static <T> Builder<T> neither(Matcher<? super T> m) {
+        return new Builder<T>().nor(m);
     }
     
     @Factory
-    public static <T> Builder<T> both(Matcher<? super T>... m) {
-        return new Builder<T>().and(m);
-    }
-    
-    @Factory
-    public static <T> Builder<T> all(Matcher<? super T> m) {
-        return new Builder<T>().and(m);
-    }
-    
-    @Factory
-    public static <T> Builder<T> all(Matcher<? super T>... m) {
-        return new Builder<T>().and(m);
+    public static <T> Builder<T> neither(Matcher<? super T>... m) {
+        return new Builder<T>().nor(m);
     }
     
     public static final ChainFactory FACTORY = new ChainFactory() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
-            return new AndChainMatcher<>(chain);
+            return new NOrChainMatcher<>(chain);
         }
     };
     
@@ -115,13 +110,13 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         public Builder(ChainFactory factory) {
             super(factory);
         }
-        public Builder<T> and(Matcher<? super T> m) {
+        public Builder<T> nor(Matcher<? super T> m) {
             return (Builder<T>) add(m);
         }
-        public Builder<T> and(Matcher<? super T>... m) {
+        public Builder<T> nor(Matcher<? super T>... m) {
             return (Builder<T>) add(m);
         }
-        public Builder<T> and(Collection<? extends Matcher<? super T>> m) {
+        public Builder<T> nor(Collection<? extends Matcher<? super T>> m) {
             return (Builder<T>) add(m);
         }
     }

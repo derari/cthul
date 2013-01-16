@@ -5,7 +5,8 @@ import java.lang.reflect.Method;
 import org.hamcrest.*;
 
 /**
- *
+ * @see #matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)
+ * @see #matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String) 
  * @author Arian Treffer
  */
 public class QuickDiagnose {

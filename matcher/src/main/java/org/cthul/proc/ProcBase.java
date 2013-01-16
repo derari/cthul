@@ -3,6 +3,17 @@ package org.cthul.proc;
 import org.hamcrest.Description;
 import org.hamcrest.StringDescription;
 
+/**
+ * Impements the basic contract of the {@link Proc} interface,
+ * but has no behavior.
+ * @param <This> 
+ * @see P0
+ * @see P1
+ * @see P2
+ * @see P3
+ * @see P4
+ * @see PN
+ */
 public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
 
     protected static final Object[] NO_ARGS = new Object[0];

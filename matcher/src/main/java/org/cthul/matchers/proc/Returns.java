@@ -23,6 +23,7 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     private final Matcher<?> resultMatcher;
     
     public Returns(Matcher<?> resultMatcher) {
+        super(Proc.class);
         this.resultMatcher = resultMatcher;
     }
 

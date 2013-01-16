@@ -9,7 +9,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 
 /**
- *
+ * Matches the message of an exception.
+ * 
  * @author Arian Treffer
  */
 public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
@@ -17,6 +18,7 @@ public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable
     private Matcher<? super String> messageMatcher;
 
     public ExceptionMessage(Matcher<? super String> messageMatcher) {
+        super(Throwable.class);
         this.messageMatcher = messageMatcher;
     }
 

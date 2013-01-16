@@ -1,7 +1,9 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 
 /**
  * 
@@ -88,10 +90,31 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
         return new XOrChainMatcher<>(matchers);
     }
     
+    // no @Factory, use OrChainMatcher.either instead
+    public static <T> OrChainMatcher.Builder<T> either(Matcher<? super T> m) {
+        return new Builder<T>().xor(m);
+    }
+    
+    // no @Factory, use OrChainMatcher.either instead
+    public static <T> OrChainMatcher.Builder<T> either(Matcher<? super T>... m) {
+        return new Builder<T>().xor(m);
+    }
+    
     public static final ChainFactory FACTORY = new ChainFactory() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new XOrChainMatcher<>(chain);
         }
     };
+    
+    public static class Builder<T> extends OrChainMatcher.Builder<T> {
+        public Builder() {
+            makeXOR();
+        }
+
+        public Builder(ChainFactory factory) {
+            super(factory, null);
+            makeXOR();
+        }
+    }
 }

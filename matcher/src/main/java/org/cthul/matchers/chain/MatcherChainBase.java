@@ -1,9 +1,8 @@
 package org.cthul.matchers.chain;
 
-import org.cthul.matchers.diagnose.NestedMatcher;
 import java.util.Collection;
-import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
-import org.hamcrest.*;
+import org.cthul.matchers.diagnose.NestedMatcher;
+import org.hamcrest.Matcher;
 
 /**
  * Combines multiple matchers.

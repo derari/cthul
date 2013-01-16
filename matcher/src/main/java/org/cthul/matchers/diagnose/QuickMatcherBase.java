@@ -4,7 +4,8 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 /**
- * Implements {@link QuickDiagnosingMatcher} interface.
+ * Implements {@link QuickDiagnosingMatcher} interface, 
+ * but matches and describes in separate steps.
  * <p/>
  * {@link QuickDiagnosingMatcher#matches(java.lang.Object, org.hamcrest.Description)} 
  * is implemented as

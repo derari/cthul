@@ -1,7 +1,9 @@
 package org.cthul.matchers.exceptions;
 
 import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 
 /**
  * Matches exception chains.
@@ -14,6 +16,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
     private final Matcher<? super Throwable> throwableMatcher;
 
     public CausedBy(boolean direct, Matcher<? super Throwable> m) {
+        super(Throwable.class);
         this.direct = direct;
         this.throwableMatcher = m;
     }

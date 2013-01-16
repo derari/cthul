@@ -1,7 +1,9 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 
 /**
  * 
@@ -87,11 +89,108 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         return new OrChainMatcher<>(matchers);
     }
     
+    @Factory
+    public static <T> Builder<T> either(Matcher<? super T> m) {
+        return new Builder<T>()._or(m);
+    }
+    
+    @Factory
+    public static <T> Builder<T> either(Matcher<? super T>... m) {
+        return new Builder<T>()._or(m);
+    }
+    
     public static final ChainFactory FACTORY = new ChainFactory() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new OrChainMatcher<>(chain);
         }
     };
-    
+
+    public static class Builder<T> extends ChainBuilder<T> {
+        
+        protected final ChainFactory xorFactory;
+        private Boolean xorEnabled = null;
+        
+        public Builder() {
+            super(FACTORY);
+            xorFactory = XOrChainMatcher.FACTORY;
+        }
+        
+        public Builder(ChainFactory factory) {
+            super(factory);
+            xorFactory = XOrChainMatcher.FACTORY;
+        }
+        
+        public Builder(ChainFactory xorFactory, ChainFactory factory) {
+            super(factory);
+            this.xorFactory = xorFactory;
+        }
+
+        @Override
+        protected ChainFactory factory() {
+            if (xorEnabled != null && xorEnabled) {
+                return xorFactory;
+            }
+            return super.factory();
+        }
+        
+        protected void makeOR() {
+            if (xorEnabled == Boolean.TRUE) {
+                throw new IllegalStateException(
+                        "Cannot switch between XOR and OR");
+            }
+            xorEnabled = Boolean.FALSE;
+        }
+        
+        protected void makeXOR() {
+            if (xorEnabled == Boolean.FALSE) {
+                throw new IllegalStateException(
+                        "Cannot switch between OR and XOR");
+            }
+            xorEnabled = Boolean.TRUE;
+        }
+        
+        protected Builder<T> _or(Matcher<? super T> m) {
+            return (Builder<T>) add(m);
+        }
+        
+        protected Builder<T> _or(Matcher<? super T>... m) {
+            return (Builder<T>) add(m);
+        }
+        
+        protected Builder<T> _or(Collection<? extends Matcher<? super T>> m) {
+            return (Builder<T>) add(m);
+        }
+        
+        public Builder<T> or(Matcher<? super T> m) {
+            makeOR();
+            return _or(m);
+        }
+        
+        public Builder<T> or(Matcher<? super T>... m) {
+            makeOR();
+            return _or(m);
+        }
+        
+        public Builder<T> or(Collection<? extends Matcher<? super T>> m) {
+            makeOR();
+            return _or(m);
+        }
+        
+        public Builder<T> xor(Matcher<? super T> m) {
+            makeXOR();
+            return _or(m);
+        }
+        
+        public Builder<T> xor(Matcher<? super T>... m) {
+            makeXOR();
+            return _or(m);
+        }
+        
+        public Builder<T> xor(Collection<? extends Matcher<? super T>> m) {
+            makeXOR();
+            return _or(m);
+        }
+        
+    }
 }

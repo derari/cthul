@@ -1,22 +1,28 @@
 package org.cthul.matchers;
 
+import org.cthul.matchers.chain.AndChainMatcher;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;
 
 /**
- * 
+ * Example:
+ * <pre>{@code 
+ *   Object o = "foobar;
+ *   assertThat(o, isA(String.class).thatIs(foo()).and(bar());
+ * }</pre>
  * @author Arian Treffer
  */
 public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
 
     private boolean prependIs;
     private final Class<T> clazz;
-    private IsInstanceOf matcher;
+    private IsInstanceOf matcher = null;
 
     public InstanceOf(boolean prependIs, Class<T> expectedClass) {
-        this.matcher = new IsInstanceOf(expectedClass);
         this.prependIs = prependIs;
         this.clazz = expectedClass;
     }
@@ -25,27 +31,34 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         this(false, expectedClass);
     }
     
+    protected IsInstanceOf matcher() {
+        if (matcher == null) {
+            matcher = new IsInstanceOf(clazz);
+        }
+        return matcher;
+    }
+    
     @Override
     public boolean matches(Object o) {
-        return matcher.matches(o);
+        return matcher().matches(o);
     }
     
     @Override
     public boolean matches(Object item, Description mismatch) {
-        return quickMatch(matcher, item, mismatch);
+        return quickMatch(matcher(), item, mismatch);
     }
 
     @Override
     public void describeMismatch(Object item, Description description) {
-        matcher.describeMismatch(item, description);
+        matcher().describeMismatch(item, description);
     }
 
     @Override
     public void describeTo(Description description) {
-        matcher.describeTo(description);
+        matcher().describeTo(description);
     }
     
-    public <X> Matcher<X> that(Matcher<? super T> m) {
+    public <X> AndChainMatcher.Builder<X> that(Matcher<? super T> m) {
         if (prependIs) {
             return InstanceThat.isInstanceThat(clazz, m);
         } else {
@@ -53,7 +66,7 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
         }
     }
     
-    public <X> Matcher<X> thatIs(Matcher<? super T> m) {
+    public <X> AndChainMatcher.Builder<X> thatIs(Matcher<? super T> m) {
         return that(Is.is(m));
     }
     
@@ -95,5 +108,5 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
     public static <T> InstanceOf<T> a(Class<T> clazz) {
         return new InstanceOf<>(clazz);
     }
-
+    
 }
