@@ -1,10 +1,10 @@
 package org.cthul.resolve;
 
 /**
- *
+ * 
  * @author Arian Treffer
  */
-public class CompositeResolver extends AbstractResolver {
+public class CompositeResolver extends ResourceResolverBase {
 
     private final ResourceResolver[] inputs;
 
@@ -33,12 +33,11 @@ public class CompositeResolver extends AbstractResolver {
     @Override
     public String toString() {
         if (inputs.length == 1) {
-            return getClass().getSimpleName() + "(" + inputs[0] + ")";
+            String cn = getClass().getSimpleName();
+            if (cn.equals("CompositeResolver")) cn = "";
+            return cn + "[" + inputs[0] + "]";
         } else {
             return getClass().getSimpleName() + "(" + inputs.length + ")";
         }
     }
-    
-    
-
 }

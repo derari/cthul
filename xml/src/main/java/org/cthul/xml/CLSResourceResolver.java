@@ -2,8 +2,12 @@ package org.cthul.xml;
 
 import java.io.InputStream;
 import java.io.Reader;
-import org.cthul.resolve.*;
-import org.w3c.dom.ls.*;
+import org.cthul.resolve.ObjectResolver;
+import org.cthul.resolve.RResult;
+import org.cthul.resolve.ResourceResolver;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * Returns the schema file for a namespace uri.
@@ -24,7 +28,7 @@ import org.w3c.dom.ls.*;
  * 
  * @author Arian Treffer
  */
-public class CLSResourceResolver extends AbstractResolver<LSInput, RuntimeException>
+public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeException>
                                  implements LSResourceResolver {
     
     protected final DOMImplementationLS ls;

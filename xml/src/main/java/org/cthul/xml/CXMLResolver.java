@@ -1,14 +1,33 @@
 package org.cthul.xml;
 
-import java.io.*;
-import javax.xml.stream.*;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLResolver;
+import javax.xml.stream.XMLStreamException;
 import org.cthul.resolve.*;
 
 /**
- *
+ * Returns the schema file for a namespace uri.
+ * <p/>
+ * Usage:
+ * <pre>
+ * new CXMLResolver(OrgW3Resolver.INSTANCE, myFinder1, myFinder2);
+ * </pre>
+ * or
+ * <pre>
+ * ResourceResolver resolver = new CompositeResolver(
+ *          OrgW3Finder.INSTANCE,
+ *          myFinder1,
+ *          myFinder2
+ *      );
+ * new CXMLResolver(resolver);
+ * </pre>
+ * 
  * @author Arian Treffer
  */
-public class CXMLResolver extends AbstractResolver<Object, XMLStreamException>
+public class CXMLResolver extends ObjectResolver<Object, XMLStreamException>
                           implements XMLResolver {
     
     protected final XMLInputFactory inputFactory;

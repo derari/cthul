@@ -3,7 +3,9 @@ package org.cthul.resolve;
 import java.util.Iterator;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -13,17 +15,6 @@ import static org.hamcrest.Matchers.*;
  * @author Arian Treffer
  */
 public class UriMappingResolverTest {
-    
-    public UriMappingResolverTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
     
     private UriMappingResolverImpl instance;
     

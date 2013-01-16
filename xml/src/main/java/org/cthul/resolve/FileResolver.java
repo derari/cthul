@@ -3,7 +3,8 @@ package org.cthul.resolve;
 import java.io.*;
 
 /**
- *
+ * Looks up resources on the local file system.
+ * 
  * @author Arian Treffer
  */
 public class FileResolver extends UriMappingResolver {

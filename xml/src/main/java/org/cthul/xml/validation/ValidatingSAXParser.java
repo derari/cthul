@@ -8,7 +8,9 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.cthul.xml.CLSResourceResolver;
 import org.w3c.dom.ls.LSResourceResolver;
-import org.xml.sax.*;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX parser that validates the input against schemas on the fly.

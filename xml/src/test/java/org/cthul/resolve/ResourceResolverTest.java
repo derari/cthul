@@ -1,10 +1,7 @@
 package org.cthul.resolve;
 
-import java.io.InputStream;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.cthul.xml.OrgW3Resolver;
+import org.junit.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -41,17 +38,6 @@ public class ResourceResolverTest {
 
     private ResourceResolver instance;
 
-    public ResourceResolverTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Before
     public void setUp() {
         instance = newTestInstance();
@@ -62,28 +48,28 @@ public class ResourceResolverTest {
     }
 
     @Test
-    public void w3XMLSchema_resource_exists() throws Exception {
+    public void test_w3XMLSchema_resource_exists() throws Exception {
         RResult res = instance.resolve(r(OrgW3Resolver.NS_W3_XMLSCHEMA));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
 
     @Test
-    public void w3XML_resource_exists() throws Exception {
+    public void test_w3XML_resource_exists() throws Exception {
         RResult res = instance.resolve(r(OrgW3Resolver.NS_W3_XML));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
 
     @Test
-    public void menu_schema_file_exists() throws Exception {
+    public void test_menu_schema_file_exists() throws Exception {
         RResult res = instance.resolve(r(NS_MENU));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
     
     @Test
-    public void cars_schema_file_exists() throws Exception {
+    public void test_cars_schema_file_exists() throws Exception {
         RResult res = instance.resolve(r(NS_CARS));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));

@@ -1,7 +1,8 @@
 package org.cthul.resolve;
 
 /**
- *
+ * A resource request.
+ * 
  * @author Arian Treffer
  */
 public class RRequest {
@@ -15,6 +16,15 @@ public class RRequest {
     private final String baseUri;
     private String resolvedSystemId = NULL_STR;
 
+    /**
+     * Creates a resource request.
+     * All parameters are optional.
+     * 
+     * @param uri       URI of the requested resource
+     * @param publicId  Public ID of the requested resource
+     * @param systemId  System internal ID of the requested resource
+     * @param baseUri   URI of the system sending the request
+     */
     public RRequest(String uri, String publicId, String systemId, String baseUri) {
         this.uri = uri;
         this.publicId = publicId;
@@ -38,6 +48,11 @@ public class RRequest {
         return baseUri;
     }
 
+    /**
+     * Create a URI from the {@link #getBaseUri() base URI} and 
+     * the {@link #getSystemId() system ID}.
+     * @return uri
+     */
     public String getResolvedSystemId() {
         if (resolvedSystemId == (Object) NULL_STR) {
             resolvedSystemId = expandSystemId(baseUri, systemId);
@@ -51,7 +66,7 @@ public class RRequest {
      * @param systemId
      * @return schema file path
      */
-    private String expandSystemId(String baseId, String systemId) {
+    protected String expandSystemId(String baseId, String systemId) {
         if (baseId == null || baseId.isEmpty()) return systemId;
         if (systemId == null || systemId.isEmpty()) return baseId;
         int lastSep = baseId.lastIndexOf('/');
@@ -62,8 +77,8 @@ public class RRequest {
     @Override
     public String toString() {
         String s = getSystemId();
-        if (s == null) s = getPublicId();
         if (s == null) s = getUri();
+        if (s == null) s = getPublicId();
         return "RRequest(" + s + ")";
     }
     

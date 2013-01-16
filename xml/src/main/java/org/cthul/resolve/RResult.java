@@ -3,6 +3,15 @@ package org.cthul.resolve;
 import java.io.InputStream;
 import java.io.Reader;
 
+/**
+ * Result of id resolution.
+ * <p/>
+ * Should be subclassed to implement {@link #createReader()}, 
+ * {@link #createInputStream()} and {@link #getEncoding()}, 
+ * or {@link #getString()}.
+ * 
+ * @author Arian Treffer
+ */
 public class RResult {
     
     private final RRequest request;
@@ -81,8 +90,7 @@ public class RResult {
         Class clazz = getClass();
         String cn = clazz.isAnonymousClass() ? "RResult" : clazz.getSimpleName();
         Class decl = clazz.getEnclosingClass();
-        return (decl != null ? decl.getSimpleName() + "." : "") + 
-                cn + "(" + s + ")";
-    }
-    
+        if (cn != null) cn = decl.getSimpleName() + "." + cn;
+        return cn + "(" + s + ")";
+    }    
 }

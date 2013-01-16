@@ -1,10 +1,12 @@
-package org.cthul.resolve;
+package org.cthul.xml;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.cthul.resolve.ClassResourceResolver;
+import org.cthul.resolve.ResourceResolver;
 
 /**
- *
+ * A {@link ResourceResolver} that provides the basic XML schemas.
  * @author Arian Treffer
  */
 public class OrgW3Resolver extends ClassResourceResolver {

@@ -1,9 +1,7 @@
 package org.cthul.resolve;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -15,17 +13,6 @@ import static org.hamcrest.Matchers.*;
 public class FileResolverTest {
     
     FileResolver instance;
-    
-    public FileResolverTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
     
     @Before
     public void setUp() {

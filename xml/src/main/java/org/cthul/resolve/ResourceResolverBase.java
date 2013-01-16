@@ -4,7 +4,7 @@ package org.cthul.resolve;
  *
  * @author Arian Treffer
  */
-public abstract class AbstractResolver implements ResourceResolver {
+public abstract class ResourceResolverBase implements ResourceResolver {
     
     /**
      * Returns a schema finder that uses this schema finder for look-up,

@@ -8,10 +8,14 @@ import java.util.regex.Pattern;
 import org.cthul.strings.RegEx;
 
 /**
- *
+ * Uses regular expressions to convert a {@link RRequest#getUri() requested URI}
+ * into an internal format. 
+ * Subclasses are responsible for finding a result for the mapped string.
+ * @see ClassResourceResolver
+ * @see FileResolver
  * @author Arian Treffer
  */
-public abstract class UriMappingResolver extends AbstractResolver {
+public abstract class UriMappingResolver extends ResourceResolverBase {
 
     private boolean simpleQuote = false;
     private final Map<String, String> schemaMap = new HashMap<>();
@@ -31,6 +35,11 @@ public abstract class UriMappingResolver extends AbstractResolver {
     public UriMappingResolver() {
     }
     
+    /**
+     * Make this use {@link Pattern#quote(java.lang.String)} instead of
+     * {@link RegEx#quote(java.lang.String)} for creating patterns from domains.
+     * @return this
+     */
     public UriMappingResolver useSimpleQuoting() {
         simpleQuote = true;
         return this;
@@ -131,7 +140,13 @@ public abstract class UriMappingResolver extends AbstractResolver {
 
     @Override
     public RResult resolve(RRequest request) {
-        return resolve(request, request.getUri());
+        return resolve(request, uri(request));
+    }
+    
+    protected String uri(RRequest request) {
+        String uri = request.getUri();
+        if (uri == null) uri = request.getResolvedSystemId();
+        return uri;
     }
     
     protected RResult resolve(RRequest request, String uri) {
@@ -196,7 +211,7 @@ public abstract class UriMappingResolver extends AbstractResolver {
         
     }
 
-    /** for debugging purposes */
+    /** string representation for debugging purposes */
     protected String getMappingString() {
         StringBuilder sb = new StringBuilder();
         final int schemaSize = schemaMap.size();

@@ -1,16 +1,18 @@
 package org.cthul.xml.validation;
 
 import java.io.File;
-import javax.xml.stream.*;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.cthul.proc.P0;
 import org.cthul.proc.Proc;
 import org.cthul.resolve.ResourceResolverTest;
 import org.cthul.xml.CLSResourceResolver;
-import org.junit.*;
+import org.junit.Test;
 import org.xml.sax.SAXParseException;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 /**
  *
@@ -18,27 +20,8 @@ import static org.hamcrest.Matchers.*;
  */
 public class ValidatingXMLInputFactoryTest {
 
-    public ValidatingXMLInputFactoryTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     @Test
-    public void parse_valid_file() throws Exception {
+    public void test_parse_valid_file() throws Exception {
         CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
         File f = new File("src/test/resources/valid-menu.xml");
         XMLStreamReader reader = new ValidatingXMLInputFactory(schemas).createXMLStreamReader(f);
@@ -49,7 +32,7 @@ public class ValidatingXMLInputFactoryTest {
     }
 
     @Test
-    public void parse_invalid_file() throws Exception {
+    public void test_parse_invalid_file() throws Exception {
         final CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
         final File f = new File("src/test/resources/invalid-menu.xml");
         Proc parse = new P0() {

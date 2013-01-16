@@ -10,7 +10,9 @@ import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.*;
 
 /**
- *
+ * An XML reader that validates the input against schemas on the fly.
+ * The schema has to be referenced in the xml-file and is loaded using the
+ * {@link LSResourceResolver} of the {@link SchemaFactory}.
  * @author Arian Treffer
  */
 public class ValidatingXMLReader implements XMLReader {
@@ -25,6 +27,14 @@ public class ValidatingXMLReader implements XMLReader {
         schemaFactory = SchemaFactory.newInstance(
                                     XMLConstants.W3C_XML_SCHEMA_NS_URI);
         schemaFactory.setResourceResolver(resolver);
+    }
+
+    public ValidatingXMLReader(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
+    }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
     }
 
     @Override
