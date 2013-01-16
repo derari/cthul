@@ -80,7 +80,18 @@ public abstract class PatternAlignmentBase extends FormatPatternBase {
         return result;
     }
     
-    protected abstract int toRegex(PatternAPI regex, Locale locale, String flags, char padding, int precision, String formatString, int position);
+    /**
+     * Appends a pattern to {@code pattern} that will be parsed into a value.
+     * @param pattern
+     * @param locale
+     * @param flags
+     * @param padding padding that is expected to surround the match (should not be matched here).
+     * @param precision
+     * @param formatString
+     * @param position
+     * @return number of additional characters consumend from format string
+     */
+    protected abstract int toRegex(PatternAPI pattern, Locale locale, String flags, char padding, int precision, String formatString, int position);
     
     protected int toExactWidthRegex(PatternAPI pattern, Locale locale, String flags, Justification j, char padding, int width, int precision, String formatString, int position) {
         WidthMatchSubpatterns sub = createSubpatterns(pattern, locale, flags, j, padding, width, precision);
@@ -112,6 +123,20 @@ public abstract class PatternAlignmentBase extends FormatPatternBase {
         return r;
     }
 
+    /**
+     * Appends a pattern to {@code pattern} that will be parsed into a value.
+     * If {@code with} is non-negative, it specifies the exact number of 
+     * characters the pattern should consume.
+     * @param regex
+     * @param locale
+     * @param flags
+     * @param padding
+     * @param width
+     * @param precision
+     * @param formatString
+     * @param position
+     * @return 
+     */
     protected int toRegex(PatternAPI regex, Locale locale, String flags, char padding, int width, int precision, String formatString, int position) {
         throw new UnsupportedOperationException("Explicit width matching not supported.");
     }

@@ -13,7 +13,6 @@ public class FormatMatcher {
     private final FormatPattern pattern;
     private final Matcher matcher;
     private final PatternData data;
-    
 
     protected FormatMatcher(FormatPattern pattern, Matcher matcher, PatternData data) {
         this.pattern = pattern;
@@ -89,8 +88,8 @@ public class FormatMatcher {
         }
 
         @Override
-        public void apply(PatternData data, int caputingBase) {
-            data.apply(this, matcher, caputingBase, results);
+        public void apply(PatternData data, int capturingBase) {
+            data.apply(this, matcher, capturingBase, results);
         }
         
     }

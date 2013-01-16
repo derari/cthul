@@ -6,7 +6,7 @@ import org.cthul.proc.Procs;
 import org.cthul.strings.format.FormatStringParserTest;
 import org.cthul.strings.format.FormatterConfiguration;
 import org.cthul.strings.format.conversion.ClassNameConversion;
-import org.junit.*;
+import org.junit.Test;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -25,25 +25,6 @@ public class FormatterTest {
     
     static Proc format(String s, Object... args) {
         return format.call(null, s, args);
-    }
-    
-    public FormatterTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     @Test

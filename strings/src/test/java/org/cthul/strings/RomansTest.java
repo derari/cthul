@@ -4,7 +4,7 @@ import net.sf.twip.TwiP;
 import net.sf.twip.Values;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.cthul.matchers.CthulMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,26 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(TwiP.class)
 public class RomansTest {
-    
-    public RomansTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-    
+        
     private static Proc toRoman = Procs.invoke(Romans.class, "toRoman", int.class);
     private static Proc fromRoman = Procs.invoke(Romans.class, "fromRoman", String.class);
     private static Proc toRoman2 = Procs.invoke(Romans.class, "toRoman2", int.class);

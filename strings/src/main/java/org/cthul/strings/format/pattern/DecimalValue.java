@@ -17,9 +17,19 @@ public class DecimalValue extends PatternAlignmentBase {
     }
     
     @Override
-    protected int toRegex(PatternAPI regex, Locale locale, String flags, char padding, int precision, String formatString, int position) {
-        regex.addedCapturingGroup();
-        regex.append("([-+]?[0-9]+)");
+    protected int toRegex(PatternAPI pattern, Locale locale, String flags, char padding, int precision, String formatString, int position) {
+        pattern.addedCapturingGroup();
+        pattern.append("([-+]?[0-9]+)");
+        return 0;
+    }
+
+    @Override
+    protected int toRegex(PatternAPI pattern, Locale locale, String flags, char padding, int width, int precision, String formatString, int position) {
+        if (width < 0) {
+            return toRegex(pattern, locale, flags, padding, width, precision, formatString, position);
+        }
+        pattern.addedCapturingGroup();
+        pattern.append("([0-9]{"+width+"}|[-+][0-9]{"+(width-1)+"})");
         return 0;
     }
 

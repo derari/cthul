@@ -225,7 +225,7 @@ public class Romans implements Serializable {
     }
     
     /**
-     * @return true iif {@code i} is the index of a 5-digit (V, L, D, ...)
+     * @return true iff {@code i} is the index of a 5-digit (V, L, D, ...)
      */
     private static boolean is5(int i) {
         return i % 2 != 0;
@@ -352,10 +352,10 @@ public class Romans implements Serializable {
      * Parses a roman number.
      * <p>
      * Does not check whether the number is in a valid format, instead uses
-     * a simple subtraction rule. If a sequence of the same letter is followed
+     * a simple subtraction rule: If a sequence of the same letter is followed
      * by a letter of higher value, they are subtracted, otherwise added.
      * For instance, the following values are parsed as {@code 6}:
-     * VI, IVII, IIIIX, IIIIII, VXI
+     * {@code VI, IVII, IIIIX, IIIIII, VXI}
      * @param number
      * @return integer value of {@code number}
      */
@@ -366,7 +366,8 @@ public class Romans implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Romans(");
+        sb.append(getClass().getSimpleName());
+        sb.append("(");
         Strings.join(sb, " ", letters);
         sb.append(")");
         return sb.toString();

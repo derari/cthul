@@ -1,9 +1,10 @@
 package org.cthul.strings;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
-import org.cthul.strings.Formatter;
 import org.cthul.strings.format.*;
 import org.cthul.strings.format.conversion.*;
 
