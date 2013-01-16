@@ -1,7 +1,8 @@
 package org.cthul.log;
 
 /**
- *
+ * Creates loggers using the {@link CLogConfiguration#getDefault() default} 
+ * configuration.
  * @author Arian Treffer
  */
 public class CLoggerFactory {

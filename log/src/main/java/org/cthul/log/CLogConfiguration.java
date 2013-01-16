@@ -5,7 +5,9 @@ import org.cthul.strings.format.FormatterConfiguration;
 import org.slf4j.Logger;
 
 /**
- *
+ * Configures the formats that can be used in log messages.
+ * 
+ * @see FormatterConfiguration
  * @author Arian Treffer
  */
 public class CLogConfiguration extends CLogConfigurationBase {
@@ -25,7 +27,6 @@ public class CLogConfiguration extends CLogConfigurationBase {
     }
 
     public CLogConfiguration() {
-        super();
     }
 
     @Override
