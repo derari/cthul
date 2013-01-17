@@ -379,7 +379,14 @@ public class Formatter implements Flushable, AutoCloseable {
             if (locale == null) locale = Locale.ROOT;
             String fString = toFormatString(format, locale);
             if (end < 0) end = fString.length() - end - 1;
-            new Parser(conf, locale, e, args).parse(fString, start, end);
+            Parser p;
+            if (e == null && args != null && 
+                    args.length == 1 && (args[0] instanceof FormatArgs)) {
+                p = new Parser(conf, locale, (FormatArgs) args[0]);
+            } else {
+                p = new Parser(conf, locale, e, args);
+            }
+            p.parse(fString, start, end);
         } catch (IOException ex) {
             lastIOException = ex;
         }
