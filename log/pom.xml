@@ -11,11 +11,15 @@
     <artifactId>cthul-log</artifactId>
     <version>1.0</version>
     <name>Cthul Logger</name>
-    <url>http://turtlecat.de/cthul/log</url>
+    <url>http://cthul.org</url>
+    <description>
+        A thin layer for slf4j logging, that allows using format strings
+        from cthul-strings.
+    </description>
     <distributionManagement>
         <site>
             <id>cthul-log-maven-docs</id>
-            <url>${project.url}</url>
+            <url>${project.url.docs}log/</url>
         </site>
     </distributionManagement>
     <properties>
@@ -95,7 +99,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.cthul</groupId>

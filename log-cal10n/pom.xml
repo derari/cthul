@@ -11,11 +11,15 @@
     <artifactId>cthul-log-cal10n</artifactId>
     <version>1.0</version>
     <name>Cthul Logger CAL10N</name>
-    <url>http://turtlecat.de/cthul/log-cal10n</url>
+    <url>http://cthul.org</url>
+    <description>
+        A thin layer for slf4j logging, that allows using format strings
+        from cthul-strings with slf4j CAL10N.
+    </description>
     <distributionManagement>
         <site>
             <id>cthul-log-cal10n-maven-docs</id>
-            <url>${project.url}</url>
+            <url>${project.url.docs}log-cal10n/</url>
         </site>
     </distributionManagement>
     <properties>
@@ -93,18 +97,16 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-            <version>1.7.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-log</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

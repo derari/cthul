@@ -7,6 +7,9 @@
     <version>1.0</version>
     <name>Cthul POM</name>
     <url>http://cthul.org/</url>
+    <description>
+        Common Tools, Helpers, and Utils Library
+    </description>
     <modules>
         <module>matchers</module>
         <module>parser</module>
@@ -223,6 +226,21 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>1.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-ext</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>1.7.2</version>
             </dependency>
             <dependency>
                 <groupId>org.cthul</groupId>

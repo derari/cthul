@@ -11,11 +11,16 @@
     <artifactId>cthul-strings</artifactId>
     <version>1.0</version>
     <name>Cthul Strings</name>
-    <url>http://turtlecat.de/cthul/strings</url>
+    <url>http://cthul.org</url>
+    <description>
+        Functions for converting strings from and to various formats,
+        such as roman numbers, alpha indices, Java identifiers, 
+        and format strings.
+    </description>
     <distributionManagement>
         <site>
             <id>cthul-strings-maven-docs</id>
-            <url>${project.url}</url>
+            <url>${project.url.docs}strings/</url>
         </site>
     </distributionManagement>
     <build>

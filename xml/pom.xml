@@ -11,11 +11,16 @@
     <artifactId>cthul-xml</artifactId>
     <version>1.0</version>
     <name>Cthul XML</name>
-    <url>http://cthul.org/xml</url>
+    <url>http://cthul.org</url>
+    <description>
+        Provides utilities for finding resources based on their URI.
+        Based on that, includes validating XML parsers that automatically 
+        resolve the schemas referenced in an XML document.
+    </description>
     <distributionManagement>
         <site>
             <id>cthul-xml-maven-docs</id>
-            <url>${project.url}</url>
+            <url>${project.url.docs}xml/</url>
         </site>
     </distributionManagement>
     <build>
@@ -51,7 +56,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>    
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

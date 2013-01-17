@@ -8,14 +8,19 @@
         <version>1.0</version>
     </parent>
     <groupId>org.cthul</groupId>
-    <artifactId>cthul-matcher</artifactId>
+    <artifactId>cthul-matchers</artifactId>
     <version>1.0</version>
     <name>Cthul Matchers</name>
-    <url>http://turtlecat.de/cthul/matcher</url>
+    <url>http://cthul.org</url>
+    <description>
+        Provides hamcrest.org matchers for strings and exceptions,
+        allows matching code blocks, and provides several utilities for
+        combining matchers.
+    </description>
     <distributionManagement>
         <site>
             <id>cthul-matcher-maven-docs</id>
-            <url>${project.url}</url>
+            <url>${project.url.docs}matcher/</url>
         </site>
     </distributionManagement>
     <properties>
