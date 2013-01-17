@@ -11,7 +11,7 @@
     <artifactId>cthul-xml</artifactId>
     <version>1.0</version>
     <name>Cthul XML</name>
-    <url>http://turtlecat.de/cthul/xml</url>
+    <url>http://cthul.org/xml</url>
     <distributionManagement>
         <site>
             <id>cthul-xml-maven-docs</id>
@@ -32,12 +32,10 @@
         <dependency>
             <groupId>org.cthul</groupId>    
             <artifactId>cthul-log</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.cthul</groupId>
-            <artifactId>cthul-matcher</artifactId>
-            <version>1.0</version>
+            <artifactId>cthul-matchers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
