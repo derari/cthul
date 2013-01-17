@@ -5,7 +5,8 @@ import org.cthul.parser.api.TokenInput;
 
 public class TokenStream<T extends Token<?>> extends TokenInput<T> {
 
-    private final List<T> all = new ArrayList<>();
+    protected final List<T> all = new ArrayList<>();
+    protected final List<T> publicAll = Collections.unmodifiableList(all);
     
     protected static <T extends Token<?>> List<T> filterChannel(Collection<? extends T> tokens) {
         final List<T> result = new ArrayList<>();
@@ -25,7 +26,7 @@ public class TokenStream<T extends Token<?>> extends TokenInput<T> {
     }
 
     public List<T> getAll() {
-        return all;
+        return publicAll;
     }
     
 }

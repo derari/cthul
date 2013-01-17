@@ -11,8 +11,8 @@ public class EarleyXRkGrammar<I extends Input<?>> extends EarleyXGrammar<I> {
     }
 
     @Override
-    public EarleyXRkParser parser(Context<? extends I> context) {
-        return new EarleyXRkParser(context, this);
+    public EarleyXRkParser<I> parser(Context<? extends I> context) {
+        return new EarleyXRkParser<>(context, this);
     }
     
 }

@@ -27,5 +27,10 @@ public class StringInput extends CharInput {
     public int getLength() {
         return input.length();
     }
+
+    @Override
+    public String toString() {
+        return input;
+    }
     
 }

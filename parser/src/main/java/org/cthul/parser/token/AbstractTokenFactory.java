@@ -5,7 +5,7 @@ package org.cthul.parser.token;
  *
  * @author Arian Treffer
  */
-public abstract class AbstractTokenFactory<V, T extends Token<V>> implements TokenFactory<V, T> {
+public abstract class AbstractTokenFactory<V, T extends Token<?>> implements TokenFactory<V, T> {
 
     @Override
     public T parseToken(int index, String symbol, int priority, String value, int inputIndex, int inputStart, int inputEnd, int channel) {
@@ -34,5 +34,4 @@ public abstract class AbstractTokenFactory<V, T extends Token<V>> implements Tok
     protected abstract V parse(String value);
     
     protected abstract T newToken(int index, String symbol, int priority, V value, int inputIndex, int inputStart, int inputEnd, int channel);
-    
 }

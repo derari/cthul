@@ -1,11 +1,15 @@
 package org.cthul.parser.token;
 
+import java.util.regex.MatchResult;
+
 /**
  *
  * @author Arian Treffer
  */
-public interface TokenBuilder<V, T extends Token<V>> {
+public interface TokenBuilder<V, T extends Token<?>> {
 
+    MatchResult getMatchResult();
+    
     int getStart();
 
     void setStart(int start);
@@ -49,6 +53,8 @@ public interface TokenBuilder<V, T extends Token<V>> {
     String getString();
 
     String getRemainingString();
+    
+    void setFactory(TokenFactory<?, ? extends T> factory);
 
     T newToken();
 
@@ -64,30 +70,24 @@ public interface TokenBuilder<V, T extends Token<V>> {
 
     T newToken(int channel, String key, V value);
     
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, String key);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, String key);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, V value);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, V2 value);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, String key, V value);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, String key, V2 value);
     
-    <V, T extends Token<V>> T parseToken(TokenFactory<? super V, ? extends T> factory, String key, String match);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, String key, String match);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, int channel);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, int channel);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, int channel, String key);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, int channel, String key);
 
-    <V, T extends Token<V>> T newToken(TokenFactory<? super V, ? extends T> factory, int channel, String key, V value);
+    <V2, T2 extends T> T2 newToken(TokenFactory<? super V2, ? extends T2> factory, int channel, String key, V2 value);
 
-    <T extends Token<?>> T getCurrentToken();
+    T getCurrentToken();
 
-    void setCurrentToken(Token<?> token);
+    void setCurrentToken(T token);
 
-    public static interface GroupProvider {
-
-        String group(int i);
-
-        int count();
-    }
 }

@@ -6,6 +6,8 @@ import org.cthul.parser.lexer.Lexer;
 
 public class AbstractParser {
     
+    public static final String ORIGINAL_INPUT = "org.cthul.parser#OriginalInput";
+    
     private final Lexer<?> lexer;
     private final Grammar<?> grammar;
 
@@ -18,6 +20,7 @@ public class AbstractParser {
     protected Object parse(Context<StringInput> context, RuleKey startSymbol) {
         Input tokens = lexer.scan(context);
         Context c = context.forInput(tokens);
+        c.put(ORIGINAL_INPUT, context.getInput());
         return grammar.parse(c, startSymbol);
     }
     

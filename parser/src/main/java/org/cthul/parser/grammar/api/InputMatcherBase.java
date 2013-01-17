@@ -1,13 +1,13 @@
-package org.cthul.parser.lexer.api;
+package org.cthul.parser.grammar.api;
 
 import org.cthul.parser.api.Input;
 import org.cthul.parser.api.RuleKey;
 
-public abstract class TokenMatcherBase<I extends Input<?>> implements TokenMatcher<I> {
+public abstract class InputMatcherBase<I extends Input<?>> implements InputMatcher<I> {
 
     protected final RuleKey key;
 
-    public TokenMatcherBase(RuleKey key) {
+    public InputMatcherBase(RuleKey key) {
         this.key = key;
     }
 

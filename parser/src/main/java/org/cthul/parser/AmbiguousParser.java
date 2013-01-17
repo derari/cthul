@@ -14,6 +14,7 @@ public class AmbiguousParser<Result> extends AbstractParser {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Iterable<Result> parse(Context context, RuleKey startSymbol) {
         return (Iterable<Result>) super.parse(context, startSymbol);
     }
@@ -24,17 +25,17 @@ public class AmbiguousParser<Result> extends AbstractParser {
     
     private static final Factory<Object> FACTORY = new Factory<>();
     
+    @SuppressWarnings("unchecked")
     public static <Result> Factory<Result> factory() {
         return (Factory) FACTORY;
     }
     
     public static class Factory<Result> implements ParserFactory<AmbiguousParser<Result>> {
-
         @Override
+        @SuppressWarnings("unchecked")
         public <I extends Input<?>> AmbiguousParser<Result> create(Lexer<? extends I> lexer, Grammar<? super I> grammar) {
             return new AmbiguousParser<>(lexer, (AmbiguousGrammar) grammar);
         }
-        
     }
     
 }

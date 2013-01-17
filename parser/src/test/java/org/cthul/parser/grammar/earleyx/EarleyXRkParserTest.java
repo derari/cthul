@@ -1,10 +1,12 @@
 package org.cthul.parser.grammar.earleyx;
 
+import org.cthul.parser.api.Input;
+
 public class EarleyXRkParserTest extends EarleyXParserTestBase {
 
     @Override
-    protected EarleyXRkGrammar newGrammar() {
-        return new EarleyXRkGrammar();
+    protected <I extends Input<?>> EarleyXRkGrammar<I> newGrammar() {
+        return new EarleyXRkGrammar<>();
     }
 
 }

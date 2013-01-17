@@ -1,20 +1,22 @@
 package org.cthul.parser.lexer.lazy;
 
 import org.cthul.parser.api.*;
-import org.cthul.parser.lexer.api.InputEval;
-import org.cthul.parser.lexer.api.TokenMatch;
+import org.cthul.parser.lexer.api.MatchEval;
+import org.cthul.parser.grammar.api.InputMatch;
 import org.cthul.parser.util.Format;
 
-public class LazyTokenMatch<Match> extends MatchBase implements TokenMatch {
+public class LazyTokenMatch<V, Match> extends MatchBase<V> implements InputMatch<V> {
     
     private final RuleKey key;
     private final int start;
     private final int end;
     private final Context<? extends StringInput> context;
     private final Match match;
-    private final InputEval<?, Match> eval;
+    private final MatchEval<? extends V, ? super Match> eval;
 
-    public LazyTokenMatch(RuleKey key, int start, int end, Context<? extends StringInput> context, Match match, InputEval<?, Match> eval) {
+    public LazyTokenMatch(RuleKey key, int start, int end, 
+                        Context<? extends StringInput> context, Match match, 
+                        MatchEval<? extends V, ? super Match> eval) {
         this.key = key;
         this.start = start;
         this.end = end;
@@ -54,7 +56,7 @@ public class LazyTokenMatch<Match> extends MatchBase implements TokenMatch {
     }
 
     @Override
-    public Object eval() {
+    public V eval() {
         return eval.eval(context, match, start, end);
     }
 

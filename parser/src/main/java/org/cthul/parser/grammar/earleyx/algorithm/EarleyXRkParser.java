@@ -2,6 +2,7 @@ package org.cthul.parser.grammar.earleyx.algorithm;
 
 import java.util.*;
 import org.cthul.parser.api.Context;
+import org.cthul.parser.api.Input;
 import org.cthul.parser.api.Match;
 import org.cthul.parser.grammar.earleyx.EarleyXGrammar;
 import org.cthul.parser.grammar.earleyx.rule.EXAntiMatch;
@@ -9,24 +10,24 @@ import org.cthul.parser.grammar.earleyx.rule.EXRule;
 import org.cthul.parser.util.Format;
 import org.cthul.parser.util.IntMap;
 
-public class EarleyXRkParser extends EarleyXParser {
+public class EarleyXRkParser<I extends Input<?>> extends EarleyXParser<I> {
 
     private final IntMap<InputPosition> inputPositions = new IntMap<>();
 
-    public EarleyXRkParser(Context<?> input, EarleyXGrammar grammar) {
+    public EarleyXRkParser(Context<? extends I> input, EarleyXGrammar<I> grammar) {
         super(input, grammar);
     }
 
     @Override
-    public Iterable<Match> parse(int start, int end, String rule, int priority) {
+    public Iterable<Match<?>> parse(int start, int end, String rule, int priority) {
         InputPosition ip = inputPosition(start);
         ip.predict(rule, priority);
         return filter(ip.matches, start, end, rule, priority);
     }
     
-    private Iterable<Match> filter(List<Match> matches, int start, int end, String rule, int priority) {
-        List<Match> result = new ArrayList<>();
-        for (Match m: matches) {
+    private Iterable<Match<?>> filter(List<Match<?>> matches, int start, int end, String rule, int priority) {
+        List<Match<?>> result = new ArrayList<>();
+        for (Match<?> m: matches) {
             if (m.getStartIndex() == start && m.getEndIndex() == end &&
                     rule.equals(m.getSymbol()) &&
                     m.getPriority() >= priority) {
@@ -48,10 +49,10 @@ public class EarleyXRkParser extends EarleyXParser {
     private class InputPosition {
         
         private final int index;
-        private final Set<EXRule> predicted = new HashSet<>();
+        private final Set<EXRule<? super I>> predicted = new HashSet<>();
         
         private final List<RuleState> states = new ArrayList<>();
-        private final List<Match> matches = new ArrayList<>();
+        private final List<Match<?>> matches = new ArrayList<>();
         
         private Set<EXAntiMatch> matchtedAntis = null; // lazy
 
@@ -60,8 +61,8 @@ public class EarleyXRkParser extends EarleyXParser {
         }
         
         void predict(String rule, int priority) {
-            Iterable<EXRule> it = grammar.getRules(rule, priority);
-            for (EXRule prod: it) {
+            Iterable<EXRule<? super I>> it = grammar.getRules(rule, priority);
+            for (EXRule<? super I> prod: it) {
                 if (!predicted.add(prod)) continue;
                 add(new RuleState(prod));
             }
@@ -69,12 +70,12 @@ public class EarleyXRkParser extends EarleyXParser {
         
         private void add(RuleState ps) {
             if (ps.completed()) {
-                Match match = ps.createMatch(index);
+                Match<?> match = ps.createMatch(index);
                 if (match == null) return;
                 inputPosition(match.getStartIndex()).complete(match);
             } else {
                 for (int i = 0; i < matches.size(); i++) {
-                    Match match = matches.get(i);
+                    Match<?> match = matches.get(i);
                     if (ps.acceptNext(match)) {
                         inputPosition(match.getEndIndex()).add(ps.next(match));
                     }
@@ -83,13 +84,13 @@ public class EarleyXRkParser extends EarleyXParser {
                 predict(ps.nextSymbol(), ps.nextPriority());
                 if (ps.ruleIndex == 0 && ps.rule instanceof EXAntiMatch) {
                     if (matchtedAntis == null || !matchtedAntis.contains((EXAntiMatch) ps.rule)) {
-                        complete(((EXAntiMatch) ps.rule).antiMatch(Context, index));
+                        complete(((EXAntiMatch) ps.rule).antiMatch(context, index));
                     }
                 }
             }
         }
         
-        private void complete(Match match){
+        private void complete(Match<?> match){
             if (match instanceof EXAntiMatch.Blocked) {
                 if (matchtedAntis == null) matchtedAntis = new HashSet<>();
                 matchtedAntis.add(((EXAntiMatch.Blocked) match).getRule());

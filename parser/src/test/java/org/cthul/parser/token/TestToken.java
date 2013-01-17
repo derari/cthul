@@ -1,14 +1,42 @@
-package org.cthul.parser.token.simple;
+package org.cthul.parser.token;
 
 import org.cthul.parser.api.RuleKey;
-import org.cthul.parser.token.Token;
 import org.cthul.parser.util.Format;
 
 /**
  *
  * @author Arian Treffer
  */
-public class SimpleToken<V> implements Token<V> {
+public class TestToken<V> implements Token<V> {
+    
+    public static final TokenFactory<Object, TestToken<Object>> FACTORY = 
+                    new AbstractTokenFactory<Object, TestToken<Object>>() {
+        @Override
+        protected Object parse(String value) {
+            return value;
+        }
+
+        @Override
+        protected TestToken<Object> newToken(int index, String symbol, int priority, Object value, int inputIndex, int inputStart, int inputEnd, int channel) {
+            return new TestToken<>(index, symbol, priority, value, inputIndex, inputStart, inputEnd, channel);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Class<TestToken<Object>> getTokenType() {
+            return (Class) TestToken.class;
+        }
+
+        @Override
+        public Class<?> getTokenValueType() {
+            return Object.class;
+        }
+
+        @Override
+        public Class<Object> getParameterType() {
+            return Object.class;
+        }
+    };
     
     protected final int index;
     protected final String symbol;
@@ -19,7 +47,7 @@ public class SimpleToken<V> implements Token<V> {
     protected final int inputEnd;
     protected final int channel;
 
-    public SimpleToken(int index, String symbol, int priority, V value, int inputIndex, int inputStart, int inputEnd, int channel) {
+    public TestToken(int index, String symbol, int priority, V value, int inputIndex, int inputStart, int inputEnd, int channel) {
         this.index = index;
         this.symbol = symbol;
         this.priority = priority;
@@ -49,6 +77,12 @@ public class SimpleToken<V> implements Token<V> {
     @Override
     public V eval() {
         return value;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Class<? extends V> getValueType() {
+        return (Class) (value == null ? null : value.getClass());
     }
 
     @Override
@@ -102,9 +136,22 @@ public class SimpleToken<V> implements Token<V> {
         String keyString = getKeyString();
         String valueString = getValueString();
         String s = valueString.replaceAll("\\n", "\\\\n");
+        final int maxKeyLen = 15;
+        int maxValueLen = maxKeyLen+8;
         if (!keyString.equals(valueString)) {
-            sb.append(keyString).append(':');
+            if (keyString.length() > maxKeyLen) {
+                sb.append(keyString, 0, maxKeyLen-3).append("...:");
+                maxValueLen -= maxKeyLen;
+            } else {
+                sb.append(keyString).append(':');
+                maxValueLen -= keyString.length();
+            }
         }
-        return sb.append("\"").append(s).append("\">");
+        if (s.length() > maxValueLen) {
+            if (maxValueLen < 8) maxValueLen = 8;
+            return sb.append("\"").append(s, 0, maxValueLen-3).append("...\">");
+        } else {
+            return sb.append("\"").append(s).append("\">");
+        }
     }
 }

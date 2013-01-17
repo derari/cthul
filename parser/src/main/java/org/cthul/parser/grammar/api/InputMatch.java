@@ -1,11 +1,12 @@
-package org.cthul.parser.lexer.api;
+package org.cthul.parser.grammar.api;
 
 import org.cthul.parser.api.Match;
 
 /**
  * An atomic match for the parser, that contains one or more input tokens.
+ * Created by {@link InputMatcher}.
  */
-public interface TokenMatch<V> extends Match<V> {
+public interface InputMatch<V> extends Match<V> {
 
     @Override
     int getInputStart();

@@ -9,8 +9,8 @@ import org.cthul.parser.api.StringInput;
  * @param <Token> tokens that are produced
  * @param <Match> matches that are consumed
  */
-public interface InputEval<Token, Match> {
-    // InputEval<? extends T, ? super M> eval;
+public interface MatchEval<Token, Match> {
+    // MatchEval<? extends T, ? super M> eval;
     // T t = eval.eval(_, (M) m, _, _);
     
     Token eval(Context<? extends StringInput> context, Match match, int start, int end);

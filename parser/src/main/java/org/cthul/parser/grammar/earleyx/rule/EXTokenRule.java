@@ -3,13 +3,13 @@ package org.cthul.parser.grammar.earleyx.rule;
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.Input;
 import org.cthul.parser.api.Match;
-import org.cthul.parser.lexer.api.TokenMatcher;
+import org.cthul.parser.grammar.api.InputMatcher;
 
 public class EXTokenRule<I extends Input<?>> extends EXRule<I> {
     
-    private final TokenMatcher<? super I> tokenMatcher;
+    private final InputMatcher<? super I> tokenMatcher;
 
-    public EXTokenRule(TokenMatcher<? super I> tokenMatcher) {
+    public EXTokenRule(InputMatcher<? super I> tokenMatcher) {
         super(tokenMatcher.getKey());
         this.tokenMatcher = tokenMatcher;
     }

@@ -1,8 +1,6 @@
 package org.cthul.parser.api;
 
-import org.cthul.parser.api.MatchBase;
-
-public abstract class AbstractMatch extends MatchBase {
+public abstract class AbstractMatch<V> extends MatchBase<V> {
 
     private final String symbol;
     private final int priority;
@@ -49,6 +47,6 @@ public abstract class AbstractMatch extends MatchBase {
     }
 
     @Override
-    public abstract Object eval();
+    public abstract V eval();
     
 }

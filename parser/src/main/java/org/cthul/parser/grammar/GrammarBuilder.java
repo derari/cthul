@@ -5,7 +5,7 @@ import java.util.List;
 import org.cthul.parser.api.Input;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.grammar.api.RuleEval;
-import org.cthul.parser.lexer.api.TokenMatcher;
+import org.cthul.parser.grammar.api.InputMatcher;
 import org.cthul.parser.rule.Rule;
 
 /**
@@ -16,9 +16,9 @@ public interface GrammarBuilder<I extends Input<?>> {
 
     void addProduction(RuleKey key, RuleKey[] rule, RuleEval eval);
 
-    void setTokenMatchers(List<TokenMatcher<? super I>> tokens);
+    void setInputMatchers(List<InputMatcher<? super I>> inputMatchers);
     
-    Grammar<? super I> createGrammar();
+    Grammar<I> createGrammar();
     
     GrammarBuilder<I> copy();
     
@@ -46,10 +46,25 @@ public interface GrammarBuilder<I extends Input<?>> {
         
     }
     
+    static interface SingleNoResult<I extends Input<?>> extends GrammarBuilder<I> {
+
+        void addNoResult(RuleKey key, RuleKey match, RuleEval eval);
+        
+    }
+    
+    static interface MultiNoResult<I extends Input<?>> extends GrammarBuilder<I> {
+
+        void addNoResult(RuleKey key, RuleKey[] match, RuleEval eval);
+        
+    }
+    
     static interface ComplexRule<I extends Input<?>> extends GrammarBuilder<I> {
         
         void addRule(RuleKey key, Rule rule, RuleEval eval);
         
     }
     
+    static interface LeftDeepPreferred<I extends Input<?>> extends GrammarBuilder<I> {
+        
+    }
 }

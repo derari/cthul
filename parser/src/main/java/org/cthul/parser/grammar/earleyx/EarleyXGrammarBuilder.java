@@ -8,16 +8,18 @@ import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.grammar.Grammar;
 import org.cthul.parser.grammar.GrammarBuilder;
 import org.cthul.parser.grammar.GrammarBuilderBase;
+import org.cthul.parser.grammar.api.InputMatcher;
 import org.cthul.parser.grammar.api.RuleEval;
 import org.cthul.parser.grammar.earleyx.rule.*;
-import org.cthul.parser.lexer.api.TokenMatcher;
 
 public abstract class EarleyXGrammarBuilder<I extends Input<?>> 
                 extends GrammarBuilderBase<I>
                 implements GrammarBuilder.SingleLookAhead<I>,
                            GrammarBuilder.MultiLookAhead<I>,
                            GrammarBuilder.SingleAntiMatch<I>,
-                           GrammarBuilder.MultiAntiMatch<I>{
+                           GrammarBuilder.MultiAntiMatch<I>,
+                           GrammarBuilder.SingleNoResult<I>,
+                           GrammarBuilder.MultiNoResult<I> {
     
     protected final SortedSet<RuleTemplate<I>> rules = new TreeSet<>();
     private int nextRId = 0;
@@ -36,8 +38,8 @@ public abstract class EarleyXGrammarBuilder<I extends Input<?>>
     }
 
     @Override
-    protected void generateTokenRules(List<TokenMatcher<? super I>> tokenMatchers) {
-        for (TokenMatcher<? super I> tm: tokenMatchers) {
+    protected void generateInputRules(List<InputMatcher<? super I>> tokenMatchers) {
+        for (InputMatcher<? super I> tm: tokenMatchers) {
             addRule(new EXTokenRule<>(tm));
         }
     }
@@ -73,20 +75,32 @@ public abstract class EarleyXGrammarBuilder<I extends Input<?>>
                                 RuleKey.collectPriorities(match)));
     }
     
+    @Override
+    public void addNoResult(RuleKey key, RuleKey match, RuleEval eval) {
+        addAntiMatch(key, new RuleKey[]{match}, eval);
+    }
+
+    @Override
+    public void addNoResult(RuleKey key, RuleKey[] match, RuleEval eval) {
+        addRule(new EXNoResult(eval, key.getSymbol(), key.getPriority(), 
+                                RuleKey.collectSymbols(match), 
+                                RuleKey.collectPriorities(match)));
+    }
+    
     protected void addRule(EXRule<? super I> rule) {
         rules.add(new RuleTemplate<>(nextRId(), rule));
     }
 
     @Override
-    public Grammar<? super I> createGrammar() {
-        EarleyXGrammar<? super I> g = newGrammar();
+    public Grammar<I> createGrammar() {
+        EarleyXGrammar<I> g = newGrammar();
         for (RuleTemplate<I> rt: rules) {
             g.add(rt.getRule());
         }
         return g;
     }
     
-    protected abstract EarleyXGrammar<? super I> newGrammar();
+    protected abstract EarleyXGrammar<I> newGrammar();
     
     protected static class RuleTemplate<I extends Input<?>> implements Comparable<RuleTemplate<?>> {
         

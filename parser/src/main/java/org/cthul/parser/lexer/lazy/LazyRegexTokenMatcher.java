@@ -6,23 +6,23 @@ import java.util.regex.Pattern;
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.api.StringInput;
-import org.cthul.parser.lexer.api.InputEval;
-import org.cthul.parser.lexer.api.TokenMatch;
-import org.cthul.parser.lexer.api.TokenMatcherBase;
+import org.cthul.parser.grammar.api.InputMatch;
+import org.cthul.parser.grammar.api.InputMatcherBase;
+import org.cthul.parser.lexer.api.MatchEval;
 
-public class LazyRegexTokenMatcher extends TokenMatcherBase<StringInput> {
+public class LazyRegexTokenMatcher extends InputMatcherBase<StringInput> {
     
-    private final InputEval<?, ? super MatchResult> eval;
+    private final MatchEval<?, ? super MatchResult> eval;
     private final Pattern pattern;
 
-    public LazyRegexTokenMatcher(RuleKey key, InputEval<?, ? super MatchResult> eval, Pattern pattern) {
+    public LazyRegexTokenMatcher(RuleKey key, MatchEval<?, ? super MatchResult> eval, Pattern pattern) {
         super(key);
         this.eval = eval;
         this.pattern = pattern;
     }
 
     @Override
-    public TokenMatch scan(Context<? extends StringInput> context, int start, int end) {
+    public InputMatch<?> scan(Context<? extends StringInput> context, int start, int end) {
         String input = context.getInput().getString();
         Matcher m = pattern.matcher(input);
         if (!m.find(start) || m.start() != start) return null;

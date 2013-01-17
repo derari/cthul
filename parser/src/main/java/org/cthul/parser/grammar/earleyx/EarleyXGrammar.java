@@ -10,34 +10,34 @@ import org.cthul.parser.util.Format;
 
 public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGrammar<I> {
     
-    private final Map<String, EXRuleSet> rules = new HashMap<>();
+    private final Map<String, EXRuleSet<I>> rules = new HashMap<>();
     
-    protected void add(EXRule p) {
-        EXRuleSet ps = rules.get(p.getSymbol());
+    protected void add(EXRule<? super I> p) {
+        EXRuleSet<I> ps = rules.get(p.getSymbol());
         if (ps == null) {
-            ps = new EXRuleSet();
+            ps = new EXRuleSet<>();
             rules.put(p.getSymbol(), ps);
         }
         ps.add(p, p.getPriority());
     }
     
-    public Iterable<EXRule> getRules(String symbol, int precedence) {
-        EXRuleSet ps = rules.get(symbol);
+    public Iterable<EXRule<? super I>> getRules(String symbol, int precedence) {
+        EXRuleSet<I> ps = rules.get(symbol);
         if (ps == null) {
             return Collections.emptyList();
         }
         return ps.getAll(precedence);
     }
 
-    public EXRuleSet getRules(String symbol) {
+    public EXRuleSet<I> getRules(String symbol) {
         return rules.get(symbol);
     }
 
-    public abstract EarleyXParser parser(Context<? extends I> context);
+    public abstract EarleyXParser<I> parser(Context<? extends I> context);
     
     @Override
     public Iterable<?> parse(Context<? extends I> context, RuleKey startSymbol) {
-        Iterable<Match> matches = parser(context).parse(startSymbol.getSymbol(), startSymbol.getPriority());
+        Iterable<Match<?>> matches = parser(context).parse(startSymbol.getSymbol(), startSymbol.getPriority());
         return new ResultIterable<>(matches);
     }
         
@@ -48,10 +48,11 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
 
     protected static class ResultIterable<T> implements Iterable<T> {
         
-        protected final Iterable<Match> matches;
+        protected final Iterable<Match<T>> matches;
 
-        public ResultIterable(Iterable<Match> matches) {
-            this.matches = matches;
+        @SuppressWarnings("unchecked")
+        public ResultIterable(Iterable<Match<?>> matches) {
+            this.matches = (Iterable) matches;
         }
 
         @Override
@@ -63,9 +64,9 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
     
     protected static class ResultIterator<T> implements Iterator<T> {
         
-        protected final Iterator<Match> matches;
+        protected final Iterator<Match<T>> matches;
 
-        public ResultIterator(Iterator<Match> matches) {
+        public ResultIterator(Iterator<Match<T>> matches) {
             this.matches = matches;
         }
 
@@ -76,7 +77,7 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
 
         @Override
         public T next() {
-            return (T) matches.next().eval();
+            return matches.next().eval();
         }
 
         @Override

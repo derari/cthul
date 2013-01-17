@@ -1,6 +1,8 @@
 package org.cthul.parser.api;
 
-public class Context<I extends Input<?>> {
+import org.cthul.parser.util.InstanceMap;
+
+public class Context<I extends Input<?>> extends InstanceMap {
     
     public static Context<StringInput> forString(String input) {
         return new Context<>(new StringInput(input));
@@ -10,12 +12,16 @@ public class Context<I extends Input<?>> {
 
     public Context(I input) {
         this.input = input;
+        put(input.getClass(), input, Input.class, AnyInterface.class);
     }
     
-    public Context(Context<?> c, I input) {
+    protected Context(Context<?> c, I input) {
+        super(c);
         this.input = input;
+        replace(input.getClass(), input, Input.class, AnyInterface.class);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Input<?>> Context<T> forInput(T input) {
         if (this.input == input) return (Context) this;
         return new Context<>(this, input);

@@ -1,7 +1,6 @@
 package org.cthul.parser.grammar.earleyx.rule;
 
 import org.cthul.parser.api.*;
-import org.cthul.parser.api.AbstractRule;
 
 public abstract class EXRule<I extends Input<?>> extends AbstractRule {
 

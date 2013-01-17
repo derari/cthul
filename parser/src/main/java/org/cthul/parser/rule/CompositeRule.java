@@ -30,12 +30,10 @@ public abstract class CompositeRule extends Rule {
     protected static final CompositeEval EVAL = new CompositeEval();
     
     protected static class CompositeEval implements RuleEval {
-
         @Override
         public Object eval(Context<?> context, ProductionMatch match) {
             return match.matches();
-        }
-        
+        }   
     }
     
 }

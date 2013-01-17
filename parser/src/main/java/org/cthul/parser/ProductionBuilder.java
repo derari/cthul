@@ -8,12 +8,12 @@ import org.cthul.parser.util.Format;
 
 public class ProductionBuilder {
     
-    protected ParserBuilder<?> parserBuilder;
+    protected ParserBuilder<?,?> parserBuilder;
     protected RuleKey key;
     protected List<RuleKey> production = new ArrayList<>();
     protected RuleEval eval;
 
-    public ProductionBuilder(ParserBuilder<?> parserBuilder, RuleKey key) {
+    public ProductionBuilder(ParserBuilder<?,?> parserBuilder, RuleKey key) {
         this.parserBuilder = parserBuilder;
         this.key = key;
     }
@@ -40,6 +40,10 @@ public class ProductionBuilder {
 
     public RuleEval getEval() {
         return eval;
+    }
+
+    public RuleKey getKey() {
+        return key;
     }
 
     public ProductionBuilder reset() {

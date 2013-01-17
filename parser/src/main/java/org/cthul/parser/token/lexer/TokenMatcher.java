@@ -1,11 +1,12 @@
-package org.cthul.parser.token;
+package org.cthul.parser.token.lexer;
 
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.api.TokenInput;
-import org.cthul.parser.lexer.api.TokenMatcherBase;
+import org.cthul.parser.grammar.api.InputMatcherBase;
+import org.cthul.parser.token.Token;
 
-public class TokenMatcher extends TokenMatcherBase<TokenInput<? extends Token>> {
+public class TokenMatcher extends InputMatcherBase<TokenInput<? extends Token>> {
 
     public TokenMatcher(RuleKey key) {
         super(key);

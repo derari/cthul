@@ -9,7 +9,7 @@ public class KeySet {
     private final StringCache cache = new StringCache();
     private final Set<String> generatedSymbols = new HashSet<>();
     
-    protected String cached(String s) {
+    public String cached(String s) {
         return cache.get(s);
     }
     
@@ -42,9 +42,13 @@ public class KeySet {
     
     protected String generateSymbol(String string) {
         string = string.replaceAll("[$]{2,}", "\\$");
+        if (!string.contains("$")) {
+            throw new IllegalArgumentException("Invalid internal token: " + string);
+        }
         string = cached(string);
-        if (!generatedSymbols.add(string)) 
-            throw new IllegalArgumentException(string);
+        if (!generatedSymbols.add(string)) {
+            throw new IllegalArgumentException("Already generated: " + string);
+        }
         return string;
     }
     

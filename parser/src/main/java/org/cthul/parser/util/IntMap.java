@@ -34,6 +34,7 @@ public class IntMap<V> {
         return o == null || o == GUARD;
     }
     
+    @SuppressWarnings("unchecked")
     public V put(int key, V value) {
         try {
             if (value == null) return remove(key);
@@ -53,6 +54,7 @@ public class IntMap<V> {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public V get(int key) {
         final int hash = hash(key);
         int index = find(key, hash);
@@ -154,6 +156,7 @@ public class IntMap<V> {
         throw new IllegalStateException("Free slots expected");
     }
 
+    @SuppressWarnings("unchecked")
     private V removeAt(int index) {
         size--; 
         if (size < 0) {

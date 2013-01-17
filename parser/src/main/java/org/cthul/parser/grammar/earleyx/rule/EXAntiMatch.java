@@ -16,7 +16,7 @@ public class EXAntiMatch extends EXRule<Input<?>> {
     }
 
     @Override
-    public Match match(Context<? extends Input<?>> context, int start, int end, Match[] right) {
+    public Match match(Context<?> context, int start, int end, Match[] right) {
         return new Blocked(this, context, start, end, right);
     }
     
@@ -77,7 +77,7 @@ public class EXAntiMatch extends EXRule<Input<?>> {
 
         @Override
         public String toString() {
-            return "!!" + super.toString();
+            return "!" + super.toString();
         }
     }
     

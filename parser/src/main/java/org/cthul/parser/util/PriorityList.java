@@ -46,7 +46,7 @@ public abstract class PriorityList<E> implements Iterable<E> {
 
         @Override
         public Iterator<E> iterator() {
-            return new PriorityIterator(priority, (Iterator) list.iterator());
+            return new PriorityIterator(priority, list.iterator());
         }
     }
     

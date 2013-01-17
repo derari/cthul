@@ -1,6 +1,6 @@
 package org.cthul.parser.api;
 
-public abstract class MatchBase implements Match {
+public abstract class MatchBase<V> implements Match<V> {
 
     @Override
     public String toString() {

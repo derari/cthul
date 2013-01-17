@@ -13,7 +13,7 @@ public class EarleyXRkGrammarBuilder<I extends Input<?>> extends EarleyXGrammarB
     }
 
     @Override
-    protected EarleyXRkGrammar<? super I> newGrammar() {
+    protected EarleyXRkGrammar<I> newGrammar() {
         return new EarleyXRkGrammar<>();
     }
 

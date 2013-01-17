@@ -13,16 +13,26 @@ public class SimpleParser<Result> extends AbstractParser {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Result parse(Context context, RuleKey startSymbol) {
         return (Result) super.parse(context, startSymbol);
+    }
+    
+    public Result parse(String input, RuleKey startSymbol) {
+        return parse(Context.forString(input), startSymbol);
     }
     
     public Result parse(Context context, String startSymbol) {
         return parse(context, new RuleKey(startSymbol, 0));
     }
     
+    public Result parse(String input, String startSymbol) {
+        return parse(Context.forString(input), startSymbol);
+    }
+    
     private static final Factory<Object> FACTORY = new Factory<>();
     
+    @SuppressWarnings("unchecked")
     public static <Result> Factory<Result> factory() {
         return (Factory) FACTORY;
     }

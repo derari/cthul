@@ -2,19 +2,16 @@ package org.cthul.parser.grammar.earleyx;
 
 import java.util.Iterator;
 import java.util.Random;
-import org.cthul.parser.api.Context;
-import org.cthul.parser.api.Match;
-import org.cthul.parser.api.RuleKey;
-import org.cthul.parser.api.StringInput;
+import org.cthul.parser.api.*;
 import org.cthul.parser.grammar.earleyx.algorithm.EarleyXParser;
 import org.cthul.parser.grammar.earleyx.rule.*;
 import org.cthul.parser.lexer.api.PlainStringInputEval;
 import org.cthul.parser.lexer.lazy.LazyStringTokenMatcher;
 import org.hamcrest.Matcher;
 import org.junit.*;
+import static org.cthul.matchers.CthulMatchers.isA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.cthul.matchers.CthulMatchers.*;
 
 public abstract class EarleyXParserTestBase {
     
@@ -39,7 +36,7 @@ public abstract class EarleyXParserTestBase {
     public void tearDown() {
     }
 
-    protected abstract EarleyXGrammar newGrammar();
+    protected abstract <I extends Input<?>> EarleyXGrammar<I> newGrammar();
     
     protected RuleKey rk(String s, int p) {
         return new RuleKey(s, p);
@@ -55,40 +52,40 @@ public abstract class EarleyXParserTestBase {
     
     @Test
     public void test_basic() {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("A", "a"));
         grammar.add(new EXTestProduction("A", 0, "A", "A"));
         grammar.add(new EXTestProduction("doublea", 0, "A", "A"));
-        EarleyXParser parser = grammar.parser(Context.forString("aa"));
-        Match match = parser.parse("doublea", 0).iterator().next();
+        EarleyXParser<StringInput> parser = grammar.parser(Context.forString("aa"));
+        Match<?> match = parser.parse("doublea", 0).iterator().next();
         
         assertThat(match.eval(), isString("doublea(a,a)"));
     }
     
     @Test
     public void test_look_ahead() {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("A", "a"));
         grammar.add(new EXTestToken("B", "b"));
         grammar.add(new EXTestLookAhead("AB_la", 0, "A", "B"));
         grammar.add(new EXTestProduction("AB", 0, "AB_la", "A", "B"));
-        EarleyXParser parser = grammar.parser(Context.forString("ab"));
-        Match match = parser.parse("AB", 0).iterator().next();
+        EarleyXParser<StringInput> parser = grammar.parser(Context.forString("ab"));
+        Match<?> match = parser.parse("AB", 0).iterator().next();
         assertThat(match.eval(), isString("AB(AB_la(a,b),a,b)"));
     }
     
     @Test
     public void test_anti_match() {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("A", "a"));
         grammar.add(new EXTestToken("B", "a"));
         grammar.add(new EXTestToken("B", "b"));
         grammar.add(new EXTestAntiMatch("noAA", 0, "A", "A"));
         grammar.add(new EXTestProduction("A?", 0, "A", "B"));
         grammar.add(new EXTestProduction("AB", 0, "noAA", "A?"));
-        EarleyXParser parser = grammar.parser(Context.forString("aa"));
+        EarleyXParser<StringInput> parser = grammar.parser(Context.forString("aa"));
         
-        Match match = parser.parse("A?", 0).iterator().next();
+        Match<?> match = parser.parse("A?", 0).iterator().next();
         assertThat(match.eval(), isString("A?(a,a)"));
         
         assertThat(parser.parse("AB", 0).iterator().hasNext(), is(false));
@@ -100,7 +97,7 @@ public abstract class EarleyXParserTestBase {
     
     @Test
     public void test_priority() {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("N", "0"));
         grammar.add(new EXTestToken("+", "+"));
         grammar.add(new EXTestToken("*", "*"));
@@ -108,7 +105,7 @@ public abstract class EarleyXParserTestBase {
         grammar.add(new EXProduction(e, "T", 3, new String[]{"T", "*", "T"}, new int[]{4,0,3}));
         grammar.add(new EXProduction(e, "T", 1, new String[]{"T", "+", "T"}, new int[]{2,0,1}));
         
-        Iterator<Match> result = grammar.parser(Context.forString("0+0*0")).parse("T", 0).iterator();
+        Iterator<Match<?>> result = grammar.parser(Context.forString("0+0*0")).parse("T", 0).iterator();
         assertThat(result.next().eval(), isString("T(T(0),+,T(T(0),*,T(0)))"));
         assertThat(result.hasNext(), is(false));
         
@@ -119,7 +116,7 @@ public abstract class EarleyXParserTestBase {
     
     @Test
     public void test_priority_2() {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("N", "0"));
         grammar.add(new EXTestToken("+", "+"));
         grammar.add(new EXTestToken("*", "*"));
@@ -130,7 +127,7 @@ public abstract class EarleyXParserTestBase {
         grammar.add(new EXProduction(e, "T", 3, new String[]{"T", "*", "T"}, new int[]{4,0,3}));
         grammar.add(new EXProduction(e, "T", 1, new String[]{"T", "+", "T"}, new int[]{2,0,1}));
         
-        Iterator<Match> result = grammar.parser(Context.forString("(0+0)*0")).parse("T", 0).iterator();
+        Iterator<Match<?>> result = grammar.parser(Context.forString("(0+0)*0")).parse("T", 0).iterator();
         assertThat((String) result.next().eval(), is("T(T((,T(T(0),+,T(0)),)),*,T(0))"));
         assertThat(result.hasNext(), is(false));
         
@@ -155,10 +152,10 @@ public abstract class EarleyXParserTestBase {
     }
     
     private static final String longString;
-    protected final EarleyXGrammar tGrammar;
+    protected final EarleyXGrammar<StringInput> tGrammar;
     
     {
-        EarleyXGrammar grammar = newGrammar();
+        EarleyXGrammar<StringInput> grammar = newGrammar();
         grammar.add(new EXTestToken("N", "0"));
         grammar.add(new EXTestToken("+", "+"));
         grammar.add(new EXTestToken("*", "*"));

@@ -2,8 +2,8 @@ package org.cthul.parser.util;
 
 public class LinkedQueue<T extends LinkedQueue.Link> {
 
-    private Link first;
-    private Link last;
+    private T first;
+    private T last;
     
     public void enqueue(T link) {
         if (link.next != null || link == last) return;
@@ -15,15 +15,16 @@ public class LinkedQueue<T extends LinkedQueue.Link> {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public T poll() {
-        Link l = first;
+        T l = first;
         if (l != null) {
             Link next = l.next;
             l.next = null;
-            first = next;
+            first = (T) next;
             if (next == null) last = null;
         }
-        return (T) l;
+        return l;
     }
     
     public static class Link {

@@ -7,7 +7,7 @@ import org.cthul.parser.grammar.api.RuleEval;
 
 public class EXProduction extends EXRule<Input<?>> {
     
-    private final RuleEval eval;
+    protected final RuleEval eval;
 
     public EXProduction(RuleEval eval, String symbol, int priority) {
         super(symbol, priority);

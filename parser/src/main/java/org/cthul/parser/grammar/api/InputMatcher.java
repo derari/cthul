@@ -1,16 +1,17 @@
-package org.cthul.parser.lexer.api;
+package org.cthul.parser.grammar.api;
 
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.Input;
 import org.cthul.parser.api.RuleKey;
 
 /**
- * Consumes tokens from the token stream to create a match for the parser.
+ * Consumes tokens from the input to create a match for the parser.
  * @param <I> input that is consumed
+ * @param <V> value that can be obtained from the match
  */
-public interface TokenMatcher<I extends Input<?>> {
+public interface InputMatcher<I extends Input<?>> {
     // <I extends Input<?>>
-    // TokenMatcher<? super I> tm;
+    // InputMatcher<? super I> tm;
     // tm.scan((Context<I>) c, _, _);
     
     RuleKey getKey();
@@ -24,6 +25,6 @@ public interface TokenMatcher<I extends Input<?>> {
      * @param end (optional hint)
      * @return match, if successfull
      */
-    TokenMatch scan(Context<? extends I> context, int start, int end);
+    InputMatch<?> scan(Context<? extends I> context, int start, int end);
     
 }
