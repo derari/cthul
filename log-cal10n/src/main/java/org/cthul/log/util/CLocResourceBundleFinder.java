@@ -49,14 +49,18 @@ public class CLocResourceBundleFinder {
                 baseName, locale);
         String languageOnlyCandidate = computeLanguageOnlyCandidate(baseName,
                 locale);
-        String defaultCanditate = baseName;
+        String defaultCanditate = baseName + ".properties";
 
         CAL10NResourceBundle cprbDefault = makePropertyResourceBundle(
                 classLoader, defaultCanditate, charset);
         CAL10NResourceBundle cprbLanguageOnly = makePropertyResourceBundle(
                 classLoader, languageOnlyCandidate, charset);
-        if (cprbDefault != null && cprbLanguageOnly != null) {
-            cprbLanguageOnly.setParent(cprbDefault);
+        if (cprbDefault != null) {
+            if (cprbLanguageOnly != null) {
+                cprbLanguageOnly.setParent(cprbDefault);
+            } else {
+                cprbLanguageOnly = cprbDefault;
+            }
         }
         
         CAL10NResourceBundle cprbLanguageAndCountry = null;

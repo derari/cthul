@@ -114,7 +114,7 @@ public class CLocMessageConveyor implements IMessageConveyor {
         String baseName = AnnotationExtractor.getBaseName(key
                 .getDeclaringClass());
         if (baseName == null) {
-            baseName = key.getClass().getCanonicalName();
+            baseName = key.getClass().getName();
         }
         if (baseName == null) {
             throw new MessageConveyorException(
@@ -127,7 +127,7 @@ public class CLocMessageConveyor implements IMessageConveyor {
         // use the declaring class' loader instead of
         // this.getClass().getClassLoader()
         // see also http://jira.qos.ch/browse/CAL-8
-        CAL10NResourceBundle rb = CAL10NResourceBundleFinder.getBundle(
+        CAL10NResourceBundle rb = CLocResourceBundleFinder.getBundle(
                 declaringClass.getClassLoader(), baseName, locale, charset);
 
         if (rb == null) {
