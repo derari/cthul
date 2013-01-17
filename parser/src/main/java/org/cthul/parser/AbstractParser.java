@@ -16,12 +16,16 @@ public class AbstractParser {
         this.grammar = grammar;
     }
     
-    @SuppressWarnings("unchecked") // generics are checked in constructor
     protected Object parse(Context<StringInput> context, RuleKey startSymbol) {
+        return parse(context, startSymbol, null);
+    }
+    
+    @SuppressWarnings("unchecked") // generics are checked in constructor
+    protected Object parse(Context<StringInput> context, RuleKey startSymbol, Object arg) {
         Input tokens = lexer.scan(context);
         Context c = context.forInput(tokens);
         c.put(ORIGINAL_INPUT, context.getInput());
-        return grammar.parse(c, startSymbol);
+        return grammar.parse(c, startSymbol, arg);
     }
     
 }

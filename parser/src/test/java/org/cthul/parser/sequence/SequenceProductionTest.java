@@ -55,7 +55,7 @@ public class SequenceProductionTest {
     
     @Test
     public void test_simple_list() {        
-        SequenceProduction sp = new SequenceProduction(seq(), keys(item), keys(sep), false, false, false, 1, 1);
+        SequenceProductionBuilder sp = new SequenceProductionBuilder(seq(), keys(item), keys(sep), false, false, false, 1, 1);
         sp.buildLeftDeep(pb.productionBuilder("list", 0));
         
         AmbiguousParser<List<?>> parser = pb.createParser(AmbiguousParser.<List<?>>factory());
@@ -67,7 +67,7 @@ public class SequenceProductionTest {
     
     @Test
     public void test_unflattend_list() {
-        SequenceProduction sp = new SequenceProduction(seq(), keys(item, item), keys(sep), false, false, false, 1, 1);
+        SequenceProductionBuilder sp = new SequenceProductionBuilder(seq(), keys(item, item), keys(sep), false, false, false, 1, 1);
         sp.buildLeftDeep(pb.productionBuilder("list", 0));
         
         AmbiguousParser<List<?>> parser = pb.createParser(AmbiguousParser.<List<?>>factory());
@@ -78,7 +78,7 @@ public class SequenceProductionTest {
 
     @Test
     public void test_flattend_list() {
-        SequenceProduction sp = new SequenceProduction(seq(), keys(item, item), keys(sep), true, false, false, 1, 1);
+        SequenceProductionBuilder sp = new SequenceProductionBuilder(seq(), keys(item, item), keys(sep), true, false, false, 1, 1);
         sp.buildLeftDeep(pb.productionBuilder("list", 0));
         
         AmbiguousParser<List<?>> parser = pb.createParser(AmbiguousParser.<List<?>>factory());
@@ -89,7 +89,7 @@ public class SequenceProductionTest {
     
     @Test
     public void test_empty_list() {        
-        SequenceProduction sp = new SequenceProduction(seq(), keys(item), keys(sep), false, false, true, 1, 1);
+        SequenceProductionBuilder sp = new SequenceProductionBuilder(seq(), keys(item), keys(sep), false, false, true, 1, 1);
         sp.buildLeftDeep(pb.productionBuilder("list", 0));
         
         AmbiguousParser<List<?>> parser = pb.createParser(AmbiguousParser.<List<?>>factory());

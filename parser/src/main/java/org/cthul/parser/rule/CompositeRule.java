@@ -22,18 +22,5 @@ public abstract class CompositeRule extends Rule {
     public List<Rule> getRules() {
         return Arrays.asList(rules);
     }
-
-    public RuleEval getEval() {
-        return EVAL;
-    }
-    
-    protected static final CompositeEval EVAL = new CompositeEval();
-    
-    protected static class CompositeEval implements RuleEval {
-        @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
-            return match.matches();
-        }   
-    }
     
 }

@@ -10,7 +10,7 @@ import org.cthul.parser.grammar.api.InputMatch;
 public interface Token<V> extends InputMatch<V> {
     
     @Override
-    public V eval();
+    public V eval(Object arg);
     
     boolean match(RuleKey key);
     

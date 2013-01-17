@@ -61,6 +61,11 @@ public class LazyTokenMatch<V, Match> extends MatchBase<V> implements InputMatch
     }
 
     @Override
+    public V eval(Object arg) {
+        return eval.eval(context, match, start, end);
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " " + 
                Format.productionKey(getSymbol(), getPriority()) + ": " + match;

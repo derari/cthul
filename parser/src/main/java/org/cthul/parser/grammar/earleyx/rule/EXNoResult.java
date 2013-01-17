@@ -58,21 +58,8 @@ public class EXNoResult extends EXRule<Input<?>> {
         }
 
         @Override
-        public Object eval() {
+        public Object eval(Object arg) {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int hashCode() {
-            return getRule().hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof EXNoResult) {
-                return getRule().equals(obj);
-            }
-            return super.equals(obj);
         }
 
         @Override

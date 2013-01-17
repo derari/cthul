@@ -21,7 +21,7 @@ public class AbstractMethodInputEval<Token, Match> implements MatchEval<Token, M
     @Override
     @SuppressWarnings("unchecked")
     public Token eval(Context<? extends StringInput> context, Match match, int start, int end) {
-        return (Token) exec.invoke(context, match);
+        return (Token) exec.invoke(context, match, null);
     }
     
 }

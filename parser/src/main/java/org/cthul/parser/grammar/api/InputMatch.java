@@ -21,6 +21,6 @@ public interface InputMatch<V> extends Match<V> {
     int getEndIndex();
     
     @Override
-    V eval();
+    V eval(Object arg);
     
 }

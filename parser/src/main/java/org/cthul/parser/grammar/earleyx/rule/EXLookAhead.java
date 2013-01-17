@@ -36,24 +36,6 @@ public class EXLookAhead extends EXProduction {
         }
 
         @Override
-        public Object eval() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int hashCode() {
-            return getRule().hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof EXNoResult) {
-                return getRule().equals(obj);
-            }
-            return super.equals(obj);
-        }
-
-        @Override
         public String toString() {
             return "&" + super.toString();
         }

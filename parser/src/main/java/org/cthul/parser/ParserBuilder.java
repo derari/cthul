@@ -22,7 +22,7 @@ import org.cthul.parser.lexer.LexerBuilder;
 import org.cthul.parser.lexer.api.MatchEval;
 import org.cthul.parser.lexer.api.PlainStringInputEval;
 import org.cthul.parser.rule.*;
-import org.cthul.parser.sequence.SequenceProduction;
+import org.cthul.parser.sequence.SequenceProductionBuilder;
 
 public class ParserBuilder<Token, Match> {
     
@@ -304,7 +304,7 @@ public class ParserBuilder<Token, Match> {
         if (eval == null) eval = rule.getEval();
         RuleKey[] item = decomposeAll(key.getSymbol(), rule.getItemProduction());
         RuleKey[] sep = decomposeAll(key.getSymbol(), rule.getSepProduction());
-        SequenceProduction sp = new SequenceProduction(
+        SequenceProductionBuilder sp = new SequenceProductionBuilder(
                 rule.getSequenceBuilder(), 
                 item, sep, rule.isFlatten(), rule.isIncludeSeparator(), 
                 rule.isAllowEmpty(), rule.getMinSize(), rule.getSetSize());

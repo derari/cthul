@@ -104,9 +104,14 @@ public class ObjectToken<V> implements Token<V> {
         return getPriority() >= key.getPriority() &&
                 getSymbol().equals(key.getSymbol());
     }
-    
+
     @Override
     public V eval() {
+        return value;
+    }
+    
+    @Override
+    public V eval(Object arg) {
         return value;
     }
 

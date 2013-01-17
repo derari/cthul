@@ -61,8 +61,4 @@ public class SequenceRule extends Rule {
         return stepSize;
     }
     
-    public RuleEval getEval() {
-        return ProxyRuleEval.instance();
-    }
-    
 }

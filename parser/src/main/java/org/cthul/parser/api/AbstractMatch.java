@@ -47,6 +47,6 @@ public abstract class AbstractMatch<V> extends MatchBase<V> {
     }
 
     @Override
-    public abstract V eval();
+    public abstract V eval(Object arg);
     
 }

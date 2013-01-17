@@ -13,7 +13,7 @@ public class NullRuleEval implements RuleEval {
     }
     
     @Override
-    public Object eval(Context<?> context, ProductionMatch match) {
+    public Object eval(Context<?> context, ProductionMatch match, Object arg) {
         return null;
     }
     

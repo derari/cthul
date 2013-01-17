@@ -12,10 +12,5 @@ public class ChoiceRule extends CompositeRule {
     public ChoiceRule(Collection<? extends Rule> rules) {
         super(rules);
     }
-
-    @Override
-    public RuleEval getEval() {
-        return super.getEval();
-    }
     
 }

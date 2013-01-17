@@ -36,9 +36,9 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
     public abstract EarleyXParser<I> parser(Context<? extends I> context);
     
     @Override
-    public Iterable<?> parse(Context<? extends I> context, RuleKey startSymbol) {
+    public Iterable<?> parse(Context<? extends I> context, RuleKey startSymbol, Object arg) {
         Iterable<Match<?>> matches = parser(context).parse(startSymbol.getSymbol(), startSymbol.getPriority());
-        return new ResultIterable<>(matches);
+        return new ResultIterable<>(matches, arg);
     }
         
     @Override
@@ -49,15 +49,17 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
     protected static class ResultIterable<T> implements Iterable<T> {
         
         protected final Iterable<Match<T>> matches;
+        protected final Object arg;
 
         @SuppressWarnings("unchecked")
-        public ResultIterable(Iterable<Match<?>> matches) {
+        public ResultIterable(Iterable<Match<?>> matches, Object arg) {
             this.matches = (Iterable) matches;
+            this.arg = arg;
         }
 
         @Override
         public Iterator<T> iterator() {
-            return new ResultIterator<>(matches.iterator());
+            return new ResultIterator<>(matches.iterator(), arg);
         }
         
     }
@@ -65,9 +67,11 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
     protected static class ResultIterator<T> implements Iterator<T> {
         
         protected final Iterator<Match<T>> matches;
+        protected final Object arg;
 
-        public ResultIterator(Iterator<Match<T>> matches) {
+        public ResultIterator(Iterator<Match<T>> matches, Object arg) {
             this.matches = matches;
+            this.arg = arg;
         }
 
         @Override
@@ -77,7 +81,7 @@ public abstract class EarleyXGrammar<I extends Input<?>> implements AmbiguousGra
 
         @Override
         public T next() {
-            return matches.next().eval();
+            return matches.next().eval(arg);
         }
 
         @Override

@@ -10,7 +10,7 @@ import org.cthul.parser.grammar.api.ProductionMatch;
 import org.cthul.parser.grammar.api.ProxyRuleEval;
 import org.cthul.parser.grammar.api.RuleEval;
 
-public class SequenceProduction {
+public class SequenceProductionBuilder {
     
     protected final SequenceBuilder<?,?> sequence;
     protected final RuleKey[] itemProduction;
@@ -24,7 +24,7 @@ public class SequenceProduction {
     protected final int stepSize;
     protected final RESet reSet;
 
-    public SequenceProduction(SequenceBuilder<?, ?> sequence, RuleKey[] itemProduction, RuleKey[] sepProduction, boolean flatten, boolean includeSeparator, boolean allowEmpty, int minSize, int stepSize) {
+    public SequenceProductionBuilder(SequenceBuilder<?, ?> sequence, RuleKey[] itemProduction, RuleKey[] sepProduction, boolean flatten, boolean includeSeparator, boolean allowEmpty, int minSize, int stepSize) {
         if (sequence == null) throw new NullPointerException("sequence");
         if (itemProduction == null || itemProduction.length == 0) {
             throw new IllegalArgumentException("Item production is empty");
@@ -217,7 +217,7 @@ public class SequenceProduction {
             this.seq = seq;
         }
         @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
+        public Object eval(Context<?> context, ProductionMatch match, Object arg) {
             return seq.newInstance();
         }
     }
@@ -255,13 +255,13 @@ public class SequenceProduction {
             super(seq, flattenItem, flattenSep, hasSep, includeSep);
         }
         @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
+        public Object eval(Context<?> context, ProductionMatch match, Object arg) {
             final Object sequence = seq.newInstance();
             final Match<?>[] matches = match.matches();
             for (int i = 0; i < matches.length; i++) {
                 boolean isItem = i % 2 == 0 || !hasSep;
                 if (isItem || includeSep) {
-                    Object item = matches[i].eval();
+                    Object item = matches[i].eval(arg);
                     add(isItem, sequence, item);
                 }
             }
@@ -274,13 +274,13 @@ public class SequenceProduction {
             super(seq, flattenItem, flattenSep, hasSep, includeSep);
         }
         @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
+        public Object eval(Context<?> context, ProductionMatch match, Object arg) {
             final Match<?>[] matches = match.matches();
-            final Object sequence = matches[0].eval();
+            final Object sequence = matches[0].eval(arg);
             for (int i = 1; i < matches.length; i++) {
                 boolean isItem = i % 2 == 0 || !hasSep;
                 if (isItem || includeSep) {
-                    Object item = matches[i].eval();
+                    Object item = matches[i].eval(arg);
                     add(isItem, sequence, item);
                 }
             }
@@ -290,11 +290,11 @@ public class SequenceProduction {
     
     protected static final RuleEval ARRAY_PROXY = new RuleEval() {
         @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
+        public Object eval(Context<?> context, ProductionMatch match, Object arg) {
             final Match<?>[] matches = match.matches();
             final Object[] result = new Object[matches.length];
             for (int i = 0; i < result.length; i++) {
-                result[i] = matches[i].eval();
+                result[i] = matches[i].eval(arg);
             }
             return result;
         }
@@ -302,7 +302,7 @@ public class SequenceProduction {
     
     protected static final RuleEval SEP_EVAL = new RuleEval() {
         @Override
-        public Object eval(Context<?> context, ProductionMatch match) {
+        public Object eval(Context<?> context, ProductionMatch match, Object arg) {
             throw new UnsupportedOperationException("Evaluating separator");
         }
     };

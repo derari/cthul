@@ -25,11 +25,15 @@ public class EXMatch extends AbstractMatch<Object> implements ProductionMatch {
     public Match[] matches() {
         return matches;
     }
-    
 
     @Override
     public Object eval() {
-        return eval.eval(context, this);
+        return eval(null);
+    }
+    
+    @Override
+    public Object eval(Object arg) {
+        return eval.eval(context, this, arg);
     }
 
     @Override

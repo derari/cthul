@@ -58,7 +58,7 @@ public class EXAntiMatch extends EXRule<Input<?>> {
         }
 
         @Override
-        public Object eval() {
+        public Object eval(Object arg) {
             throw new UnsupportedOperationException();
         }
 

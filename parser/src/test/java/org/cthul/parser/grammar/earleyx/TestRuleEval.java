@@ -15,12 +15,12 @@ public class TestRuleEval implements RuleEval {
     }
     
     @Override
-    public Object eval(Context<?> context, ProductionMatch match) {
+    public Object eval(Context<?> context, ProductionMatch match, Object arg) {
         Match[] args = (Match[]) match.matches();
         if (args == null) return match.getSymbol() + "()";
         Object[] values = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            values[i] = args[i].eval();
+            values[i] = args[i].eval(arg);
         }
         return Format.join(match.getSymbol()+"(", ",", ")", values);
     }

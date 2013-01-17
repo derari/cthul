@@ -69,7 +69,7 @@ public final class MethodExecutor<Arg> {
         return new ArgMap[length];
     }
     
-    public Object invoke(Context<?> ctx, Arg arg) {
+    public Object invoke(Context<?> ctx, Arg arg1, Object arg2){
         final Object[] args;
         if (argMap == null) {
             args = null;
@@ -77,7 +77,7 @@ public final class MethodExecutor<Arg> {
             args = new Object[argMap.length];
             for (int i = 0; i < args.length; i++) {
                 int srcIndex = indexMap[i];
-                args[i] = argMap[i].map(srcIndex, ctx, arg);
+                args[i] = argMap[i].map(srcIndex, ctx, arg1);
             }
         }
         Object obj = clazz == null ? instance : ctx.getOrCreate(clazz);

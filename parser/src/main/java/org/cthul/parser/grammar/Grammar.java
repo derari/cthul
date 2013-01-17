@@ -10,6 +10,6 @@ import org.cthul.parser.api.RuleKey;
  */
 public interface Grammar<I extends Input<?>> {
     
-    Object parse(Context<? extends I> context, RuleKey startSymbol);
+    Object parse(Context<? extends I> context, RuleKey startSymbol, Object arg);
     
 }
