@@ -1,5 +1,6 @@
 package org.cthul.log;
 
+import org.cthul.log.util.CLocMessageConveyor;
 import ch.qos.cal10n.IMessageConveyor;
 import ch.qos.cal10n.MessageConveyor;
 import java.util.Locale;
@@ -88,7 +89,7 @@ public class CLocLogConfiguration extends CLogConfigurationBase {
         if (messageConveyor == null) {
             Locale l = locale();
             if (l == null) l = Locale.getDefault();
-            messageConveyor = new MessageConveyor(l);
+            messageConveyor = new CLocMessageConveyor(l);
         }
         return messageConveyor;
     }

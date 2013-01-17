@@ -1,13 +1,14 @@
 package org.cthul.log;
 
 import ch.qos.cal10n.BaseName;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  *
  * @author Arian Treffer
  */
-@BaseName("TestMessage")
+@BaseName("test.TestMessage")
 public enum TestMessage implements NamedParameters {
     
     HELLO_WORLD("name");
@@ -15,7 +16,7 @@ public enum TestMessage implements NamedParameters {
     private final List<String> names;
 
     private TestMessage(String... names) {
-        this.names = ParamUtils.wrap(names);
+        this.names = Arrays.asList(names);
     }
 
     @Override

@@ -39,7 +39,7 @@ import org.slf4j.spi.LocationAwareLogger;
  */
 public class CLocLogger<E extends Enum<?>> extends CLoggerBase{
 
-    private static final String FQCN = CLogger.class.getName();
+    private static final String FQCN = CLocLogger.class.getName();
     
     protected final CLocLogConfiguration locConf;
 
@@ -49,11 +49,7 @@ public class CLocLogger<E extends Enum<?>> extends CLoggerBase{
     
     public CLocLogger(Logger logger, CLocLogConfiguration conf) {
         super(logger, conf);
-        if (this.conf instanceof CLocLogConfiguration) {
-            this.locConf = (CLocLogConfiguration) this.conf;
-        } else {
-            this.locConf = new CLocLogConfiguration(this.conf);
-        }
+        this.locConf = new CLocLogConfiguration(this.conf);
     }
 
     protected String m(E message) {
