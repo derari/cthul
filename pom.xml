@@ -8,7 +8,7 @@
     <name>Cthul POM</name>
     <url>http://cthul.org/</url>
     <modules>
-        <module>matcher</module>
+        <module>matchers</module>
         <module>parser</module>
         <module>strings</module>
         <module>log</module>
