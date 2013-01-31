@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-matchers</artifactId>
-    <version>1.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Cthul Matchers</name>
     <url>http://cthul.org</url>
     <description>
@@ -55,13 +55,20 @@
                                 <goals>
                                     <goal>add-source</goal>
                                 </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>${generated-matcher-dir}</source>
-                                    </sources>
-                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-matcher-source-site</id>
+                                <phase>pre-site</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <sources>
+                                <source>${generated-matcher-dir}</source>
+                            </sources>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -71,14 +78,14 @@
                             <execution>
                                 <id>generate-matcher-dir</id>
                                 <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
                                 <configuration>
                                     <target>
                                         <mkdir dir="${generated-matcher-dir}"/>
                                     </target>
                                 </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>

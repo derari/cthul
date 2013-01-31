@@ -81,7 +81,7 @@ public class ConceptTest {
 
     /**
      * To improve performance of matching, the result of a proc is cached.
-     * Of course, procs can be resetted.
+     * Of course, procs can be reset.
      * Calling a proc actually creates a new one.
      */
     @Test
