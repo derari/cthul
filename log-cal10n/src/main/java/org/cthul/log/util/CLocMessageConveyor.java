@@ -24,7 +24,6 @@ package org.cthul.log.util;
 import ch.qos.cal10n.*;
 import ch.qos.cal10n.util.AnnotationExtractor;
 import ch.qos.cal10n.util.CAL10NResourceBundle;
-import ch.qos.cal10n.util.CAL10NResourceBundleFinder;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +44,8 @@ import org.cthul.strings.format.FormatterConfiguration;
  */
 public class CLocMessageConveyor implements IMessageConveyor {
 
-    protected final Locale locale;
+    protected final LocaleProvider localeProvider;
+    protected Locale lastLocale = null;
     protected final FormatterConfiguration conf;
     protected final Map<String, CAL10NResourceBundle> cache = new ConcurrentHashMap<>();
 
@@ -54,13 +54,20 @@ public class CLocMessageConveyor implements IMessageConveyor {
      *
      * @param locale
      */
-    public CLocMessageConveyor(Locale locale) {
-        this.locale = locale;
-        this.conf = null;
+    public CLocMessageConveyor(Locale locale)  {
+        this(new SimpleLocaleProvider(locale));
+    }
+    
+    public CLocMessageConveyor(LocaleProvider localeProvider) {
+        this(localeProvider, null);
     }
 
-    public CLocMessageConveyor(Locale locale, FormatterConfiguration conf) {
-        this.locale = locale;
+    public CLocMessageConveyor(FormatterConfiguration conf) {
+        this(new ConfigurationLocale(conf), conf);
+    }
+
+    public CLocMessageConveyor(LocaleProvider localeProvider, FormatterConfiguration conf) {
+        this.localeProvider = localeProvider;
         this.conf = conf;
     }
 
@@ -110,6 +117,11 @@ public class CLocMessageConveyor implements IMessageConveyor {
     protected <E extends Enum<?>> CAL10NResourceBundle lookup(E key)
                                     throws MessageConveyorException {
         Class<?> declaringClass = key.getDeclaringClass();
+        Locale locale = localeProvider.getLocale();
+        if (locale != lastLocale) {
+            lastLocale = locale;
+            cache.clear();
+        }
 
         String baseName = AnnotationExtractor.getBaseName(key
                 .getDeclaringClass());
@@ -147,5 +159,37 @@ public class CLocMessageConveyor implements IMessageConveyor {
                     "MessageParameterObj argumument cannot be null");
         }
         return getMessage(mpo.getKey(), mpo.getArgs());
+    }
+    
+    public static abstract class LocaleProvider {
+        
+        public abstract Locale getLocale();
+        
+    }
+    
+    public static class SimpleLocaleProvider extends LocaleProvider {
+        private final Locale locale;
+
+        public SimpleLocaleProvider(Locale locale) {
+            this.locale = locale;
+        }
+
+        @Override
+        public Locale getLocale() {
+            return locale;
+        }
+    }
+    
+    public static class ConfigurationLocale extends LocaleProvider {
+        private final FormatterConfiguration conf;
+
+        public ConfigurationLocale(FormatterConfiguration conf) {
+            this.conf = conf;
+        }
+
+        @Override
+        public Locale getLocale() {
+            return conf.locale();
+        }
     }
 }

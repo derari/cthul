@@ -70,14 +70,21 @@
                         <goals>
                             <goal>add-source</goal>
                         </goals>
-                        <configuration>
-                            <sources>
-                                <source>${build.freemarker.sourceDirectory}</source>
-                            </sources>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-fmpp-source-site</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
                     </execution>
                 </executions>
-            </plugin> 
+                <configuration>
+                    <sources>
+                        <source>${build.freemarker.sourceDirectory}</source>
+                    </sources>
+                </configuration>
+            </plugin>
             <!-- Additional output -->
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>

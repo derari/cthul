@@ -70,14 +70,30 @@
                         <goals>
                             <goal>add-source</goal>
                         </goals>
-                        <configuration>
-                            <sources>
-                                <source>${build.freemarker.sourceDirectory}</source>
-                            </sources>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-fmpp-source-site</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <sources>
+                        <source>${build.freemarker.sourceDirectory}</source>
+                    </sources>
+                </configuration>
             </plugin> 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>src/test/i18n</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
             <!-- Additional output -->
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>

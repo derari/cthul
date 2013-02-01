@@ -14,4 +14,11 @@ public class CLocLoggerTest {
         CLocLogger<Enum<?>> log = CLocLogConfiguration.getDefault().forLocale(Locale.UK).getClassLogger();
         log.error(TestMessage.HELLO_WORLD, "everyone");
     }
+    
+    @Test
+    public void testMessage_fr() {
+        CLocLogger<Enum<?>> log = CLocLogConfiguration.getDefault().forLocale(Locale.FRANCE).getClassLogger();
+        log.error(TestMessage.HELLO_WORLD, false);
+    }
+
 }
