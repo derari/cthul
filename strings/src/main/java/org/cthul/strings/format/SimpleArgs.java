@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- *
+ * Format args, by index, char, or key.
  * @author Arian Treffer
  */
 public class SimpleArgs extends AbstractArgs implements FormatArgs {

@@ -6,7 +6,7 @@ import org.cthul.strings.Pluralizer;
  *
  * @author Arian Treffer
  */
-public class GenderPluralizer implements Pluralizer {
+public class GenderedPluralizer implements Pluralizer {
     
     public static enum Gender {
         
@@ -32,7 +32,7 @@ public class GenderPluralizer implements Pluralizer {
     private final Pluralizer masculine;
     private final Pluralizer feminine;
 
-    public GenderPluralizer(Pluralizer anyGender, GenderOracle genderOracle, Pluralizer neutral, Pluralizer masculine, Pluralizer feminine) {
+    public GenderedPluralizer(Pluralizer anyGender, GenderOracle genderOracle, Pluralizer neutral, Pluralizer masculine, Pluralizer feminine) {
         this.anyGender = anyGender;
         this.genderOracle = genderOracle;
         this.neutral = neutral;

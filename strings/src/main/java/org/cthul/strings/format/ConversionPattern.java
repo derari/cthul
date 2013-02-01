@@ -4,7 +4,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
- *
+ * Converts a format pattern into a regular expression.
+ * 
  * @author Arian Treffer
  */
 public interface ConversionPattern {
@@ -23,7 +24,17 @@ public interface ConversionPattern {
      *         should be zero for most implementations.
      */
     int toRegex(PatternAPI pattern, Locale locale, String flags, int width, int precision, String formatString, int position);
-    
+
+    /**
+     * Parses a pattern match.
+     * 
+     * @param matcherAPI
+     * @param matcher
+     * @param capturingBase
+     * @param memento
+     * @param lastArgValue
+     * @return the parsed value
+     */
     Object parse(MatcherAPI matcherAPI, Matcher matcher, int capturingBase, Object memento, Object lastArgValue);
     
     static interface Intermediate {

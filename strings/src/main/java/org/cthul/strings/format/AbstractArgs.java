@@ -1,7 +1,7 @@
 package org.cthul.strings.format;
 
 /**
- *
+ * Utility methods for implementing {@link FormatArgs} or {@link MatchResults}.
  * @author Arian Treffer
  */
 public abstract class AbstractArgs {
@@ -30,7 +30,5 @@ public abstract class AbstractArgs {
             return (char)('a' + i - 26);
         }
     }
-    
-
     
 }

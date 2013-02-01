@@ -1,9 +1,10 @@
 package org.cthul.strings.format.conversion;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
-import org.cthul.strings.format.*;
+import org.cthul.strings.format.FormatException;
+import org.cthul.strings.format.FormatterAPI;
+import org.cthul.strings.format.FormatterConfiguration;
 
 /**
  *
@@ -12,7 +13,11 @@ import org.cthul.strings.format.*;
 public class ConditionalConversion extends FormatConversionBase {
 
     public static final ConditionalConversion INSTANCE = new ConditionalConversion();
-    
+
+    /**
+     * Registes the format as {@code %if} and {@code %jCase}.
+     * @param conf 
+     */
     public void register(FormatterConfiguration conf) {
         conf.setShortFormat('f', this);
         conf.setLongFormat("Case", this);

@@ -3,7 +3,7 @@ package org.cthul.strings.format;
 import java.util.*;
 
 /**
- *
+ * A {@link MatchResults} where all values are identified by index.
  * @author Arian Treffer
  */
 public class IntMatchResults extends MatchResultsBase {

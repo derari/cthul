@@ -5,27 +5,29 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
- *
+ * The result of parsing a format pattern.
+ * <p>
+ * Manages conversion patterns and mementos, and counts capturing group.
  * @author Arian Treffer
  */
 public class PatternData {
     
-    private final int maxGroupCount;
+    private final int maxConversionCount;
     protected int[] offsets;
     protected Object[] mementos;
     protected Object[] argIds;
     protected ConversionPattern[] patterns;
     private int capturingOffset = 0;
-    private int groupId = -1;
+    private int lastConversionId = -1;
 
-    public PatternData(int groupCount) {
-        initArrays(groupCount);
-        maxGroupCount = groupCount;
+    public PatternData(int conversionCount) {
+        initArrays(conversionCount);
+        maxConversionCount = conversionCount;
     }
     
     public PatternData() {
         initArrays(16);
-        maxGroupCount = -1;
+        maxConversionCount = -1;
     }
     
     private void initArrays(final int len) {
@@ -36,7 +38,7 @@ public class PatternData {
     }
     
     private void checkCapacity() {
-        if (maxGroupCount == -1 && groupId >= offsets.length) {
+        if (maxConversionCount == -1 && lastConversionId >= offsets.length) {
             final int len = offsets.length*2;
             mementos = Arrays.copyOf(mementos, len);
             offsets = Arrays.copyOf(offsets, len);
@@ -46,16 +48,16 @@ public class PatternData {
     }
     
     public void addConversion(ConversionPattern pattern, Object memento, Object argId) {
-        groupId++;
+        lastConversionId++;
         checkCapacity();
-        patterns[groupId] = pattern;
-        offsets[groupId] = capturingOffset;
-        argIds[groupId] = argId;
-        mementos[groupId] = memento;
+        patterns[lastConversionId] = pattern;
+        offsets[lastConversionId] = capturingOffset;
+        argIds[lastConversionId] = argId;
+        mementos[lastConversionId] = memento;
     }
     
     public void apply(MatcherAPI matcherAPI, Matcher matcher, int capturingBase, MatchResults results) {
-        final int max = groupId+1;
+        final int max = lastConversionId+1;
         for (int i = 0; i < max; i++) {
             int c = offsets[i] + capturingBase;
             Object argId = argIds[i];
@@ -103,7 +105,7 @@ public class PatternData {
             append('(');
             addedCapturingGroup();
             addConversion(pattern, null, argId);
-            curGroupId = data.groupId;
+            curGroupId = data.lastConversionId;
             int r = pattern.toRegex(api(), locale, flags, width, precision, formatString, position);
             append(')');
             return r;

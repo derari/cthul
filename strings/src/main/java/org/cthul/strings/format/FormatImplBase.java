@@ -20,7 +20,7 @@ public abstract class FormatImplBase {
      * Converts strings of flags into a sorted flag array,
      * that can be passed as a parameter to other utility methods.
      * @param flagStrings
-     * @return flag array
+     * @return sorted flag array
      */
     protected static char[] flags(final CharSequence... flagStrings) {
         final StringBuilder sb = new StringBuilder();
@@ -32,7 +32,7 @@ public abstract class FormatImplBase {
      * Converts a string of flags into a sorted flag array,
      * that can be passed as a parameter to other utility methods.
      * @param flagString
-     * @return flag array
+     * @return sorted flag array
      */
     protected static char[] flags(final String flagString) {
         if (flagString == null || flagString.isEmpty()) {
@@ -44,6 +44,15 @@ public abstract class FormatImplBase {
         return flags;
     }
     
+    /**
+     * Casts a value, and throws a {@link FormatException} if the value has
+     * the wrong type.
+     * 
+     * @param <T>
+     * @param arg
+     * @param type
+     * @return arg
+     */
     @SuppressWarnings("unchecked")
     protected <T> T cast(Object arg, Class<T> type) {
         if (arg == null) {
@@ -57,16 +66,16 @@ public abstract class FormatImplBase {
     
     /**
      * Ensures that {@code actual} only contains {@code expected} flags.
-     * @param flags
+     * @param actual
      * @param expected a {@link #flags(java.lang.String) flags} array
      * @throws FormatException if invalid flags are found
      */
-    protected void ensureValidFlags(final String flags, 
+    protected void ensureValidFlags(final String actual, 
                                     final char[] expected) {
-        if (flags == null) return;
+        if (actual == null) return;
         StringBuilder unexpected = null;
-        for (int i = 0; i < flags.length(); i++) {
-            char c = flags.charAt(i);
+        for (int i = 0; i < actual.length(); i++) {
+            char c = actual.charAt(i);
             if (Arrays.binarySearch(expected, c) < 0) {
                 if (unexpected == null) unexpected = new StringBuilder();
                 unexpected.append(c);
@@ -78,10 +87,19 @@ public abstract class FormatImplBase {
         }
     }
     
+    /**
+     * Ensures that {@code flags} contains no duplicates.
+     * @param flags 
+     */
     protected void ensureNoDuplicates(final String flags) {
         ensureNoDuplicatesExcept(flags, NO_FLAGS);
     }
     
+    /**
+     * Ensures that {@code flags} contains no duplicates, except for {@code dups}.
+     * @param flags 
+     * @param dups sorted flag array
+     */
     protected void ensureNoDuplicatesExcept(final String flags, final char[] dups) {
         noDupsExcept(flags, dups);
     }
@@ -113,17 +131,40 @@ public abstract class FormatImplBase {
     
     /**
      * Ensures that {@code actual} contains no {@code invalid} flags.
-     * @param flags
+     * @param actual
      * @param invalid a {@link #flags(java.lang.String) flags} array
      * @throws FormatException if invalid flags are found
      */
-    protected void ensureNoInvalidFlags(final String flags, 
+    protected void ensureNoInvalidFlags(final String actual, 
                                         final char[] invalid) {
-        if (flags == null) return;
+        if (actual == null) return;
         StringBuilder unexpected = null;
-        for (int i = 0; i < flags.length(); i++) {
-            char c = flags.charAt(i);
+        for (int i = 0; i < actual.length(); i++) {
+            char c = actual.charAt(i);
             if (oneOf(c, invalid)) {
+                if (unexpected == null) unexpected = new StringBuilder();
+                unexpected.append(c);
+            }
+        }
+        if (unexpected != null) {
+            throw FormatException.formatFlagsMismatch(
+                    unexpected.toString(), getFormatName());
+        }
+    }
+    
+    /**
+     * Ensures that {@code actual} not contains {@code invalid} flag.
+     * @param actual
+     * @param invalid flag that must not occur
+     * @throws FormatException if invalid flags are found
+     */
+    protected void ensureNoInvalidFlag(final String actual, 
+                                       final char invalid) {
+        if (actual == null) return;
+        StringBuilder unexpected = null;
+        for (int i = 0; i < actual.length(); i++) {
+            char c = actual.charAt(i);
+            if (c == invalid) {
                 if (unexpected == null) unexpected = new StringBuilder();
                 unexpected.append(c);
             }
@@ -137,7 +178,7 @@ public abstract class FormatImplBase {
     /**
      * Ensures no flags are given.
      * @param flags 
-     * @throws FormatException if flags are given.
+     * @throws FormatException if flags is not null or empty.
      */
     protected void ensureNoFlags(final String flags) {
         if (flags == null || flags.isEmpty()) return;

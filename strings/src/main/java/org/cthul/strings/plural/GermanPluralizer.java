@@ -6,7 +6,7 @@ import org.cthul.strings.Pluralizer;
  *
  * @author Arian Treffer
  */
-public class GermanPluralizer extends GenderPluralizer {
+public class GermanPluralizer extends GenderedPluralizer {
 
     public GermanPluralizer(Pluralizer anyGender, GenderOracle genderOracle, Pluralizer neutral, Pluralizer masculine, Pluralizer feminine) {
         super(anyGender, genderOracle, neutral, masculine, feminine);

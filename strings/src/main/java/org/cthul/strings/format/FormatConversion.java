@@ -5,7 +5,8 @@ import java.util.Locale;
 import org.cthul.strings.format.conversion.FormatConversionBase;
 
 /**
- *
+ * Converts a value to string, according to a format pattern.
+ * 
  * @author Arian Treffer
  */
 public interface FormatConversion {
@@ -15,6 +16,7 @@ public interface FormatConversion {
      * Implementations should extend {@link FormatConversionBase}
      * @param formatter
      * @param value
+     * @param locale
      * @param flags flags parameter, non-empty string or {@code null}
      * @param width width parameter, or -1
      * @param precision precision parameter, or -1

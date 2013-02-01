@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * Manages short and long formats.
+ * Manages short and long formats. If provided, a parent configuration is
+ * used to look-up values as well.
  * 
  * @author Arian Treffer
+ * @param <Format> the format implementation type
  */
 public abstract class AbstractFormatConfiguration<Format> {
     
@@ -23,14 +25,27 @@ public abstract class AbstractFormatConfiguration<Format> {
         shortFormats = (Format[]) Array.newInstance(formatClass, 2*26);
     }
 
+    /**
+     * Returns the configured locale
+     * @return a locale
+     */
     public Locale getLocale() {
         return locale;
     }
 
+    /**
+     * Configures a locale
+     * @param locale 
+     */
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
     
+    /**
+     * Returns the configured locale, 
+     * with look-up in parent configuration if necessary
+     * @return a locale
+     */
     public Locale locale() {
         if (locale == null && parent != null) {
             return parent.locale();
@@ -38,6 +53,10 @@ public abstract class AbstractFormatConfiguration<Format> {
         return locale;
     }
     
+    /**
+     * Creates a new configuration.
+     * @return new configuration
+     */
     public abstract AbstractFormatConfiguration newSubconfiguration();
     
     public AbstractFormatConfiguration forLocale(Locale locale) {
@@ -53,6 +72,11 @@ public abstract class AbstractFormatConfiguration<Format> {
         return c < 'a' ? c - 'A' : 26 + c - 'a';
     }
 
+    /**
+     * Returns the format for a given char key
+     * @param c
+     * @return format or {@code null}
+     */
     public Format getShortFormat(char c) {
         return shortFormats[index(c)];
     }

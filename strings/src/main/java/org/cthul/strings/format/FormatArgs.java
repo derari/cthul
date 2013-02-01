@@ -1,7 +1,7 @@
 package org.cthul.strings.format;
 
 /**
- *
+ * Arguments for formatting, identified by index, character or key.
  * @author Arian Treffer
  */
 public interface FormatArgs {

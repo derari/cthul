@@ -1,8 +1,11 @@
 package org.cthul.strings.format;
 
 /**
- *
+ * Result of a format string parsing.
+ * 
  * @author Arian Treffer
+ * @see MatchResultsBase
+ * @see SimpleMatchResults
  */
 public interface MatchResults {
     

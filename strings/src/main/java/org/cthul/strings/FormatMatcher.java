@@ -5,7 +5,8 @@ import java.util.regex.Matcher;
 import org.cthul.strings.format.*;
 
 /**
- *
+ * A {@link FormatPattern}, applied to a string.
+ * 
  * @author Arian Treffer
  */
 public class FormatMatcher {

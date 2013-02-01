@@ -22,7 +22,7 @@ public class AlphaIndexConversion extends FormatAlignmentBase {
     public static final AlphaIndexConversion INSTANCE = new AlphaIndexConversion();
     
     private static final char[] FLAGS = flags(F_JUSTIFICATION, F_PADDING, " ");
-    private static final char[] F_SPACE = flags(" ");
+    private static final char F_SPACE = ' ';
 
     @Override
     protected char[] getValidFlags() {
@@ -42,10 +42,10 @@ public class AlphaIndexConversion extends FormatAlignmentBase {
     protected int format(Appendable a, Object value, Locale locale, String flags, int precision, String formatString, int position) throws IOException {
         long n = cast(value, Number.class).longValue();
         if (precision == -1) {
-            ensureNoInvalidFlags(flags, F_SPACE);
+            ensureNoInvalidFlag(flags, F_SPACE);
         } else {
             n -= precision;
-            if (n == -1 && containsFlag(' ', flags)) return 0;
+            if (n == -1 && containsFlag(F_SPACE, flags)) return 0;
         }
         a.append(AlphaIndex.toAlpha(n, false));
         return 0;
