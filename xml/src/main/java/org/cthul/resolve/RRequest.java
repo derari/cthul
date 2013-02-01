@@ -1,5 +1,8 @@
 package org.cthul.resolve;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * A resource request.
  * 
@@ -69,9 +72,15 @@ public class RRequest {
     protected String expandSystemId(String baseId, String systemId) {
         if (baseId == null || baseId.isEmpty()) return systemId;
         if (systemId == null || systemId.isEmpty()) return baseId;
-        int lastSep = baseId.lastIndexOf('/');
-        if (lastSep < 0) return systemId;
-        return baseId.substring(0, lastSep+1) + systemId;
+        try {
+            return new URI(baseId).resolve(new URI(systemId)).toASCIIString();
+    //        
+    //        int lastSep = baseId.lastIndexOf('/');
+    //        return baseId.substring(0, lastSep+1) + systemId;
+    //        return baseId.substring(0, lastSep+1) + systemId;
+        } catch (URISyntaxException ex) {
+            throw new ResolvingException(toString(), ex);
+        }
     }
     
     @Override

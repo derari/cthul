@@ -49,10 +49,8 @@ public class RResult {
     public Reader getReader() {
         try {
             return createReader();
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
-            throw new ResolvingException(e);
+            throw new ResolvingException(toString(), e);
         }
     }
     
@@ -63,10 +61,8 @@ public class RResult {
     public InputStream getInputStream() {
         try {
             return createInputStream();
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
-            throw new ResolvingException(e);
+            throw new ResolvingException(toString(), e);
         }
     }
     
