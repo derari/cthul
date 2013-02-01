@@ -3,10 +3,10 @@ package org.cthul.parser.reflect;
 import java.lang.reflect.Method;
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.StringInput;
-import org.cthul.parser.lexer.api.MatchEval;
+import org.cthul.parser.lexer.api.InputEval;
 import org.cthul.parser.reflect.MethodExecutor.ArgMapFactory;
 
-public class AbstractMethodInputEval<Token, Match> implements MatchEval<Token, Match> {
+public class AbstractMethodInputEval<Token, Match> implements InputEval<Token, Match> {
     
     protected final MethodExecutor<? super Match> exec;
 

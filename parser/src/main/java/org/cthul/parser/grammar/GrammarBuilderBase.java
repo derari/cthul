@@ -2,7 +2,7 @@ package org.cthul.parser.grammar;
 
 import java.util.List;
 import org.cthul.parser.api.Input;
-import org.cthul.parser.grammar.api.InputMatcher;
+import org.cthul.parser.lexer.api.InputMatcher;
 
 public abstract class GrammarBuilderBase<I extends Input<?>> implements GrammarBuilder<I> {
     
@@ -11,7 +11,7 @@ public abstract class GrammarBuilderBase<I extends Input<?>> implements GrammarB
     public GrammarBuilderBase() {
     }
     
-    public GrammarBuilderBase(GrammarBuilderBase<I> source) {
+    protected GrammarBuilderBase(GrammarBuilderBase<I> source) {
         this.inputMatchersSet = source.inputMatchersSet;
     }
 

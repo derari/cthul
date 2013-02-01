@@ -9,6 +9,7 @@ public abstract class AbstractRule {
     
     private final String symbol;
     private final int priority;
+    private RuleKey key = null;
     
     private final String[] symbols;
     private final int[] priorities;
@@ -22,6 +23,13 @@ public abstract class AbstractRule {
         this.priority = priority;
         this.symbols = symbols != null ? symbols : NO_SYMBOLS;
         this.priorities = priorities != null ? priorities : NO_PRIORITIES;
+    }
+
+    public RuleKey getKey() {
+        if (key == null) {
+            key = new RuleKey(symbol, priority);
+        }
+        return key;
     }
 
     public String getSymbol() {

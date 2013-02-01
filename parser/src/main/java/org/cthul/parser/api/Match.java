@@ -2,6 +2,8 @@ package org.cthul.parser.api;
 
 public interface Match<V> extends Value<V> {
     
+    RuleKey getKey();
+    
     String getSymbol();
     
     int getPriority();

@@ -249,6 +249,8 @@ public class InstanceMap {
     }
     
     protected <T> Factory<T> f(Class<T> clazz) {
+        Inject inject = clazz.getAnnotation(Inject.class);
+        if (inject != null) return new InjectFactory<>(clazz, inject);
         return new ReflectiveFactory<>(clazz);
     }
     
@@ -265,10 +267,10 @@ public class InstanceMap {
         ObjectConfig config;
         try {
             config = config(o);
-            for (Init i: config.propInits) i.init(this);
+            for (Init i: config.injects) i.init(this);
             for (Init i: config.inits) i.init(this);
             if (!config.lateInits.isEmpty() || 
-                    !config.latePropInits.isEmpty()) {
+                    !config.lateInjects.isEmpty()) {
                 lateInits.add(config);
             }
         } catch (IllegalArgumentException e) {
@@ -287,7 +289,7 @@ public class InstanceMap {
     
     protected void lateInitialize() {
         for (ObjectConfig oc: lateInits) {
-            for (Init i: oc.latePropInits) i.init(this);
+            for (Init i: oc.lateInjects) i.init(this);
             for (Init i: oc.lateInits) i.init(this);
         }
         lateInits.clear();
@@ -309,17 +311,18 @@ public class InstanceMap {
     }
 
     protected void collectFields(ObjectConfig config, Object o) {
-        Class<?> clazz = o.getClass();
+        final Class<?> clazz = o.getClass();
+        final Inject classInject = defaultInject(clazz);
         for (Field f: clazz.getFields()) {
             Inject inject = f.getAnnotation(Inject.class);
-            if (inject != null) {
-                Init i = collectField(config, o, f, inject);
-                addProp(i, config, inject.late());
-            }
             Initialize init = f.getAnnotation(Initialize.class);
-            if (init != null) {
-                Init i = collectField(config, o, f, NO_UPDATE);
-                addProp(i, config, init.late());
+            if (inject != null) {
+                if (init != null) inject = merge(inject, NO_UPDATE);
+                Init i = collectField(config, o, f, merge(inject,classInject));
+                addInject(i, config, inject.late());
+            } else if (init != null) {
+                Init i = collectField(config, o, f, init);
+                addInit(i, config, init.late());
             }
         }
     }
@@ -331,32 +334,37 @@ public class InstanceMap {
         return new PropertyInit(prop, inject, f.getType());
     }
     
+    protected Init collectField(ObjectConfig config, Object o, Field f, Initialize init) {
+        return new FieldValueInit(o, f);
+    }
+    
     protected void collectMethods(ObjectConfig config, Object o) {
-        Class<?> clazz = o.getClass();
+        final Class<?> clazz = o.getClass();
+        final Inject classInject = defaultInject(clazz);
         for (Method m: clazz.getMethods()) {
             Inject inject = m.getAnnotation(Inject.class);
             if (inject != null) {
-                collectMethod(config, o, m, inject);
+                collectMethod(config, o, m, merge(inject, classInject));
             }
             Initialize init = m.getAnnotation(Initialize.class);
             if (init != null) {
-                collectMethod(config, o, m, init);
+                collectMethod(config, o, m, init, classInject);
             }
         }
     }
 
     protected void collectMethod(ObjectConfig config, Object o, Method m, Inject inject) {
-        SetterInit init = collectParams(o, m, inject);
-        addProp(init, config, inject.late());
+        SetterInit init = collectParams(o, m, inject, false);
+        addInject(init, config, inject.late());
     }
     
-    protected void collectMethod(ObjectConfig config, Object o, Method m, Initialize initialize) {
-        SetterInit init = collectParams(o, m, NO_UPDATE);
+    protected void collectMethod(ObjectConfig config, Object o, Method m, Initialize initialize, Inject classInject) {
+        SetterInit init = collectParams(o, m, merge(NO_UPDATE, classInject), true);
         addInit(init, config, initialize.late());
     }
     
-    protected SetterInit collectParams(Object o, Method m, Inject mInject) {
-        final SetterInit init = new SetterInit(o, m);
+    protected SetterInit collectParams(Object o, Method m, Inject mInject, boolean initResult) {
+        final SetterInit init = new SetterInit(o, m, initResult);
         final Annotation[][] paramAts = m.getParameterAnnotations();
         final Class[] paramCls = m.getParameterTypes();
         for (int i = 0; i < paramAts.length; i++) {
@@ -382,9 +390,7 @@ public class InstanceMap {
     protected void collectParam(SetterInit init, Object o, Method m, Inject inject, int paramId, Annotation[] ats, Class<?> type) {
         String key = propertyKey(inject.value(), type);
         ParamProperty prop = new ParamProperty(o, m, paramId);
-        init.params.add(prop);
-        init.classes.add(type);
-        init.injects.add(inject);
+        init.addParameter(prop, type, inject);
         if (inject.autoUpdate()) addAutoUpdated(key, prop);
     }
 
@@ -412,11 +418,11 @@ public class InstanceMap {
             return new ReflectiveProxyFactory<>(impl, factory);
     }
 
-    protected void addProp(Init init, ObjectConfig config, boolean late) {
+    protected void addInject(Init init, ObjectConfig config, boolean late) {
         if (late) {
-            config.latePropInits.add(init);
+            config.lateInjects.add(init);
         } else {
-            config.propInits.add(init);
+            config.injects.add(init);
         }
     }
     
@@ -440,23 +446,128 @@ public class InstanceMap {
         
     }
     
+    public class InjectFactory<T> implements Factory<T> {
+        
+        protected final Class<T> clazz;
+        protected final Inject inject;
+
+        public InjectFactory(Class<T> clazz, Inject inject) {
+            this.clazz = clazz;
+            this.inject = inject;
+        }
+
+        @Override
+        public T create(InstanceMap map) {
+            if (inject.late()) throw unsupportedOption("late");
+            if (inject.create()) throw unsupportedOption("create");
+            if (!inject.autoUpdate()) throw unsupportedOption("autoUpdate");
+            String key = inject.value();
+            if (key != null) {
+                T t = (T) map.get(key);
+                if (t != null) return t;
+            }
+            Class<T> impl = (Class) inject.impl();
+            if (impl == Void.class) impl = clazz;
+            String f = inject.factory();
+            if (f.isEmpty()) {
+                return new ReflectiveFactory<>(impl).create(map);
+            } else {
+                return new ReflectiveProxyFactory<>(impl, f).create(map);
+            }
+        }
+        
+        protected IllegalArgumentException unsupportedOption(String name) {
+            return new IllegalArgumentException(
+                    "Unsupported option in " + clazz.getName() + 
+                    ": @Inject(" + name + ")");
+        }
+    }
+    
     public class ReflectiveFactory<T> implements Factory<T> {
 
-        protected final Class<T> clazz;
+        protected final Constructor<T> constructor;
+        protected final InjectedParameters ip;
 
+        public ReflectiveFactory(Constructor<T> c, InjectedParameters ip) {
+            this.constructor = c;
+            this.ip = ip;
+        }
+        
         public ReflectiveFactory(Class<T> clazz) {
-            this.clazz = clazz;
+            constructor = selectConstructor(clazz);
+            ip = initializeParameters(constructor);
+        }
+        
+        private Constructor<T> selectConstructor(Class<T> clazz) {
+            Constructor<T> choice = null;
+            Constructor<T> ambiguous = null;
+            boolean choiceIsAnnotated = false;
+            int choiceParamC = -1;
+            for (Constructor<T> c: (Constructor<T>[]) clazz.getConstructors()) {
+                // c is always public
+//                if ((c.getModifiers() & Modifier.PUBLIC) == 0) continue;
+                if (c.getAnnotation(Inject.class) != null) {
+                    if (choiceIsAnnotated) {
+                        throw ambiguous(choice, c);
+                    }
+                    choice = c;
+                    choiceIsAnnotated = true;
+                } else {
+                    if (choiceIsAnnotated) continue;
+                    if (choice == null) {
+                        choice = c;
+                        choiceParamC = c.getParameterTypes().length;
+                    } else if (c.getParameterTypes().length == 0) {
+                        choice = c;
+                        choiceParamC = 0;
+                    } else {
+                        ambiguous = c;
+                    }
+                }
+            }
+            if (choiceParamC > 0 && ambiguous != null && !choiceIsAnnotated) {
+                throw ambiguous(choice, ambiguous);
+            }
+            if (choice == null) {
+                throw new IllegalArgumentException(
+                        "No suitable constructor for: " + clazz);
+            }
+            return choice;
+        }
+        
+        private IllegalArgumentException ambiguous(Constructor<?> c1, Constructor<?> c2) {
+            return new IllegalArgumentException(
+                    "Multiple possible constructors: " + c1 + " and " + c2);
+        }
+        
+        private InjectedParameters initializeParameters(Constructor<T> c) {
+            final Class<?>[] pTypes = c.getParameterTypes();
+            if (pTypes.length == 0) return null;
+            final Annotation[][] pAts = c.getParameterAnnotations();
+            final Inject classInject = defaultInject(c.getDeclaringClass());
+            final Inject cInject = merge(c.getAnnotation(Inject.class), classInject);
+            final InjectedParameters params = new InjectedParameters();
+            for (int i = 0; i < pTypes.length; i++) {
+                Inject pInject = null;
+                for (Annotation at: pAts[i]) {
+                    if (at instanceof Inject) pInject = (Inject) at;
+                }
+                pInject = merge(pInject, cInject);
+                params.addParameter(pTypes[i], pInject);
+            }
+            return params;
         }
         
         @Override
         public T create(InstanceMap map) {
             try {
-                return clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                Object[] args = ip != null ? ip.getArguments(map) : null;
+                return constructor.newInstance(args);
+            } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        
+
     }
     
     public class ReflectiveProxyFactory<T> implements Factory<T> {
@@ -516,11 +627,11 @@ public class InstanceMap {
     
     protected class ObjectConfig {
         
-        protected final List<Init> propInits = new ArrayList<>();
+        protected final List<Init> injects = new ArrayList<>();
         
         protected final List<Init> inits = new ArrayList<>();
         
-        protected final List<Init> latePropInits = new ArrayList<>();
+        protected final List<Init> lateInjects = new ArrayList<>();
         
         protected final List<Init> lateInits = new ArrayList<>();
         
@@ -619,41 +730,101 @@ public class InstanceMap {
         
     }
     
+    protected static class FieldValueInit extends Init {
+
+        protected final Object o;
+        protected final Field f;
+
+        public FieldValueInit(Object o, Field f) {
+            this.o = o;
+            this.f = f;
+        }
+        
+        @Override
+        public void init(InstanceMap map) {
+            try {
+                map.initialize(f.get(o));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+    }
+    
+    protected static class InjectedParameters {
+        
+        protected final List<Inject> paramInjects = new ArrayList<>();
+        protected final List<Class<?>> paramTypes = new ArrayList<>();
+
+        protected void addParameter(Class<?> type, Inject inject) {
+            paramTypes.add(type);
+            paramInjects.add(inject);
+        }
+        
+        public Object[] getArguments(InstanceMap map) {
+            int paramCount = paramTypes.size();
+            if (paramCount == 0) return null;
+            Object[] args = new Object[paramCount];
+            for (int i = 0; i < paramCount; i++) {
+                args[i] = getArgument(map, i);
+            }
+            return args;
+        }
+    
+        public Object getArgument(InstanceMap map, int i) {
+            return map.get(paramTypes.get(i), paramInjects.get(i));
+        }
+        
+    }
+    
     protected static class SetterInit extends Init {
         
         protected final List<ParamProperty> params = new ArrayList<>();
-        protected final List<Inject> injects = new ArrayList<>();
-        protected final List<Class<?>> classes = new ArrayList<>();
+        protected final InjectedParameters ip = new InjectedParameters();
         protected final Object instance;
         protected final Method method;
+        protected final boolean initResult;
 
-        public SetterInit(Object instance, Method method) {
+        public SetterInit(Object instance, Method method, boolean initResult) {
             this.instance = instance;
             this.method = method;
+            this.initResult = initResult;
+        }
+
+        protected void addParameter(ParamProperty pp, Class<?> type, Inject inject) {
+            params.add(pp);
+            ip.addParameter(type, inject);
         }
 
         @Override
         public void init(InstanceMap map) {
-            int paramCount = method.getParameterTypes().length;
-            Object[] args = new Object[paramCount];
-            for (int i = 0; i < paramCount; i++) {
-                args[i] = getInitialValue(map, i);
-            }
+            Object[] args = ip.getArguments(map);
             try {
-                method.invoke(instance, args);
+                Object r = method.invoke(instance, args);
+                if (r != null && initResult) {
+                    map.initialize(r);
+                }
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
             for (Property pp: params) pp.initialized = true;
         }
         
-        protected Object getInitialValue(InstanceMap map, int i) {
-            return map.get(classes.get(i), injects.get(i));
-        }
-        
     }
     
+    protected Inject defaultInject(Class<?> clazz) {
+        Inject classInject = null;
+        DefaultInject def = clazz.getAnnotation(DefaultInject.class);
+        if (def != null) classInject = def.value();
+        return classInject;
+    }
+
     protected static Inject merge(final Inject inject, final Inject base) {
+        if (base == null || base == DEFAULT_INJECT) {
+            if (inject == null) return DEFAULT_INJECT;
+            return inject;
+        }
+        if (inject == null || inject == DEFAULT_INJECT) return base;
         return new Inject() {
             private boolean isValue(String s) {
                 return s != null && !s.isEmpty();
@@ -692,22 +863,22 @@ public class InstanceMap {
         };
     }
  
-//    protected static final Inject DEFAULT_INJECT = new Inject() {
-//        @Override
-//        public String value() { return ""; }
-//        @Override
-//        public boolean putNew() { return false; }
-//        @Override
-//        public Class<?> impl() { return Void.class; }
-//        @Override
-//        public String factory() { return ""; }
-//        @Override
-//        public boolean late() { return false; }
-//        @Override
-//        public boolean autoUpdate() { return true; }
-//        @Override
-//        public Class<? extends Annotation> annotationType() { return Inject.class; }
-//    };
+    protected static final Inject DEFAULT_INJECT = new Inject() {
+        @Override
+        public String value() { return ""; }
+        @Override
+        public boolean create() { return false; }
+        @Override
+        public Class<?> impl() { return Void.class; }
+        @Override
+        public String factory() { return ""; }
+        @Override
+        public boolean late() { return false; }
+        @Override
+        public boolean autoUpdate() { return true; }
+        @Override
+        public Class<? extends Annotation> annotationType() { return Inject.class; }
+    };
     
     protected static final Inject NO_UPDATE = new Inject() {
         @Override

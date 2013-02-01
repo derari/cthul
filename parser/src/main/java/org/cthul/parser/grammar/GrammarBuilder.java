@@ -5,8 +5,7 @@ import java.util.List;
 import org.cthul.parser.api.Input;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.grammar.api.RuleEval;
-import org.cthul.parser.grammar.api.InputMatcher;
-import org.cthul.parser.rule.Rule;
+import org.cthul.parser.lexer.api.InputMatcher;
 
 /**
  * 
@@ -55,12 +54,6 @@ public interface GrammarBuilder<I extends Input<?>> {
     static interface MultiNoResult<I extends Input<?>> extends GrammarBuilder<I> {
 
         void addNoResult(RuleKey key, RuleKey[] match, RuleEval eval);
-        
-    }
-    
-    static interface ComplexRule<I extends Input<?>> extends GrammarBuilder<I> {
-        
-        void addRule(RuleKey key, Rule rule, RuleEval eval);
         
     }
     

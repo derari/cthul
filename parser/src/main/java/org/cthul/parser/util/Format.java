@@ -1,6 +1,7 @@
 package org.cthul.parser.util;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class Format {
     
@@ -11,7 +12,11 @@ public class Format {
     }
     
     private static void productionKey(StringBuilder sb, String symbol, int priority, int defaultPriority) {
-        sb.append(symbol);
+        if (escapeKey(symbol)) {
+            sb.append('`').append(symbol).append('`');
+        } else {
+            sb.append(symbol);
+        }
         if (priority != defaultPriority)
             sb.append('[').append(priority).append(']');
     }
@@ -93,5 +98,9 @@ public class Format {
         return join(begin, sep, end, maxLen, cutEnd, Arrays.asList(values));
     }
 
+    protected static final Pattern illegalKey = Pattern.compile("[^a-zA-Z0-9_$]");
     
+    protected static boolean escapeKey(String key) {
+        return illegalKey.matcher(key).find();
+    }
 }

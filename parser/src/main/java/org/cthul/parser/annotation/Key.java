@@ -13,9 +13,9 @@ import java.lang.annotation.*;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.FIELD})
 public @interface Key {
 
-	public String value() default "";
-
+    String value() default "";
+    
 }

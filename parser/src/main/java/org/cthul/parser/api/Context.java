@@ -12,13 +12,13 @@ public class Context<I extends Input<?>> extends InstanceMap {
 
     public Context(I input) {
         this.input = input;
-        put(input.getClass(), input, Input.class, AnyInterface.class);
+        put(input.getClass(), input, Input.class, ANY_INTERFACE);
     }
     
     protected Context(Context<?> c, I input) {
         super(c);
         this.input = input;
-        replace(input.getClass(), input, Input.class, AnyInterface.class);
+        replace(input.getClass(), input, Input.class, ANY_INTERFACE);
     }
 
     @SuppressWarnings("unchecked")

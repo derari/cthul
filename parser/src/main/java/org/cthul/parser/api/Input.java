@@ -12,6 +12,8 @@ public abstract class Input<Token> implements Iterable<Token> {
 
     public abstract int endPosition(int i);
 
+    public abstract String asString();
+    
     @Override
     public Iterator<Token> iterator() {
         return new Iterator<Token>() {

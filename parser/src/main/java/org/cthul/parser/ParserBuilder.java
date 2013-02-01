@@ -1,7 +1,6 @@
 package org.cthul.parser;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.cthul.parser.api.Input;
@@ -9,7 +8,6 @@ import org.cthul.parser.api.KeySet;
 import org.cthul.parser.api.RuleKey;
 import org.cthul.parser.grammar.Grammar;
 import org.cthul.parser.grammar.GrammarBuilder;
-import org.cthul.parser.grammar.GrammarBuilder.ComplexRule;
 import org.cthul.parser.grammar.GrammarBuilder.MultiAntiMatch;
 import org.cthul.parser.grammar.GrammarBuilder.MultiLookAhead;
 import org.cthul.parser.grammar.GrammarBuilder.SingleAntiMatch;
@@ -19,10 +17,9 @@ import org.cthul.parser.grammar.api.ProxyRuleEval;
 import org.cthul.parser.grammar.api.RuleEval;
 import org.cthul.parser.lexer.Lexer;
 import org.cthul.parser.lexer.LexerBuilder;
-import org.cthul.parser.lexer.api.MatchEval;
-import org.cthul.parser.lexer.api.PlainStringInputEval;
-import org.cthul.parser.rule.*;
-import org.cthul.parser.sequence.SequenceProductionBuilder;
+import org.cthul.parser.lexer.api.InputEval;
+import org.cthul.parser.util.Initialize;
+import org.cthul.parser.util.InstanceMap;
 
 public class ParserBuilder<Token, Match> {
     
@@ -30,23 +27,21 @@ public class ParserBuilder<Token, Match> {
 
     protected final KeySet keySet = new KeySet();
     protected final Map<String, RuleKey> stringTokens = new HashMap<>();
-    protected final MatchEval<? extends Token, ? super Match> stringTokenEval;
-    protected final LexerBuilder<Token, Match, ?> lexerBuilder;
+    protected final InputEval<? extends Token, ? super Match> stringTokenEval;
+    protected final LexerBuilder<Token, ? extends Match, ?> lexerBuilder;
     protected final GrammarBuilder<?> grammarBuilder;
     protected final SingleLookAhead<?> gbSingleLookAhead;
     protected final MultiLookAhead<?> gbMultiLookAhead;
     protected final SingleAntiMatch<?> gbSingleAntiMatch;
     protected final MultiAntiMatch<?> gbMultiAntiMatch;
-    protected final ComplexRule<?> gbComplexRule;
 
-    public <I extends Input<?>> ParserBuilder(LexerBuilder<Token, Match, I> lexerBuilder, GrammarBuilder<I> grammarBuilder, MatchEval<? extends Token, ? super Match> stringTokenEval) {
+    public <I extends Input<?>> ParserBuilder(LexerBuilder<Token, ? extends Match, I> lexerBuilder, GrammarBuilder<I> grammarBuilder, InputEval<? extends Token, ? super Match> stringTokenEval) {
         this.lexerBuilder = lexerBuilder;
         this.grammarBuilder = grammarBuilder;
         gbSingleLookAhead = cast(SingleLookAhead.class, grammarBuilder);
         gbMultiLookAhead = cast(MultiLookAhead.class, grammarBuilder);
         gbSingleAntiMatch = cast(SingleAntiMatch.class, grammarBuilder);
         gbMultiAntiMatch = cast(MultiAntiMatch.class, grammarBuilder);
-        gbComplexRule = cast(ComplexRule.class, grammarBuilder);
         this.stringTokenEval = stringTokenEval;
     }
 
@@ -57,15 +52,13 @@ public class ParserBuilder<Token, Match> {
                          MultiLookAhead<?> gbMultiLookAhead, 
                          SingleAntiMatch<?> gbSingleAntiMatch, 
                          MultiAntiMatch<?> gbMultiAntiMatch,
-                         ComplexRule<?> gbComplexRule, 
-                         MatchEval<? extends Token, ? super Match> stringTokenEval) {
+                         InputEval<? extends Token, ? super Match> stringTokenEval) {
         this.lexerBuilder = lexerBuilder;
         this.grammarBuilder = grammarBuilder;
         this.gbSingleLookAhead = gbSingleLookAhead;
         this.gbMultiLookAhead = gbMultiLookAhead;
         this.gbSingleAntiMatch = gbSingleAntiMatch;
         this.gbMultiAntiMatch = gbMultiAntiMatch;
-        this.gbComplexRule = gbComplexRule;
         this.stringTokenEval = stringTokenEval;
     }
     
@@ -80,11 +73,25 @@ public class ParserBuilder<Token, Match> {
     
     @SuppressWarnings("unchecked") // generics are checked in constructor
     public <Parser> Parser createParser(ParserFactory<Parser> factory) {
-        Lexer lexer = lexerBuilder.createLexer();
+        Lexer lexer = createLexer();
+        Grammar grammar = createGrammar();
+        return (Parser) factory.create(lexer, grammar);
+    }
+    
+    public <I extends Input<?>> Lexer<I> createLexer() {
+        return (Lexer) lexerBuilder.createLexer();
+    }
+    
+    public <I extends Input<?>> Grammar<I> createGrammar() {
         GrammarBuilder tmp = grammarBuilder.copy();
         tmp.setInputMatchers(lexerBuilder.getTokenMatchers());
-        Grammar grammar = tmp.createGrammar();
-        return (Parser) factory.create(lexer, grammar);
+        return tmp.createGrammar();
+    }
+    
+    @Initialize
+    public void initializeBuilderContext(InstanceMap iMap) {
+        iMap.initialize(grammarBuilder);
+        iMap.initialize(lexerBuilder);
     }
     
     protected RuleKey sanatized(RuleKey key) {
@@ -135,46 +142,46 @@ public class ParserBuilder<Token, Match> {
         return keySet.generateUniqueSymbol(value, "_");
     }
     
-    protected RuleKey internAddStringToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, String string) {
+    protected RuleKey internAddStringToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, String string) {
         lexerBuilder.addStringToken(key, eval, string);
         return key;
     }
 
-    protected RuleKey internAddStringToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, String... strings) {
+    protected RuleKey internAddStringToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, String... strings) {
         lexerBuilder.addStringToken(key, eval, strings);
         return key;
     }
 
-    protected RuleKey internAddRegexToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, Pattern pattern) {
+    protected RuleKey internAddRegexToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, Pattern pattern) {
         lexerBuilder.addRegexToken(key, eval, pattern);
         return key;
     }
 
-    public RuleKey addStringToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, String string) {
+    public RuleKey addStringToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, String string) {
         return internAddStringToken(sanatized(key), eval, keySet.cached(string));
     }
 
-    public RuleKey addStringToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, String... strings) {
+    public RuleKey addStringToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, String... strings) {
         return internAddStringToken(sanatized(key), eval, strings);
     }
     
-    public RuleKey addRegexToken(RuleKey key, MatchEval<? extends Token, ? super Match> eval, Pattern pattern) {
+    public RuleKey addRegexToken(RuleKey key, InputEval<? extends Token, ? super Match> eval, Pattern pattern) {
         return internAddRegexToken(sanatized(key), eval, pattern);
     }
     
-    public RuleKey addStringToken(String symbol, MatchEval<? extends Token, ? super Match> eval, String string) {
+    public RuleKey addStringToken(String symbol, InputEval<? extends Token, ? super Match> eval, String string) {
         return addStringToken(rk(symbol, TOKEN_PRIORITY), eval, string);
     }
 
-    public RuleKey addStringToken(String symbol, MatchEval<? extends Token, ? super Match> eval, String... strings) {
+    public RuleKey addStringToken(String symbol, InputEval<? extends Token, ? super Match> eval, String... strings) {
         return addStringToken(rk(symbol, TOKEN_PRIORITY), eval, strings);
     }
     
-    public RuleKey addRegexToken(String symbol, MatchEval<? extends Token, ? super Match> eval, Pattern pattern) {
+    public RuleKey addRegexToken(String symbol, InputEval<? extends Token, ? super Match> eval, Pattern pattern) {
         return addRegexToken(rk(symbol, TOKEN_PRIORITY), eval, pattern);
     }
     
-    public RuleKey addRegexToken(String symbol, MatchEval<? extends Token, ? super Match> eval, String pattern) {
+    public RuleKey addRegexToken(String symbol, InputEval<? extends Token, ? super Match> eval, String pattern) {
         return addRegexToken(symbol, eval, Pattern.compile(pattern));
     }
     
@@ -182,7 +189,7 @@ public class ParserBuilder<Token, Match> {
         RuleKey rk = stringTokens.get(string);
         if (rk != null) return rk;
         string = keySet.cached(string);
-        String sym = generateSymbolForToken(string);
+        String sym = string; //generateSymbolForToken(string);
         rk = internAddStringToken(internRk(sym, TOKEN_PRIORITY), stringTokenEval, string);
         stringTokens.put(string, rk);
         return rk;
@@ -246,92 +253,6 @@ public class ParserBuilder<Token, Match> {
         return key;
     }
     
-    protected RuleKey internAddRule(RuleKey key, Rule rule, RuleEval eval) {
-        if (gbComplexRule != null) {
-            gbComplexRule.addRule(key, rule, eval);
-        } else {
-            decompose(key, rule, eval);
-        }
-        return key;
-    }
-    
-    protected RuleKey decompose(RuleKey key, Rule rule, RuleEval eval) {
-        if (rule instanceof KeyMatchRule) {
-            return decompose(key, (KeyMatchRule) rule, eval);
-        } else if (rule instanceof ProductionRule) {
-            return decompose(key, (ProductionRule) rule, eval);
-        } else if (rule instanceof LookAheadRule) {
-            return decompose(key, (LookAheadRule) rule, eval);
-        } else if (rule instanceof AntiMatchRule) {
-            return decompose(key, (AntiMatchRule) rule, eval);
-        } else {
-            return otherRule(key, rule, eval);
-        }
-    }
-    
-    protected RuleKey otherRule(RuleKey key, Rule rule, RuleEval eval) {
-        throw new UnsupportedOperationException("Cannot decompose " + rule);
-    }
-    
-    protected RuleKey decompose(RuleKey key, KeyMatchRule rule, RuleEval eval) {
-        if (eval == null) {
-            return sanatized(rule.getKey());
-        } else {
-            RuleKey[] production = {rule.getKey()};
-            return internAddProduction(key, production, eval);
-        }
-    }
-    
-    protected RuleKey decompose(RuleKey key, ProductionRule rule, RuleEval eval) {
-        if (eval == null) eval = rule.getEval();
-        RuleKey[] production = decomposeAll(key.getSymbol(), rule);
-        return internAddProduction(key, production, eval);
-    }
-    
-    protected RuleKey decompose(RuleKey key, LookAheadRule rule, RuleEval eval) {
-        if (eval == null) eval = rule.getEval();
-        RuleKey[] production = decomposeAll(key.getSymbol(), rule);
-        return internAddLookAhead(key, production, eval);
-    }
-    
-    protected RuleKey decompose(RuleKey key, AntiMatchRule rule, RuleEval eval) {
-        if (eval == null) eval = rule.getEval();
-        RuleKey[] production = decomposeAll(key.getSymbol(), rule);
-        return internAddAntiMatch(key, production, eval);
-    }
-    
-    protected RuleKey decompose(RuleKey key, SequenceRule rule, RuleEval eval) {
-        if (eval == null) eval = rule.getEval();
-        RuleKey[] item = decomposeAll(key.getSymbol(), rule.getItemProduction());
-        RuleKey[] sep = decomposeAll(key.getSymbol(), rule.getSepProduction());
-        SequenceProductionBuilder sp = new SequenceProductionBuilder(
-                rule.getSequenceBuilder(), 
-                item, sep, rule.isFlatten(), rule.isIncludeSeparator(), 
-                rule.isAllowEmpty(), rule.getMinSize(), rule.getSetSize());
-        if (eval == null || eval instanceof ProxyRuleEval) {
-            return sp.buildLeftDeep(productionBuilder(key));
-        } else {
-            RuleKey internRk = genRk(key.getSymbol()+"$", null);
-            sp.buildLeftDeep(productionBuilder(internRk));
-            return internAddProduction(key, new RuleKey[]{internRk}, eval);
-        }
-    }
-    
-    protected RuleKey[] decomposeAll(String symbol, CompositeRule rule) {
-        return decomposeAll(symbol, rule.getRules());
-    }
-    
-    protected RuleKey[] decomposeAll(String symbol, List<Rule> rules) {
-        if (rules.isEmpty()) return null;
-        if (!symbol.endsWith("$")) symbol = symbol+"$";
-        final RuleKey[] result = new RuleKey[rules.size()];
-        for (int i = 0; i < result.length; i++) {
-            RuleKey key = genRk(symbol, null);
-            result[i] = decompose(key, rules.get(i), null);
-        }
-        return result;
-    }
-    
     public RuleKey addProduction(RuleKey key, RuleKey[] rule, RuleEval eval) {
         return internAddProduction(sanatized(key), sanatized(rule), eval);
     }
@@ -344,10 +265,6 @@ public class ParserBuilder<Token, Match> {
         return internAddAntiMatch(sanatized(key), sanatized(match), eval);
     }
     
-    public RuleKey addRule(RuleKey key, Rule rule, RuleEval eval) {
-        return internAddRule(sanatized(key), rule, eval);
-    }
-
     public ProductionBuilder productionBuilder(RuleKey key) {
         return new ProductionBuilder(this, key);
     }

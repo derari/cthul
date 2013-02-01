@@ -217,6 +217,80 @@ public class InstanceMapTest {
         assertThat(iMap.get(InjectCircular1X.class), is(sameInstance(ic1)));
         assertThat(iMap.get(InjectCircular2Late.class), is(sameInstance(ic2)));
     }
+    
+    @Inject(value="iface", impl=IFaceImpl.class)
+    public static interface IFace {}
+    
+    public static class IFaceImpl implements IFace {}
+    public static class IFaceImpl2 implements IFace {}
+    
+    @Test
+    public void test_inject_interface_impl() {
+        IFace iface = iMap.getOrCreate(IFace.class);
+        assertThat(iface, _isA(IFaceImpl.class));
+    }
+    
+    @Test
+    public void test_inject_interface_key() {
+        iMap.put("iface", new IFaceImpl2());
+        IFace iface = iMap.getOrCreate(IFace.class);
+        assertThat(iface, _isA(IFaceImpl2.class));
+    }
+    
+    public static class ParamConstructor {
+        public Foo foo;
+        protected ParamConstructor() {
+        }
+        public ParamConstructor(Foo foo) {
+            this.foo = foo;
+        }
+    }
+    
+    @Test
+    public void test_param_constructor() {
+        iMap.getOrCreate(Foo.class);
+        ParamConstructor pc = iMap.getOrCreate(ParamConstructor.class);
+        assertThat(pc.foo, is(notNullValue()));
+    }
+    
+    public static class InjectConstructor {
+        public Fooable foo;
+        public InjectConstructor() {
+        }
+        @Inject("theFooable")
+        public InjectConstructor(Fooable foo) {
+            this.foo = foo;
+        }
+    }
+    
+    @Test
+    public void test_inject_constructor() {
+        iMap.put("theFooable", new Foo());
+        InjectConstructor pc = iMap.getOrCreate(InjectConstructor.class);
+        assertThat(pc.foo, _isA(Foo.class));
+    }
+    
+    @DefaultInject(@Inject(create=true))
+    public static class DefInject {
+        public Foo foo;
+        public DefInject(Foo foo) {
+            this.foo = foo;
+        }
+        @Inject
+        public Bar bar;        
+        @Inject("bar2")
+        public void setBar2(Bar bar2) { this.bar2 = bar2; }
+        public Bar bar2;
+    }
+    
+    @Test
+    public void test_default_inject() {
+        DefInject ci = iMap.getOrCreate(DefInject.class);
+        assertThat("foo", ci.foo, is(notNullValue()));
+        assertThat("bar", ci.bar, is(notNullValue()));
+        assertThat("bar2", ci.bar2, is(notNullValue()));
+        assertThat(ci.bar2, is(not(sameInstance(ci.bar))));
+    }
         
     public static class SuperFoo {}
     

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import org.cthul.parser.util.Format;
 
-public class RuleKey {
+public class RuleKey implements Comparable<RuleKey> {
     
     public static final RuleKey[] EMPTY_ARRAY = new RuleKey[0];
     
@@ -81,6 +81,13 @@ public class RuleKey {
         for (int i = 0; i < result.length; i++)
             result[i] = keys.get(i).getPriority();
         return result;
+    }
+
+    @Override
+    public int compareTo(RuleKey o) {
+        int c = symbol.compareTo(o.symbol);
+        if (c != 0) return c;
+        return priority - o.priority;
     }
     
 }

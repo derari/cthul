@@ -16,8 +16,13 @@ public class ProductionBuilder {
     public ProductionBuilder(ParserBuilder<?,?> parserBuilder, RuleKey key) {
         this.parserBuilder = parserBuilder;
         this.key = key;
+        if (key.getSymbol() == null) throw new NullPointerException("key");
     }
 
+    public ProductionBuilder newSubRule() {
+        return newSubRule(null);
+    }
+    
     public ProductionBuilder newSubRule(String subKey) {
         if (subKey == null) subKey = "";
         String sym = parserBuilder.keySet.generateUniqueSymbol(key.getSymbol() + "$" + subKey, null);
@@ -53,6 +58,14 @@ public class ProductionBuilder {
     
     public RuleKey createProduction() {
         return parserBuilder.addProduction(key, production.toArray(RuleKey.EMPTY_ARRAY), eval);
+    }
+
+    public RuleKey createLookAhead() {
+        return parserBuilder.addLookAhead(key, production.toArray(RuleKey.EMPTY_ARRAY), eval);
+    }
+    
+    public RuleKey createAntiMatch() {
+        return parserBuilder.addAntiMatch(key, production.toArray(RuleKey.EMPTY_ARRAY), eval);
     }
 
     @Override

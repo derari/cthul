@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.cthul.parser.api.Input;
-import org.cthul.parser.grammar.api.InputMatcher;
+import org.cthul.parser.lexer.api.InputMatcher;
 
 public abstract class LexerBuilderBase<Token, Match, I extends Input<?>> implements LexerBuilder<Token, Match, I> {
     
@@ -14,7 +14,7 @@ public abstract class LexerBuilderBase<Token, Match, I extends Input<?>> impleme
     public LexerBuilderBase() {
     }
     
-    public LexerBuilderBase(LexerBuilderBase<Token, Match, I> source) {
+    protected LexerBuilderBase(LexerBuilderBase<Token, Match, I> source) {
         this.matchers.addAll(source.matchers);
     }
     

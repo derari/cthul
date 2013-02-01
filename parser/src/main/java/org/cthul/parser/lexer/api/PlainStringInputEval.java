@@ -4,7 +4,7 @@ import java.util.regex.MatchResult;
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.StringInput;
 
-public class PlainStringInputEval implements MatchEval<String, Object> {
+public class PlainStringInputEval implements InputEval<String, Object> {
     
     private static final PlainStringInputEval INSTANCE = new PlainStringInputEval();
     

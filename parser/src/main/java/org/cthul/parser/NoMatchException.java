@@ -65,28 +65,57 @@ public class NoMatchException extends RuntimeException {
     }
 
     protected void msgHeader(StringBuilder sb) {
-        sb.append(getShortMessage());
+        String msg = getShortMessage();
+        if (msg == null) msg = getClass().getSimpleName();
+        sb.append(msg);
     }
     
-    private static final String WS = "                    ";
+    private static final int MAX_LEN = 40;
+    private static final String INDENT = "                                        ";
+    private static final String NL = "\n  ";
+    static { assert INDENT.length() >= MAX_LEN : "indent"; }
 
     protected void msgLocation(StringBuilder sb) {
         Location loc = getLocation();
         if (loc == null) return;
-        sb.append("\nAt line ").append(loc);
-        if (loc.getColumn() > 20) {
-            sb.append("\n...")
-                .append(input, loc.getPosition()-17, loc.getPosition());
-        } else if (loc.getColumn() > 0) {
-            sb.append("\n")
+        sb.append("\nAt ").append(loc);
+        
+        int lenBefore = loc.getColumn();
+        int lenAfter = loc.getLineEnd() - loc.getPosition();
+        int maxBefore, maxAfter;
+        if (lenBefore + lenAfter > MAX_LEN) {
+            if (lenBefore < MAX_LEN/2) {
+                maxBefore = lenBefore;
+                maxAfter = MAX_LEN - maxBefore;
+            } else if (lenAfter < MAX_LEN/2) {
+                maxAfter = lenAfter;
+                maxBefore = MAX_LEN - maxAfter;
+            } else {
+                maxBefore = maxAfter = MAX_LEN/2;
+            }
+        } else {
+            maxBefore = maxAfter = MAX_LEN;
+        }
+        
+        if (lenBefore > maxBefore) {
+            lenBefore = maxBefore;
+            int startBefore = loc.getPosition()-maxBefore+3;
+            sb.append(NL).append("...")
+                .append(input, startBefore, loc.getPosition());
+        } else if (lenBefore > 0) {
+            sb.append(NL)
                 .append(input, loc.getLineStart(), loc.getPosition());
         }
-        int remainder = loc.getLineEnd() - loc.getPosition();
-        if (remainder > 0) {
-            int indent = Math.min(20, loc.getColumn());
-            sb.append("\n").append(WS, 0, indent);
-            if (remainder > 20) {
-                sb.append(input, loc.getPosition(), loc.getPosition()+17)
+        if (lenAfter > 0) {
+            if (lenBefore == 0) {
+                sb.append(NL);
+            } else {
+                sb.append("|").append(NL)
+                    .append(INDENT, 0, lenBefore)
+                    .append("|");
+            }
+            if (lenAfter > maxAfter) {
+                sb.append(input, loc.getPosition(), loc.getPosition()+maxAfter-3)
                     .append("...");
             } else {
                 sb.append(input, loc.getPosition(), loc.getLineEnd());

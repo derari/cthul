@@ -7,6 +7,11 @@ public abstract class CharInput extends Input<Character> {
     public abstract char getChar(int i);
 
     @Override
+    public String asString() {
+        return getString().toString();
+    }
+
+    @Override
     public int startPosition(int i) {
         return i;
     }

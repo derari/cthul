@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import org.cthul.parser.annotation.Group;
-import org.cthul.parser.api.Context;
 import org.cthul.parser.reflect.MethodExecutor.ArgMap;
 import org.cthul.parser.reflect.MethodExecutor.ArgMapFactory;
 import org.cthul.parser.reflect.MethodExecutor.DirectIndexArgMap;
@@ -23,7 +22,7 @@ public class MethodInputEval<Token> extends AbstractMethodInputEval<Token, Match
     public static class EvalArgMapFactory<A extends MatchResult> implements ArgMapFactory<A, String> {
 
         @Override
-        public ArgMap<? super A, ? super String> create(Class<?> paramType, Annotation[] annotations, String pattern) {
+        public ArgMap<? super A, ? super String> create(Class<?> paramType, Annotation[] annotations, String pattern, boolean isVarArgs) {
             for (Annotation a: annotations) {
                 if (a instanceof Group) {
                     if (!paramType.isAssignableFrom(String.class)) {
@@ -33,12 +32,6 @@ public class MethodInputEval<Token> extends AbstractMethodInputEval<Token, Match
                     }
                     return GROUP_ARG;
                 }
-                if (a instanceof Inject) {
-                    return injectArg(paramType, (Inject) a);
-                }
-            }
-            if (InstanceMap.class.isAssignableFrom(paramType)) {
-                return CONTEXT_ARG;
             }
             if (String.class.equals(paramType)) {
                 return STRING_ARG;
@@ -46,24 +39,24 @@ public class MethodInputEval<Token> extends AbstractMethodInputEval<Token, Match
             if (MatchResult.class.equals(paramType)) {
                 return MATCHRESULT_ARG;
             }
-            return otherParameterType(paramType, annotations, pattern);
+            return otherParameterType(paramType, annotations, pattern, isVarArgs);
         }
         
-        protected ArgMap<? super A, ? super String> otherParameterType(Class<?> paramType, Annotation[] annotations, String pattern) {
-            return null;
+        protected ArgMap<? super A, ? super String> otherParameterType(Class<?> paramType, Annotation[] annotations, String pattern, boolean isVarArgs) {
+            return MethodExecutor.DEFAULT_MAPPER.create(paramType, annotations, this, isVarArgs);
         }
     }
     
     public static final ArgMap<MatchResult, Object> STRING_ARG = new DirectIndexArgMap<MatchResult>() {
         @Override
-        public Object map(int i, Context<?> ctx, MatchResult mr) {
+        public Object map(int i, InstanceMap ctx, MatchResult mr, Object par3) {
             return mr.group();
         }
     };
     
     public static final ArgMap<MatchResult, String> GROUP_ARG = new ArgMap<MatchResult, String>() {
         @Override
-        public Object map(int i, Context<?> ctx, MatchResult mr) {
+        public Object map(int i, InstanceMap ctx, MatchResult mr, Object par3) {
             return mr.group(i);
         }
         @Override
@@ -84,24 +77,9 @@ public class MethodInputEval<Token> extends AbstractMethodInputEval<Token, Match
     
     public static final ArgMap<MatchResult, Object> MATCHRESULT_ARG = new DirectIndexArgMap<MatchResult>() {
         @Override
-        public Object map(int i, Context ctx, MatchResult mr) {
+        public Object map(int i, InstanceMap ctx, MatchResult mr, Object par3) {
             return mr;
         }
     };
     
-    public static final ArgMap<Object, Object> CONTEXT_ARG = new DirectIndexArgMap<Object>() {
-        @Override
-        public Object map(int i, Context ctx, Object o) {
-            return ctx;
-        }
-    };
-    
-    public static ArgMap<Object, Object> injectArg(final Class<?> clazz, final Inject inject) {
-        return new DirectIndexArgMap<Object>(){
-            @Override
-            public Object map(int i, Context<?> ctx, Object arg) {
-                return ctx.get(clazz, inject);
-            }
-        };
-    }
 }

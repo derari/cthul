@@ -15,6 +15,10 @@ public class LinkedQueue<T extends LinkedQueue.Link> {
         }
     }
     
+    public T peek() {
+        return first;
+    }
+    
     @SuppressWarnings("unchecked")
     public T poll() {
         T l = first;
