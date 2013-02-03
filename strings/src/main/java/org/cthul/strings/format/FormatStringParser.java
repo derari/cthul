@@ -13,6 +13,7 @@ public abstract class FormatStringParser<E extends Exception> {
 
     protected int autoIndex = 1;
     protected int lastIndex = 0;
+    protected Object lastArg = null;
 
     public FormatStringParser() {
     }
@@ -165,7 +166,7 @@ public abstract class FormatStringParser<E extends Exception> {
     protected abstract Object getArg(String s);
     
     protected Object getArg(CharSequence csq, Matcher matcher) {
-        return getArg(csq, matcher, G_ARG_ID);
+        return lastArg = getArg(csq, matcher, G_ARG_ID);
     }
     
     protected Object getArg(final CharSequence csq, final Matcher matcher, final int gId) {
@@ -176,6 +177,9 @@ public abstract class FormatStringParser<E extends Exception> {
         switch (c) {
             case '`':
             case '<':
+                if (csq.charAt(start+1) == '<') {
+                    return lastArg;
+                }
                 return getArg(prevIndex());
             case '´':
             case '>':
@@ -226,8 +230,8 @@ public abstract class FormatStringParser<E extends Exception> {
     public static final char CUSTOM_SHORT_UC = 'I';
     public static final char CUSTOM_LONG_UC = 'J';
     
-    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|[?:][^$]*\\$|\\.?\\$|[<>`´]\\$?)?";
-    protected static final String P_FLAGS     = "([^a-zA-Z%]*[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
+    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|[?:][^$]*\\$|\\.?\\$|[<>`´]\\$?|<<\\$?)?";
+    protected static final String P_FLAGS     = "([^a-zA-Z%]*?[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
     protected static final String P_PRECISION = "(?:\\.(\\d+))?";
     protected static final String P_FORMAT_ID = "((?:[jJ][_a-zA-Z0-9]+[;]?)|(?:[tTiI]?[a-zA-Z])|%)";
