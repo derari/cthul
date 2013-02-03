@@ -123,11 +123,9 @@ public class FormatStringParserTest {
         
     @Test
     public void test_argId_explicit2() {
-        parser.parse("%?named$d %<<d");
+        parser.parse("%?named$d %<<d %<<$d");
         verify(parser).getArg("named");
-        verify(parser).standardFormat("d", "named", null, -1, -1);
-        verify(parser).getArg("named");
-        verify(parser).standardFormat("d", "named", null, -1, -1);
+        verify(parser, times(3)).standardFormat("d", "named", null, -1, -1);
     }
         
     @Test
