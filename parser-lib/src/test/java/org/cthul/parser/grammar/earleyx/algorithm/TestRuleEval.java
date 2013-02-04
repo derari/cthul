@@ -1,4 +1,4 @@
-package org.cthul.parser.grammar.earleyx;
+package org.cthul.parser.grammar.earleyx.algorithm;
 
 import org.cthul.parser.api.Context;
 import org.cthul.parser.api.Match;

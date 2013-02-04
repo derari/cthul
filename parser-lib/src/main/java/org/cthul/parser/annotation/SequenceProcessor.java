@@ -103,7 +103,7 @@ public class SequenceProcessor extends DefaultProcessorBase<Object, Object> {
     }
 
     protected SequenceBuilder<?, ?> getBuilder(Sequence at) {
-        return iMap.get(at.type());
+        return iMap.getOrCreate(at.type());
     }
 
     protected static class ArrayResultRPB extends RuleProductionBuilder {

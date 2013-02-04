@@ -53,7 +53,14 @@ public class EarleyXRkParser<I extends Input<?>> extends EarleyXParser<I> {
         }
         String strInput = input.asString();
         int position = input.startPosition(last.index);
-        EXParseException ex = EXParseException.forStates(last.states, last.matches, actual, strInput, position, msg, cause);
+        List<Match<?>> matches;
+        if (last.matchtedAntis == null) {
+            matches = last.matches;
+        } else {
+            matches = new ArrayList<>(last.matches);
+            //matches.addAll(last.matchtedAntis);
+        }
+        EXParseException ex = EXParseException.forStates(last.states, matches, actual, strInput, position, msg, cause);
         return ex;
     }
     

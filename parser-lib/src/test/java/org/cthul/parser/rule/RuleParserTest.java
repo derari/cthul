@@ -1,14 +1,10 @@
 package org.cthul.parser.rule;
 
 import org.cthul.parser.api.RuleKey;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.cthul.matchers.CthulMatchers.*;
+import static org.cthul.matchers.CthulMatchers._isA;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 public class RuleParserTest {

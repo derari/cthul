@@ -59,6 +59,11 @@ public class TestToken<V> implements Token<V> {
     }
 
     @Override
+    public RuleKey getKey() {
+        return new RuleKey(symbol, priority);
+    }
+
+    @Override
     public String getSymbol() {
         return symbol;
     }

@@ -2,14 +2,19 @@ package org.cthul.parser.grammar.earleyx;
 
 import java.util.Iterator;
 import java.util.Random;
+import org.cthul.parser.NoMatchException;
 import org.cthul.parser.api.*;
+import org.cthul.parser.grammar.earleyx.EarleyXGrammar;
 import org.cthul.parser.grammar.earleyx.algorithm.EarleyXParser;
+import org.cthul.parser.grammar.earleyx.algorithm.EarleyXParser;
+import org.cthul.parser.grammar.earleyx.algorithm.TestRuleEval;
 import org.cthul.parser.grammar.earleyx.rule.*;
 import org.cthul.parser.lexer.api.PlainStringInputEval;
 import org.cthul.parser.lexer.lazy.LazyStringTokenMatcher;
 import org.hamcrest.Matcher;
 import org.junit.*;
-import static org.cthul.matchers.CthulMatchers.isA;
+import static org.cthul.matchers.CthulMatchers.*;
+import static org.cthul.proc.Procs.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -88,8 +93,7 @@ public abstract class EarleyXParserTestBase {
         Match<?> match = parser.parse("A?", 0).iterator().next();
         assertThat(match.eval(), isString("A?(a,a)"));
         
-        assertThat(parser.parse("AB", 0).iterator().hasNext(), is(false));
-        
+        assertThat(invoke(parser, "parse", "AB", 0), raises(NoMatchException.class));
         parser = grammar.parser(Context.forString("ab"));
         match = parser.parse("AB", 0).iterator().next();
         assertThat(match.eval(), isString("AB(noAA(),A?(a,b))"));
