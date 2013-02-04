@@ -12,8 +12,13 @@ public class FileResolver extends UriMappingResolver {
     private final File base;
     private final String canonicalBase;
 
+    public FileResolver(File base, String baseCheck) {
+        this.base = base;
+        this.canonicalBase = baseCheck;
+    }
+    
     public FileResolver() {
-        this((File) null);
+        this(null, (String) null);
     }
 
     public FileResolver(String base) {
@@ -21,18 +26,20 @@ public class FileResolver extends UriMappingResolver {
     }
 
     public FileResolver(File base) {
+        this(base, base);
+    }
+
+    public FileResolver(File base, File check) {
+        this(base, canonicalPath(check));
+    }
+    
+    private static String canonicalPath(File f) {
+        if (f == null) return null;
         try {
-            this.base = base;
-            if (base == null) canonicalBase = null;
-            else this.canonicalBase = base.getCanonicalPath();
+            return f.getCanonicalPath();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public FileResolver(File base, String baseCheck) {
-        this.base = base;
-        this.canonicalBase = baseCheck;
     }
 
     @Override
