@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
         <action>
-            <actionName>CUSTOM-site</actionName>
-            <displayName>site</displayName>
+            <actionName>CUSTOM-site+stage</actionName>
+            <displayName>site+stage</displayName>
             <goals>
                 <goal>site</goal>
+                <goal>site:stage</goal>
                 
             </goals>
             <activatedProfiles>
@@ -12,24 +13,16 @@
             </activatedProfiles>
         </action>
         <action>
-            <actionName>CUSTOM-site-stage</actionName>
-            <displayName>site-stage</displayName>
+            <actionName>CUSTOM-clean+deploy</actionName>
+            <displayName>clean+deploy</displayName>
             <goals>
-                <goal>site:stage</goal>
+                <goal>clean</goal>
+                <goal>deploy</goal>
             </goals>
-            <activatedProfiles>
-                <activatedProfile>site</activatedProfile>
-            </activatedProfiles>
+            <properties>
+                <performRelease>true</performRelease>
+            </properties>
         </action>
-        <action>
-            <actionName>CUSTOM-site+stage</actionName>
-            <displayName>site+stage</displayName>
-            <goals>
-                <goal>site</goal>
-                <goal>site:stage</goal>
-            </goals>
-            <activatedProfiles>
-                <activatedProfile>site</activatedProfile>
-            </activatedProfiles>
-        </action>
+        
+        
     </actions>
