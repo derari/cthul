@@ -10,6 +10,7 @@ import org.cthul.parser.api.*;
 import org.cthul.parser.lexer.LexerBase;
 import org.cthul.parser.lexer.api.InputEval;
 import org.cthul.parser.lexer.ScanException;
+import org.cthul.parser.util.Format;
 
 /**
  * 
@@ -26,6 +27,11 @@ public class SimpleLexer<I extends Input<?>> extends LexerBase<I> {
     @Override
     public I scan(Context<StringInput> context) {
         return ruleSet.scan(context);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ruleSet;
     }
     
     /**
@@ -47,6 +53,11 @@ public class SimpleLexer<I extends Input<?>> extends LexerBase<I> {
         }
         
         protected abstract S newState(Context<StringInput> context);
+
+        @Override
+        public String toString() {
+            return Format.join("{", ", ", "}", 512, "...}", rules);
+        }
         
     }
     
@@ -136,6 +147,16 @@ public class SimpleLexer<I extends Input<?>> extends LexerBase<I> {
             if (c != 0) return c;
             return id - o.id;
         }
+
+        @Override
+        public String toString() {
+            String s = Format.productionKey(key.getSymbol(), key.getPriority());
+            String m = matchString();
+            if (m != null) s = s + " ::= " + m;
+            return s;
+        }
+        
+        protected String matchString() { return null; }
         
     }
     
@@ -180,6 +201,11 @@ public class SimpleLexer<I extends Input<?>> extends LexerBase<I> {
             }
             return null;
         }
+
+        @Override
+        protected String matchString() {
+            return Format.join("(", "|", ")", 64, "...)", strings);
+        }
         
         protected abstract Match match(Context<StringInput> context, StringInput input, S state, int start, String match);
     }
@@ -200,6 +226,11 @@ public class SimpleLexer<I extends Input<?>> extends LexerBase<I> {
             if (!m.find(start) || m.start() != start) return null;
             state.setPosition(m.end());
             return match(context, input, state, start, m);
+        }
+
+        @Override
+        protected String matchString() {
+            return pattern.pattern();
         }
         
         protected abstract Match match(Context<StringInput> context, StringInput input, S state, int start, MatchResult match);

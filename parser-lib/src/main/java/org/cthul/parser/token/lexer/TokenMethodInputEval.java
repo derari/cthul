@@ -40,6 +40,7 @@ public class TokenMethodInputEval<Token> extends AbstractMethodInputEval<Token, 
         protected ArgMap<? super TokenBuilder<?,?>, ? super String> otherParameterType(Class<?> paramType, Annotation[] annotations, String hint, boolean isVarArgs) {
             ArgMap<? super MatchResult, ? super String> mrArg = MethodInputEval.MAPPER.create(paramType, annotations, hint, isVarArgs);
             if (mrArg == MethodInputEval.MATCHRESULT_ARG) return TB_MATCHRESULT_ARG;
+            if (mrArg == MethodInputEval.STRING_ARG) return TB_STRING_ARG;
             if (mrArg == MethodInputEval.GROUP_ARG) return TB_GROUP_ARG;
             return (ArgMap) mrArg;
         }
@@ -60,6 +61,8 @@ public class TokenMethodInputEval<Token> extends AbstractMethodInputEval<Token, 
     };
     
     protected static final ArgMap<TokenBuilder<?,?>, ? super String> TB_MATCHRESULT_ARG = tbArg(MethodInputEval.MATCHRESULT_ARG);
+    
+    protected static final ArgMap<TokenBuilder<?,?>, ? super String> TB_STRING_ARG = tbArg(MethodInputEval.STRING_ARG);
     
     protected static final ArgMap<TokenBuilder<?,?>, ? super String> TB_GROUP_ARG = tbArg(MethodInputEval.GROUP_ARG);
     

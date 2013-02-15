@@ -21,7 +21,7 @@ public class IncludeProcessor implements AnnotationProcessor<Object, Object> {
     @Override
     public void process(AnnotatedElement ae, Object impl, Annotation at, ParserBuilder<? super Object, ? extends Object> pb) {
         Object include = getInclude(impl, ae);
-        scanner.process(include);
+        scanner.scan(include);
     }
 
     protected Object getInclude(Object impl, AnnotatedElement ae) {

@@ -77,16 +77,26 @@ public final class MethodExecutor<Arg> {
     
     public Object invoke(InstanceMap ctx, Arg arg1, Object arg2){
         final Object[] args;
-        if (argMap == null) {
-            args = null;
-        } else {
-            args = new Object[argMap.length];
-            for (int i = 0; i < args.length; i++) {
-                int srcIndex = indexMap[i];
-                args[i] = argMap[i].map(srcIndex, ctx, arg1, arg2);
+        final Object obj;
+        int i = -1;
+        try {
+            if (argMap == null) {
+                args = null;
+            } else {
+                args = new Object[argMap.length];
+                for (i = 0; i < args.length; i++) {
+                    int srcIndex = indexMap[i];
+                    args[i] = argMap[i].map(srcIndex, ctx, arg1, arg2);
+                }
             }
+            obj = clazz == null ? instance : ctx.getOrCreate(clazz);
+        } catch (RuntimeException e) {
+            String msg  = "Cannot invoke " + m;
+            if (i > -1) {
+                msg += "; failed at mapping argument " + i;
+            }
+            throw new RuntimeException(msg, e);
         }
-        Object obj = clazz == null ? instance : ctx.getOrCreate(clazz);
         return invoke(obj, args);
     }
     

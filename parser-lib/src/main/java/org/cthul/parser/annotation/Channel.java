@@ -13,7 +13,7 @@ import org.cthul.parser.token.TokenStream;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.FIELD})
 public @interface Channel {
 
     public static final int Ignore = TokenChannel.Ignore;

@@ -10,11 +10,11 @@ import org.cthul.parser.util.InstanceMap;
 public class AnnotationScanner {
     
     public static void apply(ParserBuilder<?,?> pb, Class<?>... classes) {
-        new AnnotationScanner(pb).process(classes);
+        new AnnotationScanner(pb).scan(classes);
     }
     
     public static void apply(ParserBuilder<?,?> pb, Object... impls) {
-        new AnnotationScanner(pb).process(impls);
+        new AnnotationScanner(pb).scan(impls);
     }
     
     protected final ParserBuilder<?,?> pb;
@@ -28,28 +28,32 @@ public class AnnotationScanner {
         instances.initialize(pb);
     }
     
-    public void process(Object... impls) {
+    public void scan(Object... impls) {
         for (Object o: impls)
-            process(o);
+            scan(o);
     }
     
-    public void process(Object impl) {
-        process(impl.getClass(), impl);
+    public void scan(Object impl) {
+        if (impl instanceof Class) {
+            scan((Class) impl, null);
+        } else {
+            scan(impl.getClass(), impl);
+        }
     }
     
-    public void process(Class<?>... classes) {
+    public void scan(Class<?>... classes) {
         for (Class<?> clazz: classes)
-            process(clazz);
+            scan(clazz);
     }
     
-    public void process(Class<?> clazz) {
-        process(clazz, null);
+    public void scan(Class<?> clazz) {
+        scan(clazz, null);
     }
     
-    public void process(Class<?> clazz, Object impl) {
+    protected void scan(Class<?> clazz, Object impl) {
         if (clazz == null) return;
         if (impl == null) impl = clazz;
-        process(clazz.getSuperclass(), impl);
+        scan(clazz.getSuperclass(), impl);
         for (Field f: clazz.getDeclaredFields()) {
             if ((f.getModifiers() & Modifier.PUBLIC) == 0) continue;
             processElement(f, impl);
@@ -63,7 +67,7 @@ public class AnnotationScanner {
             if ((mod & Modifier.PUBLIC) == 0) continue;
             if ((mod & Modifier.STATIC) == 0) continue;
             if ((mod & Modifier.ABSTRACT) != 0) continue;
-            process(c);
+            scan(c);
         }
     }
     
@@ -79,7 +83,8 @@ public class AnnotationScanner {
     protected AnnotationProcessor<?,?> findReader(Class<? extends Annotation> clazz) {
         ProcessedBy pBy = clazz.getAnnotation(ProcessedBy.class);
         if (pBy == null) return NULL;
-        return instances.getOrCreate(pBy.value());
+        Class<? extends AnnotationProcessor> processor = pBy.value();
+        return instances.getOrCreate(processor.getName(), processor);
     }
 
     @SuppressWarnings("unchecked")
