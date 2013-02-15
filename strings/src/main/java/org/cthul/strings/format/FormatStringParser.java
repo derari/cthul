@@ -177,7 +177,8 @@ public abstract class FormatStringParser<E extends Exception> {
         switch (c) {
             case '`':
             case '<':
-                if (csq.charAt(start+1) == '<') {
+                c = csq.charAt(start+1);
+                if (c == '<' || c == '`') {
                     return lastArg;
                 }
                 return getArg(prevIndex());
@@ -230,7 +231,7 @@ public abstract class FormatStringParser<E extends Exception> {
     public static final char CUSTOM_SHORT_UC = 'I';
     public static final char CUSTOM_LONG_UC = 'J';
     
-    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|[?:][^$]*\\$|\\.?\\$|<<\\$?|[<>`´]\\$?)?";
+    protected static final String P_ARG_ID    = "(\\d+\\$|[a-zA-Z]\\$|[?:][^$]*\\$|\\.?\\$|``\\$?|<<\\$?|[<>`´]\\$?)?";
     protected static final String P_FLAGS     = "([^a-zA-Z%]*?[^.1-9a-zA-Z%])?"; // [-#+ 0,(\\<]
     protected static final String P_WIDTH     = "(\\d+)?";
     protected static final String P_PRECISION = "(?:\\.(\\d+))?";

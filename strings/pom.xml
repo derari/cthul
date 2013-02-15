@@ -11,6 +11,7 @@
     <artifactId>cthul-strings</artifactId>
     <version>1.0</version>
     <name>Cthul Strings</name>
+    <url>http://cthul.org</url>
     <description>
         Functions for converting strings from and to various formats,
         such as roman numbers, alpha indices, Java identifiers, 
