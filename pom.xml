@@ -17,6 +17,7 @@
     </description>
     <modules>
         <module>matchers</module>
+        <module>matchers-fluent</module>
         <module>strings</module>
         <module>log</module>
         <module>log-cal10n</module>

@@ -7,7 +7,7 @@ import org.hamcrest.Matcher;
 
 /**
  * Build a matcher chain using a {@link ChainFactory}.
- * For convinience, can also be used as a matcher directly.
+ * For convenience, can also be used as a matcher directly.
  * 
  * @param <T> 
  */
