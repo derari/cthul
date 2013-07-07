@@ -21,6 +21,7 @@
         <module>strings</module>
         <module>log</module>
         <module>log-cal10n</module>
+        <module>objects</module>
         <module>xml</module>
         <module>parser</module>
         <module>parser-lib</module>
