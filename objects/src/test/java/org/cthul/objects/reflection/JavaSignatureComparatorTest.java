@@ -120,7 +120,7 @@ public class JavaSignatureComparatorTest {
         Class[] params1 = {Object.class};
         Class[] params2 = {Number.class};
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
-        int spec = jsCmp.compareSpecificity(params1, false, params2, false);
+        int spec = jsCmp.compareSpecificness(params1, false, params2, false);
         assertThat(spec, is(greaterThan(0)));
     }
     
@@ -130,7 +130,7 @@ public class JavaSignatureComparatorTest {
         Class[] params1 = {Object.class, Number.class};
         Class[] params2 = {Number.class, Object.class};
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
-        int spec = jsCmp.compareSpecificity(params1, false, params2, false);
+        int spec = jsCmp.compareSpecificness(params1, false, params2, false);
         assertThat(spec, is(0));
     }
     
@@ -143,7 +143,7 @@ public class JavaSignatureComparatorTest {
         Class[] params1 = {String.class, Object[].class};
         Class[] params2 = {String.class, Number[].class};
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
-        int spec = jsCmp.compareSpecificity(params1, true, params2, true);
+        int spec = jsCmp.compareSpecificness(params1, true, params2, true);
         assertThat(spec, is(greaterThan(0)));
     }
     
@@ -153,7 +153,7 @@ public class JavaSignatureComparatorTest {
         Class[] params1 = {String.class, Object[].class};
         Class[] params2 = {String.class, Number[].class};
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
-        int spec = jsCmp.compareSpecificity(params1, true, params2, true);
+        int spec = jsCmp.compareSpecificness(params1, true, params2, true);
         assertThat(spec, is(0));
     }
     
@@ -163,7 +163,7 @@ public class JavaSignatureComparatorTest {
         Class[] params1 = {String.class, String.class, String[].class};
         Class[] params2 = {String.class, String[].class};
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
-        int spec = jsCmp.compareSpecificity(params1, true, params2, true);
+        int spec = jsCmp.compareSpecificness(params1, true, params2, true);
         assertThat(spec, is(lessThan(0)));
     }
     

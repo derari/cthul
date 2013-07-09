@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import org.cthul.objects.Boxing;
 
@@ -79,6 +81,7 @@ public class Signatures {
     
     public static <T> T best(T[] items, Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) {
         int i = bestMatch(signatures, varArgs, argTypes);
+        if (i < 0) return null;
         return items[i];
     }
     
@@ -148,7 +151,7 @@ public class Signatures {
      * Finds the best match in signatures for the given argument types.
      * @param signatures
      * @param varArgs
-     * @param jsCmp
+     * @param argTypes
      * @return index of best signature, -1 if nothing matched
      * @throws AmbiguousSignatureMatchException if two signatures matched equally
      */
@@ -158,25 +161,47 @@ public class Signatures {
     
     /** @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
     public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp){
-        int bestLevel = JavaSignatureComparator.NO_MATCH-1;
+        int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         int bestIndex = -1;
         Class<?>[] bestSig = null;
+        LinkedList<Class<?>[]> ambiguous = null;
         boolean bestVarArgs = false;
-        for (int i = 0; i < signatures.length; i++) {
+        signatures: for (int i = 0; i < signatures.length; i++) {
             Class<?>[] sig = signatures[i];
             boolean var = varArgs[i];
             int level = jsCmp.applicability(sig, var);
-            if (level <= bestLevel) {
-                if (bestIndex > -1) {
-                    int c = jsCmp.compareSpecificity(bestSig, bestVarArgs, sig, var);
-                    if (c == 0) throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs);
+            if (level < bestLevel) continue;
+            if (level > bestLevel) {
+                // new is better
+                ambiguous = null;
+            } else if (level == bestLevel) {
+                // check against previous matches
+                if (ambiguous != null) {
+                    Iterator<Class<?>[]> it = ambiguous.iterator();
+                    while (it.hasNext()) {
+                        int c = jsCmp.compareSpecificness(it.next(), bestVarArgs, sig, var);
+                        if (c < 0) continue signatures;
+                        if (c > 0) it.remove();
+                    }
+                    ambiguous.add(sig);
+                } else {
+                    assert bestIndex > -1;
+                    int c = jsCmp.compareSpecificness(bestSig, bestVarArgs, sig, var);
                     if (c < 0) continue;
+                    if (c == 0) {
+                        ambiguous = new LinkedList<>();
+                        ambiguous.add(bestSig);
+                        ambiguous.add(sig);
+                    }
                 }
-                bestLevel = level;
-                bestIndex = i;
-                bestSig = sig;
-                bestVarArgs = var;
             }
+            bestLevel = level;
+            bestIndex = i;
+            bestSig = sig;
+            bestVarArgs = var;
+        }
+        if (ambiguous != null && ambiguous.size() > 1) {
+            throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs);
         }
         return bestIndex;
     }
@@ -195,69 +220,35 @@ public class Signatures {
     
     /** @see #candidateMatches(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
     public static int[] candidateMatches(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) {
-        int bestLevel = JavaSignatureComparator.NO_MATCH-1;
-        final Candidate candidateList = new Candidate(-1);
-        Candidate candidateListEnd = candidateList;
-        int candidateCount = 0;
+        int bestLevel = JavaSignatureComparator.NO_MATCH+1;
+        final LinkedList<Integer> candidates = new LinkedList<>();
         signatures: for (int i = 0; i < signatures.length; i++) {
             Class<?>[] sig = signatures[i];
             boolean var = varArgs[i];
             int level = jsCmp.applicability(sig, var);
-            if (level <= bestLevel) {
-                if (level < bestLevel) {
-                    // new is better than all previous
-                    candidateList.clear();
-                    candidateCount = 0;
-                    candidateListEnd = candidateList;
-                    bestLevel = level;
-                } else {
-                    // check against previous matches
-                    Candidate lastC = candidateList;
-                    Candidate c = lastC.next;
-                    while (c != null) {
-                        int cmp = jsCmp.compareSpecificity(signatures[c.index], varArgs[c.index], sig, var);
-                        if (cmp < 0) {
-                            // existing is more specific
-                            continue signatures;
-                        } else if (cmp > 0) {
-                            // new is more specific
-                            lastC.removeNext();
-                            if (c.next == null) candidateListEnd = lastC;
-                            c = lastC;
-                            candidateCount--;
-                        }
-                        lastC = c;
-                        c = c.next;
-                    }
+            if (level < bestLevel) continue;
+            if (level > bestLevel) {
+                // new is better than all previous
+                candidates.clear();
+                bestLevel = level;
+            } else {
+                // check against previous matches
+                Iterator<Integer> it = candidates.iterator();
+                while (it.hasNext()) {
+                    int k = it.next();
+                    int cmp = jsCmp.compareSpecificness(signatures[k], varArgs[k], sig, var);
+                    if (cmp < 0) continue signatures;
+                    if (cmp > 0) it.remove();
                 }
-                candidateListEnd = candidateListEnd.append(i);
-                candidateCount++;
             }
+            candidates.add(i);
         }
-        final int[] result = new int[candidateCount];
-        Candidate c = candidateList.next;
-        for (int i = 0; i < candidateCount; i++) {
-            result[i] = c.index;
-            c = c.next;
+        final int[] result = new int[candidates.size()];
+        int i = 0;
+        for (int index : candidates) {
+            result[i++] = index;
         }
         return result;
-    }
-    
-    private static class Candidate {
-        int index;
-        Candidate next = null;
-        public Candidate(int index) {
-            this.index = index;
-        }
-        Candidate append(int i) {
-            return next = new Candidate(i);
-        }
-        void removeNext() {
-            next = next.next;
-        }
-        void clear() {
-            next = null;
-        }
     }
     
     public static Object[] fixVarArgs(Class<?>[] paramsWithVarArgs, Object[] arguments) {
