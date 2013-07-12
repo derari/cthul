@@ -20,19 +20,21 @@ public class Concept {
                 .is(lessThan(3))
                 .and(greaterThan(0));
         
-        Matcher<Integer> m = match(Integer.class)
-                .is(greaterThan(3))
-                .or(lessThan(0));
-        assertThat(1).isNot(m);
+        Matcher<Integer> between_5_and_10 = match(Integer.class)
+                .is(lessThan(10))
+                .and(greaterThan(5));
+        assertThat(1).isNot(between_5_and_10);
         
         assertThat(eachOf(list)).is(lessThan(10));
         
         assertThat(list)
                 .isNot(empty())
-                .and()._(eachInt()).is(lessThan(10))
+                .and(eachInt()).is(lessThan(10))
                 .and(hasItem(1));
         
-//        Matcher<Iterable<Integer>> m2 = match(each(Integer.class));
+        Matcher<Iterable<? extends Integer>> each_is_gt_1 = match(eachInt())
+                .is(greaterThan(1));
+        assertThat(list).not(each_is_gt_1);
         
     }
 }

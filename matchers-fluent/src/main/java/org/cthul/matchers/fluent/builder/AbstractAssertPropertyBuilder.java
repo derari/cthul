@@ -21,4 +21,19 @@ public abstract class AbstractAssertPropertyBuilder
         return (FluentAssertProperty) super._(adapter);
     }
     
+    @Override
+    public <P> FluentAssertProperty<Value, P> has(MatchValueType<? super Property, P> adapter) {
+        return (FluentAssertProperty) super.has(adapter);
+    }
+    
+    @Override
+    public <P> FluentAssertProperty<Value, P> not(MatchValueType<? super Property, P> adapter) {
+        return (FluentAssertProperty) super.not(adapter);
+    }
+    
+    @Override
+    public <P> FluentAssertProperty<Value, P> hasNot(MatchValueType<? super Property, P> adapter) {
+        return (FluentAssertProperty) super.hasNot(adapter);
+    }
+    
 }

@@ -1,7 +1,7 @@
 package org.cthul.matchers.fluent.property;
 
-import org.cthul.matchers.diagnose.QuickDiagnosingMatcher;
 import org.cthul.matchers.fluent.*;
+import org.cthul.matchers.fluent.values.MatchValueType;
 import org.hamcrest.Matcher;
 
 /**
@@ -54,5 +54,17 @@ public interface FluentMatcherProperty<Value, Property, Match>
     
     @Override
     FluentMatcher<Value, Match> none(Matcher<? super Property>... matcher);
+    
+    @Override
+    <P> FluentMatcherProperty<Value, P, Match> _(MatchValueType<? super Property, P> matcher);
+    
+    @Override
+    <P> FluentMatcherProperty<Value, P, Match> has(MatchValueType<? super Property, P> adapter);
+    
+    @Override
+    <P> FluentMatcherProperty<Value, P, Match> not(MatchValueType<? super Property, P> adapter);
+    
+    @Override
+    <P> FluentMatcherProperty<Value, P, Match> hasNot(MatchValueType<? super Property, P> adapter);
     
 }

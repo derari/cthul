@@ -42,4 +42,11 @@ public interface FluentProperty<Value, Property> {
     Fluent<Value> none(Matcher<? super Property>... matcher);
     
     <P> FluentProperty<Value, P> _(MatchValueType<? super Property, P> adapter);
+    
+    <P> FluentProperty<Value, P> has(MatchValueType<? super Property, P> adapter);
+    
+    <P> FluentProperty<Value, P> not(MatchValueType<? super Property, P> adapter);
+    
+    <P> FluentProperty<Value, P> hasNot(MatchValueType<? super Property, P> adapter);
+    
 }

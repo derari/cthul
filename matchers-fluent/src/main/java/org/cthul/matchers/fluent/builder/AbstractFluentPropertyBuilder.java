@@ -162,6 +162,25 @@ public abstract class AbstractFluentPropertyBuilder
         return _newProperty(adapter);
     }
     
+    @Override
+    public <P> FluentProperty<Value, P> not(MatchValueType<? super Property, P> adapter) {
+        _not();
+        return _newProperty(adapter);
+    }
+    
+    @Override
+    public <P> FluentProperty<Value, P> has(MatchValueType<? super Property, P> adapter) {
+        _has();
+        return _newProperty(adapter);
+    }
+    
+    @Override
+    public <P> FluentProperty<Value, P> hasNot(MatchValueType<? super Property, P> adapter) {
+        _has();
+        _not();
+        return _newProperty(adapter);
+    }
+    
     protected static abstract class InternPropertyBuilder
                     <Value, BaseProperty, ThisFluent extends Fluent<Value>, 
                      Property, This2 extends InternPropertyBuilder<Value, BaseProperty, ThisFluent, Property, This2>> 

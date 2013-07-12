@@ -1,6 +1,7 @@
 package org.cthul.matchers.fluent;
 
 import org.cthul.matchers.fluent.property.FluentAssertProperty;
+import org.cthul.matchers.fluent.values.MatchValueType;
 import org.hamcrest.Matcher;
 
 /**
@@ -66,5 +67,21 @@ public interface FluentAssert<Value>
     
     @Override
     FluentAssert<Value> none(Matcher<? super Value>... matcher);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> _(MatchValueType<? super Value, P> matcher);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> has(MatchValueType<? super Value, P> adapter);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> not(MatchValueType<? super Value, P> adapter);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> hasNot(MatchValueType<? super Value, P> adapter);
+    
+    <P> FluentAssertProperty<Value, P> and(MatchValueType<? super Value, P> adapter);
+    
+    <P> FluentAssertProperty<Value, P> andNot(MatchValueType<? super Value, P> adapter);
     
 }

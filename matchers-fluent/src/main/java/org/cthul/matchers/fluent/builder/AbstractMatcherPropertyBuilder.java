@@ -21,4 +21,19 @@ public abstract class AbstractMatcherPropertyBuilder
         return (FluentMatcherProperty) super._(adapter);
     }
     
+    @Override
+    public <P> FluentMatcherProperty<Value, P, Match> has(MatchValueType<? super Property, P> adapter) {
+        return (FluentMatcherProperty) super.has(adapter);
+    }
+    
+    @Override
+    public <P> FluentMatcherProperty<Value, P, Match> not(MatchValueType<? super Property, P> adapter) {
+        return (FluentMatcherProperty) super.not(adapter);
+    }
+    
+    @Override
+    public <P> FluentMatcherProperty<Value, P, Match> hasNot(MatchValueType<? super Property, P> adapter) {
+        return (FluentMatcherProperty) super.hasNot(adapter);
+    }
+    
 }

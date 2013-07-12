@@ -57,4 +57,13 @@ public interface FluentAssertProperty<Value, Property> extends FluentProperty<Va
     @Override
     <P> FluentAssertProperty<Value, P> _(MatchValueType<? super Property, P> matcher);
     
+    @Override
+    <P> FluentAssertProperty<Value, P> has(MatchValueType<? super Property, P> adapter);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> not(MatchValueType<? super Property, P> adapter);
+    
+    @Override
+    <P> FluentAssertProperty<Value, P> hasNot(MatchValueType<? super Property, P> adapter);
+    
 }

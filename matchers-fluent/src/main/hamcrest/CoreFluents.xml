@@ -1,7 +1,7 @@
 <matchers>
 
     <factory class="org.cthul.matchers.fluent.builder.FluentAssertBuilder"/>
-    <factory class="org.cthul.matchers.fluent.builder.FluentMatcherBuilder"/>
+    <!--<factory class="org.cthul.matchers.fluent.builder.FluentMatcherBuilder"/>-->
     
     <factory class="org.cthul.matchers.fluent.values.types.EachOfValueType"/>
 

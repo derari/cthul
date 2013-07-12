@@ -77,13 +77,14 @@
                         <executions>
                             <execution>
                                 <id>generate-matcher-dir</id>
-                                <phase>generate-sources</phase>
+                                <phase>process-classes</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
                                     <target>
                                         <mkdir dir="${generated-matcher-dir}"/>
+                                        <copy file="${project.build.sourceDirectory}/../hamcrest/CoreFluents.java" todir="${generated-matcher-dir}/org/cthul/matchers"/>
                                     </target>
                                 </configuration>
                             </execution>

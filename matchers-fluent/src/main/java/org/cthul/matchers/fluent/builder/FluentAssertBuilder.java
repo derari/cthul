@@ -103,6 +103,19 @@ public class FluentAssertBuilder<Value, This extends FluentAssertBuilder<Value, 
         return _this();
     }
 
+    @Override
+    public <P> FluentAssertProperty<Value, P> and(MatchValueType<? super Value, P> adapter) {
+        _and();
+        return _newProperty(adapter);
+    }
+
+    @Override
+    public <P> FluentAssertProperty<Value, P> andNot(MatchValueType<? super Value, P> adapter) {
+        _and();
+        _not();
+        return _newProperty(adapter);
+    }
+
     protected static class AssertPropertyBuilder
                     <Value, BaseProperty, ThisFluent extends FluentAssert<Value>, 
                      Property, This extends AssertPropertyBuilder<Value, BaseProperty, ThisFluent, Property, This>>
