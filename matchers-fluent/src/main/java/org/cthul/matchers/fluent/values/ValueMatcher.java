@@ -5,8 +5,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- *
- * @author Arian Treffer
+ * A hamcrest matcher that uses {@link MatchValueType} to match the value
+ * against another matcher.
+ * <p>
+ * Example: ´length-of-string is less than 3´.matches("xa")
  */
 public class ValueMatcher<Value, Item> extends NestedMatcher<Value> {
     
@@ -21,17 +23,7 @@ public class ValueMatcher<Value, Item> extends NestedMatcher<Value> {
     @Override
     public boolean matches(Object item, Description mismatch) {
         Value v = (Value) item;
-        MatchValues<Item> values = valueType.matchingObject(v).values();
-        while (values.hasNext()) {
-            boolean match = nested.matches(values.next());
-            values.result(match);
-        }
-        if (values.matched()) {
-            return true;
-        } else {
-            describeMismatch(item, mismatch);
-            return false;
-        }
+        return valueType.matchingObject(v).validate(nested, mismatch);
     }
 
     @Override

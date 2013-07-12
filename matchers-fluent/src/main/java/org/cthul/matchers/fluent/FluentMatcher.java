@@ -1,15 +1,21 @@
 package org.cthul.matchers.fluent;
 
+import org.cthul.matchers.diagnose.QuickDiagnosingMatcher;
+import org.cthul.matchers.fluent.property.FluentMatcherProperty;
 import org.hamcrest.Matcher;
 
 /**
  * Fluent builder for matchers.
- * @author Arian Treffer
- * @param <Item> 
+ * @param <Value> 
  */
-public interface FluentMatcher<Item> extends Fluent<Item>, Matcher<Item> {
+public interface FluentMatcher<Value, Match> 
+                extends Fluent<Value>, 
+                        FluentMatcherProperty<Value, Value, Match>,
+                        QuickDiagnosingMatcher<Match> {
 
      /*
+     valueThat().is(a()).or(b());
+     
      foo().or().bar()
      foo().and().bar()
      
@@ -24,57 +30,75 @@ public interface FluentMatcher<Item> extends Fluent<Item>, Matcher<Item> {
      */
     
     @Override
-    FluentMatcher<Item> as(String reason);
+    FluentMatcher<Value, Match> as(String reason);
 
     @Override
-    FluentMatcher<Item> as(String reason, Object... args);
+    FluentMatcher<Value, Match> as(String reason, Object... args);
 
     @Override
-    FluentMatcher<Item> is(Matcher<? super Item> matcher);
+    FluentMatcher<Value, Match> is();
     
     @Override
-    FluentMatcher<Item> _(Matcher<? super Item> matcher);
+    FluentMatcher<Value, Match> has();
 
     @Override
-    FluentMatcher<Item> is();
-
-    @Override
-    FluentMatcher<Item> and(Matcher<? super Item> matcher);
-
-    @Override
-    FluentMatcher<Item> and();
-
-    @Override
-    FluentMatcher<Item> isNot(Matcher<? super Item> matcher);
-
-    @Override
-    FluentMatcher<Item> not(Matcher<? super Item> matcher);
-
-    @Override
-    FluentMatcher<Item> not();
-
-    @Override
-    FluentMatcher<Item> andNot(Matcher<? super Item> matcher);
-
-    @Override
-    FluentMatcher<Item> andNot();
-
-    FluentMatcher<Item> either(Matcher<? super Item> matcher);
-
-    FluentMatcher<Item> either();
-
-    FluentMatcher<Item> xor(Matcher<? super Item> matcher);
-
-    FluentMatcher<Item> xor();
-
-    FluentMatcher<Item> or(Matcher<? super Item> matcher);
-
-    FluentMatcher<Item> or();
-
-    FluentMatcher<Item> orNot(Matcher<? super Item> matcher);
-
-    FluentMatcher<Item> orNot();
+    FluentMatcher<Value, Match> not();
     
-    Matcher<Item> getMatcher();
+    @Override
+    FluentMatcher<Value, Match> _(Matcher<? super Value> matcher);
 
+    @Override
+    FluentMatcher<Value, Match> is(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> has(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> not(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> isNot(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> hasNot(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> and();
+
+    @Override
+    FluentMatcher<Value, Match> andNot();
+    
+    FluentMatcher<Value, Match> or();
+
+    FluentMatcher<Value, Match> orNot();
+    
+    FluentMatcher<Value, Match> xor();
+
+    FluentMatcher<Value, Match> xorNot();
+    
+    @Override
+    FluentMatcher<Value, Match> and(Matcher<? super Value> matcher);
+
+    @Override
+    FluentMatcher<Value, Match> andNot(Matcher<? super Value> matcher);
+    
+    FluentMatcher<Value, Match> or(Matcher<? super Value> matcher);
+
+    FluentMatcher<Value, Match> orNot(Matcher<? super Value> matcher);
+    
+    FluentMatcher<Value, Match> xor(Matcher<? super Value> matcher);
+
+    FluentMatcher<Value, Match> xorNot(Matcher<? super Value> matcher);
+    
+    @Override
+    FluentMatcher<Value, Match> all(Matcher<? super Value>... matcher);
+    
+    @Override
+    FluentMatcher<Value, Match> any(Matcher<? super Value>... matcher);
+    
+    @Override
+    FluentMatcher<Value, Match> none(Matcher<? super Value>... matcher);
+    
+    QuickDiagnosingMatcher<Match> getMatcher();
+    
 }

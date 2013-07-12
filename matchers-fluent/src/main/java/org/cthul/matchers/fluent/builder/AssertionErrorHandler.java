@@ -1,5 +1,6 @@
-package org.cthul.matchers.fluent.assertion;
+package org.cthul.matchers.fluent.builder;
 
+import org.cthul.matchers.fluent.values.MatchValues;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -9,7 +10,7 @@ public class AssertionErrorHandler implements FailureHandler {
     public static final AssertionErrorHandler INSTANCE = new AssertionErrorHandler();
 
     @Override
-    public void mismatch(String reason, Object actual, Matcher<?> matcher) {
+    public <T> void mismatch(String reason, MatchValues<T> actual, Matcher<? super T> matcher) {
         Description description = new StringDescription();
         if (reason != null) {
             description.appendText(reason).appendText("\n");
@@ -17,7 +18,7 @@ public class AssertionErrorHandler implements FailureHandler {
         description.appendText("Expected: ")
                    .appendDescriptionOf(matcher)
                    .appendText("\n     but: ");
-        matcher.describeMismatch(actual, description);
+        actual.describeMismatch(matcher, description);
 
         throw new AssertionError(description.toString());
     }

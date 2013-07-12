@@ -1,14 +1,17 @@
 package org.cthul.matchers.fluent;
 
+import org.cthul.matchers.fluent.property.FluentProperty;
 import org.hamcrest.Matcher;
 
 /**
  * Fluent matcher chain.
+ * <p>
+ * As a {@linkplain FluentProperty property}, it matches against the
+ * value itself.
  * 
- * @author Arian Treffer
- * @param <Item> 
+ * @param <Value> 
  */
-public interface Fluent<Item> {
+public interface Fluent<Value> extends FluentProperty<Value, Value> {
 
     /*
      assertThat(x).is(foo()
@@ -22,30 +25,54 @@ public interface Fluent<Item> {
                   .and(top().or().bottom());
      */
 
-    Fluent<Item> as(String reason);
+    @Override
+    Fluent<Value> as(String reason);
 
-    Fluent<Item> as(String reason, Object... args);
+    @Override
+    Fluent<Value> as(String reason, Object... args);
 
-    Fluent<Item> is(Matcher<? super Item> matcher);
+    @Override
+    Fluent<Value> is();
     
-    Fluent<Item> _(Matcher<? super Item> matcher);
+    @Override
+    Fluent<Value> has();
 
-    Fluent<Item> is();
-
-    Fluent<Item> and(Matcher<? super Item> matcher);
-
-    Fluent<Item> and();
-
-    Fluent<Item> isNot(Matcher<? super Item> matcher);
-
-    Fluent<Item> not(Matcher<? super Item> matcher);
-
-    Fluent<Item> not();
-
-    Fluent<Item> andNot(Matcher<? super Item> matcher);
-
-    Fluent<Item> andNot();
+    @Override
+    Fluent<Value> not();
     
-    Fluent<Item> all(Matcher<? super Item>... matcher);
+    @Override
+    Fluent<Value> _(Matcher<? super Value> matcher);
+
+    @Override
+    Fluent<Value> is(Matcher<? super Value> matcher);
+
+    @Override
+    Fluent<Value> has(Matcher<? super Value> matcher);
+
+    @Override
+    Fluent<Value> not(Matcher<? super Value> matcher);
+
+    @Override
+    Fluent<Value> isNot(Matcher<? super Value> matcher);
+
+    @Override
+    Fluent<Value> hasNot(Matcher<? super Value> matcher);
+
+    Fluent<Value> and();
+
+    Fluent<Value> andNot();
+    
+    Fluent<Value> and(Matcher<? super Value> matcher);
+
+    Fluent<Value> andNot(Matcher<? super Value> matcher);
+    
+    @Override
+    Fluent<Value> all(Matcher<? super Value>... matcher);
+    
+    @Override
+    Fluent<Value> any(Matcher<? super Value>... matcher);
+    
+    @Override
+    Fluent<Value> none(Matcher<? super Value>... matcher);
 
 }

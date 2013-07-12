@@ -2,9 +2,8 @@ package org.cthul.matchers.fluent.values;
 
 /**
  *
- * @author Arian Treffer
  */
-public abstract class MatchValuesBase<Item> implements MatchValues<Item> {
+public abstract class AbstractMatchValues<Item> implements MatchValues<Item> {
 
     @Override
     public void result(boolean success) {

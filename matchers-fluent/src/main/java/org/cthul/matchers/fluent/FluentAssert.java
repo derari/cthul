@@ -1,5 +1,6 @@
 package org.cthul.matchers.fluent;
 
+import org.cthul.matchers.fluent.property.FluentAssertProperty;
 import org.hamcrest.Matcher;
 
 /**
@@ -8,45 +9,62 @@ import org.hamcrest.Matcher;
  * 
  * @author Arian Treffer
  */
-public interface FluentAssert<Item> extends Fluent<Item> {
+public interface FluentAssert<Value> 
+                extends Fluent<Value>, 
+                        FluentAssertProperty<Value, Value> {
     
     @Override
-    FluentAssert<Item> as(String reason);
+    FluentAssert<Value> as(String reason);
 
     @Override
-    FluentAssert<Item> as(String reason, Object... args);
+    FluentAssert<Value> as(String reason, Object... args);
 
     @Override
-    FluentAssert<Item> is(Matcher<? super Item> matcher);
+    FluentAssert<Value> is();
     
     @Override
-    FluentAssert<Item> _(Matcher<? super Item> matcher);
+    FluentAssert<Value> has();
 
     @Override
-    FluentAssert<Item> is();
-
-    @Override
-    FluentAssert<Item> and(Matcher<? super Item> matcher);
-
-    @Override
-    FluentAssert<Item> and();
-
-    @Override
-    FluentAssert<Item> isNot(Matcher<? super Item> matcher);
-
-    @Override
-    FluentAssert<Item> not(Matcher<? super Item> matcher);
-
-    @Override
-    FluentAssert<Item> not();
-
-    @Override
-    FluentAssert<Item> andNot(Matcher<? super Item> matcher);
-
-    @Override
-    FluentAssert<Item> andNot();
+    FluentAssert<Value> not();
     
     @Override
-    FluentAssert<Item> all(Matcher<? super Item>... matcher);
+    FluentAssert<Value> and();
+
+    @Override
+    FluentAssert<Value> andNot();
+    
+    @Override
+    FluentAssert<Value> _(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> is(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> has(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> not(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> isNot(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> hasNot(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> and(Matcher<? super Value> matcher);
+
+    @Override
+    FluentAssert<Value> andNot(Matcher<? super Value> matcher);
+    
+    @Override
+    FluentAssert<Value> all(Matcher<? super Value>... matcher);
+    
+    @Override
+    FluentAssert<Value> any(Matcher<? super Value>... matcher);
+    
+    @Override
+    FluentAssert<Value> none(Matcher<? super Value>... matcher);
     
 }

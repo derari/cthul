@@ -1,4 +1,4 @@
-package org.cthul.matchers.fluent.base;
+package org.cthul.matchers.fluent.builder;
 
 import org.cthul.matchers.diagnose.NestedMatcher;
 import org.hamcrest.Description;
@@ -6,22 +6,23 @@ import org.hamcrest.Matcher;
 
 public class FNot<T> extends NestedMatcher<T> {
 
-    private final boolean prependIS;
+    private final String prefix;
     private final Matcher<? super T> nested;
     private int p = -1;
     
     public FNot(Matcher<? super T> nested) {
-        this(false, nested);
+        this(null, nested);
     }
 
-    public FNot(boolean prependIs, Matcher<? super T> nested) {
-        this.prependIS = prependIs;
+    public FNot(String prefix, Matcher<? super T> nested) {
+        this.prefix = prefix;
         this.nested = nested;
     }
     
     @Override
     public boolean matches(Object o, Description d) {
         if (nested.matches(o)) {
+            FIs.pastPrefix(prefix, d);
             d.appendDescriptionOf(nested);
             return false;
         } else {
@@ -36,10 +37,17 @@ public class FNot<T> extends NestedMatcher<T> {
 
     @Override
     public void describeTo(Description description) {
-        if (prependIS)
-            description.appendText("is ");
+        if (prefix != null) {
+            description.appendText(prefix).appendText(" ");
+        }
         description.appendText("not ");
-        nested.describeTo(description);
+        description.appendDescriptionOf(nested);
+    }
+
+    @Override
+    public void describeMismatch(Object item, Description description) {
+        FIs.pastPrefix(prefix, description);
+        description.appendDescriptionOf(nested);
     }
 
     @Override
