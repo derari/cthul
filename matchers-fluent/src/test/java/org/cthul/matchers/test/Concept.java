@@ -1,7 +1,11 @@
 package org.cthul.matchers.test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import org.cthul.matchers.fluent.adapters.SimpleAdapter;
+import org.cthul.matchers.fluent.values.MatchValue;
+import org.cthul.matchers.fluent.values.MatchValueAdapter;
 import org.junit.Test;
 import org.hamcrest.Matcher;
 import static org.hamcrest.Matchers.*;
@@ -36,5 +40,27 @@ public class Concept {
                 .is(greaterThan(1));
         assertThat(list).not(each_is_gt_1);
         
+        assertThat(anyOf(list)).is(equalTo(3));  
+        
+        assertThat(sizeOf(list)).is(equalTo(3));  
+        
+        assertThat(list)
+                .isNot(empty())
+                .and(size()).is(lessThan(5))
+                .and(eachInt()).is(lessThan(10))
+                .andNot(hasItem(7));
+    }
+    
+    public static MatchValue<Integer> sizeOf(Collection<?> c) {
+        return size().adapt(c);
+    }
+    
+    public static MatchValueAdapter<Collection<?>, Integer> size() {
+        return new SimpleAdapter<Collection<?>, Integer>("size") {
+            @Override
+            protected Integer getValue(Collection<?> v) {
+                return v.size();
+            }
+        };
     }
 }

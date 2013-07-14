@@ -1,7 +1,7 @@
 package org.cthul.matchers.fluent;
 
 import org.cthul.matchers.fluent.builder.FailureHandler;
-import org.cthul.matchers.fluent.values.MatchValues;
+import org.cthul.matchers.fluent.values.MatchValue;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import static org.hamcrest.MatcherAssert.*;
@@ -23,11 +23,11 @@ public class FluentTestBase {
     }
     
     protected void assertSuccess() {
-        assertThat("success", success);
+        assertThat("expected success", success);
     }
     
     protected void assertFail() {
-        assertThat("fail", !success);
+        assertThat("expected fail", !success);
     }
     
     protected void assertMismatch(String... msg) {
@@ -48,15 +48,18 @@ public class FluentTestBase {
     
     protected FailureHandler TEST_HANDLER = new FailureHandler() {
         @Override
-        public <T> void mismatch(String reason, MatchValues<T> item, Matcher<? super T> matcher) {
+        public <T> void mismatch(String reason, MatchValue<T> actual, Matcher<? super T> matcher) {
             if (!success) {
                 // don't override first mismatch
                 return;
             }
             success = false;
-            StringDescription desc = new StringDescription();
-            item.describeMismatch(matcher, desc);
-            mismatch = desc.toString();
+            StringDescription description = new StringDescription();
+            description.appendText("Expected: ");
+            actual.describeExpected(matcher, description);
+            description.appendText("\n     but: ");
+            actual.describeMismatch(matcher, description);
+            mismatch = description.toString();
         }
     };
 }

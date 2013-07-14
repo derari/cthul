@@ -46,6 +46,7 @@ public class FNot<T> extends NestedMatcher<T> {
 
     @Override
     public void describeMismatch(Object item, Description description) {
+        description.appendValue(item).appendText(" ");
         FIs.pastPrefix(prefix, description);
         description.appendDescriptionOf(nested);
     }

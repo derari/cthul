@@ -9,10 +9,9 @@ import org.cthul.matchers.chain.XOrChainMatcher;
 import org.cthul.matchers.diagnose.MatcherDescription;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcher;
 import org.cthul.matchers.fluent.FluentMatcher;
-import org.cthul.matchers.fluent.property.FluentMatcherProperty;
-import org.cthul.matchers.fluent.values.MatchValueType;
-import org.cthul.matchers.fluent.values.ValueMatcher;
-import org.cthul.matchers.fluent.values.types.IdentityValueType;
+import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.values.AdaptingMatcher;
+import org.cthul.matchers.fluent.adapters.IdentityValue;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -27,27 +26,27 @@ public class FluentMatcherBuilder
     
     @Factory
     public static <V> FluentMatcher<V, V> match() {
-        return new FluentMatcherBuilder<>(IdentityValueType.<V>value());
+        return new FluentMatcherBuilder<>(IdentityValue.<V>value());
     }
     
     @Factory
     public static <V> FluentMatcher<V, V> match(Class<V> c) {
-        return new FluentMatcherBuilder<>(IdentityValueType.<V>value());
+        return new FluentMatcherBuilder<>(IdentityValue.<V>value());
     }
     
     @Factory
-    public static <V, M> FluentMatcher<V, M> match(MatchValueType<M, V> adapter) {
+    public static <V, M> FluentMatcher<V, M> match(MatchValueAdapter<M, V> adapter) {
         return new FluentMatcherBuilder<>(adapter);
     }
     
     private final List<Matcher<? super Value>> matchers = new ArrayList<>();
-    private final MatchValueType<Match, Value> matchValueType;
+    private final MatchValueAdapter<Match, Value> matchValueType;
     private ChainFactory chainFactory = null;
     private boolean xorPossible = true;
     
     private QuickDiagnosingMatcher<Match> result = null;
 
-    public FluentMatcherBuilder(MatchValueType<Match, Value> matchValueType) {
+    public FluentMatcherBuilder(MatchValueAdapter<Match, Value> matchValueType) {
         this.matchValueType = matchValueType;
     }
     
@@ -67,11 +66,6 @@ public class FluentMatcherBuilder
         }
     }
 
-    @Override
-    protected This _thisFluent() {
-        return (This) this;
-    }
-    
     protected void _and() {
         ensureChain(AndChainMatcher.FACTORY);
     }
@@ -94,13 +88,9 @@ public class FluentMatcherBuilder
     }
 
     @Override
-    protected <P> FluentMatcherProperty<Value, P, Match> _newProperty(MatchValueType<? super Value, P> adapter) {
-        return new MatcherPropertyBuilder<>(this, adapter);
-    }
-
-    @Override
-    protected void applyMatcher(Matcher<? super Value> matcher) {
+    protected This _applyMatcher(Matcher<? super Value> matcher) {
         matchers.add(matcher);
+        return _this();
     }
 
     @Override
@@ -145,46 +135,40 @@ public class FluentMatcherBuilder
     @Override
     public This and(Matcher<? super Value> matcher) {
         _and();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
     public This or(Matcher<? super Value> matcher) {
         _or();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
     public This xor(Matcher<? super Value> matcher) {
         _xor();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
     public This andNot(Matcher<? super Value> matcher) {
         _and();
         _not();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
     public This orNot(Matcher<? super Value> matcher) {
         _or();
         _not();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
     public This xorNot(Matcher<? super Value> matcher) {
         _xor();
         _not();
-        _match(matcher);
-        return _this();
+        return _match(matcher);
     }
 
     @Override
@@ -198,11 +182,11 @@ public class FluentMatcherBuilder
             if (description != null) {
                 m = new MatcherDescription<>(m, description);
             }
-            if (matchValueType instanceof IdentityValueType 
+            if (matchValueType instanceof IdentityValue 
                     && m instanceof QuickDiagnosingMatcher) {
                 result = (QuickDiagnosingMatcher) m;
             } else {
-                result = new ValueMatcher<>(m, matchValueType);
+                result = new AdaptingMatcher<>(matchValueType, m);
             }
         }
         return result;
@@ -233,42 +217,15 @@ public class FluentMatcherBuilder
     public void _dont_implement_Matcher___instead_extend_BaseMatcher_() {
         // Java needs traits
     }
-    
-    protected static class MatcherPropertyBuilder
-                    <Value, BaseProperty, Match, ThisFluent extends FluentMatcher<Value, Match>, 
-                     Property, This extends MatcherPropertyBuilder<Value, BaseProperty, Match, ThisFluent, Property, This>>
-                    extends AbstractMatcherPropertyBuilder<Value, Property, Match, ThisFluent, This> 
-                    implements FluentMatcherProperty<Value, Property, Match> {
-        
-        private final AbstractMatcherPropertyBuilder<Value, BaseProperty, Match, ThisFluent, ?> baseFluent;
-        private final MatchValueType<? super BaseProperty, Property> adapter;
-        private boolean used = false;
 
-        public MatcherPropertyBuilder(AbstractMatcherPropertyBuilder<Value, BaseProperty, Match, ThisFluent, ?> baseFluent, MatchValueType<? super BaseProperty, Property> adapter) {
-            this.baseFluent = baseFluent;
-            this.adapter = adapter;
+    @Override
+    public String toString() {
+        if (result == null) {
+            String s = getMatcher().toString();
+            result = null;
+            return s;
         }
-
-        @Override
-        protected <P> FluentMatcherProperty<Value, P, Match> _newProperty(MatchValueType<? super Property, P> adapter) {
-            return new MatcherPropertyBuilder<>(this, adapter);
-        }
-
-        @Override
-        protected void applyMatcher(Matcher<? super Property> matcher) {
-            if (used) {
-                throw new IllegalStateException("Property already checked");
-            }
-            used = true;
-            Matcher<? super BaseProperty> m = new ValueMatcher<>(matcher, adapter);
-            baseFluent._match(m);
-        }
-
-        @Override
-        protected ThisFluent _thisFluent() {
-            return baseFluent._thisFluent();
-        }
-        
+        return getMatcher().toString();
     }
-
+    
 }

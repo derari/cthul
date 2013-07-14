@@ -15,7 +15,7 @@ public class FluentMatcherBuilderTest extends FluentTestBase {
     public void test_simple_match() {
         test_assertThat(3, matcherI()._(lessThan(2)));
         
-        assertMismatch("<3> was greater than <2>");
+        assertMismatch("greater than <2>");
     }
     
     @Test
@@ -23,7 +23,7 @@ public class FluentMatcherBuilderTest extends FluentTestBase {
         test_assertThat(3, matcherI()
                 ._(lessThan(5))
                 .and(lessThan(2)));
-        assertMismatch("<3> was greater than <2>");
+        assertMismatch("greater than <2>");
     }
     
     @Test
@@ -31,14 +31,19 @@ public class FluentMatcherBuilderTest extends FluentTestBase {
         test_assertThat(3, matcherI()
                 .not(lessThan(5))
                 .and(lessThan(2)));
-        assertMismatch("a value less than <5>");
+        assertMismatch("less than <5>");
     }
     
     @Test
     public void test_message_with_is() {
         test_assertThat(3, matcherI()
                 .is(lessThan(2)));
-        assertMismatch("<3> was greater than <2>");
+        assertMismatch("greater than <2>");
+    }
+    
+    @Test
+    public void test_description() {
+        
     }
     
     protected <T> FluentMatcher<T, T> matcher(Class<T> c) {

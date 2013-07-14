@@ -2,7 +2,7 @@ package org.cthul.matchers;
 
 import org.cthul.matchers.fluent.FluentMatcher;
 import org.cthul.matchers.fluent.builder.FluentMatcherBuilder;
-import org.cthul.matchers.fluent.values.MatchValueType;
+import org.cthul.matchers.fluent.values.MatchValueAdapter;
 
 /**
  *
@@ -17,7 +17,7 @@ public class CoreFluents extends CoreFluentsBase {
         return FluentMatcherBuilder.match(c);
     }
     
-    public static <V, M> FluentMatcher<V, M> match(MatchValueType<M, V> adapter) {
+    public static <V, M> FluentMatcher<V, M> match(MatchValueAdapter<M, V> adapter) {
         return FluentMatcherBuilder.match(adapter);
     }
     

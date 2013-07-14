@@ -34,7 +34,7 @@ public class FIs<T> extends NestedMatcher<T> {
 
     @Override
     public void describeMismatch(Object item, Description description) {
-        pastPrefix(prefix, description);
+//        pastPrefix(prefix, description);
         nested.describeMismatch(item, description);
     }
 
@@ -49,8 +49,10 @@ public class FIs<T> extends NestedMatcher<T> {
             switch (prefix) {
                 case "is":
                     description.appendText("was ");
+                    break;
                 case "has":
                     description.appendText("had ");
+                    break;
                 default:
                     description.appendText(prefix).appendText(" ");
             }

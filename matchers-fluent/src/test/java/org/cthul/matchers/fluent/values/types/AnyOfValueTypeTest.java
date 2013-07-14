@@ -12,32 +12,32 @@ import org.cthul.matchers.fluent.values.MatchValueAdapter;
 import org.hamcrest.Matcher;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
-import static org.cthul.matchers.fluent.adapters.EachOfAdapter.*;
+import static org.cthul.matchers.fluent.adapters.AnyOfAdapter.*;
 import org.junit.Test;
 
 /**
  *
  */
-public class EachOfValueTypeTest extends FluentTestBase {
+public class AnyOfValueTypeTest extends FluentTestBase {
         
     @Test
     public void test_simple_match() {
-        test_assertThat(eachOf(1, 3, 5))._(lessThan(2));
-        assertMismatch("greater than <2>");
+        test_assertThat(anyOf(1, 3, 5))._(lessThan(1));
+        assertMismatch("greater than <1>");
     }
     
     @Test
     public void test_simple_match_success() {
-        test_assertThat(eachOf(1, 3, 5))._(lessThan(10));
+        test_assertThat(anyOf(1, 3, 5))._(greaterThan(3));
         assertSuccess();
     }
     
     @Test
     public void test_chained_match() {
-        test_assertThat(eachOf(1, 3, 4))
+        test_assertThat(anyOf(1, 3, 4))
                 ._(lessThan(5))
-                ._(lessThan(2));
-        assertMismatch("greater than <2>");
+                ._(lessThan(1));
+        assertMismatch("greater than <1>");
     }
     
     @Test
@@ -46,59 +46,50 @@ public class EachOfValueTypeTest extends FluentTestBase {
     }
     
     @Test
-    public void test_chained_each() {
+    public void test_chained_any() {
         List<Integer> list = Arrays.asList(1, 3, 5);
         test_assertThat(list)
-                ._(eachInt()).is(greaterThan(0));
+                ._(anyInt()).is(greaterThan(3));
     }
     
     @Test
     public void test_matcher_description() {
-        Matcher<?> m = test_matcher(eachInt()).is(lessThan(3));
-        assertThat(m.toString(), is("each is a value less than <3>"));
+        Matcher<?> m = test_matcher(anyInt()).is(lessThan(3));
+        assertThat(m.toString(), is("any is a value less than <3>"));
     }
     
     @Test
     public void test_assert_description() {
-        test_assertThat(eachOf(1, 3, 4)).is(lessThan(3));
+        test_assertThat(anyOf(1, 3, 4)).is(lessThan(1));
         
         assertMismatch(
-                "each is a value less than <3>",
-                "#1 <3> was equal to <3>");
+                "any is a value less than <1>",
+                "<1> was equal to <1>, <3> was greater than <1>, <4> was greater than <1>");
     }
     
     @Test
-    public void test_assert_description_2() {
-        test_assertThat(eachOf(1, 3, 4))
-                .is(greaterThan(0))
-                .and(lessThan(3));
+    public void test_assert_description_chained() {
+        test_assertThat(anyOf(1, 4, 3))
+                .is(greaterThan(1))
+                .and(greaterThan(3))
+                .and(greaterThan(4));
         
         assertMismatch(
-                "each a value less than <3>",
-                "#1 <3> was equal to <3>");
+                "any is a value greater than <1> and a value greater than <4>",
+                "<1> was equal to <1>, <4> was equal to <4>, <3> was less than <4>");
     }
     
     @Test
     public void test_assert_description_not(){
-        test_assertThat(eachOf(1, 3, 4)).isNot(greaterThan(3));
+        test_assertThat(anyOf(1, 3, 4)).isNot(greaterThan(0));
         
         assertMismatch(
-                "each is not a value greater than <3>",
-                "#2 <4> was a value greater than <3>");
+                "any is not a value greater than <0>",
+                "<1> was a value greater than <0>, <3> was a value greater than <0>, <4> was a value greater than <0>");
     }
     
-    @Test
-    public void test_assert_description_chained(){
-        List<Integer> list = Arrays.asList(1, 3, 5);
-        test_assertThat(list)._(eachInt()).is(greaterThan(3));
-        
-        assertMismatch(
-                "each is a value greater than <3>",
-                "#0 <1> was less than <3>");
-    }
-    
-    MatchValueAdapter<Iterable<? extends Integer>, Integer> eachInt() {
-        return eachOf();
+    MatchValueAdapter<Iterable<? extends Integer>, Integer> anyInt() {
+        return anyOf();
     }
     
     protected <T> FluentAssert<T> test_assertThat(MatchValue<T> object) {
