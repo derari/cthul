@@ -21,4 +21,20 @@ public interface MatchValue<Item> {
     
     void describeMismatch(Matcher<? super Item> matcher, Description description);
     
+    Element<Item> elements();
+    
+    boolean matched();
+    
+    interface Element<Item> {
+        
+        Item value();
+        
+        void success();
+        
+        void fail();
+        
+        void result(boolean match);
+        
+        Element<Item> next();
+    }
 }
