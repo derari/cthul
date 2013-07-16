@@ -13,15 +13,11 @@ import org.hamcrest.Matcher;
  */
 public interface MatchValue<Item> {
     
-    boolean matches(Matcher<? super Item> matcher);
-    
-    boolean matches(Matcher<? super Item> matcher, Description mismatch);
+    boolean matches(ElementMatcher<Item> matcher);
 
-    void describeExpected(Matcher<? super Item> matcher, Description description);
+    void describeExpected(Description description);
     
-    void describeMismatch(Matcher<? super Item> matcher, Description description);
-    
-    Element<Item> elements();
+    void describeMismatch(Description description);
     
     boolean matched();
     
@@ -29,12 +25,11 @@ public interface MatchValue<Item> {
         
         Item value();
         
-        void success();
+    }
+    
+    interface ElementMatcher<Item> extends Matcher<Element<Item>> {
         
-        void fail();
+        void describeExpected(Element<Item> e, Description description);
         
-        void result(boolean match);
-        
-        Element<Item> next();
     }
 }

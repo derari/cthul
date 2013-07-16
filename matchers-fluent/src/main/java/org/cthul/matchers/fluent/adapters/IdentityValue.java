@@ -1,5 +1,6 @@
 package org.cthul.matchers.fluent.adapters;
 
+import org.cthul.matchers.fluent.values.AbstractMatchValueAdapter;
 import org.cthul.matchers.fluent.values.MatchValue;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -7,7 +8,7 @@ import org.hamcrest.Matcher;
 /**
  *
  */
-public class IdentityValue<T> extends ConvertingAdapter<T, T> {
+public class IdentityValue<T> extends AbstractMatchValueAdapter<T, T> {
 
     private static final IdentityValue INSTANCE = new IdentityValue<>();
     
@@ -18,19 +19,15 @@ public class IdentityValue<T> extends ConvertingAdapter<T, T> {
     public static <T> MatchValue<T> value(T v) {
         return INSTANCE.adapt(v);
     }
-    
+
     @Override
-    protected T getValue(T v) {
+    public MatchValue<T> wrap(MatchValue<T> v) {
+        // well, that was easy
         return v;
     }
 
     @Override
     public void describeTo(Matcher<?> matcher, Description description) {
-        matcher.describeTo(description);
+        description.appendDescriptionOf(matcher);
     }
-
-    @Override
-    protected void describeMismatch(Matcher<?> matcher, T value, T item, Description description) {
-        matcher.describeMismatch(item, description);
-    }   
 }

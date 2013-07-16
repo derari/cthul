@@ -12,12 +12,12 @@ import org.hamcrest.Matcher;
  */
 public class AdaptingMatcher<Value, Item> extends NestedMatcher<Value> {
     
-    private final Matcher<? super Item> matcher;
+    private final ElementMatcher<Item> matcher;
     private final MatchValueAdapter<Value, Item> adapter;
 
     public AdaptingMatcher(MatchValueAdapter<Value, Item> adapter, Matcher<? super Item> matcher) {
         this.adapter = adapter;
-        this.matcher = matcher;
+        this.matcher = new ElementMatcher<>(matcher);
     }
 
     @Override
@@ -29,7 +29,12 @@ public class AdaptingMatcher<Value, Item> extends NestedMatcher<Value> {
     @Override
     public boolean matches(Object item, Description mismatch) {
         Value v = (Value) item;
-        return adapter.adapt(v).matches(matcher, mismatch);
+        MatchValue<Item> mv = adapter.adapt(v);
+        if (mv.matches(matcher)) {
+            return true;
+        }
+        mv.describeMismatch(mismatch);
+        return false;
     }
 
     @Override
@@ -39,8 +44,7 @@ public class AdaptingMatcher<Value, Item> extends NestedMatcher<Value> {
 
     @Override
     public void describeMismatch(Object item, Description description) {
-        Value v = (Value) item;
-        adapter.adapt(v).describeMismatch(matcher, description);
+        matches(item, description);
     }
     
     @Override

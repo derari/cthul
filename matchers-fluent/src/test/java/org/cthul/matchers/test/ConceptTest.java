@@ -14,7 +14,7 @@ import static org.cthul.matchers.CoreFluents.*;
 /**
  *
  */
-public class Concept {
+public class ConceptTest {
     
     @Test
     public void concept() {

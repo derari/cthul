@@ -1,10 +1,13 @@
 package org.cthul.matchers.fluent.adapters;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import org.cthul.matchers.fluent.values.AbstractMatchValueAdapter;
-import org.cthul.matchers.fluent.values.AbstractMatchValue;
 import org.cthul.matchers.fluent.values.MatchValue;
+import org.cthul.matchers.fluent.values.MatchValue.Element;
+import org.cthul.matchers.fluent.values.MatchValue.ElementMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -63,7 +66,7 @@ public class AnyOfAdapter<Item> extends
     }
 
     @Override
-    public MatchValue<Item> adapt(Iterable<? extends Item> v) {
+    public MatchValue<Item> wrap(MatchValue<Iterable<? extends Item>> v) {
         return new AnyOfValues<>(v);
     }
 
@@ -73,105 +76,133 @@ public class AnyOfAdapter<Item> extends
         description.appendDescriptionOf(matcher);
     }
 
-    protected static class AnyOfValues<I> extends AbstractMatchValue<I> {
+    protected static class AnyOfValues<Item> extends AbstractAdaptedValue<Iterable<? extends Item>, Item> {
+
+        private final List<ElementMatcher<Item>> previousMatchers = new ArrayList<>();
         
-        private final Iterable<? extends I> iterable;
-        private boolean active = true;
-        private Iterator<? extends I> iterator = null;
-        private I current = null;
-        private Mismatch<I> mismatches = null;
-        private Mismatch<I> lastMismatch = null;
-        
-        public AnyOfValues(Iterable<? extends I> iterable) {
-            this.iterable = iterable;
-        }
-        
-        private boolean hasCurrent() {
-            if (iterator == null) {
-                iterator = iterable.iterator();
-                return next();
-            }
-            return active;
-        }
-        
-        private boolean next() {
-            if (!iterator.hasNext()) {
-                active = false;
-                return false;
-            }
-            current = iterator.next();
-            return true;
+        public AnyOfValues(MatchValue<Iterable<? extends Item>> actualValue) {
+            super(actualValue);
         }
 
         @Override
-        public boolean matches(Matcher<? super I> matcher) {
-            while (hasCurrent()) {
-                if (matcher.matches(current)) {
-                    return true;
-                }
-                Mismatch<I> m = new Mismatch<>(current, matcher);
-                if (lastMismatch == null) {
-                    mismatches = lastMismatch = m;
-                } else {
-                    lastMismatch.next = m;
-                    lastMismatch = m;
-                }
-                next();
-            }
-            return false;
+        protected Object createItem(Element<Iterable<? extends Item>> key) {
+            return new AnyItemIterable<>(key.value());
         }
 
         @Override
-        public boolean matches(Matcher<? super I> matcher, Description mismatch) {
-            if (matches(matcher)) {
-                return true;
-            }
-            describeMismatch(matcher, mismatch);
-            return false;
+        public boolean matches(ElementMatcher<Item> matcher) {
+            previousMatchers.add(matcher);
+            return super.matches(matcher); 
         }
 
         @Override
-        public void describeExpected(Matcher<? super I> matcher, Description description) {
-            description.appendText("any ");
-            Mismatch<I> m = mismatches;
-            Matcher<?> last = null;
-            while (m != null) {
-                Matcher<?> expected = m.matcher;
-                if (expected != last) {
-                    if (last != null) {
-                        description.appendText(" and ");
+        protected boolean matches(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher) {
+            AnyItemIterable<Item> it = cachedItem(element);
+            E<Item> e = it.firstValid();
+            if (e == null) return false;
+            if (matcher.matches(e)) return true;
+            e.mismatch = matcher;
+            e = it.nextValid(e);
+            while (e != null) {
+                boolean match = true;
+                for (ElementMatcher<Item> m: previousMatchers) {
+                    if (!m.matches(e)) {
+                        e.mismatch = m;
+                        match = false;
+                        break;
                     }
-                    description.appendDescriptionOf(expected);
-                    last = expected;
                 }
-                m = m.next;
+                if (match) return true;
+                e = it.nextValid(e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void describeExpected(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher, Description description) {
+            AnyItemIterable<Item> it = cachedItem(element);
+            E<Item> first = it.first();
+            E<Item> e = first;
+            while (e != null) {
+//                if (e != first) {
+//                    description.appendText(", ");
+//                }
+                e.mismatch.describeExpected(e, description);
+                e = it.next(e);
             }
         }
 
         @Override
-        public void describeMismatch(Matcher<? super I> matcher, Description description) {
-            Mismatch<I> m = mismatches;
-            while (m != null) {
-                if (m != mismatches) {
+        protected void describeMismatch(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher, Description description) {
+            AnyItemIterable<Item> it = cachedItem(element);
+            E<Item> first = it.first();
+            E<Item> e = first;
+            while (e != null) {
+                if (e != first) {
                     description.appendText(", ");
                 }
-                m.matcher.describeMismatch(m.item, description);
-                m = m.next;
+                e.mismatch.describeMismatch(e, description);
+                e = it.next(e);
             }
         }
-
+        
     }
     
-    private static class Mismatch<I> {
+    protected static class AnyItemIterable<Item> {
         
-        public final I item;
-        public final Matcher<? super I> matcher;
-        public Mismatch<I> next = null;
-
-        public Mismatch(I item, Matcher<? super I> matcher) {
-            this.item = item;
-            this.matcher = matcher;
+        private final Iterator<? extends Item> source;
+        private E<Item> first = null;
+        E<Item> firstValid = null;
+        
+        public AnyItemIterable(Iterable<? extends Item> iterable) {
+            this.source = iterable.iterator();
         }
         
+        public E<Item> firstValid() {
+            if (firstValid == null) {
+                if (first != null) {
+                    // no valid elements
+                    return null;
+                }
+                firstValid = first();
+            }
+            return firstValid;
+        }
+        
+        public E<Item> nextValid(E<Item> e) {
+            return firstValid = next(e);
+        }
+        
+        public E<Item> first() {
+            if (first == null) {
+                if (!source.hasNext()) return null;
+                first = new E<>(source.next());
+            }
+            return first;
+        }
+        
+        public E<Item> next(E<Item> e) {
+            if (e.next == null) {
+                if (!source.hasNext()) return null;
+                e.next = new E<>(source.next());
+            }
+            return e.next;
+        }
+    }
+    
+    protected static class E<Item> implements Element<Item> {
+        
+        private final Item value;
+        ElementMatcher<Item> mismatch = null;
+        E<Item> next = null;
+
+        public E(Item value) {
+            this.value = value;
+        }
+
+        @Override
+        public Item value() {
+            return value;
+        }
     }
 }

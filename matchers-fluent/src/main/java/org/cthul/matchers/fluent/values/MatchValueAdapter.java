@@ -17,6 +17,11 @@ public interface MatchValueAdapter<Value, Item> {
     
     MatchValue<Item> wrap(MatchValue<Value> v);
     
+    /**
+     * 
+     * @param matcher
+     * @param description 
+     */
     void describeTo(Matcher<?> matcher, Description description);
     
 }

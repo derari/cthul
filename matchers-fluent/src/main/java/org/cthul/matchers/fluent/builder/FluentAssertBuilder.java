@@ -6,6 +6,7 @@ import org.cthul.matchers.fluent.property.FluentAssertProperty;
 import org.cthul.matchers.fluent.values.MatchValueAdapter;
 import org.cthul.matchers.fluent.values.MatchValue;
 import org.cthul.matchers.fluent.adapters.IdentityValue;
+import org.cthul.matchers.fluent.values.ElementMatcher;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
@@ -53,8 +54,9 @@ public class FluentAssertBuilder<Value, This extends FluentAssertBuilder<Value, 
 
     @Override
     protected This _applyMatcher(Matcher<? super Value> matcher) {
-        if (!matchValue.matches(matcher)) {
-            failureHandler.mismatch(getReason(), matchValue, matcher);
+        MatchValue.ElementMatcher<Value> m = new ElementMatcher<>(matcher);
+        if (!matchValue.matches(m)) {
+            failureHandler.mismatch(getReason(), matchValue, m);
         }
         return _this();
     }
