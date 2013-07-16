@@ -1,8 +1,8 @@
 package org.cthul.matchers.fluent;
 
 import org.cthul.matchers.fluent.builder.*;
-import org.cthul.matchers.fluent.values.MatchValue;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValue;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import static org.hamcrest.MatcherAssert.*;

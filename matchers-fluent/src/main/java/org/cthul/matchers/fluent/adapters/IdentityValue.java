@@ -1,7 +1,7 @@
 package org.cthul.matchers.fluent.adapters;
 
-import org.cthul.matchers.fluent.values.AbstractMatchValueAdapter;
-import org.cthul.matchers.fluent.values.MatchValue;
+import org.cthul.matchers.fluent.value.AbstractMatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValue;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 

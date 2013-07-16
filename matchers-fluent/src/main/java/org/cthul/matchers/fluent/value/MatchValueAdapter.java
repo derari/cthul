@@ -1,4 +1,4 @@
-package org.cthul.matchers.fluent.values;
+package org.cthul.matchers.fluent.value;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

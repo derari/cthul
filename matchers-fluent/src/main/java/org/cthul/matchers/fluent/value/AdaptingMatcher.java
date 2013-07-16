@@ -1,4 +1,4 @@
-package org.cthul.matchers.fluent.values;
+package org.cthul.matchers.fluent.value;
 
 import org.cthul.matchers.diagnose.NestedMatcher;
 import org.hamcrest.Description;

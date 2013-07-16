@@ -1,7 +1,7 @@
-package org.cthul.matchers.fluent.values;
+package org.cthul.matchers.fluent.value;
 
-import org.cthul.matchers.fluent.values.MatchValue.Element;
-import org.cthul.matchers.fluent.values.MatchValue.ExpectationDescription;
+import org.cthul.matchers.fluent.value.MatchValue.Element;
+import org.cthul.matchers.fluent.value.MatchValue.ExpectationDescription;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;

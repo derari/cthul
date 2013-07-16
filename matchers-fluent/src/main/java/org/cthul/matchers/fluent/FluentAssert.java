@@ -1,7 +1,7 @@
 package org.cthul.matchers.fluent;
 
 import org.cthul.matchers.fluent.property.FluentAssertProperty;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
 import org.hamcrest.Matcher;
 
 /**

@@ -1,10 +1,10 @@
 package org.cthul.matchers.fluent.adapters;
 
-import org.cthul.matchers.fluent.values.AbstractMatchValueAdapter;
-import org.cthul.matchers.fluent.values.MatchValue;
-import org.cthul.matchers.fluent.values.MatchValue.Element;
-import org.cthul.matchers.fluent.values.MatchValue.ElementMatcher;
-import org.cthul.matchers.fluent.values.MatchValue.ExpectationDescription;
+import org.cthul.matchers.fluent.value.AbstractMatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValue;
+import org.cthul.matchers.fluent.value.MatchValue.Element;
+import org.cthul.matchers.fluent.value.MatchValue.ElementMatcher;
+import org.cthul.matchers.fluent.value.MatchValue.ExpectationDescription;
 import org.hamcrest.Description;
 
 /**

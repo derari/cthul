@@ -2,13 +2,8 @@ package org.cthul.matchers.fluent.adapters;
 
 import java.util.Arrays;
 import java.util.List;
-import org.cthul.matchers.fluent.FluentAssert;
-import org.cthul.matchers.fluent.FluentMatcher;
 import org.cthul.matchers.fluent.FluentTestBase;
-import org.cthul.matchers.fluent.builder.FluentAssertBuilder;
-import org.cthul.matchers.fluent.builder.FluentMatcherBuilder;
-import org.cthul.matchers.fluent.values.MatchValue;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
 import org.hamcrest.Matcher;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -64,7 +59,7 @@ public class AnyOfAdapterTest extends FluentTestBase {
         
         assertMismatch(
                 "any of list is a value less than <1>",
-                "<1> was equal to <1>, <3> was greater than <1>, <4> was greater than <1>");
+                "#0 <1> was equal to <1>, #1 <3> was greater than <1>, and #2 <4> was greater than <1>");
     }
     
     @Test
@@ -76,7 +71,7 @@ public class AnyOfAdapterTest extends FluentTestBase {
         
         assertMismatch(
                 "any of list is a value greater than <1>, and a value greater than <4>",
-                "<1> was equal to <1>, <4> was equal to <4>, <3> was less than <4>");
+                "#0 <1> was equal to <1>, #1 <4> was equal to <4>, and #2 <3> was less than <4>");
     }
     
     @Test
@@ -85,7 +80,7 @@ public class AnyOfAdapterTest extends FluentTestBase {
         
         assertMismatch(
                 "any of list is not a value greater than <0>",
-                "<1> was a value greater than <0>, <3> was a value greater than <0>, <4> was a value greater than <0>");
+                "#0 <1> was a value greater than <0>, #1 <3> was a value greater than <0>, and #2 <4> was a value greater than <0>");
     }
     
     MatchValueAdapter<Iterable<? extends Integer>, Integer> anyInt() {

@@ -1,11 +1,11 @@
 package org.cthul.matchers.fluent;
 
 import org.cthul.matchers.fluent.property.FluentProperty;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
 import org.hamcrest.Matcher;
 
 /**
- * Fluent matcher chain.
+ * Fluent matcher chain, is either a {@link FluentAssert} or a {@link FluentMatcher}.
  * <p>
  * As a {@linkplain FluentProperty property}, it matches against the
  * value itself.

@@ -3,10 +3,10 @@ package org.cthul.matchers.fluent.builder;
 import static org.cthul.matchers.fluent.AssertUtils.ASSERT;
 import org.cthul.matchers.fluent.FluentAssert;
 import org.cthul.matchers.fluent.property.FluentAssertProperty;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
-import org.cthul.matchers.fluent.values.MatchValue;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValue;
 import org.cthul.matchers.fluent.adapters.IdentityValue;
-import org.cthul.matchers.fluent.values.ElementMatcher;
+import org.cthul.matchers.fluent.value.ElementMatcher;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 

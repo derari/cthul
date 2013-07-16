@@ -19,7 +19,7 @@ public class CombinedAdapterTest extends FluentTestBase {
         
     @Test
     public void test_assert_description_each_each() {
-        List<List<Integer>> list = _(_(1, 2), _(3, 4, 5));
+        List<List<Integer>> list = _(_(1, 2), _(3, 4, 5), _(1, 3));
         test_assertThat(eachOf(eachOf(list)))
                 .is(lessThan(10))
                 .and().isNot(equalTo(3));

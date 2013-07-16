@@ -4,7 +4,7 @@ import org.cthul.matchers.chain.AndChainMatcher;
 import org.cthul.matchers.chain.OrChainMatcher;
 import org.cthul.matchers.fluent.Fluent;
 import org.cthul.matchers.fluent.property.FluentProperty;
-import org.cthul.matchers.fluent.values.MatchValueAdapter;
+import org.cthul.matchers.fluent.value.MatchValueAdapter;
 import org.hamcrest.Matcher;
 
 /**
