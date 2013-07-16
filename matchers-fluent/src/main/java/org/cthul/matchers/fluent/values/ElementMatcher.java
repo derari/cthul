@@ -1,6 +1,7 @@
 package org.cthul.matchers.fluent.values;
 
 import org.cthul.matchers.fluent.values.MatchValue.Element;
+import org.cthul.matchers.fluent.values.MatchValue.ExpectationDescription;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -28,9 +29,9 @@ public class ElementMatcher<Item> extends TypeSafeMatcher<Element<Item>>
     }
 
     @Override
-    public void describeExpected(Element<Item> e, Description description) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        
+    public void describeExpected(Element<Item> e, ExpectationDescription description) {
+        matcher.describeTo(description);
+        description.addedExpectation();
     }
 
     @Override

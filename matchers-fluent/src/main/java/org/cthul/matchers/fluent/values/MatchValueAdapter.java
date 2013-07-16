@@ -15,13 +15,8 @@ public interface MatchValueAdapter<Value, Item> {
     
     MatchValue<Item> adapt(Value v);
     
-    MatchValue<Item> wrap(MatchValue<Value> v);
+    MatchValue<Item> adapt(MatchValue<Value> v);
     
-    /**
-     * 
-     * @param matcher
-     * @param description 
-     */
-    void describeTo(Matcher<?> matcher, Description description);
+    void describeMatcher(Matcher<?> matcher, Description description);
     
 }

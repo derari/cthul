@@ -21,13 +21,12 @@ public class IdentityValue<T> extends AbstractMatchValueAdapter<T, T> {
     }
 
     @Override
-    public MatchValue<T> wrap(MatchValue<T> v) {
-        // well, that was easy
-        return v;
+    public MatchValue<T> adapt(MatchValue<T> v) {
+        return v; // well, that was easy
     }
 
     @Override
-    public void describeTo(Matcher<?> matcher, Description description) {
+    public void describeMatcher(Matcher<?> matcher, Description description) {
         description.appendDescriptionOf(matcher);
     }
 }

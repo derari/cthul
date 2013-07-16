@@ -35,17 +35,22 @@ public class EachOfAdapter<Item> extends
     
     @Factory
     public static <I> MatchValue<I> eachOf(MatchValue<? extends Iterable<? extends I>> mo) {
-        return INSTANCE.wrap(mo);
+        return INSTANCE.adapt(mo);
     }
     
     @Factory
-    public static <I> EachOfAdapter<I> each(Class<I> c) {
+    public static <I> EachOfAdapter<I> each() {
         return INSTANCE;
     }
     
     @Factory
+    public static <I> EachOfAdapter<I> each(Class<I> c) {
+        return each();
+    }
+    
+    @Factory
     public static <I> MatchValue<I> each(Iterable<? extends I> iterable) {
-        return INSTANCE.adapt(iterable);
+        return eachOf(iterable);
     }
     
     @Factory
@@ -55,21 +60,21 @@ public class EachOfAdapter<Item> extends
     
     @Factory
     public static <I> MatchValue<I> each(MatchValue<? extends Iterable<? extends I>> mo) {
-        return INSTANCE.wrap(mo);
+        return eachOf(mo);
     }
     
     @Factory
     public static EachOfAdapter<Integer> eachInt() {
-        return INSTANCE;
+        return each();
     }
 
     @Override
-    public MatchValue<Item> wrap(MatchValue<Iterable<? extends Item>> v) {
+    public MatchValue<Item> adapt(MatchValue<Iterable<? extends Item>> v) {
         return new EachOfValues<>(v);
     }
 
     @Override
-    public void describeTo(Matcher<?> matcher, Description description) {
+    public void describeMatcher(Matcher<?> matcher, Description description) {
         description.appendText("each ");
         description.appendDescriptionOf(matcher);
     }
@@ -96,25 +101,44 @@ public class EachOfAdapter<Item> extends
                     it.invalid = e;
                     return false;
                 }
+                e = it.next(e);
             }
             return true;
         }
 
         @Override
-        protected void describeExpected(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher, Description description) {
+        public void describeTo(Description description) {
+            description.appendText("each of ");
+            getActualValue().describeTo(description);
+        }
+
+        @Override
+        public void describeValueType(Description description) {
+            description.appendText("each of ");
+            getActualValue().describeValueType(description);
+        }
+
+        @Override
+        protected void describeExpected(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher, ExpectationDescription description) {
             EachItemIterable<Item> it = cachedItem(element);
-            matcher.describeExpected(it.invalid, description);
+            E<Item> e = it.invalid;
+            assert e.mismatch == matcher : 
+                    "The nested value should complain only about the matcher "
+                    + "that caused this one to fail";
+            matcher.describeExpected(e, description);
         }
 
         @Override
         protected void describeMismatch(Element<Iterable<? extends Item>> element, ElementMatcher<Item> matcher, Description description) {
             EachItemIterable<Item> it = cachedItem(element);
             E<Item> e = it.invalid;
-            assert e.mismatch == matcher;
+            assert e.mismatch == matcher : 
+                    "The nested value should complain only about the matcher "
+                    + "that caused this one to fail";
             description.appendText("#")
                        .appendText(String.valueOf(e.i))
                        .appendText(" ");
-            matcher.describeMismatch(it.invalid, description);
+            matcher.describeMismatch(e, description);
         }        
     }
     

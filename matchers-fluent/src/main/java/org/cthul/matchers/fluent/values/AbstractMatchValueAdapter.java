@@ -1,9 +1,13 @@
 package org.cthul.matchers.fluent.values;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.cthul.matchers.fluent.values.MatchValue.Element;
 import org.cthul.matchers.fluent.values.MatchValue.ElementMatcher;
+import org.cthul.matchers.fluent.values.MatchValue.ExpectationDescription;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
@@ -15,11 +19,11 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
     @Override
     public MatchValue<Item> adapt(Value v) {
         SingleElement<Value> e = new SingleElement<>(v);
-        return wrap(e);
+        return adapt(e);
     }
     
     @Override
-    public abstract MatchValue<Item> wrap(MatchValue<Value> v);
+    public abstract MatchValue<Item> adapt(MatchValue<Value> v);
     
     protected abstract static class AbstractAdaptedValue<Value, Item> extends AbstractMatchValue<Item> {
         
@@ -32,6 +36,10 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
         public AbstractAdaptedValue(MatchValue<Value> actualValue) {
             this.actualValue = actualValue;
         }
+
+        protected MatchValue<Value> getActualValue() {
+            return actualValue;
+        }
         
         protected ElementMatcher<Value> adapt(ElementMatcher<Item> matcher) {
             return new AdaptedMatcher<>(this, matcher);
@@ -43,7 +51,7 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
         }
 
         @Override
-        public void describeExpected(Description description) {
+        public void describeExpected(ExpectationDescription description) {
             actualValue.describeExpected(description);
         }
 
@@ -59,7 +67,7 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
         
         protected abstract boolean matches(Element<Value> element, ElementMatcher<Item> matcher);
         
-        protected abstract void describeExpected(Element<Value> element, ElementMatcher<Item> matcher, Description description);
+        protected abstract void describeExpected(Element<Value> element, ElementMatcher<Item> matcher, ExpectationDescription description);
         
         protected abstract void describeMismatch(Element<Value> element, ElementMatcher<Item> matcher, Description description);
         
@@ -117,11 +125,13 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
 
         @Override
         public void describeTo(Description description) {
-            
+            description.appendText("[internal element matcher: ");
+            description.appendDescriptionOf(itemMatcher);
+            description.appendText("]");
         }
 
         @Override
-        public void describeExpected(Element<Value> e, Description description) {
+        public void describeExpected(Element<Value> e, ExpectationDescription description) {
             adaptedValue.describeExpected(e, itemMatcher, description);
         }
         
@@ -130,9 +140,7 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
             Element<Value> e = (Element) item;
             adaptedValue.describeMismatch(e, itemMatcher, description);
         }
-        
     }
-    
     
     protected static class SingleElement<Value> 
                     extends AbstractMatchValue<Value>
@@ -140,6 +148,7 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
 
         private final Value value;
         private ElementMatcher<Value> mismatch = null;
+        private String valueType = null;
 
         public SingleElement(Value value) {
             this.value = value;
@@ -156,18 +165,51 @@ public abstract class AbstractMatchValueAdapter<Value, Item> implements MatchVal
         }
 
         @Override
-        public void describeExpected(Description description) {
-            mismatch.describeTo(description);
+        public boolean matched() {
+            return mismatch == null;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendValue(value);
+        }
+
+        @Override
+        public void describeValueType(Description description) {
+            if (valueType == null) {
+                valueType = getValueType();
+            }
+            description.appendText(valueType);
+        }
+        
+        protected String getValueType() {
+            if (value != null) {
+                if (value instanceof Iterable) {
+                    if (value instanceof List) {
+                        return "list";
+                    } else if (value instanceof Set) {
+                        return "set";
+                    } else if (value instanceof Collection) {
+                        return "collection";
+                    }
+                }
+                if (value instanceof Map) {
+                    return "map";
+                } else if (value.getClass().isArray()) {
+                    return "array";
+                }
+            }
+           return "value";
+        }
+
+        @Override
+        public void describeExpected(ExpectationDescription description) {
+            mismatch.describeExpected(this, description);
         }
 
         @Override
         public void describeMismatch(Description description) {
             mismatch.describeMismatch(this, description);
-        }
-
-        @Override
-        public boolean matched() {
-            return mismatch == null;
         }
 
         @Override

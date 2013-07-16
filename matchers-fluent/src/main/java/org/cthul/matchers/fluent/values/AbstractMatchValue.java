@@ -1,27 +1,17 @@
 package org.cthul.matchers.fluent.values;
 
+import org.hamcrest.StringDescription;
+
 /**
  *
  */
 public abstract class AbstractMatchValue<Item> implements MatchValue<Item> {
 
-//    @Override
-//    public boolean matches(Matcher<? super Item> matcher) {
-//        Element<Item> e = elements();
-//        while (e != null) {
-//            Item i = e.value();
-//            e.result(matcher.matches(i));
-//        }
-//        return matched();
-//    }
-//
-//    @Override
-//    public boolean matches(Matcher<? super Item> matcher, Description mismatch) {
-//        if (matches(matcher)) {            
-//            return true;
-//        }
-//        describeMismatch(matcher, mismatch);
-//        return false;
-//    }
-    
+    @Override
+    public String toString() {
+        StringDescription d = new StringDescription();
+        describeTo(d);
+        return d.toString();
+    }
+
 }

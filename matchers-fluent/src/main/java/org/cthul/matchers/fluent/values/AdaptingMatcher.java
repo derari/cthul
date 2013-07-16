@@ -39,7 +39,7 @@ public class AdaptingMatcher<Value, Item> extends NestedMatcher<Value> {
 
     @Override
     public void describeTo(Description description) {
-        adapter.describeTo(matcher, description);
+        adapter.describeMatcher(matcher, description);
     }
 
     @Override

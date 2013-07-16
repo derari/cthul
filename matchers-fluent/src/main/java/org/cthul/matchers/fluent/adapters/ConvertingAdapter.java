@@ -4,6 +4,7 @@ import org.cthul.matchers.fluent.values.AbstractMatchValueAdapter;
 import org.cthul.matchers.fluent.values.MatchValue;
 import org.cthul.matchers.fluent.values.MatchValue.Element;
 import org.cthul.matchers.fluent.values.MatchValue.ElementMatcher;
+import org.cthul.matchers.fluent.values.MatchValue.ExpectationDescription;
 import org.hamcrest.Description;
 
 /**
@@ -12,13 +13,17 @@ import org.hamcrest.Description;
 public abstract class ConvertingAdapter<Value, Item> extends AbstractMatchValueAdapter<Value, Item> {
 
     @Override
-    public MatchValue<Item> wrap(MatchValue<Value> v) {
+    public MatchValue<Item> adapt(MatchValue<Value> v) {
         return new ConvertedMatchValue(v);
     }
     
     protected abstract Item getValue(Value v);
     
-    protected abstract void describeExpected(Element<Value> value, Element<Item> item, ElementMatcher<Item> matcher, Description description);
+    protected abstract void describeTo(MatchValue<Value> actual, Description description);
+    
+    protected abstract void describeValueType(MatchValue<Value> actual, Description description);
+    
+    protected abstract void describeExpected(Element<Value> value, Element<Item> item, ElementMatcher<Item> matcher, ExpectationDescription description);
     
     protected abstract void describeMismatch(Element<Value> value, Element<Item> item, ElementMatcher<Item> matcher, Description description);
     
@@ -40,15 +45,25 @@ public abstract class ConvertingAdapter<Value, Item> extends AbstractMatchValueA
         }
 
         @Override
-        protected void describeExpected(Element<Value> element, ElementMatcher<Item> matcher, Description description) {
+        public void describeTo(Description description) {
+            ConvertingAdapter.this.describeTo(getActualValue(), description);
+        }
+
+        @Override
+        public void describeValueType(Description description) {
+            ConvertingAdapter.this.describeValueType(getActualValue(), description);
+        }
+
+        @Override
+        protected void describeExpected(Element<Value> element, ElementMatcher<Item> matcher, ExpectationDescription description) {
             Element<Item> item = cachedItem(element);
-            ConvertingAdapter.this.describeExpected(element, item, matcher, description);
+            describeExpected(element, item, matcher, description);
         }
 
         @Override
         protected void describeMismatch(Element<Value> element, ElementMatcher<Item> matcher, Description description) {
             Element<Item> item = cachedItem(element);
-            ConvertingAdapter.this.describeMismatch(element, item, matcher, description);
+            describeMismatch(element, item, matcher, description);
         }
     }
     

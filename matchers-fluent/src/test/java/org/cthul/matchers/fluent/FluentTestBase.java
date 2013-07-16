@@ -1,8 +1,8 @@
 package org.cthul.matchers.fluent;
 
-import org.cthul.matchers.fluent.builder.FailureHandler;
-import org.cthul.matchers.fluent.builder.FailureHandlerBase;
+import org.cthul.matchers.fluent.builder.*;
 import org.cthul.matchers.fluent.values.MatchValue;
+import org.cthul.matchers.fluent.values.MatchValueAdapter;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import static org.hamcrest.MatcherAssert.*;
@@ -45,6 +45,18 @@ public class FluentTestBase {
             matcher.describeMismatch(value, desc);
             mismatch = desc.toString();
         }
+    }
+    
+    protected <T> FluentAssert<T> test_assertThat(MatchValue<T> object) {
+        return new FluentAssertBuilder<>(TEST_HANDLER, object);
+    }
+    
+    protected <T> FluentAssert<T> test_assertThat(T object) {
+        return new FluentAssertBuilder<>(TEST_HANDLER, object);
+    }
+    
+    protected FluentMatcher<Integer, Iterable<? extends Integer>> test_matcher(MatchValueAdapter<Iterable<? extends Integer>, Integer> adapter) {
+        return FluentMatcherBuilder.match(adapter);
     }
     
     protected FailureHandler TEST_HANDLER = new FailureHandlerBase() {
