@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Utils for dealing with primitives and boxed values.
  */
 public class Boxing {
     
@@ -36,27 +36,27 @@ public class Boxing {
     private static final Map<Class<?>, Class<?>> P_UNBOXED;
     private static final Map<Class<?>, Class<?>> P_AUTO_BOXED;
     
-    public static Class<?> autoBoxed(Class<?> clazz) {
+    public static Class<?> boxingType(Class<?> clazz) {
         return AUTO_BOXED.get(clazz);
     }
     
-    public static Class<?> boxed(Class<?> clazz) {
+    public static Class<?> box(Class<?> clazz) {
         return BOXED.get(clazz);
     }
     
-    public static Class<?> unboxed(Class<?> clazz) {
+    public static Class<?> primitive(Class<?> clazz) {
         return UNBOXED.get(clazz);
     }
 
-    public static Map<Class<?>, Class<?>> autoBoxed() {
+    public static Map<Class<?>, Class<?>> boxingTypes() {
         return P_AUTO_BOXED;
     }
     
-    public static Map<Class<?>, Class<?>> boxed() {
+    public static Map<Class<?>, Class<?>> boxes() {
         return P_BOXED;
     }
     
-    public static Map<Class<?>, Class<?>> unboxed() {
+    public static Map<Class<?>, Class<?>> primitives() {
         return P_UNBOXED;
     }    
     
@@ -66,13 +66,13 @@ public class Boxing {
         AUTO_BOXED = new HashMap<>();
         INDICES = new HashMap<>();
         for (int i = 0; i < PRIMITIVES.length; i++) {
-            Class<?> p = PRIMITIVES[i], b = BOXES[i];
-            BOXED.put(p, b);
-            UNBOXED.put(b, p);
-            AUTO_BOXED.put(p, b);
-            AUTO_BOXED.put(b, p);
-            INDICES.put(p, i);
-            INDICES.put(b, i);
+            Class<?> prim = PRIMITIVES[i], box = BOXES[i];
+            BOXED.put(prim, box);
+            UNBOXED.put(box, prim);
+            AUTO_BOXED.put(prim, box);
+            AUTO_BOXED.put(box, prim);
+            INDICES.put(prim, i);
+            INDICES.put(box, i);
         }
         
         P_BOXED = Collections.unmodifiableMap(BOXED);
@@ -81,7 +81,7 @@ public class Boxing {
     }
 
     public static Object unbox(Class<?> elementType, Object[] src, int srcPos) {
-        return unbox(elementType, src, srcPos, src.length - srcPos);
+        return unbox(elementType, src, srcPos, -1);
     }
     
     public static Object unbox(Class<?> elementType, Object[] src, int srcPos, int len) {
@@ -99,7 +99,20 @@ public class Boxing {
         }
     }
     
+    public static Object unbox(Object[] src, int srcPos) {
+        return unbox(src, srcPos, -1);
+    }
+    
+    public static Object unbox(Object[] src, int srcPos, int len) {
+        if (srcPos >= src.length) {
+            throw new IndexOutOfBoundsException(String.valueOf(srcPos));
+        }
+        Class<?> elementType = src[srcPos].getClass();
+        return unbox(elementType, src, srcPos, len);
+    }
+    
     public static boolean[] unboxBooleans(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final boolean[] result = new boolean[len];
         for (int i = 0; i < len; i++) {
             Boolean n = (Boolean) src[srcPos + i];
@@ -109,6 +122,7 @@ public class Boxing {
     }
     
     public static byte[] unboxBytes(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final byte[] result = new byte[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -118,6 +132,7 @@ public class Boxing {
     }
     
     public static char[] unboxChars(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final char[] result = new char[len];
         for (int i = 0; i < len; i++) {
             Character n = (Character) src[srcPos + i];
@@ -127,6 +142,7 @@ public class Boxing {
     }
     
     public static double[] unboxDoubles(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final double[] result = new double[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -136,6 +152,7 @@ public class Boxing {
     }
     
     public static float[] unboxFloats(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final float[] result = new float[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -145,6 +162,7 @@ public class Boxing {
     }
     
     public static int[] unboxInts(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final int[] result = new int[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -154,6 +172,7 @@ public class Boxing {
     }
     
     public static long[] unboxLongs(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final long[] result = new long[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -163,6 +182,7 @@ public class Boxing {
     }
     
     public static short[] unboxShorts(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
         final short[] result = new short[len];
         for (int i = 0; i < len; i++) {
             Number n = (Number) src[srcPos + i];
@@ -171,4 +191,35 @@ public class Boxing {
         return result;
     }
     
+    public static boolean[] unboxBooleans(Object[] src) {
+        return unboxBooleans(src, 0, -1);
+    }
+    
+    public static byte[] unboxBytes(Object[] src) {
+        return unboxBytes(src, 0, -1);
+    }
+    
+    public static char[] unboxChars(Object[] src) {
+        return unboxChars(src, 0, -1);
+    }
+    
+    public static double[] unboxDoubles(Object[] src) {
+        return unboxDoubles(src, 0, -1);
+    }
+    
+    public static float[] unboxFloats(Object[] src) {
+        return unboxFloats(src, 0, -1);
+    }
+    
+    public static int[] unboxInts(Object[] src) {
+        return unboxInts(src, 0, -1);
+    }
+    
+    public static long[] unboxLongs(Object[] src) {
+        return unboxLongs(src, 0, -1);
+    }
+    
+    public static short[] unboxShorts(Object[] src) {
+        return unboxShorts(src, 0, -1);
+    }
 }
