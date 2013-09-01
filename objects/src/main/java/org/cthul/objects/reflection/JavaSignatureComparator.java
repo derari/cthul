@@ -117,25 +117,12 @@ public class JavaSignatureComparator {
         }
     }
     
-//    /**
-//     * If an argument type is missing ({@code null} indicates wildcard),
-//     * the signature with the more generic type is preferred.
-//     * 
-//     * @param index
-//     * @return 
-//     */
-//    private boolean moreSpecificPreferred(int index) {
-//        if (index < 0) return true;
-//        if (index >= argTypes.length) return false;
-//        return argTypes[index] != null;
-//    }
-    
     /**
-     * Returns the 
-     * 
+     * Returns the applicabilty of a signature. A signature with higher
+     * applicability is always preferred, even if the other is more specific.
      * @param paramTypes
      * @param varArgs
-     * @return 
+     * @return applicability level
      */
     public int applicability(final Class<?>[] paramTypes, boolean varArgs) {
         int bestLevel = 0;
@@ -176,7 +163,7 @@ public class JavaSignatureComparator {
         if (param.isAssignableFrom(arg)) {
             return MATCH;
         }
-        Class<?> boxArg = Boxing.autoBoxed(arg);
+        Class<?> boxArg = Boxing.boxingType(arg);
         if (boxArg != null && param.isAssignableFrom(boxArg)) {
             return MATCH_BOXING;
         }

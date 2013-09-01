@@ -2,8 +2,6 @@ package org.cthul.objects.reflection;
 
 /**
  * Thrown when multiple best-matching signature were found.
- * 
- * @author Arian Treffer
  */
 public class AmbiguousSignatureMatchException extends RuntimeException {
 
@@ -20,7 +18,6 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
 
     /**
      * Returns the signatures that matched equally against the reference signature.
-     * 
      * @return signatures
      */
     public Class<?>[][] getSignatures() {
@@ -45,7 +42,6 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
     
     /**
      * Returns the signature that was matched against.
-     * 
      * @return reference signature
      */
     public Class<?>[] getReferenceSignature() {
@@ -75,7 +71,7 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
         }
         String result = sb.toString();
         if (result.length() > 70) {
-            result = result.replaceAll(" \\(", "\n    (");
+            result = result.replace(" (", "\n    (");
         }
         return result;
     }

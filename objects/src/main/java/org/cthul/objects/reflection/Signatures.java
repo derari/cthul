@@ -15,79 +15,218 @@ import org.cthul.objects.Boxing;
  */
 public class Signatures {
     
-    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Object[] args) {
+    /**
+     * Finds the best constructor for the given arguments.
+     * @param <T>
+     * @param clazz
+     * @param args
+     * @return constructor, or {@code null}
+     * @throws AmbiguousSignatureMatchException if multiple constructors match equally
+     */
+    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Object[] args) throws AmbiguousSignatureMatchException {
         return bestConstructor(collectConstructors(clazz), args);
     }
     
-    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Class<?>[] argTypes) {
+    /**
+     * Finds the best constructor for the given arguments types.
+     * @param <T>
+     * @param clazz
+     * @param argTypes
+     * @return constructor, or {@code null}
+     * @throws AmbiguousSignatureMatchException if multiple constructors match equally
+     */
+    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
         return bestConstructor(collectConstructors(clazz), argTypes);
     }
     
-    public static <T> Constructor<T> bestConstructor(Constructor<T>[] methods, Object[] args) {
-        return bestConstructor(methods, collectArgTypes(args));
+    /**
+     * Selects the best constructor for the given arguments.
+     * @param <T>
+     * @param constructors
+     * @param args
+     * @return constructor, or {@code null}
+     * @throws AmbiguousSignatureMatchException if multiple constructors match equally
+     */
+    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Object[] args) throws AmbiguousSignatureMatchException {
+        return bestConstructor(constructors, collectArgTypes(args));
     }
     
-    public static <T> Constructor<T> bestConstructor(Constructor<T>[] methods, Class<?>[] argTypes) {
-        return best(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
+    /**
+     * Selects the best constructor for the given argument types.
+     * @param <T>
+     * @param constructors
+     * @param argTypes
+     * @return constructor, or {@code null}
+     * @throws AmbiguousSignatureMatchException if multiple constructors match equally
+     */
+    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
+        return best(constructors, collectSignatures(constructors), collectVarArgs(constructors), argTypes);
     }
     
+    /**
+     * Finds the best equally-matching constructors for the given arguments.
+     * @param <T>
+     * @param clazz
+     * @param args
+     * @return constructors
+     */
     public static <T> Constructor<T>[] candidateConstructors(Class<T> clazz, Object[] args) {
         return candidateConstructors(collectConstructors(clazz), args);
     }
     
+    /**
+     * Finds the best equally-matching constructors for the given argument types.
+     * @param <T>
+     * @param clazz
+     * @param argTypes
+     * @return constructors
+     */
     public static <T> Constructor<T>[] candidateConstructors(Class<T> clazz, Class<?>[] argTypes) {
         return candidateConstructors(collectConstructors(clazz), argTypes);
     }
     
-    public static <T> Constructor<T>[] candidateConstructors(Constructor<T>[] methods, Object[] args) {
-        return candidateConstructors(methods, collectArgTypes(args));
+    /**
+     * Selects the best equally-matching constructors for the given arguments.
+     * @param <T>
+     * @param constructors
+     * @param args
+     * @return constructors
+     */
+    public static <T> Constructor<T>[] candidateConstructors(Constructor<T>[] constructors, Object[] args) {
+        return candidateConstructors(constructors, collectArgTypes(args));
     }
     
-    public static <T> Constructor<T>[] candidateConstructors(Constructor<T>[] methods, Class<?>[] argTypes) {
-        return candidates(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
+    /**
+     * Selects the best equally-matching constructors for the given argument types.
+     * @param <T>
+     * @param constructors
+     * @param args
+     * @return constructors
+     */
+    public static <T> Constructor<T>[] candidateConstructors(Constructor<T>[] constructors, Class<?>[] argTypes) {
+        return candidates(constructors, collectSignatures(constructors), collectVarArgs(constructors), argTypes);
     }
     
-    public static Method bestMethod(Class<?> clazz, String name, Object[] args) {
+    /**
+     * Finds the best method for the given arguments.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return method
+     * @throws AmbiguousSignatureMatchException if multiple methods match equally
+     */
+    public static Method bestMethod(Class<?> clazz, String name, Object[] args) throws AmbiguousSignatureMatchException {
         return bestMethod(collectMethods(clazz, name), args);
     }
     
-    public static Method bestMethod(Class<?> clazz, String name, Class<?>[] argTypes) {
+    /**
+     * Finds the best method for the given argument types.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return method
+     * @throws AmbiguousSignatureMatchException if multiple methods match equally
+     */
+    public static Method bestMethod(Class<?> clazz, String name, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
         return bestMethod(collectMethods(clazz, name), argTypes);
     }
     
-    public static Method bestMethod(Method[] methods, Object[] args) {
+    /**
+     * Selects the best method for the given arguments.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return method
+     * @throws AmbiguousSignatureMatchException if multiple methods match equally
+     */
+    public static Method bestMethod(Method[] methods, Object[] args) throws AmbiguousSignatureMatchException {
         return bestMethod(methods, collectArgTypes(args));
     }
     
-    public static Method bestMethod(Method[] methods, Class<?>[] argTypes) {
+    /**
+     * Selects the best method for the given argument types.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return method
+     * @throws AmbiguousSignatureMatchException if multiple methods match equally
+     */
+    public static Method bestMethod(Method[] methods, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
         return best(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
     }
     
+    /**
+     * Finds the best equally-matching methods for the given arguments.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return methods
+     */
     public static Method[] candidateMethods(Class<?> clazz, String name, Object[] args) {
         return candidateMethods(collectMethods(clazz, name), args);
     }
     
+    /**
+     * Finds the best equally-matching methods for the given argument types.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return methods
+     */
     public static Method[] candidateMethods(Class<?> clazz, String name, Class<?>[] argTypes) {
         return candidateMethods(collectMethods(clazz, name), argTypes);
     }
     
+    /**
+     * Selects the best equally-matching methods for the given arguments.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return methods
+     */
     public static Method[] candidateMethods(Method[] methods, Object[] args) {
         return candidateMethods(methods, collectArgTypes(args));
     }
     
+    /**
+     * Selects the best equally-matching methods for the given argument types.
+     * @param clazz
+     * @param name
+     * @param args
+     * @return methods
+     */
     public static Method[] candidateMethods(Method[] methods, Class<?>[] argTypes) {
         return candidates(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
     }
     
-    public static <T> T best(T[] items, Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) {
+    /**
+     * Selects the best item for the given argument types.
+     * @param <T>
+     * @param items
+     * @param signatures
+     * @param varArgs
+     * @param argTypes
+     * @return item
+     * @throws AmbiguousSignatureMatchException if multiple methods match equally
+     */
+    public static <T> T best(T[] items, Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
         int i = bestMatch(signatures, varArgs, argTypes);
         if (i < 0) return null;
         return items[i];
     }
     
+    /**
+     * Selects the best equally-matching item for the given argument types.
+     * @param <T>
+     * @param items
+     * @param signatures
+     * @param varArgs
+     * @param argTypes
+     * @return item
+     */
     public static <T> T[] candidates(T[] items, Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) {
         final int[] indices = candidateMatches(signatures, varArgs, argTypes);
-        T[] result = Arrays.copyOf(items, indices.length);
+        T[] result = (T[]) Array.newInstance(items.getClass().getComponentType(), indices.length);
         for (int i = 0; i < indices.length; i++) {
             result[i] = items[indices[i]];
         }
@@ -148,19 +287,19 @@ public class Signatures {
     }
 
     /**
-     * Finds the best match in signatures for the given argument types.
+     * Selects the best match in signatures for the given argument types.
      * @param signatures
      * @param varArgs
      * @param argTypes
      * @return index of best signature, -1 if nothing matched
      * @throws AmbiguousSignatureMatchException if two signatures matched equally
      */
-    public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) {
+    public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
         return bestMatch(signatures, varArgs, new JavaSignatureComparator(argTypes));
     }
     
     /** @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
-    public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp){
+    public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) throws AmbiguousSignatureMatchException {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         int bestIndex = -1;
         Class<?>[] bestSig = null;
@@ -251,32 +390,44 @@ public class Signatures {
         return result;
     }
     
+    /**
+     * Fixes an arguments array to fit parameter types, 
+     * where the last parameter is an varargs array.
+     * @param paramsWithVarArgs
+     * @param arguments
+     * @return fixed arguments array
+     */
     public static Object[] fixVarArgs(Class<?>[] paramsWithVarArgs, Object[] arguments) {
         int n = paramsWithVarArgs.length;
         return fixVarArgs(n, paramsWithVarArgs[n-1], arguments);
     }
     
+    /**
+     * Fixes an arguments array to fit a given length,
+     * the last value is an array filled with varargs.
+     * @param length
+     * @param varArgType
+     * @param arguments
+     * @return fixed arguments array
+     */
     @SuppressWarnings("SuspiciousSystemArraycopy")
-    public static Object[] fixVarArgs(int paramC, Class<?> varArgType, Object[] arguments) {
+    public static Object[] fixVarArgs(int length, Class<?> varArgType, Object[] arguments) {
         final Object[] result;
-        if (arguments.length != paramC) {
-            result = Arrays.copyOf(arguments, paramC);
+        if (varArgType.isInstance(arguments[length-1])) {
+            return arguments;
         } else {
-            if (varArgType.isInstance(arguments[paramC-1])) {
-                return arguments;
-            }
-            result = arguments;
+            result = Arrays.copyOf(arguments, length, Object[].class);
         }
         final Object varArgs;
         Class<?> varArgElementType = varArgType.getComponentType();
         if (varArgElementType.isPrimitive()) {
-            varArgs = Boxing.unbox(varArgElementType, arguments, paramC-1);
+            varArgs = Boxing.unbox(varArgElementType, arguments, length-1, -1);
         } else {
-            int varLen = arguments.length - paramC + 1;
+            int varLen = arguments.length - length + 1;
             varArgs = Array.newInstance(varArgElementType, varLen);
-            System.arraycopy(arguments, paramC-1, varArgs, 0, varLen);
+            System.arraycopy(arguments, length-1, varArgs, 0, varLen);
         }
-        result[paramC-1] = varArgs;
+        result[length-1] = varArgs;
         return result;
     }
     
