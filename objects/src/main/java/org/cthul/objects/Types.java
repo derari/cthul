@@ -3,7 +3,7 @@ package org.cthul.objects;
 import java.util.*;
 
 /**
- *
+ * Utility functions for class relations.
  */
 public class Types {
 
@@ -17,8 +17,8 @@ public class Types {
      * @return ordered set
      */
     public static Set<Class<?>> getSuperclasses(Class<?> clazz) {
-        Set<Class<?>> result = new LinkedHashSet<>();
-        Queue<Class<?>> queue = new ArrayDeque<>();
+        final Set<Class<?>> result = new LinkedHashSet<>();
+        final Queue<Class<?>> queue = new ArrayDeque<>();
         if (clazz.isInterface()) {
             queue.add(Object.class);
         }
@@ -37,9 +37,9 @@ public class Types {
     
     /**
      * Returns common superclasses of all {@code classes}.
-     * This may include elements of {@code classes}.
+     * This may include elements of {@code classes} itself.
      * @param classes the classes
-     * @return set
+     * @return set of superclasses
      */
     public static Set<Class<?>> commonSuperclasses(Class<?>... classes) {
         return commonSuperclasses(Arrays.asList(classes));
@@ -47,9 +47,9 @@ public class Types {
     
     /**
      * Returns common superclasses of all {@code classes}.
-     * This may include elements of {@code classes}.
+     * This may include elements of {@code classes} itself.
      * @param classes the classes
-     * @return set
+     * @return set of superclasses
      */
     public static Set<Class<?>> commonSuperclasses(Iterable<Class<?>> classes) {
         Iterator<Class<?>> it = classes.iterator();
@@ -72,10 +72,20 @@ public class Types {
         return result;
     }
     
+    /**
+     * Returns the lowest common superclasses of {@code classes}.
+     * @param classes
+     * @return list of lowest common superclasses
+     */
     public static List<Class<?>> lowestCommonSuperclasses(Class<?>... classes) {
         return lowestCommonSuperclasses(Arrays.asList(classes));
     }
     
+    /**
+     * Returns the lowest common superclasses of {@code classes}.
+     * @param classes
+     * @return list of lowest common superclasses
+     */
     public static List<Class<?>> lowestCommonSuperclasses(Iterable<Class<?>> classes) {
         Collection<Class<?>> commonSupers = commonSuperclasses(classes);
         return lowestClasses(commonSupers);
@@ -88,19 +98,19 @@ public class Types {
      * @return list of lowest classes
      */
     public static List<Class<?>> lowestClasses(Collection<Class<?>> classes) {
-        Class[] array = classes.toArray(new Class[classes.size()]);
+        LinkedList<Class<?>> source = new LinkedList<>(classes);
         ArrayList<Class<?>> result = new ArrayList<>(classes.size());
-        collect: for (int i = 0; i < array.length; i++) {
-            Class<?> c = array[i];
-            for (int j = i+1; j < array.length; j++) {
-                Class<?> c2 = array[j];
-                if (c.isAssignableFrom(c2) && !c.equals(c2)) {
-                    continue collect;
-                }
-            }
-            for (Class<?> m: result) {
-                if (c.isAssignableFrom(m)) {
-                    continue collect;
+        while (!source.isEmpty()) {
+            Iterator<Class<?>> srcIt = source.iterator();
+            Class<?> c = srcIt.next();
+            srcIt.remove();
+            while (srcIt.hasNext()) {
+                Class<?> c2 = srcIt.next();
+                if (c.isAssignableFrom(c2)) {
+                    c = c2;
+                    srcIt.remove();
+                } else if (c2.isAssignableFrom(c)) {
+                    srcIt.remove();
                 }
             }
             result.add(c);
