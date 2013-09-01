@@ -1,0 +1,317 @@
+<#assign prim = ["boolean", "byte", "char", "float", "double", "int", "long", "short"]>
+<#assign box = ["Boolean", "Byte", "Character", "Float", "Double", "Integer", "Long", "Short"]>
+<#assign numeric = [false, true, false, true, true, true, true, true]>
+// generated code
+package org.cthul.objects.internal;
+
+public class BoxingBase {
+<@each_type>
+
+    /**
+     * Transforms any {@code Boolean}, {@code Character}, or {@code Number}
+     * into a {@code ${p}}.
+     * @param b boxed value
+     * @return ${p}
+     */
+    public static ${p} unbox${b}(Object b) {
+    <#if n>
+        if (b instanceof Number) {
+            return ((Number) b).${p}Value();
+        } else if (b instanceof Character) {
+            return (${p}) ((Character) b).charValue();
+        } else if (b instanceof Boolean) {
+            return (${p}) (((Boolean) b).booleanValue() ? 1 : 0);
+    <#elseif p == "boolean">
+        if (b instanceof Boolean) {
+            return((Boolean) b).booleanValue();
+        } else if (b instanceof Number) {
+            return ((Number) b).doubleValue() > 0;
+        } else if (b instanceof Character) {
+            return ((Character) b).charValue() > '\0';
+    <#elseif p == "char">
+        if (b instanceof Character) {
+            return ((Character) b).charValue();
+        } else if (b instanceof Number) {
+            return (char) ((Number) b).intValue();
+        } else if (b instanceof Boolean) {
+            return ((Boolean) b).booleanValue() ? '\1' : '\0';
+    </#if>
+        } else {
+            throw new IllegalArgumentException(String.valueOf(b));
+        }  
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms an {@link Array} into an array of {@code ${p}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox${b}s(Array src, int srcPos, int len) {
+        if (len < 0) len = src.length() - srcPos + len + 1;
+        final ${p}[] result = new ${p}[len];
+        for (int i = 0; i < len; i++) {
+            result[i] = src.get${b}Value(srcPos + i);
+        }
+        return result;
+    }
+    
+    /**
+     * Transforms an array of {@code Boolean}, {@code Character}, or {@code Number}
+     * into an array of {@code ${p}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox${b}s(Object[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
+        final ${p}[] result = new ${p}[len];
+        for (int i = 0; i < len; i++) {
+            result[i] = unbox${b}(src[srcPos + i]);
+        }
+        return result;
+    }
+</@>
+<@each_type>
+
+    /**
+     * Transforms an array of {@code Boolean}, {@code Character}, or {@code Number}
+     * into an array of {@code ${p}}.
+     * @param src source array
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox${b}s(Object[] src) {
+        return unbox${b}s(src, 0, -1);
+    }
+</@>
+<@each_type>
+
+    /**
+     * Transforms an array of {@code ${b}}
+     * into an array of {@code ${p}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox(${b}[] src, int srcPos, int len) {
+        return unbox${b}s(src, srcPos, len);
+    }
+</@>
+<@each_type>
+
+    /**
+     * Transforms an array of {@code ${b}}
+     * into an array of {@code ${p}}.
+     * @param src source array
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox(${b}[] src) {
+        return unbox${b}s(src);
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms any {@code Boolean}, {@code Character}, or {@code Number}
+     * into a {@code ${b}}.
+     * @param b boxed value
+     * @return ${b}
+     */
+    public static ${b} box${b}(Object b) {
+        if (b instanceof ${b}) {
+            return (${b}) b;
+        } else {
+            return unbox${b}(b);
+        }
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms an {@link Array} into an array of {@code ${b}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${b}
+     */
+    public static ${b}[] box${b}s(Array src, int srcPos, int len) {
+        if (len < 0) len = src.length() - srcPos + len + 1;
+        final ${b}[] result = new ${b}[len];
+        for (int i = 0; i < len; i++) {
+            result[i] = src.get${b}(srcPos + i);
+        }
+        return result;
+    }
+
+    /**
+     * Transforms an array of {@code ${p}}
+     * into an array of {@code ${b}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${b}
+     */
+    public static ${b}[] box${b}s(${p}[] src, int srcPos, int len) {
+        if (len < 0) len = src.length - srcPos + len + 1;
+        final ${b}[] result = new ${b}[len];
+        for (int i = 0; i < len; i++) {
+            result[i] = src[srcPos + i];
+        }
+        return result;
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms an array of {@code ${p}}
+     * into an array of {@code ${b}}.
+     * @param src source array
+     * @return array of ${b}
+     */
+    public static ${b}[] box${b}s(${p}[] src) {
+        return box${b}s(src, 0, -1);
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms an array of {@code ${p}}
+     * into an array of {@code ${b}}.
+     * @param src source array
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${b}
+     */
+    public static ${b}[] box(${p}[] src, int srcPos, int len) {
+        return box${b}s(src, 0, -1);
+    }
+</@>
+<@each_type>
+    
+    /**
+     * Transforms an array of {@code ${p}}
+     * into an array of {@code ${b}}.
+     * @param src source array
+     * @return array of ${b}
+     */
+    public static ${b}[] box(${p}[] src) {
+        return box${b}s(src, 0, -1);
+    }
+</@>
+<@each_type>
+
+    /**
+     * Creates an {@link Array}.
+     * @param array source array
+     * @return array
+     */
+    public static Array array(${p}[] array) {
+        return new ${b}Array(array);
+    }
+</@>
+
+    /**
+     * Creates an {@link Array}.
+     * @param array source array
+     * @return array
+     */
+    public static Array array(Object[] array) {
+        return new ObjectArray(array);
+    }
+
+    /**
+     * Represents an array of {@code Boolean}, {@code Character}, {@code Number},
+     * or any primitive type.
+     * Allows to access each item as any type.
+     */
+    public static abstract class Array {
+        public abstract int length();
+    <@each_type>
+        public abstract ${p} get${b}Value(int i);
+    </@>
+    <@each_type>
+        public abstract ${b} get${b}(int i);
+    </@>
+    }
+
+    private static abstract class PrimArray extends Array {
+    <@each_type>
+        @Override
+        public ${b} get${b}(int i) {
+            return get${b}Value(i);
+        }
+    </@>
+    }
+<@each_type>
+
+    private static final class ${b}Array extends PrimArray {
+        private final ${p}[] array;
+        public ${b}Array(${p}[] array) {
+            this.array = array;
+        }
+        @Override
+        public int length() {
+            return array.length;
+        }
+    <#if p == "boolean">
+    <@each_type>
+        @Override
+        public ${p} get${b}Value(int i) {
+        <#if p == "boolean">
+            return array[i];
+        <#else>
+            return unbox${b}(array[i]);
+        </#if>
+        }
+    </@>
+    <#else>
+    <@each_type>
+        @Override
+        public ${p} get${b}Value(int i) {
+        <#if p == "boolean">
+            return unboxBoolean(array[i]);
+        <#else>
+            return (${p}) array[i];
+        </#if>
+        }
+    </@>
+    </#if>
+    }
+</@>
+
+    private static final class ObjectArray extends Array {
+        private final Object[] array;
+        public ObjectArray(Object[] array) {
+            this.array = array;
+        }
+        @Override
+        public int length() {
+            return array.length;
+        }
+    <@each_type>
+        @Override
+        public ${p} get${b}Value(int i) {
+            return unbox${b}(array[i]);
+        }
+    </@>
+    <@each_type>
+        @Override
+        public ${b} get${b}(int i) {
+            return box${b}(array[i]);
+        }
+    </@>
+    }
+}
+<#macro each_type>
+<#list prim as t>
+    <#global p = t>
+    <#global b = box[t_index]>
+    <#global n = numeric[t_index]>
+    <#nested/>
+</#list>
+</#macro>

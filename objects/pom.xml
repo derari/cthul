@@ -21,6 +21,78 @@
             <url>${project.url.docs}objects/</url>
         </site>
     </distributionManagement>
+    <properties>
+        <build.freemarker.sourceDirectory>target/generated-sources/freemarker</build.freemarker.sourceDirectory>
+    </properties>
+    <profiles> 
+        <profile>
+            <id>gen-data-classes</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.googlecode.fmpp-maven-plugin</groupId>
+                        <artifactId>fmpp-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <configuration>
+                            <cfgFile>src/main/fmpp/config.fmpp</cfgFile>
+                            <outputDirectory>${build.freemarker.sourceDirectory}/org/cthul/objects/internal</outputDirectory>
+                            <templateDirectory>src/main/fmpp/</templateDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>    
+                                <artifactId>log4j-over-slf4j</artifactId>
+                                <version>1.6.1</version>
+                            </dependency>    
+                            <dependency>
+                                <groupId>org.slf4j</groupId>    
+                                <artifactId>slf4j-simple</artifactId>
+                                <version>1.6.1</version>
+                            </dependency> 
+                        </dependencies>
+                    </plugin>    
+                    <plugin>
+                        <!-- Add generated code to sources -->
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>add-fmpp-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>add-fmpp-source-site</id>
+                                <phase>pre-site</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <sources>
+                                <source>${build.freemarker.sourceDirectory}</source>
+                            </sources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
