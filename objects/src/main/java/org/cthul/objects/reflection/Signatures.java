@@ -413,7 +413,7 @@ public class Signatures {
     @SuppressWarnings("SuspiciousSystemArraycopy")
     public static Object[] fixVarArgs(int length, Class<?> varArgType, Object[] arguments) {
         final Object[] result;
-        if (varArgType.isInstance(arguments[length-1])) {
+        if (arguments.length == length && varArgType.isInstance(arguments[length-1])) {
             return arguments;
         } else {
             result = Arrays.copyOf(arguments, length, Object[].class);
