@@ -97,19 +97,29 @@ public class Types {
      * @param classes the classes
      * @return list of lowest classes
      */
+    public static List<Class<?>> lowestClasses(Class<?>... classes) {
+        return lowestClasses(Arrays.asList(classes));
+    }
+    
+    /**
+     * Returns a subset of {@code classes}, containing all elements
+     * that do not have a subclass in {@code classes}.
+     * @param classes the classes
+     * @return list of lowest classes
+     */
     public static List<Class<?>> lowestClasses(Collection<Class<?>> classes) {
-        LinkedList<Class<?>> source = new LinkedList<>(classes);
-        ArrayList<Class<?>> result = new ArrayList<>(classes.size());
+        final LinkedList<Class<?>> source = new LinkedList<>(classes);
+        final ArrayList<Class<?>> result = new ArrayList<>(classes.size());
         while (!source.isEmpty()) {
             Iterator<Class<?>> srcIt = source.iterator();
             Class<?> c = srcIt.next();
             srcIt.remove();
             while (srcIt.hasNext()) {
                 Class<?> c2 = srcIt.next();
-                if (c.isAssignableFrom(c2)) {
-                    c = c2;
+                if (c2.isAssignableFrom(c)) {
                     srcIt.remove();
-                } else if (c2.isAssignableFrom(c)) {
+                } else if (c.isAssignableFrom(c2)) {
+                    c = c2;
                     srcIt.remove();
                 }
             }

@@ -10,7 +10,7 @@
     <groupId>org.cthul</groupId>
     <artifactId>cthul-objects</artifactId>
     <name>Cthul Objects</name>
-    <version>1.0-Beta1</version>
+    <version>1.0</version>
     <url>http://cthul.org</url>
     <description>
         Object-related tools

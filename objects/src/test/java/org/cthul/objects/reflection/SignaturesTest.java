@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.*;
 
 /**
  *
- * @author Arian Treffer
  */
 public class SignaturesTest {
 

@@ -1,9 +1,5 @@
 package org.cthul.objects.reflection;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -12,25 +8,6 @@ import static org.hamcrest.MatcherAssert.*;
  *
  */
 public class JavaSignatureComparatorTest {
-    
-    public JavaSignatureComparatorTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
     
     @Test
     public void test_applicability_exact() {
@@ -115,7 +92,7 @@ public class JavaSignatureComparatorTest {
     }
 
     @Test
-    public void test_specifity_simple() {
+    public void test_specificness_simple() {
         Class[] args = {Integer.class};
         Class[] params1 = {Object.class};
         Class[] params2 = {Number.class};
@@ -125,7 +102,7 @@ public class JavaSignatureComparatorTest {
     }
     
     @Test
-    public void test_specifity_ambiguous() {
+    public void test_specificness_ambiguous() {
         Class[] args = {Integer.class, Integer.class};
         Class[] params1 = {Object.class, Number.class};
         Class[] params2 = {Number.class, Object.class};
@@ -134,11 +111,11 @@ public class JavaSignatureComparatorTest {
         assertThat(spec, is(0));
     }
     
-    // note: non-varargs are have better applicability, 
-    // which is not considered for specifity
+    // note: non-varargs have better applicability, 
+    // which is not considered for specificness
     
     @Test
-    public void test_specifity_varArgs() {
+    public void test_specificness_varArgs() {
         Class[] args = {String.class, Integer.class};
         Class[] params1 = {String.class, Object[].class};
         Class[] params2 = {String.class, Number[].class};
@@ -148,7 +125,7 @@ public class JavaSignatureComparatorTest {
     }
     
     @Test
-    public void test_specifity_varArgs_unused_ambiguous() {
+    public void test_specificness_varArgs_unused_ambiguous() {
         Class[] args = {String.class};
         Class[] params1 = {String.class, Object[].class};
         Class[] params2 = {String.class, Number[].class};
@@ -158,7 +135,7 @@ public class JavaSignatureComparatorTest {
     }
     
     @Test
-    public void test_specifity_varArgs_useMoreFixed() {
+    public void test_specificness_varArgs_useMoreFixed() {
         Class[] args = {String.class, String.class, String.class};
         Class[] params1 = {String.class, String.class, String[].class};
         Class[] params2 = {String.class, String[].class};
