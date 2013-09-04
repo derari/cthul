@@ -125,6 +125,9 @@ public class JavaSignatureComparator {
      * @return applicability level
      */
     public int applicability(final Class<?>[] paramTypes, boolean varArgs) {
+        if (argTypes == null) {
+            return MATCH_WILDCARD;
+        }
         int bestLevel = 0;
         final int fixArgs = paramTypes.length - (varArgs ? 1 : 0);
         if (fixArgs > argTypes.length 

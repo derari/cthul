@@ -92,6 +92,15 @@ public class JavaSignatureComparatorTest {
     }
 
     @Test
+    public void test_applicability_any() {
+        Class[] args = null;
+        Class[] params = {int[].class};
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int appl = jsCmp.applicability(params, true);
+        assertThat(appl, is(JavaSignatureComparator.MATCH_WILDCARD));
+    }
+
+    @Test
     public void test_specificness_simple() {
         Class[] args = {Integer.class};
         Class[] params1 = {Object.class};
@@ -144,5 +153,13 @@ public class JavaSignatureComparatorTest {
         assertThat(spec, is(lessThan(0)));
     }
     
-    
+    @Test
+    public void test_specificness_any() {
+        Class[] args = null;
+        Class[] params1 = {Object.class};
+        Class[] params2 = {Number.class};
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int spec = jsCmp.compareSpecificness(params1, false, params2, false);
+        assertThat(spec, is(greaterThan(0)));
+    }
 }
