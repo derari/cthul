@@ -6,8 +6,8 @@ import org.hamcrest.internal.ReflectiveTypeFinder;
 /**
  *
  */
-public abstract class TypesafeQuickDiagnoseMatcherBase<T> 
-                extends QuickDiagnosingMatcherBase<T> {
+public abstract class TypesafeNestedMatcher<T> 
+                extends NestedMatcher<T> {
     
     private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 2, 0);
 
@@ -23,15 +23,15 @@ public abstract class TypesafeQuickDiagnoseMatcherBase<T>
 
     private final Class<?> expectedType;
 
-    public TypesafeQuickDiagnoseMatcherBase(Class<?> expectedType) {
+    public TypesafeNestedMatcher(Class<?> expectedType) {
         this.expectedType = expectedType;
     }
 
-    public TypesafeQuickDiagnoseMatcherBase(ReflectiveTypeFinder typeFinder) {
+    public TypesafeNestedMatcher(ReflectiveTypeFinder typeFinder) {
         this.expectedType = typeFinder.findExpectedType(getClass());
     }
 
-    public TypesafeQuickDiagnoseMatcherBase() {
+    public TypesafeNestedMatcher() {
         this(TYPE_FINDER);
     }
     

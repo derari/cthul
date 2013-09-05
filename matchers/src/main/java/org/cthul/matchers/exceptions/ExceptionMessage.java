@@ -2,7 +2,7 @@ package org.cthul.matchers.exceptions;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.ContainsPattern;
-import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
+import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -10,10 +10,8 @@ import org.hamcrest.core.Is;
 
 /**
  * Matches the message of an exception.
- * 
- * @author Arian Treffer
  */
-public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
+public class ExceptionMessage extends TypesafeNestedMatcher<Throwable> {
     
     private Matcher<? super String> messageMatcher;
 
@@ -23,25 +21,30 @@ public class ExceptionMessage extends TypesafeQuickDiagnoseMatcherBase<Throwable
     }
 
     @Override
+    public int getPrecedence() {
+        return P_UNARY;
+    }
+
+    @Override
     protected boolean matchesSafely(Throwable ex) {
         return messageMatcher.matches(ex.getMessage());
     }
 
     @Override
     protected boolean matchesSafely(Throwable ex, Description mismatch) {
-        return quickMatch(messageMatcher, ex.getMessage(), mismatch, "message $1");
+        return nestedQuickMatch(messageMatcher, ex.getMessage(), mismatch, "message $1");
     }
 
     @Override
     protected void describeMismatchSafely(Throwable item, Description mismatch) {
         mismatch.appendText("message ");
-        messageMatcher.describeMismatch(item.getMessage(), mismatch);
+        nestedDescribeMismatch(mismatch, messageMatcher, item.getMessage());
     }
 
     @Override
     public void describeTo(Description description) {
         description.appendText("message ");
-        messageMatcher.describeTo(description);
+        nestedDescribe(description, messageMatcher);
     }
     
     @Factory

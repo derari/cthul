@@ -32,20 +32,20 @@ public class ChainBuilder<T> extends NestedMatcher<T> {
         return matcher;
     }
     
-    protected ChainBuilder<T> add(Matcher<? super T> m) {
+    protected <T2 extends T> ChainBuilder<T2> add(Matcher<? super T2> m) {
         matcher = null;
-        matchers.add(m);
-        return this;
+        matchers.add((Matcher) m);
+        return (ChainBuilder) this;
     }
 
-    protected ChainBuilder<T> add(Matcher<? super T>... m) {
+    protected <T2 extends T> ChainBuilder<T2> add(Matcher<? super T2>... m) {
         return add(Arrays.asList(m));
     }
 
-    protected ChainBuilder<T> add(Collection<? extends Matcher<? super T>> m) {
+    protected <T2 extends T> ChainBuilder<T2> add(Collection<? extends Matcher<? super T2>> m) {
         matcher = null;
-        matchers.addAll(m);
-        return this;
+        matchers.addAll((Collection) m);
+        return (ChainBuilder) this;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ChainBuilder<T> extends NestedMatcher<T> {
     
     @Override
     public boolean matches(Object item, Description mismatch) {
-        return quickMatch(matcher, item, mismatch);
+        return quickMatch(matcher(), item, mismatch);
     }
 
     @Override
@@ -72,7 +72,12 @@ public class ChainBuilder<T> extends NestedMatcher<T> {
     public int getPrecedence() {
         return precedenceOf(matcher());
     }
-    
+
+    @Override
+    public int getMismatchPrecedence() {
+        return mismatchPrecedenceOf(matcher);
+    }
+     
     public Matcher<T> build() {
         return matcher();
     }

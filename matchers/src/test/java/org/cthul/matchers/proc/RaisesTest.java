@@ -6,7 +6,7 @@ import org.cthul.proc.P0;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import static org.cthul.matchers.ContainsPattern.containsPattern;
-import static org.cthul.matchers.InstanceOf.isA;
+import static org.cthul.matchers.InstanceOf.instanceOf;
 import static org.cthul.matchers.proc.Raises.raises;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,7 +14,6 @@ import static org.mockito.Mockito.*;
 
 /**
  *
- * @author Arian Treffer
  */
 public class RaisesTest {
     
@@ -29,7 +28,7 @@ public class RaisesTest {
         DescribeAnswer.describe(sMatcher, "message-matcher msg");
         DescribeAnswer.mismatch(sMatcher, "message-mismatch");
 
-        Matcher<Object> matcher = isA(Throwable.class).that(
+        Matcher<Object> matcher = instanceOf(Throwable.class).that(
                 tMatcher, 
                 new ExceptionMessage(sMatcher));
         

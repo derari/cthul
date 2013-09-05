@@ -15,8 +15,6 @@ import org.hamcrest.SelfDescribing;
  * If a proc is {@link #call(java.lang.Object[]) called} a new instance is 
  * created that will execute the code of the original proc, but may use 
  * different arguments.
- * 
- * @author Arian Treffer
  */
 public interface Proc extends SelfDescribing {
     

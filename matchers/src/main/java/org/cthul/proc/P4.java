@@ -2,7 +2,6 @@ package org.cthul.proc;
 
 /**
  * A {@link ProcBase ProcBase} with four parameters.
- * @author Arian Treffer
  */
 public class P4<A, B, C, D> extends ProcBase<P4<A, B, C, D>> implements Proc4<A, B, C, D> {
 

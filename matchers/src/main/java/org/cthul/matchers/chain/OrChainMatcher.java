@@ -7,7 +7,6 @@ import org.hamcrest.Matcher;
 
 /**
  * 
- * @author Arian Treffer
  * @param <T> 
  */
 public class OrChainMatcher<T> extends MatcherChainBase<T> {
@@ -76,6 +75,12 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
     @Override
     public int getPrecedence() {
         return P_OR;
+    }
+
+    @Override
+    public int getMismatchPrecedence() {
+        // prints all matchers with 'and'
+        return P_AND;
     }
     
     @Factory
@@ -150,44 +155,44 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
             xorEnabled = Boolean.TRUE;
         }
         
-        protected Builder<T> _or(Matcher<? super T> m) {
+        protected <T2 extends T> Builder<T> _or(Matcher<? super T2> m) {
             return (Builder<T>) add(m);
         }
         
-        protected Builder<T> _or(Matcher<? super T>... m) {
+        protected <T2 extends T> Builder<T> _or(Matcher<? super T2>... m) {
             return (Builder<T>) add(m);
         }
         
-        protected Builder<T> _or(Collection<? extends Matcher<? super T>> m) {
+        protected <T2 extends T> Builder<T> _or(Collection<? extends Matcher<? super T2>> m) {
             return (Builder<T>) add(m);
         }
         
-        public Builder<T> or(Matcher<? super T> m) {
+        public <T2 extends T> Builder<T> or(Matcher<? super T2> m) {
             makeOR();
             return _or(m);
         }
         
-        public Builder<T> or(Matcher<? super T>... m) {
+        public <T2 extends T> Builder<T> or(Matcher<? super T>... m) {
             makeOR();
             return _or(m);
         }
         
-        public Builder<T> or(Collection<? extends Matcher<? super T>> m) {
+        public <T2 extends T> Builder<T> or(Collection<? extends Matcher<? super T2>> m) {
             makeOR();
             return _or(m);
         }
         
-        public Builder<T> xor(Matcher<? super T> m) {
+        public <T2 extends T> Builder<T> xor(Matcher<? super T2> m) {
             makeXOR();
             return _or(m);
         }
         
-        public Builder<T> xor(Matcher<? super T>... m) {
+        public <T2 extends T> Builder<T> xor(Matcher<? super T2>... m) {
             makeXOR();
             return _or(m);
         }
         
-        public Builder<T> xor(Collection<? extends Matcher<? super T>> m) {
+        public <T2 extends T> Builder<T> xor(Collection<? extends Matcher<? super T2>> m) {
             makeXOR();
             return _or(m);
         }

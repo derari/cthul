@@ -1,6 +1,6 @@
 package org.cthul.matchers.proc;
 
-import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
+import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
 import org.cthul.matchers.exceptions.IsThrowable;
 import org.cthul.proc.Proc;
 import org.hamcrest.Description;
@@ -9,9 +9,8 @@ import org.hamcrest.Matcher;
 
 /**
  *
- * @author Arian Treffer
  */
-public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
+public class Raises extends TypesafeNestedMatcher<Proc> {
 
     private final Matcher<? super Throwable> exceptionMatcher;
 
@@ -21,9 +20,14 @@ public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     }
 
     @Override
+    public int getPrecedence() {
+        return P_UNARY;
+    }
+
+    @Override
     public void describeTo(Description description) {
         description.appendText("throws ");
-        exceptionMatcher.describeTo(description);
+        nestedDescribe(description, exceptionMatcher);
     }
 
     @Override
@@ -35,21 +39,21 @@ public class Raises extends TypesafeQuickDiagnoseMatcherBase<Proc> {
     }
 
     @Override
-    protected void describeMismatchSafely(Proc proc, Description mismatchDescription) {
+    protected void describeMismatchSafely(Proc proc, Description mismatch) {
         if (proc.hasResult()) {
-            mismatchDescription.appendText("threw no exception");
+            mismatch.appendText("threw no exception");
         } else {
-            exceptionMatcher.describeMismatch(proc.getException(), mismatchDescription);
+            nestedDescribeMismatch(mismatch, exceptionMatcher, proc.getException());
         }
     }
 
     @Override
     protected boolean matchesSafely(Proc proc, Description mismatchDescription) {
         if (proc.hasResult()) {
-            mismatchDescription.appendText("threw no exception");
+            describeMismatchSafely(proc, mismatchDescription);
             return false;
         } else {
-            return quickMatch(exceptionMatcher, proc.getException(), mismatchDescription);
+            return nestedQuickMatch(exceptionMatcher, proc.getException(), mismatchDescription);
         }
     }
 

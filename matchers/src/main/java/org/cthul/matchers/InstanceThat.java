@@ -8,7 +8,6 @@ import org.hamcrest.core.IsInstanceOf;
 
 /**
  *
- * @author Arian Treffer
  */
 public class InstanceThat {
     

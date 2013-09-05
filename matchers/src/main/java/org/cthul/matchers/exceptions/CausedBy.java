@@ -1,16 +1,14 @@
 package org.cthul.matchers.exceptions;
 
-import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
+import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 /**
  * Matches exception chains.
- * 
- * @author Arian Treffer
  */
-public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
+public class CausedBy extends TypesafeNestedMatcher<Throwable> {
 
     private final boolean direct;
     private final Matcher<? super Throwable> throwableMatcher;
@@ -19,6 +17,11 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
         super(Throwable.class);
         this.direct = direct;
         this.throwableMatcher = m;
+    }
+
+    @Override
+    public int getPrecedence() {
+        return P_UNARY;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
             description.appendText("directly ");
         }
         description.appendText("caused by ");
-        throwableMatcher.describeTo(description);
+        nestedDescribe(description, throwableMatcher);
     }
 
     @Override
@@ -54,7 +57,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
         }
         if (direct || cause.getCause() == null) {
             mismatch.appendText("cause ");
-            throwableMatcher.describeMismatch(cause, mismatch);
+            nestedDescribeMismatch(mismatch, this, cause);
             return;
         }
         
@@ -63,7 +66,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
             mismatch.appendText("cause ").
                      appendText(String.valueOf(i)).
                      appendText(" ");
-            throwableMatcher.describeMismatch(cause, mismatch);
+            nestedDescribeMismatch(mismatch, throwableMatcher, cause);
             cause = cause.getCause();
             if (cause != null) {
                 i++;
@@ -82,7 +85,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
             return false;
         }
         if (direct || cause.getCause() == null) {
-            return quickMatch(throwableMatcher, cause, mismatch, "cause $1");
+            return nestedQuickMatch(throwableMatcher, cause, mismatch, "cause $1");
         }
         
         // check if chain matches
@@ -94,19 +97,7 @@ public class CausedBy extends TypesafeQuickDiagnoseMatcherBase<Throwable> {
         }
         
         // no match, generate mismatch description
-        cause = ex.getCause();
-        int i = 1;
-        while (cause != null) {
-            mismatch.appendText("cause ").
-                     appendText(String.valueOf(i)).
-                     appendText(" ");
-            throwableMatcher.describeMismatch(cause, mismatch);
-            cause = cause.getCause();
-            if (cause != null) {
-                i++;
-                mismatch.appendText(", ");
-            }
-        }
+        describeMismatchSafely(ex, mismatch);
         return false;
     }
     

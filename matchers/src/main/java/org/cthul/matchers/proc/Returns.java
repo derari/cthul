@@ -1,12 +1,8 @@
-/*
- * 
- */
-
 package org.cthul.matchers.proc;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.cthul.matchers.diagnose.TypesafeQuickDiagnoseMatcherBase;
+import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
 import org.cthul.proc.Proc;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -16,9 +12,8 @@ import org.hamcrest.core.IsEqual;
 
 /**
  *
- * @author Arian Treffer
  */
-public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
+public class Returns extends TypesafeNestedMatcher<Proc> {
 
     private final Matcher<?> resultMatcher;
     
@@ -27,11 +22,16 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
         this.resultMatcher = resultMatcher;
     }
 
+    @Override
+    public int getPrecedence() {
+        return P_UNARY;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        description.appendText("returns ")
-                   .appendDescriptionOf(resultMatcher);
+        description.appendText("returns ");
+        nestedDescribe(description, resultMatcher);
     }
 
     /** {@inheritDoc} */
@@ -54,7 +54,7 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
             mismatch.appendText(" ").appendText(sw.toString());
         } else {
             mismatch.appendText("returned ");
-            resultMatcher.describeMismatch(proc.getResult(), mismatch);
+            nestedDescribeMismatch(mismatch, resultMatcher, proc.getResult());
         }
     }
 
@@ -64,7 +64,7 @@ public class Returns extends TypesafeQuickDiagnoseMatcherBase<Proc> {
             describeMismatchSafely(proc, mismatch);
             return false;
         } else {
-            return quickMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
+            return nestedQuickMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
         }
     }
     

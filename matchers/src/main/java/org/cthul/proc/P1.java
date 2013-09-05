@@ -2,7 +2,6 @@ package org.cthul.proc;
 
 /**
  * A {@link ProcBase ProcBase} with one parameter.
- * @author Arian Treffer
  */
 public class P1<A> extends ProcBase<P1<A>> implements Proc1<A> {
 

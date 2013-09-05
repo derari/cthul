@@ -6,8 +6,6 @@ import org.hamcrest.*;
  * A {@link Matcher} that is able to match and diagnose in one step, but, unlike
  * {@link DiagnosingMatcher}, also provides an efficient implementation for the
  * simple match.
- * 
- * @author Arian Treffer
  */
 public abstract class QuickDiagnosingMatcherBase<T> 
                 extends BaseMatcher<T> 

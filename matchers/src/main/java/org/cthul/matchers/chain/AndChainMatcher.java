@@ -8,7 +8,6 @@ import org.hamcrest.Matcher;
 /**
  * Conjunction of multiple matchers.
  * 
- * @author Arian Treffer
  * @param <T> 
  */
 public class AndChainMatcher<T> extends MatcherChainBase<T> {
@@ -52,7 +51,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     public boolean matches(Object item, Description mismatch) {
         for (Matcher<? super T> m: matchers) {
             // the first matcher that fails describes the mismatch
-            if (!quickMatch(m, item, mismatch)) {
+            if (!nestedQuickMatch(m, item, mismatch)) {
                 return false;
             }
         }
@@ -69,7 +68,13 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     public int getPrecedence() {
         return P_AND;
     }
-    
+
+    @Override
+    public int getMismatchPrecedence() {
+        // prints only failed matcher
+        return P_UNARY;
+    }
+
     @Factory
     @SuppressWarnings("unchecked")
     public static <T> Matcher<T> and(Matcher<? super T>... matchers) {
@@ -115,14 +120,14 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         public Builder(ChainFactory factory) {
             super(factory);
         }
-        public Builder<T> and(Matcher<? super T> m) {
-            return (Builder<T>) add(m);
+        public <T2 extends T> Builder<T2> and(Matcher<? super T2> m) {
+            return (Builder<T2>) add( m);
         }
-        public Builder<T> and(Matcher<? super T>... m) {
-            return (Builder<T>) add(m);
+        public <T2 extends T> Builder<T2>  and(Matcher<? super T2>... m) {
+            return (Builder<T2>) add(m);
         }
-        public Builder<T> and(Collection<? extends Matcher<? super T>> m) {
-            return (Builder<T>) add(m);
+        public <T2 extends T> Builder<T2>  and(Collection<? extends Matcher<? super T2>> m) {
+            return (Builder<T2>) add(m);
         }
     }
 }

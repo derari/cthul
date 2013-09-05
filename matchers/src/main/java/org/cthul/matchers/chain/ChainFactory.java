@@ -5,8 +5,6 @@ import org.hamcrest.Matcher;
 
 /**
  * Creates a matcher chain.
- * 
- * @author Arian Treffer
  */
 public interface ChainFactory {
     

@@ -20,8 +20,6 @@ import org.hamcrest.Description;
  * <p/>
  * If you want to override {@link #matches(java.lang.Object, org.hamcrest.Description)},
  * extend {@link QuickDiagnosingMatcherBase} instead.
- * 
- * @author Arian Treffer
  */
 public abstract class QuickMatcherBase<T> 
                 extends BaseMatcher<T> 

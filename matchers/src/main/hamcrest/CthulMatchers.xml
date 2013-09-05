@@ -5,7 +5,9 @@
     <factory class="org.cthul.matchers.InstanceOf"/>
     
     <factory class="org.cthul.matchers.chain.AndChainMatcher"/>
+    <factory class="org.cthul.matchers.chain.NOrChainMatcher"/>
     <factory class="org.cthul.matchers.chain.OrChainMatcher"/>
+    <factory class="org.cthul.matchers.chain.SomeOfChainMatcher"/>
     <factory class="org.cthul.matchers.chain.XOrChainMatcher"/>
     
     <factory class="org.cthul.matchers.exceptions.CausedBy"/>

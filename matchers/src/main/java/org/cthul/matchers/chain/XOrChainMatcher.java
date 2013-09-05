@@ -1,13 +1,13 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
+import static org.cthul.matchers.diagnose.PrecedencedMatcher.P_AND;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 /**
  * 
- * @author Arian Treffer
  * @param <T> 
  */
 public class XOrChainMatcher<T> extends MatcherChainBase<T> {
@@ -50,23 +50,56 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
     /** {@inheritDoc} */
     @Override
     public boolean matches(Object item, Description mismatch) {
-        if (matches(item)) {
-            return true;
+        int i = 0;
+        boolean[] matches = new boolean[matchers.length];
+        boolean match = false;
+        for (Matcher<?> m: matchers) {
+            if (m.matches(item)) {
+                matches[i] = true;
+                match = !match;
+            }
+            i++;
         }
-        describeMismatch(item, mismatch);
+        if (match) return true;
+        listMatchDescriptions(matches, item, mismatch);
         return false;
+    }
+    
+    private void listMatchDescriptions(boolean[] matches, Object item, Description mismatch) {
+        final int len = matchers.length;
+        for (int i = 0; i < len; i++) {
+            if (i > 0) {
+                if (i < len-1) {
+                    mismatch.appendText(", ");
+                } else {
+                    mismatch.appendText(i == 1 ? " " : ", ");
+                    mismatch.appendText("and ");
+                }
+            }
+            // append either fail- or match-description
+            if (matches[i]) {
+                nestedDescribe(mismatch, matchers[i]);
+            } else {
+                nestedDescribeMismatch(mismatch, matchers[i], item);
+            }
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public void describeMismatch(Object item, Description mismatch) {
-        boolean first = true;
-        for (Matcher<? super T> m: matchers) {
-            if (first) {
-                first = false;
-            } else {
-                mismatch.appendText(" and ");
+        int i = 0;
+        for (Matcher<?> m: matchers) {
+            if (i > 0) {
+                if (i > 1 && i+1 < matchers.length) {
+                    mismatch.appendText(", ");
+                } else {
+                    
+                    mismatch.appendText(i == 1 ? " " : ", ");
+                    mismatch.appendText("and ");
+                }
             }
+            i++;
             // append either fail- or match-description
             if (nestedQuickMatch(m, item, mismatch)) {
                 nestedDescribe(mismatch, m);
@@ -76,7 +109,13 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
 
     @Override
     public int getPrecedence() {
-        return P_XOR;
+        return P_OR;
+    }
+
+    @Override
+    public int getMismatchPrecedence() {
+        // prints all matchers with 'and'
+        return P_AND;
     }
 
     @Factory

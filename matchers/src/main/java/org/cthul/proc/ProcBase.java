@@ -92,9 +92,8 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
         }
     }
 
-    protected UnsupportedOperationException notImplemented(String method) {
-        return new UnsupportedOperationException(
-                method + " is not implemented");
+    protected ProcError notImplemented(String method) {
+        return unsupportedOperationException(method + " is not implemented");
     }
 
     /**
@@ -132,7 +131,7 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
                 result = executeProc(args);
                 exception = null;
             } catch (ProcError e) {
-                throw new IllegalArgumentException(e.getMessage(), e.getCause());
+                throw e.asRuntimeException();
             } catch (Throwable t) {
                 exception = t;
                 result = null;
@@ -291,6 +290,10 @@ public abstract class ProcBase<This extends ProcBase<This>> implements Proc {
 
     protected ProcError illegalArgumentException(String message) {
         return exception(IllegalArgumentException.class, message, null);
+    }
+
+    protected ProcError unsupportedOperationException(String message) {
+        return exception(UnsupportedOperationException.class, message, null);
     }
 
 }

@@ -5,9 +5,8 @@ import org.hamcrest.Matcher;
 
 /**
  * Overrides the description of a matcher.
- * @author Arian Treffer
  */
-public class MatcherDescription<T> extends QuickDiagnosingMatcherBase<T> {
+public class MatcherDescription<T> extends NestedMatcher<T> {
 
     private final Matcher<T> matcher;
     private final String description;
@@ -15,6 +14,11 @@ public class MatcherDescription<T> extends QuickDiagnosingMatcherBase<T> {
     public MatcherDescription(Matcher<T> matcher, String description) {
         this.matcher = matcher;
         this.description = description;
+    }
+
+    @Override
+    public int getPrecedence() {
+        return precedenceOf(matcher);
     }
 
     /** {@inheritDoc} */

@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * If thrown in a {@link ProcBase} implementation, the execution will fail.
- * 
- * @author Arian Treffer
+ * A {@code ProcError} indicates internal errors, as opposed to errors that 
+ * occur during the execution of the actual code.
  */
 public class ProcError extends Error {
 

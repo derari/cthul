@@ -14,7 +14,6 @@ import org.hamcrest.core.IsInstanceOf;
  *   Object o = "foobar;
  *   assertThat(o, isA(String.class).thatIs(foo()).and(bar());
  * }</pre>
- * @author Arian Treffer
  */
 public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
 

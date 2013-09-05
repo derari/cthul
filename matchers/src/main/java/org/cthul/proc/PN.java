@@ -1,8 +1,7 @@
 package org.cthul.proc;
 
 /**
- * A {@link ProcBase PN} with parameters.
- * @author Arian Treffer
+ * A {@link ProcBase} with parameters.
  */
 public class PN extends ProcBase<PN> {
 

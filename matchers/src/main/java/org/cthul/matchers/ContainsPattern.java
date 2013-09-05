@@ -10,7 +10,6 @@ import org.hamcrest.Matcher;
  * Tests if a string contains a regex pattern.
  * <p/>
  * Use the static factory methods to create instances.
- * @author Arian Treffer
  */
 public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
 

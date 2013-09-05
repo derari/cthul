@@ -31,7 +31,7 @@ public class Procs {
     }
     
     public static Proc invoke(Class clazz, String name, int paramCount) {
-        return invoke(clazz, name, ReflectiveProc.unsafeAnyParameters(paramCount));
+        return invoke(clazz, name, ReflectiveProc.internAnyParameters(paramCount));
     }
     
     public static Proc invoke(Object object, String name, Class... paramTypes) {
@@ -47,7 +47,7 @@ public class Procs {
     }
     
     public static Proc invoke(Object object, String name, int paramCount) {
-        return invoke(object, name, ReflectiveProc.unsafeAnyParameters(paramCount));
+        return invoke(object, name, ReflectiveProc.internAnyParameters(paramCount));
     }
     
     public static Proc invoke(String name) {
@@ -59,7 +59,7 @@ public class Procs {
     }
     
     public static Proc invoke(String name, int paramCount) {
-        return invoke(detectClass(), name, ReflectiveProc.unsafeAnyParameters(paramCount));
+        return invoke(detectClass(), name, ReflectiveProc.internAnyParameters(paramCount));
     }
     
     public static Proc invokeWith(String name, Object... args) {
@@ -75,7 +75,7 @@ public class Procs {
     }
     
     public static Proc newInstance(Class clazz, int paramCount) {
-        return ReflectiveProc.newInstance(clazz, ReflectiveProc.unsafeAnyParameters(paramCount));
+        return ReflectiveProc.newInstance(clazz, ReflectiveProc.internAnyParameters(paramCount));
     }
     
     public static Proc newInstance(Class clazz) {

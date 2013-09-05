@@ -1,7 +1,7 @@
 package org.cthul.proc;
 
 /**
- * @author Arian Treffer
+ *
  */
 public class CurryProc extends PN {
     

@@ -5,7 +5,6 @@ import org.hamcrest.internal.ReflectiveTypeFinder;
 
 /**
  *
- * @author Arian Treffer
  */
 public abstract class TypesafeQuickMatcherBase<T> 
                 extends QuickMatcherBase<T> {

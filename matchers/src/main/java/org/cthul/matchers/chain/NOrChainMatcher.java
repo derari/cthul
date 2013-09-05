@@ -7,7 +7,6 @@ import org.hamcrest.Matcher;
 
 /**
  * 
- * @author Arian Treffer
  * @param <T> 
  */
 public class NOrChainMatcher<T> extends MatcherChainBase<T> {
@@ -72,7 +71,13 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
 
     @Override
     public int getPrecedence() {
-        return P_NOR;
+        return P_OR;
+    }
+
+    @Override
+    public int getMismatchPrecedence() {
+        // prints only first match
+        return P_UNARY;
     }
     
     @Factory
@@ -110,13 +115,13 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
         public Builder(ChainFactory factory) {
             super(factory);
         }
-        public Builder<T> nor(Matcher<? super T> m) {
+        public <T2 extends T> Builder<T> nor(Matcher<? super T2> m) {
             return (Builder<T>) add(m);
         }
-        public Builder<T> nor(Matcher<? super T>... m) {
+        public <T2 extends T> Builder<T> nor(Matcher<? super T2>... m) {
             return (Builder<T>) add(m);
         }
-        public Builder<T> nor(Collection<? extends Matcher<? super T>> m) {
+        public <T2 extends T> Builder<T> nor(Collection<? extends Matcher<? super T2>> m) {
             return (Builder<T>) add(m);
         }
     }

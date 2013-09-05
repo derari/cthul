@@ -4,22 +4,43 @@ import org.hamcrest.StringDescription;
 import org.junit.Test;
 import static org.cthul.matchers.chain.AndChainMatcher.both;
 import static org.cthul.matchers.chain.OrChainMatcher.either;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 
 public class NestedMatcherTest {
 
     @Test
     public void test_precedenced_description_1() {
         StringDescription desc = new StringDescription();
-        either(lessThan(1)).or(both(greaterThan(5)).and(lessThan(10))).describeTo(desc);
-        assertThat(desc.toString(), is("a value less than <1> or a value greater than <5> and a value less than <10>"));
+        either(is(6)).or(both(greaterThan(3)).and(lessThan(5))).describeTo(desc);
+        assertThat(desc.toString(), is("is <6> or a value greater than <3> and a value less than <5>"));
+    }
+    
+    @Test
+    public void test_java_precedence() {
+        int x = 6;
+        if (x == 6 || (x > 3 && x < 5)) {
+            // expected
+        } else {
+            fail("Java is broken");
+        }
+        if (x == 6 || x > 3 && x < 5) {
+            // expected
+        } else {
+            fail("Java is broken");
+        }
+        if ((x == 6 || x > 3) && x < 5) {
+            fail("Java is broken");
+        } else {
+            // expected
+        }
     }
 
     @Test
     public void test_precedenced_description_2() {
         StringDescription desc = new StringDescription();
-        both(greaterThan(1)).and(either(greaterThan(10)).or(lessThan(5))).describeTo(desc);
-        assertThat(desc.toString(), is("a value greater than <1> and (a value greater than <10> or a value less than <5>)"));
+        both(lessThan(5)).and(either(is(6)).or(greaterThan(3))).describeTo(desc);
+        assertThat(desc.toString(), is("a value less than <5> and (is <6> or a value greater than <3>)"));
     }
 }

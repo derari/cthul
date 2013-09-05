@@ -24,7 +24,7 @@ public class ReflectiveProcTest {
     public void tearDown() {
     }
     
-    private static void count(int i) {
+    public static void count(int i) {
         counter += i;
     }
     

@@ -7,7 +7,6 @@ import org.hamcrest.Matcher;
 
 /**
  *
- * @author Arian Treffer
  */
 public class IsThrowable {
         

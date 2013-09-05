@@ -2,7 +2,6 @@ package org.cthul.proc;
 
 /**
  * A {@link ProcBase ProcBase} with no parameters.
- * @author Arian Treffer
  */
 public class P0 extends ProcBase<P0> implements Proc0 {
 

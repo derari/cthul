@@ -7,7 +7,6 @@ import org.hamcrest.Matcher;
 /**
  * Combines multiple matchers.
  * 
- * @author Arian Treffer
  * @param <T> 
  * @see Matcher
  */
