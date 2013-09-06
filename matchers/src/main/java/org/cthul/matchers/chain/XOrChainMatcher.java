@@ -53,7 +53,9 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
         List<MatchResult<I>> results = new ArrayList<>(matchers.length);
         boolean match = false;
         for (Matcher<?> m: matchers) {
-            match ^= m.matches(item);
+            MatchResult<I> mr = quickMatchResult(m, item);
+            results.add(mr);
+            match ^= mr.isSuccess();
         }
         return result(match, item, results);
     }
@@ -74,7 +76,7 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
             }
             @Override
             public void describeTo(Description d) {
-                final int p = getMatchPrecedence();
+                final int p = getDescriptionPrecedence();
                 boolean first = true;
                 for (MatchResult<I> mr: results) {
                     if (first) {

@@ -124,6 +124,9 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
                 } else {
                     int i = 1;
                     for (MatchResult.Mismatch<Throwable> m: nested) {
+                        if (i > 1) {
+                            d.appendText(", ");
+                        }
                         d.appendText("cause ");
                         d.appendText(String.valueOf(i++));
                         d.appendText(" ");

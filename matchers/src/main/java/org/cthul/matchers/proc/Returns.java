@@ -2,7 +2,9 @@ package org.cthul.matchers.proc;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.cthul.matchers.diagnose.safe.TypesafeNestedMatcher;
+import org.cthul.matchers.diagnose.result.AtomicMismatch;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.cthul.proc.Proc;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -13,7 +15,7 @@ import org.hamcrest.core.IsEqual;
 /**
  *
  */
-public class Returns extends TypesafeNestedMatcher<Proc> {
+public class Returns extends TypesafeNestedResultMatcher<Proc> {
 
     private final Matcher<?> resultMatcher;
     
@@ -42,30 +44,38 @@ public class Returns extends TypesafeNestedMatcher<Proc> {
         }
         return resultMatcher.matches(proc.getResult());
     }
-
-    /** {@inheritDoc} */
+    
     @Override
-    protected void describeMismatchSafely(Proc proc, Description mismatch) {
+    protected <I extends Proc> MatchResult<I> matchResultSafely(I proc) {
         if (!proc.hasResult()) {
-            mismatch.appendText("threw ")
-                    .appendValue(proc.getException());
             StringWriter sw = new StringWriter();
+            sw.append("threw <");
+            sw.append(proc.getException().toString());
+            sw.append("> ");
             proc.getException().printStackTrace(new PrintWriter(sw));
-            mismatch.appendText(" ").appendText(sw.toString());
-        } else {
-            mismatch.appendText("returned ");
-            nestedDescribeMismatch(resultMatcher, proc.getResult(), mismatch);
+            return new AtomicMismatch<>(proc, this, sw.toString());
         }
-    }
-
-    @Override
-    protected boolean matchesSafely(Proc proc, Description mismatch) {
-        if (!proc.hasResult()) {
-            describeMismatchSafely(proc, mismatch);
-            return false;
-        } else {
-            return nestedMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
-        }
+        final MatchResult<Object> nested = quickMatchResult(resultMatcher, proc.getResult());
+        return new NestedResult<I, Returns>(proc, this, nested.isSuccess()) {
+            @Override
+            public void describeTo(Description d) {
+                d.appendText("result ");
+                nestedDescribeTo(getDescriptionPrecedence(), nested, d);
+            }
+            @Override
+            public void describeMatch(Description d) {
+                describeTo(d);
+            }
+            @Override
+            public void describeExpected(Description d) {
+                d.appendText("returns ");
+                nestedDescribeTo(getExpectedPrecedence  (), nested.getMismatch().getExpectedDescription(), d);
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                describeTo(d);
+            }
+        };
     }
     
     /**
