@@ -27,6 +27,16 @@ public abstract class QuickDiagnosingMatcherBase<T>
     @Override
     public abstract boolean matches(Object item, Description mismatch);
 
+    @Override
+    public MatchResult<T> matchResult(T item) {
+        StringDescription mismatch = new StringDescription();
+        if (matches(item, mismatch)) {
+            return MatchResultSuccess.instance();
+        } else {
+            return new MatchResultMismatch<>(item, this, mismatch.toString());
+        }
+    }
+
     /**
      * Uses the {@code matcher} to validate {@code item}.
      * If validation fails, an error message is appended to {@code mismatch}.
@@ -71,4 +81,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
         return QuickDiagnose.matches(matcher, item, mismatch, message);
     }
     
+    protected static <T> MatchResult<T> quickMatchResult(Matcher<?> matcher, T item) {
+        return QuickDiagnose.matchResult(matcher, item);
+    }
 }

@@ -24,5 +24,7 @@ public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
      * @return {@code true} if {@code item} matches, otherwise {@code false}.
      */
     public boolean matches(Object item, Description mismatch);
+ 
+    public MatchResult<T> matchResult(T item);
     
 }

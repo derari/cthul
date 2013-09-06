@@ -164,12 +164,76 @@ public abstract class NestedMatcher<T>
     private boolean useParen(Object nested) {
         int pNested = precedenceOf(nested);
         int pSelf = getPrecedence();
-        return pNested < P_UNARY ? pNested <= pSelf : pNested < pSelf;
+        return useParentheses(pSelf, pNested);
     }
 
     private boolean useParenMismatch(Object nested) {
         int pNested = mismatchPrecedenceOf(nested);
         int pSelf = getMismatchPrecedence();
+        return useParentheses(pSelf, pNested);
+    }
+    
+    protected static boolean useParentheses(int pSelf, int pNested) {
         return pNested < P_UNARY ? pNested <= pSelf : pNested < pSelf;
+    }
+    
+    protected static class NestedMismatch<T, M extends Matcher<?>> 
+                     extends MatchResultMismatch<T, M> {
+
+        public NestedMismatch(T value, M matcher) {
+            super(value, matcher);
+        }
+        
+        protected void nestedDescribe(boolean paren, SelfDescribing sd, Description d) {
+            if (paren) d.appendText("(");
+            d.appendDescriptionOf(sd);
+            if (paren) d.appendText(")");
+        }
+        
+        protected void nestedDescribeMatcher(Mismatch<?> nested, Description d) {
+            boolean paren = useParentheses(getMatcherPrecedence(), nested.getMatcherPrecedence());
+            nestedDescribe(paren, nested.getMatcherDescription(), d);
+        }
+        
+        protected void nestedDescribeExpected(Mismatch<?> nested, Description d) {
+            boolean paren = useParentheses(getExpectedPrecedence(), nested.getExpectedPrecedence());
+            nestedDescribe(paren, nested.getExpectedDescription(), d);
+        }
+        
+        protected void nestedDescribeMismatch(Mismatch<?> nested, Description d) {
+            boolean paren = useParentheses(getMismatchPrecedence(), nested.getMismatchPrecedence());
+            nestedDescribe(paren, nested.getMismatchDescription(), d);
+        }
+        
+        protected void nestedDescribe(boolean paren, SelfDescribing sd, Description d, String message) {
+            if (message == null) {
+                nestedDescribe(paren, sd, d);
+                return;
+            }
+            if (paren) d.appendText("(");
+            if (message.contains("$1")) {
+                String nestedText = StringDescription.toString(sd);
+                d.appendText(message.replace("$1", nestedText));
+            } else {
+                d.appendText(message);
+            }
+            if (paren) d.appendText(")");
+        }
+        
+        protected void nestedDescribeMatcher(Mismatch<?> nested, Description d, String message) {
+            boolean paren = useParentheses(getMatcherPrecedence(), nested.getMatcherPrecedence());
+            nestedDescribe(paren, nested.getMatcherDescription(), d, message);
+        }
+        
+        protected void nestedDescribeExpected(Mismatch<?> nested, Description d, String message) {
+            boolean paren = useParentheses(getExpectedPrecedence(), nested.getExpectedPrecedence());
+            nestedDescribe(paren, nested.getExpectedDescription(), d, message);
+        }
+        
+        protected void nestedDescribeMismatch(Mismatch<?> nested, Description d, String message) {
+            boolean paren = useParentheses(getMismatchPrecedence(), nested.getMismatchPrecedence());
+            nestedDescribe(paren, nested.getMismatchDescription(), d, message);
+        }
+        
     }
 }

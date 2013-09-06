@@ -2,6 +2,7 @@ package org.cthul.matchers.diagnose;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.StringDescription;
 
 /**
  * Implements {@link QuickDiagnosingMatcher} interface, 
@@ -53,6 +54,16 @@ public abstract class QuickMatcherBase<T>
         } else {
             describeMismatch(item, mismatch);
             return false;
+        }
+    }
+
+    @Override
+    public MatchResult<T> matchResult(T item) {
+        StringDescription mismatch = new StringDescription();
+        if (matches(item, mismatch)) {
+            return MatchResultSuccess.instance();
+        } else {
+            return new MatchResultMismatch<>(item, this, mismatch.toString());
         }
     }
     

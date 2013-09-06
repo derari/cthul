@@ -82,6 +82,18 @@ public class QuickDiagnose {
         return true;
     }
     
+    public static <T> MatchResult<T> matchResult(Matcher<?> matcher, T item) {
+        if (matcher instanceof QuickDiagnosingMatcher) {
+            return ((QuickDiagnosingMatcher) matcher).matchResult(item);
+        }
+        StringDescription mismatch = new StringDescription();
+        if (matches(matcher, item, mismatch)) {
+            return MatchResultSuccess.instance();
+        } else {
+            return new MatchResultMismatch<>(item, matcher, mismatch.toString());
+        }
+    }
+    
     private static boolean simpleMatch(Matcher<?> matcher, Object item, Description mismatch) {
         if (matcher.matches(item)) {
             return true;
