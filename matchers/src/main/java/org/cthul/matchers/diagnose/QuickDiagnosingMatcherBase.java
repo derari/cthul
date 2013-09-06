@@ -28,7 +28,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
     public abstract boolean matches(Object item, Description mismatch);
 
     @Override
-    public MatchResult<T> matchResult(T item) {
+    public <I> MatchResult<I> matchResult(I item) {
         StringDescription mismatch = new StringDescription();
         if (matches(item, mismatch)) {
             return MatchResultSuccess.instance();
