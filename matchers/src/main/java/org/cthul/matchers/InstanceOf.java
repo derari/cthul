@@ -1,6 +1,7 @@
 package org.cthul.matchers;
 
 import org.cthul.matchers.chain.AndChainMatcher;
+import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -55,6 +56,11 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
     @Override
     public void describeTo(Description description) {
         matcher().describeTo(description);
+    }
+
+    @Override
+    public <I> MatchResult<I> matchResult(I item) {
+        return quickMatchResult(matcher(), item);
     }
     
     public <X> AndChainMatcher.Builder<X> that(Matcher<? super T> m) {

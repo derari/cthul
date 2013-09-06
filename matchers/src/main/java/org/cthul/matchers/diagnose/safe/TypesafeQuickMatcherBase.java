@@ -1,5 +1,6 @@
-package org.cthul.matchers.diagnose;
+package org.cthul.matchers.diagnose.safe;
 
+import org.cthul.matchers.diagnose.QuickMatcherBase;
 import org.hamcrest.Description;
 import org.hamcrest.internal.ReflectiveTypeFinder;
 
@@ -11,10 +12,6 @@ public abstract class TypesafeQuickMatcherBase<T>
 
     private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 1, 0);
 
-    protected abstract boolean matchesSafely(T item);
-
-    protected abstract void describeMismatchSafely(T item, Description mismatch);
-    
     final private Class<?> expectedType;
 
     public TypesafeQuickMatcherBase(Class<?> expectedType) {
@@ -29,28 +26,24 @@ public abstract class TypesafeQuickMatcherBase<T>
         this(TYPE_FINDER);
     }
     
+    protected abstract boolean matchesSafely(T item);
+
+    protected abstract void describeMismatchSafely(T item, Description mismatch);
+    
     @Override
     @SuppressWarnings("unchecked")
     public final boolean matches(Object item) {
-        return item != null
-                && expectedType.isInstance(item)
+        return Typesafe.matches(item, expectedType)
                 && matchesSafely((T) item);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public final void describeMismatch(Object item, Description description) {
-        if (item == null) {
-            description.appendText("was null");
-        } else if (! expectedType.isInstance(item)) {
-            description.appendText("was a ")
-                       .appendText(item.getClass().getName())
-                       .appendText(" (")
-                       .appendValue(item)
-                       .appendText(")");
-        } else {
-            describeMismatchSafely((T)item, description);
+        if (!Typesafe.matches(item, expectedType, description)) {
+            return;
         }
+        describeMismatchSafely((T)item, description);
     }
 
 }

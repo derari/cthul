@@ -1,6 +1,9 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
+import static org.cthul.matchers.diagnose.nested.PrecedencedMatcher.P_UNARY;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -35,7 +38,7 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 description.appendText(" nor ");
             }
-            nestedDescribe(description, m);
+            nestedDescribeTo(m, description);
         }
     }
 
@@ -49,28 +52,43 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
         }
         return true;
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean matches(Object item, Description mismatch) {
-        for (Matcher<? super T> m: matchers) {
-            // the first matcher that succeeds describes the mismatch
-            if (m.matches(item)) {
-                m.describeTo(mismatch);
-                return false;
+    
+    private <I> MatchResult.Match<I> positiveMatch(I item) {
+        for (Matcher<?> m: matchers) {
+            MatchResult<I> mr = quickMatchResult(m, item);
+            if (mr.isSuccess()) {
+                return mr.getMatch();
             }
         }
-        return true;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void describeMismatch(Object item, Description description) {
-        matches(item, description);
+        return null;
     }
 
     @Override
-    public int getPrecedence() {
+    public <I> MatchResult<I> matchResult(I item) {
+        final MatchResult.Match<I> nested = positiveMatch(item);
+        if (nested == null) {
+            return new MatchResultSuccess<>(item, this);
+        }
+        return new NestedMismatch<I, NOrChainMatcher<T>>(item, this) {
+            @Override
+            public int getExpectedPrecedence() {
+                return P_UNARY;
+            }
+            @Override
+            public void describeExpected(Description d) {
+                d.appendText("not ");
+                nestedDescribeMatch(getExpectedPrecedence(), nested, d);
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                nestedDescribeMatch(getMismatchPrecedence(), nested, d);
+            }
+        };
+    }
+    
+
+    @Override
+    public int getDescriptionPrecedence() {
         return P_OR;
     }
 
@@ -108,21 +126,21 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
         }
     };
     
-    public static class Builder<T> extends ChainBuilder<T> {
+    public static class Builder<T> extends ChainBuilderBase<T> {
         public Builder() {
-            super(FACTORY);
         }
-        public Builder(ChainFactory factory) {
-            super(factory);
+        @Override
+        protected ChainFactory factory() {
+            return FACTORY;
         }
         public <T2 extends T> Builder<T> nor(Matcher<? super T2> m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
         public <T2 extends T> Builder<T> nor(Matcher<? super T2>... m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
         public <T2 extends T> Builder<T> nor(Collection<? extends Matcher<? super T2>> m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
     }
 }

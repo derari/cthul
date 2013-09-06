@@ -1,8 +1,6 @@
 package org.cthul.matchers.diagnose;
 
 import org.cthul.matchers.diagnose.result.MatchResult;
-import org.cthul.matchers.diagnose.result.MatchResultMismatch;
-import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import org.hamcrest.*;
 
 /**
@@ -10,35 +8,38 @@ import org.hamcrest.*;
  * {@link DiagnosingMatcher}, also provides an efficient implementation for the
  * simple match.
  */
-public abstract class QuickDiagnosingMatcherBase<T> 
+public abstract class QuickResultMatcherBase<T> 
                 extends BaseMatcher<T> 
                 implements QuickDiagnosingMatcher<T> {
 
     /** {@inheritDoc} */
     @Override
     public boolean matches(Object o) {
-        return matches(o, Description.NONE);
+        return matchResult(o).isSuccess();
     }
 
     /** {@inheritDoc} */
     @Override
     public void describeMismatch(Object item, Description description) {
-        matches(item, description);
+        MatchResult.Mismatch<?> mismatch = matchResult(item).getMismatch();
+        if (mismatch != null) {
+            mismatch.describeMismatch(description);
+        }
     }
     
     /** {@inheritDoc} */
     @Override
-    public abstract boolean matches(Object item, Description mismatch);
+    public boolean matches(Object item, Description description) {
+        MatchResult.Mismatch<?> mismatch = matchResult(item).getMismatch();
+        if (mismatch != null) {
+            mismatch.describeMismatch(description);
+            return false;
+        }
+        return true;
+    }
 
     @Override
-    public <I> MatchResult<I> matchResult(I item) {
-        StringDescription mismatch = new StringDescription();
-        if (matches(item, mismatch)) {
-            return new MatchResultSuccess<>(item, this);
-        } else {
-            return new MatchResultMismatch<>(item, this, mismatch.toString());
-        }
-    }
+    public abstract <I> MatchResult<I> matchResult(I item);
 
     /**
      * Uses the {@code matcher} to validate {@code item}.
@@ -58,7 +59,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
      * @param matcher
      * @param item
      * @param mismatch
-     * @return {@code true} iif {@code item} was matched
+     * @return {@code true} iff {@code item} was matched
      * @see DiagnosingMatcher
      * @see QuickDiagnosingMatcher
      */
@@ -78,7 +79,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
      * @param item
      * @param mismatch
      * @param message
-     * @return {@code true} iif {@code item} was matched
+     * @return {@code true} iff {@code item} was matched
      */
     protected static boolean quickMatch(Matcher<?> matcher, Object item, Description mismatch, String message) {
         return QuickDiagnose.matches(matcher, item, mismatch, message);

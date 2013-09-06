@@ -1,6 +1,10 @@
 package org.cthul.matchers.chain;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import org.cthul.matchers.diagnose.nested.Nested;
+import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -30,6 +34,10 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
     public void describeTo(Description description) {
         countMatcher.describeTo(description);
         description.appendText(" of: ");
+        describeMatchers(description);
+    }
+    
+    private void describeMatchers(Description description) {
         int i = 0;
         for (Matcher<?> m: matchers) {
             if (i > 0) {
@@ -41,7 +49,7 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
                 }
             }
             i++;
-            nestedDescribe(description, m);
+            nestedDescribeTo(m, description);
         }
     }
 
@@ -57,55 +65,47 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
         return countMatcher.matches(count);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean matches(Object item, Description mismatch) {
-        boolean[] matches = new boolean[matchers.length];
+    public <I> MatchResult<I> matchResult(I item) {
+        final List<MatchResult<I>> results = new ArrayList<>(matchers.length);
         int count = 0;
-        int i = 0;
         for (Matcher<?> m: matchers) {
             if (m.matches(item)) {
-                matches[i] = true;
                 count++;
             }
-            i++;
         }
-        if (nestedQuickMatch(countMatcher, count, mismatch, "matched $1: ")) {
-            return true;
-        } else {
-            listMatchDescriptions(matches, item, mismatch);
-            return false;
-        }
+        final MatchResult<Integer> countResult = quickMatchResult(countMatcher, count);
+        return result(item, countResult, results);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void describeMismatch(Object item, Description mismatch) {
-        matches(item, mismatch);
-    }
-
-    private void listMatchDescriptions(boolean[] matches, Object item, Description mismatch) {
-        final int len = matchers.length;
-        for (int i = 0; i < len; i++) {
-            if (i > 0) {
-                if (i < len-1) {
-                    mismatch.appendText(", ");
-                } else {
-                    mismatch.appendText(i == 1 ? " " : ", ");
-                    mismatch.appendText("and ");
-                }
+    private <I> MatchResult<I> result(I item, final MatchResult<Integer> countResult, final List<MatchResult<I>> results) {
+        return new NestedResult<I, SomeOfChainMatcher<T>>(item, this, countResult.isSuccess()) {
+            @Override
+            public void describeTo(Description d) {
+                d.appendText("matched ");
+                nestedDescribeTo(getDescriptionPrecedence(), countResult, d);
+                d.appendText(": ");
+                Nested.listDescriptions(getDescriptionPrecedence(), results, d);
             }
-            // append either fail- or match-description
-            if (matches[i]) {
-                nestedDescribe(mismatch, matchers[i]);
-            } else {
-                nestedDescribeMismatch(mismatch, matchers[i], item);
+            @Override
+            public void describeMatch(Description d) {
+                describeTo(d);
             }
-        }
+            @Override
+            public void describeExpected(Description d) {
+                nestedDescribeTo(getExpectedPrecedence(), countResult.getMismatch().getExpectedDescription(), d);
+                d.appendText(" of: ");
+                describeMatchers(d);
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                describeTo(d);
+            }
+        };
     }
 
     @Override
-    public int getPrecedence() {
+    public int getDescriptionPrecedence() {
         return P_COMPLEX;
     }
     
@@ -146,7 +146,7 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
     public static SomeOfChainFactory factory(Matcher<? super Integer> countMatcher) {
         return new SomeOfChainFactory(countMatcher);
     }
-    
+
     public static class SomeOfChainFactory implements ChainFactory {
 
         private final Matcher<? super Integer> countMatcher;
@@ -173,18 +173,23 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
         }
     };
     
-    public static class Builder<T> extends ChainBuilder<T> {
+    public static class Builder<T> extends ChainBuilderBase<T> {
+        private final ChainFactory factory;
         public Builder(ChainFactory factory) {
-            super(factory);
+            this.factory = factory;
+        }
+        @Override
+        protected ChainFactory factory() {
+            return factory;
         }
         public <T2 extends T> Builder<T2> and(Matcher<? super T2> m) {
-            return (Builder<T2>) add( m);
+            return (Builder<T2>) _add( m);
         }
         public <T2 extends T> Builder<T2> and(Matcher<? super T2>... m) {
-            return (Builder<T2>) add(m);
+            return (Builder<T2>) _add(m);
         }
         public <T2 extends T> Builder<T2> and(Collection<? extends Matcher<? super T2>> m) {
-            return (Builder<T2>) add(m);
+            return (Builder<T2>) _add(m);
         }
     }
 }

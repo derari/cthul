@@ -1,5 +1,8 @@
 package org.cthul.matchers.diagnose;
 
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.result.MatchResultMismatch;
+import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.StringDescription;
@@ -61,7 +64,7 @@ public abstract class QuickMatcherBase<T>
     public <I> MatchResult<I> matchResult(I item) {
         StringDescription mismatch = new StringDescription();
         if (matches(item, mismatch)) {
-            return MatchResultSuccess.instance();
+            return new MatchResultSuccess<>(item, this);
         } else {
             return new MatchResultMismatch<>(item, this, mismatch.toString());
         }

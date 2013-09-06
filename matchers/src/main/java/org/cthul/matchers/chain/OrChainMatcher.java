@@ -1,6 +1,9 @@
 package org.cthul.matchers.chain;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -30,7 +33,7 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
             } else {
                 description.appendText(" or ");
             }
-            nestedDescribe(description, m);
+            nestedDescribeTo(m, description);
         }
     }
 
@@ -45,35 +48,64 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         return false;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean matches(Object item, Description mismatch) {
-        if (matches(item)) {
-            return true;
-        }
-        // we can only add a mismatch description
-        // once we are sure none of the matchers matched
-        describeMismatch(item, mismatch);
-        return false;
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void describeMismatch(Object item, Description description) {
-        // all matchers failed
-        boolean first = true;
+    public <I> MatchResult<I> matchResult(I item) {
+        List<MatchResult.Mismatch<I>> mismatches = new ArrayList<>(matchers.length);
         for (Matcher<?> m: matchers) {
-            if (first) {
-                first = false;
+            MatchResult<I> mr = quickMatchResult(m, item);
+            if (mr.isSuccess()) {
+                return successResult(item, mr.getMatch());
             } else {
-                description.appendText(" and ");
+                mismatches.add(mr.getMismatch());
             }
-            nestedDescribeMismatch(description, m, item);
         }
+        return failResult(item, mismatches);
+    }
+
+    private <I> MatchResult<I> successResult(I item, final MatchResult.Match<I> nested) {
+        return new NestedMatch<I, OrChainMatcher<T>>(item, this) {
+            @Override
+            public int getMatchPrecedence() {
+                return P_UNARY;
+            }
+            @Override
+            public void describeMatch(Description d) {
+                nestedDescribeMatch(nested, d);
+            }
+        };
+    }
+
+    private <I> MatchResult<I> failResult(I item, final List<MatchResult.Mismatch<I>> nested) {
+        return new NestedMismatch<I, OrChainMatcher<T>>(item, this) {
+            @Override
+            public void describeExpected(Description d) {
+                boolean first = true;
+                for (MatchResult.Mismatch<I> m: nested) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        d.appendText(" or ");
+                    }
+                    nestedDescribeExpected(m, d);
+                }
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                boolean first = true;
+                for (MatchResult.Mismatch<I> m: nested) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        d.appendText(" and ");
+                    }
+                    nestedDescribeMismatch(m, d);
+                }
+            }
+        };
     }
 
     @Override
-    public int getPrecedence() {
+    public int getDescriptionPrecedence() {
         return P_OR;
     }
 
@@ -111,32 +143,27 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         }
     };
 
-    public static class Builder<T> extends ChainBuilder<T> {
+    public static class Builder<T> extends ChainBuilderBase<T> {
         
-        protected final ChainFactory xorFactory;
         private Boolean xorEnabled = null;
         
         public Builder() {
-            super(FACTORY);
-            xorFactory = XOrChainMatcher.FACTORY;
         }
         
-        public Builder(ChainFactory factory) {
-            super(factory);
-            xorFactory = XOrChainMatcher.FACTORY;
-        }
-        
-        public Builder(ChainFactory xorFactory, ChainFactory factory) {
-            super(factory);
-            this.xorFactory = xorFactory;
-        }
-
         @Override
         protected ChainFactory factory() {
             if (xorEnabled != null && xorEnabled) {
-                return xorFactory;
+                return xorFactory();
             }
-            return super.factory();
+            return orFactory();
+        }
+        
+        protected ChainFactory orFactory() {
+            return FACTORY;
+        }
+        
+        protected ChainFactory xorFactory() {
+            return XOrChainMatcher.FACTORY;
         }
         
         protected void makeOR() {
@@ -156,15 +183,15 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         }
         
         protected <T2 extends T> Builder<T> _or(Matcher<? super T2> m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
         
         protected <T2 extends T> Builder<T> _or(Matcher<? super T2>... m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
         
         protected <T2 extends T> Builder<T> _or(Collection<? extends Matcher<? super T2>> m) {
-            return (Builder<T>) add(m);
+            return (Builder<T>) _add(m);
         }
         
         public <T2 extends T> Builder<T> or(Matcher<? super T2> m) {

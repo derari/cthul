@@ -1,7 +1,7 @@
 package org.cthul.matchers.chain;
 
 import java.util.Collection;
-import org.cthul.matchers.diagnose.NestedMatcher;
+import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.hamcrest.Matcher;
 
 /**
@@ -10,7 +10,7 @@ import org.hamcrest.Matcher;
  * @param <T> 
  * @see Matcher
  */
-public abstract class MatcherChainBase<T> extends NestedMatcher<T> {
+public abstract class MatcherChainBase<T> extends NestedResultMatcher<T> {
 
     protected final Matcher<? super T>[] matchers;
 

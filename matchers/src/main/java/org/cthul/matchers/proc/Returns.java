@@ -2,7 +2,7 @@ package org.cthul.matchers.proc;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
+import org.cthul.matchers.diagnose.safe.TypesafeNestedMatcher;
 import org.cthul.proc.Proc;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -23,7 +23,7 @@ public class Returns extends TypesafeNestedMatcher<Proc> {
     }
 
     @Override
-    public int getPrecedence() {
+    public int getDescriptionPrecedence() {
         return P_UNARY;
     }
 
@@ -31,7 +31,7 @@ public class Returns extends TypesafeNestedMatcher<Proc> {
     @Override
     public void describeTo(Description description) {
         description.appendText("returns ");
-        nestedDescribe(description, resultMatcher);
+        nestedDescribeTo(resultMatcher, description);
     }
 
     /** {@inheritDoc} */
@@ -54,7 +54,7 @@ public class Returns extends TypesafeNestedMatcher<Proc> {
             mismatch.appendText(" ").appendText(sw.toString());
         } else {
             mismatch.appendText("returned ");
-            nestedDescribeMismatch(mismatch, resultMatcher, proc.getResult());
+            nestedDescribeMismatch(resultMatcher, proc.getResult(), mismatch);
         }
     }
 
@@ -64,7 +64,7 @@ public class Returns extends TypesafeNestedMatcher<Proc> {
             describeMismatchSafely(proc, mismatch);
             return false;
         } else {
-            return nestedQuickMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
+            return nestedMatch(resultMatcher, proc.getResult(), mismatch, "returned $1");
         }
     }
     

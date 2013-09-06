@@ -1,6 +1,11 @@
 package org.cthul.matchers.exceptions;
 
-import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.cthul.matchers.diagnose.result.AtomicMismatch;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -8,7 +13,7 @@ import org.hamcrest.Matcher;
 /**
  * Matches exception chains.
  */
-public class CausedBy extends TypesafeNestedMatcher<Throwable> {
+public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
 
     private final boolean direct;
     private final Matcher<? super Throwable> throwableMatcher;
@@ -20,7 +25,7 @@ public class CausedBy extends TypesafeNestedMatcher<Throwable> {
     }
 
     @Override
-    public int getPrecedence() {
+    public int getDescriptionPrecedence() {
         return P_UNARY;
     }
 
@@ -45,60 +50,88 @@ public class CausedBy extends TypesafeNestedMatcher<Throwable> {
             description.appendText("directly ");
         }
         description.appendText("caused by ");
-        nestedDescribe(description, throwableMatcher);
+        nestedDescribeTo(throwableMatcher, description);
     }
 
     @Override
-    protected void describeMismatchSafely(Throwable ex, Description mismatch) {
+    protected <I extends Throwable> MatchResult<I> matchResultSafely(I ex) {
         Throwable cause = ex.getCause();
-        if (cause == null) {
-            mismatch.appendText("no cause");
-            return;
-        }
-        if (direct || cause.getCause() == null) {
-            mismatch.appendText("cause ");
-            nestedDescribeMismatch(mismatch, this, cause);
-            return;
-        }
-        
-        int i = 1;
-        while (cause != null) {
-            mismatch.appendText("cause ").
-                     appendText(String.valueOf(i)).
-                     appendText(" ");
-            nestedDescribeMismatch(mismatch, throwableMatcher, cause);
-            cause = cause.getCause();
-            if (cause != null) {
-                i++;
-                mismatch.appendText(", ");
-            }
-        }
-    }
 
-    @Override
-    protected boolean matchesSafely(Throwable ex, Description mismatch) {
-        Throwable cause = ex.getCause();
-        
         // try direct match
         if (cause == null) {
-            mismatch.appendText("no cause");
-            return false;
+            return new AtomicMismatch<>(ex, this, "no cause");
         }
         if (direct || cause.getCause() == null) {
-            return nestedQuickMatch(throwableMatcher, cause, mismatch, "cause $1");
-        }
-        
-        // check if chain matches
-        while (cause != null) {
-            if (throwableMatcher.matches(cause)) {
-                return true;
+            MatchResult<Throwable> mr = quickMatchResult(throwableMatcher, cause);
+            if (mr.isSuccess()) {
+                return successResult(ex, -1, mr.getMatch());
+            } else {
+                return failResult(ex, Arrays.asList(mr.getMismatch()));
             }
+        }
+
+        // check if chain matches
+        List<MatchResult.Mismatch<Throwable>> mismatches = new ArrayList<>();
+        int i = 1;
+        while (cause != null) {
+            MatchResult<Throwable> mr = quickMatchResult(throwableMatcher, cause);
+            if (mr.isSuccess()) {
+                return successResult(ex, i, mr.getMatch());
+            } else {
+                mismatches.add(mr.getMismatch());
+            }
+            i++;
             cause = cause.getCause();
         }
-        
-        // no match, generate mismatch description
-        describeMismatchSafely(ex, mismatch);
-        return false;
+
+        return failResult(ex, mismatches);
+    }
+    
+    private <I extends Throwable> MatchResult<I> successResult(I ex, final int index, final MatchResult.Match<Throwable> nested) {
+        return new NestedMatch<I, CausedBy>(ex, this) {
+            @Override
+            public void describeMatch(Description d) {
+                d.appendText("cause ");
+                if (index > 0) {
+                    d.appendText(String.valueOf(index));
+                    d.appendText(" ");
+                }
+                nestedDescribeMatch(nested, d);
+            }
+        };
+    }
+    
+    private <I extends Throwable> MatchResult<I> failResult(I ex, final List<MatchResult.Mismatch<Throwable>> nested) {
+        return new NestedMismatch<I, CausedBy>(ex, this) {
+            @Override
+            public int getMismatchPrecedence() {
+                return nested.size() == 1 ? P_UNARY : P_COMPLEX;
+            }
+            @Override
+            public void describeExpected(Description d) {
+                if (nested.size() == 1) {
+                    d.appendText("cause ");
+                    nestedDescribeExpected(nested.get(0), d);
+                } else {
+                    super.describeExpected(d);
+                }
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                if (nested.size() == 1) {
+                    d.appendText("cause ");
+                    nestedDescribeMismatch(nested.get(0), d);
+                } else {
+                    int i = 1;
+                    for (MatchResult.Mismatch<Throwable> m: nested) {
+                        d.appendText("cause ");
+                        d.appendText(String.valueOf(i++));
+                        d.appendText(" ");
+                        nestedDescribeMismatch(m, d);
+                    }
+                }
+            }
+        };
     }
     
     @Factory

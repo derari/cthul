@@ -2,7 +2,8 @@ package org.cthul.matchers.exceptions;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.ContainsPattern;
-import org.cthul.matchers.diagnose.TypesafeNestedMatcher;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -11,7 +12,7 @@ import org.hamcrest.core.Is;
 /**
  * Matches the message of an exception.
  */
-public class ExceptionMessage extends TypesafeNestedMatcher<Throwable> {
+public class ExceptionMessage extends TypesafeNestedResultMatcher<Throwable> {
     
     private Matcher<? super String> messageMatcher;
 
@@ -21,7 +22,7 @@ public class ExceptionMessage extends TypesafeNestedMatcher<Throwable> {
     }
 
     @Override
-    public int getPrecedence() {
+    public int getDescriptionPrecedence() {
         return P_UNARY;
     }
 
@@ -31,20 +32,34 @@ public class ExceptionMessage extends TypesafeNestedMatcher<Throwable> {
     }
 
     @Override
-    protected boolean matchesSafely(Throwable ex, Description mismatch) {
-        return nestedQuickMatch(messageMatcher, ex.getMessage(), mismatch, "message $1");
-    }
-
-    @Override
-    protected void describeMismatchSafely(Throwable item, Description mismatch) {
-        mismatch.appendText("message ");
-        nestedDescribeMismatch(mismatch, messageMatcher, item.getMessage());
-    }
-
-    @Override
     public void describeTo(Description description) {
         description.appendText("message ");
-        nestedDescribe(description, messageMatcher);
+        nestedDescribeTo(messageMatcher, description);
+    }
+
+    @Override
+    protected <I extends Throwable> MatchResult<I> matchResultSafely(I item) {
+        final MatchResult<String> nested = quickMatchResult(messageMatcher, item.getMessage());
+        return new NestedResult<I,ExceptionMessage>(item, this, nested.isSuccess()) {
+            @Override
+            public void describeTo(Description d) {
+                d.appendText("message ");
+                nestedDescribeTo(getDescriptionPrecedence(), nested, d);
+            }
+            @Override
+            public void describeMatch(Description d) {
+                describeTo(d);
+            }
+            @Override
+            public void describeExpected(Description d) {
+                d.appendText("message ");
+                nestedDescribeTo(getExpectedPrecedence(), nested.getMismatch().getExpectedDescription(), d);
+            }
+            @Override
+            public void describeMismatch(Description d) {
+                describeTo(d);
+            }
+        };
     }
     
     @Factory

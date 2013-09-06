@@ -1,5 +1,8 @@
 package org.cthul.matchers.diagnose;
 
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.result.MatchResultMismatch;
+import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.hamcrest.*;
@@ -88,7 +91,7 @@ public class QuickDiagnose {
         }
         StringDescription mismatch = new StringDescription();
         if (matches(matcher, item, mismatch)) {
-            return MatchResultSuccess.instance();
+            return new MatchResultSuccess<>(item, matcher);
         } else {
             return new MatchResultMismatch<>(item, matcher, mismatch.toString());
         }

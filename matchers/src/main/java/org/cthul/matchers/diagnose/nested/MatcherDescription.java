@@ -1,4 +1,4 @@
-package org.cthul.matchers.diagnose;
+package org.cthul.matchers.diagnose.nested;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -17,8 +17,8 @@ public class MatcherDescription<T> extends NestedMatcher<T> {
     }
 
     @Override
-    public int getPrecedence() {
-        return precedenceOf(matcher);
+    public int getDescriptionPrecedence() {
+        return Nested.precedenceOf(matcher);
     }
 
     /** {@inheritDoc} */
@@ -36,7 +36,7 @@ public class MatcherDescription<T> extends NestedMatcher<T> {
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description d) {
-        d.appendText(description);
+        Nested.describeTo(false, matcher, d, description);
     }
 
     /** {@inheritDoc} */

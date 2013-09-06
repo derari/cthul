@@ -1,5 +1,6 @@
 package org.cthul.matchers.diagnose;
 
+import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.*;
 
 /**
