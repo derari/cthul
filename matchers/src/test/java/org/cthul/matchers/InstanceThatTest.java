@@ -40,9 +40,9 @@ public class InstanceThatTest {
     public void test_syntax() {
         Object o = Integer.valueOf(2);
         // assertThat(o, greaterThan(1)); should not work
-        assertThat(o, isInstanceThat(Integer.class, greaterThan(1)));
+        assertThat(o, isInstanceThat(Integer.class, greaterThan(1)));    
     }
-    
+        
     @Test
     public void testInstanceThat() {
         Matcher<Object> m = instanceThat(Integer.class, greaterThan(1));
