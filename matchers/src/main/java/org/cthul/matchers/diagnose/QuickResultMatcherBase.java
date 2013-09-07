@@ -15,7 +15,7 @@ public abstract class QuickResultMatcherBase<T>
     /** {@inheritDoc} */
     @Override
     public boolean matches(Object o) {
-        return matchResult(o).isSuccess();
+        return matchResult(o).matched();
     }
 
     /** {@inheritDoc} */

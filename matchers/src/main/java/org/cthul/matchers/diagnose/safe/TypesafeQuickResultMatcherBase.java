@@ -29,7 +29,7 @@ public abstract class TypesafeQuickResultMatcherBase<T>
 
     @Override
     protected boolean matchesSafely(T item) {
-        return matchResultSafely(item).isSuccess();
+        return matchResultSafely(item).matched();
     }
 
     @Override

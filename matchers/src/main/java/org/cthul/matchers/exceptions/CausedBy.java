@@ -63,7 +63,7 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
         }
         if (direct || cause.getCause() == null) {
             MatchResult<Throwable> mr = quickMatchResult(throwableMatcher, cause);
-            if (mr.isSuccess()) {
+            if (mr.matched()) {
                 return successResult(ex, -1, mr.getMatch());
             } else {
                 return failResult(ex, Arrays.asList(mr.getMismatch()));
@@ -75,7 +75,7 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
         int i = 1;
         while (cause != null) {
             MatchResult<Throwable> mr = quickMatchResult(throwableMatcher, cause);
-            if (mr.isSuccess()) {
+            if (mr.matched()) {
                 return successResult(ex, i, mr.getMatch());
             } else {
                 mismatches.add(mr.getMismatch());

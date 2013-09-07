@@ -56,7 +56,7 @@ public class NOrChainMatcher<T> extends MatcherChainBase<T> {
     private <I> MatchResult.Match<I> positiveMatch(I item) {
         for (Matcher<?> m: matchers) {
             MatchResult<I> mr = quickMatchResult(m, item);
-            if (mr.isSuccess()) {
+            if (mr.matched()) {
                 return mr.getMatch();
             }
         }

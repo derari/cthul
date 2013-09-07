@@ -79,7 +79,7 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
     }
 
     private <I> MatchResult<I> result(I item, final MatchResult<Integer> countResult, final List<MatchResult<I>> results) {
-        return new NestedResult<I, SomeOfChainMatcher<T>>(item, this, countResult.isSuccess()) {
+        return new NestedResult<I, SomeOfChainMatcher<T>>(item, this, countResult.matched()) {
             @Override
             public void describeTo(Description d) {
                 d.appendText("matched ");

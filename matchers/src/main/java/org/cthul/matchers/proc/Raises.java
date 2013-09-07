@@ -46,7 +46,7 @@ public class Raises extends TypesafeNestedResultMatcher<Proc> {
             return new AtomicMismatch<>(proc, this, "threw no exception");
         }
         final MatchResult<Throwable> nested = quickMatchResult(exceptionMatcher, proc.getException());
-        return new NestedResult<I, Raises>(proc, this, nested.isSuccess()) {
+        return new NestedResult<I, Raises>(proc, this, nested.matched()) {
             @Override
             public void describeTo(Description d) {
                 nestedDescribeTo(getDescriptionPrecedence(), nested, d);

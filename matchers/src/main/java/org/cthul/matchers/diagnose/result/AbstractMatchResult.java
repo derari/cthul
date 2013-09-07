@@ -78,23 +78,23 @@ public class AbstractMatchResult<T, M extends Matcher<?>>
     }
     
     @Override
-    public boolean isSuccess() {
+    public boolean matched() {
         return success;
     }
 
     @Override
     public Match<T> getMatch() {
-        return isSuccess() ? this : null;
+        return matched() ? this : null;
     }
 
     @Override
     public Mismatch<T> getMismatch() {
-        return isSuccess() ? null : this;
+        return matched() ? null : this;
     }
 
     @Override
     public void describeTo(Description description) {
-        if (isSuccess()) { 
+        if (matched()) { 
             describeMatch(description);
         } else {
             describeMismatch(description);
@@ -103,7 +103,7 @@ public class AbstractMatchResult<T, M extends Matcher<?>>
 
     @Override
     public int getDescriptionPrecedence() {
-        if (isSuccess()) {
+        if (matched()) {
             return getMatchPrecedence();
         } else {
             return getMismatchPrecedence();

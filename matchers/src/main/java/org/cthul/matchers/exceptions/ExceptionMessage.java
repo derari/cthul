@@ -40,7 +40,7 @@ public class ExceptionMessage extends TypesafeNestedResultMatcher<Throwable> {
     @Override
     protected <I extends Throwable> MatchResult<I> matchResultSafely(I item) {
         final MatchResult<String> nested = quickMatchResult(messageMatcher, item.getMessage());
-        return new NestedResult<I,ExceptionMessage>(item, this, nested.isSuccess()) {
+        return new NestedResult<I,ExceptionMessage>(item, this, nested.matched()) {
             @Override
             public void describeTo(Description d) {
                 d.appendText("message ");

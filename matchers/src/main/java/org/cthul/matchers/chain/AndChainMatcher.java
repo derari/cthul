@@ -51,7 +51,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     private <I> MatchResult.Mismatch<I> failedMatch(I item) {
         for (Matcher<?> m: matchers) {
             MatchResult<I> mr = quickMatchResult(m, item);
-            if (!mr.isSuccess()) {
+            if (!mr.matched()) {
                 return mr.getMismatch();
             }
         }

@@ -9,7 +9,7 @@ import org.hamcrest.Matcher;
  */
 public interface MatchResult<T> extends PrecedencedSelfDescribing {
     
-    boolean isSuccess();
+    boolean matched();
     
     Match<T> getMatch();
     

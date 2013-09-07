@@ -53,7 +53,7 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         List<MatchResult.Mismatch<I>> mismatches = new ArrayList<>(matchers.length);
         for (Matcher<?> m: matchers) {
             MatchResult<I> mr = quickMatchResult(m, item);
-            if (mr.isSuccess()) {
+            if (mr.matched()) {
                 return successResult(item, mr.getMatch());
             } else {
                 mismatches.add(mr.getMismatch());

@@ -1,7 +1,6 @@
 package org.cthul.matchers;
 
 import org.junit.Test;
-import static org.cthul.matchers.CthulMatchers.isA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -18,7 +17,7 @@ public class CthulMatchersTest {
     public void test_factory() {
         Object o = "";
         assertThat(o, is((Object) ""));
-        assertThat(o, isA(String.class).that(is("")));
+        assertThat(o, CthulMatchers.isA(String.class).that(is("")));
     }
     
 }

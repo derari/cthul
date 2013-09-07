@@ -63,7 +63,7 @@ public class MatchResultSuccess<T, M extends Matcher<?>>
     }
     
     @Override
-    public boolean isSuccess() {
+    public boolean matched() {
         return true;
     }
 

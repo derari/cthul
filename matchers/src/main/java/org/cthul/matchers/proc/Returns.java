@@ -56,7 +56,7 @@ public class Returns extends TypesafeNestedResultMatcher<Proc> {
             return new AtomicMismatch<>(proc, this, sw.toString());
         }
         final MatchResult<Object> nested = quickMatchResult(resultMatcher, proc.getResult());
-        return new NestedResult<I, Returns>(proc, this, nested.isSuccess()) {
+        return new NestedResult<I, Returns>(proc, this, nested.matched()) {
             @Override
             public void describeTo(Description d) {
                 d.appendText("result ");

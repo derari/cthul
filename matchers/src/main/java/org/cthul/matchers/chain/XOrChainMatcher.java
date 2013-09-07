@@ -55,7 +55,7 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
         for (Matcher<?> m: matchers) {
             MatchResult<I> mr = quickMatchResult(m, item);
             results.add(mr);
-            match ^= mr.isSuccess();
+            match ^= mr.matched();
         }
         return result(match, item, results);
     }
