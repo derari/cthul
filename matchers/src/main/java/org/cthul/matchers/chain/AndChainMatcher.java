@@ -1,7 +1,10 @@
 package org.cthul.matchers.chain;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.result.MatchResult.Match;
 import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -60,10 +63,35 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
 
     @Override
     public <I> MatchResult<I> matchResult(I item) {
-        final MatchResult.Mismatch<I> nested = failedMatch(item);
-        if (nested == null) {
-            return new MatchResultSuccess<>(item, this);
+        List<MatchResult.Match<I>> results = new ArrayList<>(matchers.length);
+        for (Matcher<?> m: matchers) {
+            MatchResult<I> mr = quickMatchResult(m, item);
+            if (!mr.matched()) {
+                return failResult(item, mr.getMismatch());
+            }
+            results.add(mr.getMatch());
         }
+        return successResult(item, results);
+    }
+    
+    private <I> MatchResult<I> successResult(I item, final List<Match<I>> results) {
+        return new NestedMatch<I, AndChainMatcher<T>>(item, this) {
+            @Override
+            public void describeMatch(Description d) {
+                boolean first = true;
+                for (Match<?> m: results) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        d.appendText(" and ");
+                    }
+                    nestedDescribeMatch(m, d);
+                }
+            }
+        };
+    }
+    
+    private <I> MatchResult<I> failResult(I item, final MatchResult.Mismatch<I> nested) {
         return new NestedMismatch<I, AndChainMatcher<T>>(item, this) {
             @Override
             public int getExpectedPrecedence() {
@@ -128,7 +156,7 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
             return new AndChainMatcher<>(chain);
         }
     };
-    
+
     public static class Builder<T> extends ChainBuilderBase<T> {
         public Builder() {
         }

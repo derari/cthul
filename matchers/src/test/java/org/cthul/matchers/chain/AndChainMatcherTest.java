@@ -1,8 +1,12 @@
 package org.cthul.matchers.chain;
 
+import org.cthul.matchers.diagnose.QuickDiagnosingMatcher;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Test;
 import static org.cthul.matchers.chain.AndChainMatcher.both;
+import static org.cthul.matchers.chain.OrChainMatcher.either;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -29,5 +33,13 @@ public class AndChainMatcherTest {
         desc = new StringDescription();
         both(greaterThan(1)).and(lessThan(5)).describeMismatch(6, desc);
         assertThat(desc.toString(), is("<6> was greater than <5>"));
+    }
+    
+    @Test
+    public void test_match_description() {
+        QuickDiagnosingMatcher<Integer> m = both(either(lessThan(3)).or(greaterThan(5)));
+        MatchResult<Integer> mr = m.matchResult(6);
+        assertThat(mr.toString(),
+                    is("a value greater than <5>"));
     }
 }
