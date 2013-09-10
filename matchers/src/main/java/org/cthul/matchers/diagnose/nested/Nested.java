@@ -1,5 +1,7 @@
 package org.cthul.matchers.diagnose.nested;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.cthul.matchers.diagnose.QuickDiagnose;
 import org.cthul.matchers.diagnose.SelfDescribingBase;
@@ -187,21 +189,80 @@ public class Nested<T> {
     }
     
     public static void listDescriptions(int myPrecedence, List<? extends PrecedencedSelfDescribing> nested, Description d) {
+        joinDescriptions(myPrecedence, nested, d, ", ", ", and ");
+    }
+    
+    public static void joinMatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinMatchDescriptions(myPrecedence, nested, d, sep, sep);
+    }
+    
+    public static void joinMatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
+        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
+        for (MatchResult<?> mr: nested) {
+            list.add(mr.getMatch().getMatchDescription());
+        }
+        joinDescriptions(myPrecedence, list, d, sep, lastSep);
+    }
+    
+    public static void joinExpectedDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinExpectedDescriptions(myPrecedence, nested, d, sep, sep);
+    }
+    
+    public static void joinExpectedDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
+        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
+        for (MatchResult<?> mr: nested) {
+            list.add(mr.getMismatch().getExpectedDescription());
+        }
+        joinDescriptions(myPrecedence, list, d, sep, lastSep);
+    }
+    
+    public static void joinMismatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinMismatchDescriptions(myPrecedence, nested, d, sep, sep);
+    }
+    
+    public static void joinMismatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
+        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
+        for (MatchResult<?> mr: nested) {
+            list.add(mr.getMismatch().getMismatchDescription());
+        }
+        joinDescriptions(myPrecedence, list, d, sep, lastSep);
+    }
+    
+    public static void joinDescriptions(int myPrecedence, Collection<? extends PrecedencedSelfDescribing> nested, Description d, String sep) {
+        joinDescriptions(myPrecedence, nested, d, sep, sep);
+    }
+    
+    public static void joinDescriptions(int myPrecedence, Collection<? extends PrecedencedSelfDescribing> nested, Description d, String sep, String lastSep) {
+        int last = nested.size()-1;
         int i = 0;
-        final int len = nested.size();
         for (PrecedencedSelfDescribing sd: nested) {
             if (i > 0) {
-                if (i < len-1) {
-                    d.appendText(", ");
+                if (i < last) {
+                    d.appendText(sep);
                 } else {
-                    d.appendText(i == 1 ? " " : ", ");
-                    d.appendText("and ");
+                    d.appendText(lastSep);
                 }
             }
-            i++;
             boolean paren = useParentheses(myPrecedence, sd.getDescriptionPrecedence());
             describeTo(paren, sd, d);
         }
+    }
+    
+    public static PrecedencedSelfDescribing joinDescriptions(final int myPrecedence, final Collection<? extends PrecedencedSelfDescribing> nested, final String sep) {
+        return joinDescriptions(myPrecedence, nested, sep, sep);
+    }
+    
+    public static PrecedencedSelfDescribing joinDescriptions(final int myPrecedence, final Collection<? extends PrecedencedSelfDescribing> nested, final String sep, final String lastSep) {
+        return new PrecedencedSelfDescribingBase() {
+            @Override
+            public int getDescriptionPrecedence() {
+                return myPrecedence;
+            }
+            @Override
+            public void describeTo(Description description) {
+                joinDescriptions(myPrecedence, nested, description, sep, lastSep);
+            }
+        };
     }
     
     public static class Match<T, M extends Matcher<?>> 
