@@ -19,7 +19,7 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
 
     Matcher<?> getMatcher();
 
-    void describeMatcher(Description d);
+    void describeMatcher(Description description);
 
     int getMatcherPrecedence();
 
@@ -27,7 +27,7 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
     
     static interface Match<T> extends MatchResult<T> {
         
-        void describeMatch(Description d);
+        void describeMatch(Description description);
         
         int getMatchPrecedence();
         
@@ -37,13 +37,13 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
     
     static interface Mismatch<T> extends MatchResult<T> {
         
-        void describeExpected(Description d);
+        void describeExpected(Description description);
         
         int getExpectedPrecedence();
         
         PrecedencedSelfDescribing getExpectedDescription();
         
-        void describeMismatch(Description d);
+        void describeMismatch(Description description);
         
         int getMismatchPrecedence();
         

@@ -24,8 +24,8 @@ public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
      * @param mismatch The description to be built or appended to.
      * @return {@code true} if {@code item} matches, otherwise {@code false}.
      */
-    public boolean matches(Object item, Description mismatch);
+    boolean matches(Object item, Description mismatch);
  
-    public <I> MatchResult<I> matchResult(I item);
+    <I> MatchResult<I> matchResult(I item);
     
 }

@@ -45,7 +45,7 @@ public abstract class TypesafeNestedMatcher<T>
 
     @Override
     @SuppressWarnings("unchecked")
-    public final boolean matches(Object item) {
+    public boolean matches(Object item) {
         return Typesafe.matches(item, expectedType)
                 && matchesSafely((T) item);
     }
@@ -61,7 +61,7 @@ public abstract class TypesafeNestedMatcher<T>
 
     @Override
     @SuppressWarnings("unchecked")
-    public final void describeMismatch(Object item, Description description) {
+    public void describeMismatch(Object item, Description description) {
         if (!Typesafe.matches(item, expectedType, description)) {
             return;
         }
@@ -69,7 +69,7 @@ public abstract class TypesafeNestedMatcher<T>
     }
     
     @Override
-    public final <I> MatchResult<I> matchResult(I item) {
+    public <I> MatchResult<I> matchResult(I item) {
         if (!Typesafe.matches(item, expectedType)) {
             StringDescription sd = new StringDescription();
             Typesafe.matches(item, expectedType, sd);
