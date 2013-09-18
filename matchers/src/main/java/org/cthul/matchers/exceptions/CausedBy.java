@@ -3,6 +3,7 @@ package org.cthul.matchers.exceptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.AtomicMismatch;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
@@ -90,13 +91,13 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
     private <I extends Throwable> MatchResult<I> successResult(I ex, final int index, final MatchResult.Match<Throwable> nested) {
         return new NestedMatch<I, CausedBy>(ex, this) {
             @Override
-            public void describeMatch(Description d) {
-                d.appendText("cause ");
+            public void describeMatch(Description description) {
+                description.appendText("cause ");
                 if (index > 0) {
-                    d.appendText(String.valueOf(index));
-                    d.appendText(" ");
+                    description.appendText(String.valueOf(index));
+                    description.appendText(" ");
                 }
-                nestedDescribeMatch(nested, d);
+                nestedDescribeMatch(nested, description);
             }
         };
     }
@@ -105,32 +106,32 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
         return new NestedMismatch<I, CausedBy>(ex, this) {
             @Override
             public int getMismatchPrecedence() {
-                return nested.size() == 1 ? P_UNARY : P_COMPLEX;
+                return Nested.pAtomicUnaryOr(P_COMPLEX, nested.size());
             }
             @Override
-            public void describeExpected(Description d) {
+            public void describeExpected(Description description) {
                 if (nested.size() == 1) {
-                    d.appendText("cause ");
-                    nestedDescribeExpected(nested.get(0), d);
+                    description.appendText("cause ");
+                    nestedDescribeExpected(nested.get(0), description);
                 } else {
-                    super.describeExpected(d);
+                    describeMatcher(description);
                 }
             }
             @Override
-            public void describeMismatch(Description d) {
+            public void describeMismatch(Description description) {
                 if (nested.size() == 1) {
-                    d.appendText("cause ");
-                    nestedDescribeMismatch(nested.get(0), d);
+                    description.appendText("cause ");
+                    nestedDescribeMismatch(nested.get(0), description);
                 } else {
                     int i = 1;
                     for (MatchResult.Mismatch<Throwable> m: nested) {
                         if (i > 1) {
-                            d.appendText(", ");
+                            description.appendText(", ");
                         }
-                        d.appendText("cause ");
-                        d.appendText(String.valueOf(i++));
-                        d.appendText(" ");
-                        nestedDescribeMismatch(m, d);
+                        description.appendText("cause ");
+                        description.appendText(String.valueOf(i++));
+                        description.appendText(" ");
+                        nestedDescribeMismatch(m, description);
                     }
                 }
             }

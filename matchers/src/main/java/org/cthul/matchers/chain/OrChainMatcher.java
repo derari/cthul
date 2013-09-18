@@ -3,6 +3,7 @@ package org.cthul.matchers.chain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -23,17 +24,18 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         super(matchers);
     }
 
+    @Override
+    public int getDescriptionPrecedence() {
+        return Nested.pAtomicUnaryOr(P_OR, matchers.length);
+    }
+    
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        boolean first = true;
-        for (Matcher<?> m: matchers) {
-            if (first) {
-                first = false;
-            } else {
-                description.appendText(" or ");
-            }
-            nestedDescribeTo(m, description);
+        if (matchers.length == 0) {
+            description.appendText("<impossible>");
+        } else {
+            Nested.joinDescriptions(getDescriptionPrecedence(), matchersList(), description, " or ");
         }
     }
 
@@ -78,41 +80,33 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
     private <I> MatchResult<I> failResult(I item, final List<MatchResult.Mismatch<I>> nested) {
         return new NestedMismatch<I, OrChainMatcher<T>>(item, this) {
             @Override
-            public void describeExpected(Description d) {
-                boolean first = true;
-                for (MatchResult.Mismatch<I> m: nested) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        d.appendText(" or ");
-                    }
-                    nestedDescribeExpected(m, d);
+            public void describeExpected(Description description) {
+                if (nested.isEmpty()) {
+                    describeMatcher(description);
+                } else {
+                    Nested.joinExpectedDescriptions(getExpectedPrecedence(), nested, description, " or ");
                 }
             }
             @Override
-            public void describeMismatch(Description d) {
-                boolean first = true;
-                for (MatchResult.Mismatch<I> m: nested) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        d.appendText(" and ");
-                    }
-                    nestedDescribeMismatch(m, d);
-                }
+            public int getMismatchPrecedence() {
+                return P_AND;
+            }
+            @Override
+            public void describeMismatch(Description description) {
+                Nested.joinMismatchDescriptions(getMismatchPrecedence(), nested, description, " and ");
             }
         };
     }
 
-    @Override
-    public int getDescriptionPrecedence() {
-        return P_OR;
+    @Factory
+    @SuppressWarnings("unchecked")
+    public static <T> Matcher<T> any(Matcher<? super T>... matchers) {
+        return new OrChainMatcher<>(matchers);
     }
 
-    @Override
-    public int getMismatchPrecedence() {
-        // prints all matchers with 'and'
-        return P_AND;
+    @Factory
+    public static <T> Matcher<T> any(Collection<? extends Matcher<? super T>> matchers) {
+        return new OrChainMatcher<>(matchers);
     }
     
     @Factory
@@ -136,7 +130,12 @@ public class OrChainMatcher<T> extends MatcherChainBase<T> {
         return new Builder<T>()._or(m);
     }
     
-    public static final ChainFactory FACTORY = new ChainFactory() {
+    @Factory
+    public static ChainFactory any() {
+        return FACTORY;
+    }
+    
+    public static final ChainFactory FACTORY = new ChainFactoryBase() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new OrChainMatcher<>(chain);

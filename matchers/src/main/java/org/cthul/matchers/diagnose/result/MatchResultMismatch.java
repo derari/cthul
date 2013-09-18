@@ -127,7 +127,7 @@ public class MatchResultMismatch<T, M extends Matcher<?>>
 
     @Override
     public int getMismatchPrecedence() {
-        return Nested.mismatchPrecedenceOf(getMatcher());
+        return getMatcherPrecedence();
     }
 
     @Override

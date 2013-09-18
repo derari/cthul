@@ -1,6 +1,6 @@
 package org.cthul.matchers.diagnose.result;
 
-import org.cthul.matchers.diagnose.nested.PrecedencedMatcher;
+import org.cthul.matchers.diagnose.nested.PrecedencedSelfDescribing;
 import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 
@@ -19,7 +19,7 @@ public class AtomicMismatch<I, M extends Matcher<?>> extends MatchResultMismatch
 
     @Override
     public int getMismatchPrecedence() {
-        return PrecedencedMatcher.P_ATOMIC;
+        return PrecedencedSelfDescribing.P_ATOMIC;
     }
     
 }

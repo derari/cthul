@@ -1,6 +1,8 @@
 package org.cthul.matchers.chain;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.hamcrest.Matcher;
 
@@ -13,6 +15,7 @@ import org.hamcrest.Matcher;
 public abstract class MatcherChainBase<T> extends NestedResultMatcher<T> {
 
     protected final Matcher<? super T>[] matchers;
+    private List<Matcher<? super T>> list;
 
     @SuppressWarnings("unchecked")
     public MatcherChainBase(Matcher<? super T>... matchers) {
@@ -22,6 +25,13 @@ public abstract class MatcherChainBase<T> extends NestedResultMatcher<T> {
     @SuppressWarnings("unchecked")
     public MatcherChainBase(Collection<? extends Matcher<? super T>> matchers) {
         this.matchers = matchers.toArray(new Matcher[matchers.size()]);
+    }
+
+    public List<Matcher<? super T>> matchersList() {
+        if (list == null) {
+            list = Arrays.asList(matchers);
+        }
+        return list;
     }
         
 }

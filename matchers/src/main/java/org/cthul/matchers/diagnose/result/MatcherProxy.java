@@ -1,7 +1,8 @@
-package org.cthul.matchers.diagnose.nested;
+package org.cthul.matchers.diagnose.result;
 
 import org.cthul.matchers.diagnose.QuickResultMatcherBase;
-import org.cthul.matchers.diagnose.result.MatchResult;
+import org.cthul.matchers.diagnose.nested.Nested;
+import org.cthul.matchers.diagnose.nested.PrecedencedSelfDescribing;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
@@ -12,7 +13,7 @@ import org.hamcrest.Matcher;
  */
 public abstract class MatcherProxy<T> 
                 extends QuickResultMatcherBase<T>
-                implements PrecedencedMatcher<T> {
+                implements PrecedencedSelfDescribing {
 
     public MatcherProxy() {
     }
@@ -47,10 +48,5 @@ public abstract class MatcherProxy<T>
     @Override
     public int getDescriptionPrecedence() {
         return Nested.precedenceOf(matcher());
-    }
-
-    @Override
-    public int getMismatchPrecedence() {
-        return Nested.mismatchPrecedenceOf(matcher());
     }
 }

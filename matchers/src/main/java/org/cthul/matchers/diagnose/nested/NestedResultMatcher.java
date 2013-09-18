@@ -15,12 +15,7 @@ import org.hamcrest.SelfDescribing;
  */
 public abstract class NestedResultMatcher<T> 
                 extends QuickResultMatcherBase<T>
-                implements PrecedencedMatcher<T> {
-
-    @Override
-    public int getMismatchPrecedence() {
-        return getDescriptionPrecedence();
-    }
+                implements PrecedencedSelfDescribing {
    
     /**
      * Appends description of {@code s} to {@code d},
@@ -41,29 +36,6 @@ public abstract class NestedResultMatcher<T>
      */
     protected void nestedDescribe(SelfDescribing s, Description d, String message) {
         Nested.describeTo(this, s, d, message);
-    }
-    
-    /**
-     * Appends mismatch description of {@code m} to {@code d},
-     * enclosed in parantheses if necessary.
-     * @param d
-     * @param m
-     * @param item 
-     */
-    protected void nestedDescribeMismatch(Matcher<?> m, Object item, Description d) {
-        Nested.describeMismatch(this, m, item, d);
-    }
-    
-    /**
-     * Appends mismatch description of {@code m} to {@code d},
-     * enclosed in parantheses if necessary.
-     * @param d
-     * @param m
-     * @param item 
-     * @param message 
-     */
-    protected void nestedDescribeMismatch(Matcher<?> m, Object item, Description d, String message) {
-        Nested.describeMismatch(this, m, item, d, message);
     }
     
     /**

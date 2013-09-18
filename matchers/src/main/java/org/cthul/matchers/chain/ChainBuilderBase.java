@@ -1,7 +1,7 @@
 package org.cthul.matchers.chain;
 
 import java.util.*;
-import org.cthul.matchers.diagnose.nested.MatcherProxy;
+import org.cthul.matchers.diagnose.result.MatcherProxy;
 import org.hamcrest.Matcher;
 
 /**

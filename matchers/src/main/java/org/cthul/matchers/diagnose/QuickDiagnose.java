@@ -5,6 +5,7 @@ import org.cthul.matchers.diagnose.result.MatchResultMismatch;
 import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.cthul.matchers.diagnose.result.MatcherProxy;
 import org.hamcrest.*;
 
 /**
@@ -94,6 +95,19 @@ public class QuickDiagnose {
             return new MatchResultSuccess<>(item, matcher);
         } else {
             return new MatchResultMismatch<>(item, matcher, mismatch.toString());
+        }
+    }
+    
+    public static <T> QuickDiagnosingMatcher<T> matcher(final Matcher<T> matcher) {
+        if (matcher instanceof QuickDiagnosingMatcher) {
+            return (QuickDiagnosingMatcher) matcher;
+        } else {
+            return new MatcherProxy<T>() {
+                @Override
+                protected Matcher<T> matcher() {
+                    return matcher;
+                }
+            };
         }
     }
     

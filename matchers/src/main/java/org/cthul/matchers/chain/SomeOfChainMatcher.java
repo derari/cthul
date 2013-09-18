@@ -29,28 +29,21 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
         this.countMatcher = countMatcher;
     }
 
+    @Override
+    public int getDescriptionPrecedence() {
+        return P_COMPLEX;
+    }
+    
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        countMatcher.describeTo(description);
+        nestedDescribeTo(countMatcher, description);
         description.appendText(" of: ");
         describeMatchers(description);
     }
     
     private void describeMatchers(Description description) {
-        int i = 0;
-        for (Matcher<?> m: matchers) {
-            if (i > 0) {
-                if (i+1 < matchers.length) {
-                    description.appendText(", ");
-                } else {
-                    description.appendText(i == 1 ? " " : ", ");
-                    description.appendText("and ");
-                }
-            }
-            i++;
-            nestedDescribeTo(m, description);
-        }
+        Nested.joinDescriptions(getDescriptionPrecedence(), matchersList(), description, ", ", ", and ", " and ");
     }
 
     /** {@inheritDoc} */
@@ -81,34 +74,29 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
     private <I> MatchResult<I> result(I item, final MatchResult<Integer> countResult, final List<MatchResult<I>> results) {
         return new NestedResult<I, SomeOfChainMatcher<T>>(item, this, countResult.matched()) {
             @Override
-            public void describeTo(Description d) {
-                d.appendText("matched ");
-                nestedDescribeTo(getDescriptionPrecedence(), countResult, d);
-                d.appendText(": ");
-                Nested.listDescriptions(getDescriptionPrecedence(), results, d);
+            public void describeTo(Description description) {
+                description.appendText("matched ");
+                nestedDescribeTo(getDescriptionPrecedence(), countResult, description);
+                description.appendText(": ");
+                Nested.listDescriptions(getDescriptionPrecedence(), results, description);
             }
             @Override
-            public void describeMatch(Description d) {
-                describeTo(d);
+            public void describeMatch(Description description) {
+                describeTo(description);
             }
             @Override
-            public void describeExpected(Description d) {
-                nestedDescribeTo(getExpectedPrecedence(), countResult.getMismatch().getExpectedDescription(), d);
-                d.appendText(" of: ");
-                describeMatchers(d);
+            public void describeExpected(Description description) {
+                nestedDescribeTo(getExpectedPrecedence(), countResult.getMismatch().getExpectedDescription(), description);
+                description.appendText(" of: ");
+                describeMatchers(description);
             }
             @Override
-            public void describeMismatch(Description d) {
-                describeTo(d);
+            public void describeMismatch(Description description) {
+                describeTo(description);
             }
         };
     }
 
-    @Override
-    public int getDescriptionPrecedence() {
-        return P_COMPLEX;
-    }
-    
     @Factory
     public static SomeOfChainFactory matches(int count) {
         return factory(count);
@@ -147,7 +135,7 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
         return new SomeOfChainFactory(countMatcher);
     }
 
-    public static class SomeOfChainFactory implements ChainFactory {
+    public static class SomeOfChainFactory extends ChainFactoryBase {
 
         private final Matcher<? super Integer> countMatcher;
 
@@ -164,10 +152,12 @@ public class SomeOfChainMatcher<T> extends MatcherChainBase<T> {
             return new Builder<>(this).and(matcher);
         }
         
+        @Override
         public <T> Builder<T> of(Matcher<? super T>... matchers) {
             return new Builder<>(this).and(matchers);
         }
         
+        @Override
         public <T> Builder<T> of(Collection<? extends Matcher<? super T>> matcher) {
             return new Builder<>(this).and(matcher);
         }

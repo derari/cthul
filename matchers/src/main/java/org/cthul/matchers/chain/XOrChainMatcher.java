@@ -3,7 +3,7 @@ package org.cthul.matchers.chain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import static org.cthul.matchers.diagnose.nested.PrecedencedMatcher.P_AND;
+import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -24,17 +24,18 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
         super(matchers);
     }
 
+    @Override
+    public int getDescriptionPrecedence() {
+        return P_OR;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        boolean first = true;
-        for (Matcher<?> m: matchers) {
-            if (first) {
-                first = false;
-            } else {
-                description.appendText(" xor ");
-            }
-            nestedDescribeTo(m, description);
+        if (matchers.length == 0) {
+            description.appendText("<impossible>");
+        } else {
+            Nested.joinDescriptions(getDescriptionPrecedence(), matchersList(), description, " xor ");
         }
     }
 
@@ -76,16 +77,7 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
             }
             @Override
             public void describeTo(Description d) {
-                final int p = getDescriptionPrecedence();
-                boolean first = true;
-                for (MatchResult<I> mr: results) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        d.appendText(" and ");
-                    }
-                    nestedDescribeTo(p, mr, d);
-                }
+                Nested.joinDescriptions(getDescriptionPrecedence(), results, d, " and ");
             }
             @Override
             public void describeMatch(Description d) {
@@ -96,17 +88,6 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
                 describeTo(d);
             }
         };
-    }
-
-    @Override
-    public int getDescriptionPrecedence() {
-        return P_OR;
-    }
-
-    @Override
-    public int getMismatchPrecedence() {
-        // prints all matchers with 'and'
-        return P_AND;
     }
 
     @Factory
@@ -130,7 +111,7 @@ public class XOrChainMatcher<T> extends MatcherChainBase<T> {
         return new Builder<T>().xor(m);
     }
     
-    public static final ChainFactory FACTORY = new ChainFactory() {
+    public static final ChainFactory FACTORY = new ChainFactoryBase() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new XOrChainMatcher<>(chain);

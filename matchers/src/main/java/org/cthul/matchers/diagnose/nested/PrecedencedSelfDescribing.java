@@ -10,6 +10,8 @@ public interface PrecedencedSelfDescribing extends SelfDescribing {
     public static final int P_AND =         0x6000;
     public static final int P_OR =          0x3000;
     
+    public static final int P_NONE =          0x0;
+    
     int getDescriptionPrecedence();
     
 }

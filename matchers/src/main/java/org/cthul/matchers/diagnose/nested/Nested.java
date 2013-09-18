@@ -1,10 +1,9 @@
 package org.cthul.matchers.diagnose.nested;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 import org.cthul.matchers.diagnose.QuickDiagnose;
-import org.cthul.matchers.diagnose.SelfDescribingBase;
 import org.cthul.matchers.diagnose.result.AbstractMatchResult;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.result.MatchResultMismatch;
@@ -30,25 +29,18 @@ public class Nested<T> {
         if (o instanceof PrecedencedSelfDescribing) {
             return ((PrecedencedSelfDescribing) o).getDescriptionPrecedence();
         } else {
-            return PrecedencedMatcher.P_ATOMIC;
-        }
-    }
-
-    /**
-     * If {@code o} is a {@link PrecedencedMatcher},
-     * calls {@link PrecedencedMatcher#getMismatchPrecedence()},
-     * otherwise returns {@link PrecedencedMatcher#P_ATOMIC}.
-     * @param o
-     * @return precedence value
-     */
-    public static int mismatchPrecedenceOf(Object o) {
-        if (o instanceof PrecedencedMatcher) {
-            return ((PrecedencedMatcher) o).getMismatchPrecedence();
-        } else {
-            return PrecedencedMatcher.P_ATOMIC;
+            return PrecedencedSelfDescribing.P_ATOMIC;
         }
     }
     
+    public static int pAtomicUnaryOr(int p, int count) {
+        switch (count) {
+            case 0: return PrecedencedSelfDescribing.P_ATOMIC;
+            case 1: return PrecedencedSelfDescribing.P_UNARY;
+            default: return p;
+        }
+    }
+
     /**
      * Appends description of {@code s} to {@code d},
      * enclosed in parantheses if necessary.
@@ -56,7 +48,7 @@ public class Nested<T> {
      * @param d
      * @param nested 
      */
-    public static  void describeTo(PrecedencedMatcher self, SelfDescribing nested, Description d) {
+    public static  void describeTo(PrecedencedSelfDescribing self, SelfDescribing nested, Description d) {
         boolean paren = useParen(self, nested);
         describeTo(paren, nested, d);
     }
@@ -69,45 +61,9 @@ public class Nested<T> {
      * @param d
      * @param message
      */
-    public static void describeTo(PrecedencedMatcher self, SelfDescribing nested, Description d, String message) {
+    public static void describeTo(PrecedencedSelfDescribing self, SelfDescribing nested, Description d, String message) {
         boolean paren = useParen(self, nested);
         describeTo(paren, nested, d, message);
-    }
-    
-    private static SelfDescribing mismatch(final Matcher<?> m, final Object item) {
-        return new SelfDescribingBase() {
-            @Override
-            public void describeTo(Description description) {
-                m.describeMismatch(item, description);
-            }
-        };
-    }
-    
-    /**
-     * Appends mismatch description of {@code m} to {@code d},
-     * enclosed in parantheses if necessary.
-     * @param self
-     * @param m
-     * @param item 
-     * @param d
-     */
-    public static void describeMismatch(PrecedencedMatcher self, Matcher<?> m, Object item, Description d) {
-        boolean paren = useParenMismatch(self, m);
-        describeTo(paren, mismatch(m, item), d);
-    }
-    
-    /**
-     * Appends mismatch description of {@code m} to {@code d},
-     * enclosed in parantheses if necessary.
-     * @param self
-     * @param m
-     * @param item 
-     * @param d
-     * @param message 
-     */
-    public static void describeMismatch(PrecedencedMatcher self, Matcher<?> m, Object item, Description d, String message) {
-        boolean paren = useParenMismatch(self, m);
-        describeTo(paren, mismatch(m, item), d, message);
     }
     
     /**
@@ -120,8 +76,8 @@ public class Nested<T> {
      * @param mismatch
      * @return 
      */
-    public static boolean matches(PrecedencedMatcher self, Matcher<?> matcher, Object item, Description mismatch) {
-        boolean paren = useParenMismatch(self, matcher);
+    public static boolean matches(PrecedencedSelfDescribing self, Matcher<?> matcher, Object item, Description mismatch) {
+        boolean paren = useParen(self, matcher);
         if (paren) {
             return QuickDiagnose.matches(matcher, item, mismatch, "($1)");
         } else {
@@ -139,29 +95,35 @@ public class Nested<T> {
      * @param message
      * @return 
      */
-    public static boolean matches(PrecedencedMatcher self, Matcher<?> matcher, Object item, Description mismatch, String message) {
+    public static boolean matches(PrecedencedSelfDescribing self, Matcher<?> matcher, Object item, Description mismatch, String message) {
         if (message == null) {
             return matches(self, matcher, item, mismatch);
         }
-        boolean paren = useParenMismatch(self, matcher);
+        boolean paren = useParen(self, matcher);
         if (paren) message = message.replace("$1", "($1)");
         return QuickDiagnose.matches(matcher, item, mismatch, message);
     }
 
-    private static boolean useParen(PrecedencedMatcher pm, Object nested) {
-        int pNested = precedenceOf(nested);
-        int pSelf = pm.getDescriptionPrecedence();
-        return useParentheses(pSelf, pNested);
+    private static boolean useParen(PrecedencedSelfDescribing pm, Object nested) {
+        return useParen(pm.getDescriptionPrecedence(), nested);
     }
-
-    private static boolean useParenMismatch(PrecedencedMatcher pm, Object nested) {
-        int pNested = mismatchPrecedenceOf(nested);
-        int pSelf = pm.getMismatchPrecedence();
-        return useParentheses(pSelf, pNested);
+    
+    private static boolean useParen(int pSelf, Object nested) {
+        if (pSelf == PrecedencedSelfDescribing.P_NONE) {
+            return false;
+        }
+        return useParentheses(pSelf, precedenceOf(nested));
     }
     
     public static boolean useParentheses(int pSelf, int pNested) {
-        return pNested < PrecedencedMatcher.P_UNARY ? pNested <= pSelf : pNested < pSelf;
+        if (pSelf == PrecedencedSelfDescribing.P_NONE) {
+            return false;
+        }
+        if (pNested < PrecedencedSelfDescribing.P_UNARY) {
+            return pNested <= pSelf;
+        } else {
+            return pNested < pSelf;
+        }
     }
     
     public static void describeTo(boolean paren, SelfDescribing sd, Description d) {
@@ -188,71 +150,88 @@ public class Nested<T> {
         }
     }
     
-    public static void listDescriptions(int myPrecedence, List<? extends PrecedencedSelfDescribing> nested, Description d) {
-        joinDescriptions(myPrecedence, nested, d, ", ", ", and ");
+    public static void listDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, Description d) {
+        joinDescriptions(myPrecedence, nested, d, ", ", ", and ", " and ");
     }
     
-    public static void joinMatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
-        joinMatchDescriptions(myPrecedence, nested, d, sep, sep);
+    public static void joinMatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinMatchDescriptions(myPrecedence, nested, d, sep, sep, sep);
     }
     
-    public static void joinMatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
-        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
-        for (MatchResult<?> mr: nested) {
-            list.add(mr.getMatch().getMatchDescription());
-        }
-        joinDescriptions(myPrecedence, list, d, sep, lastSep);
-    }
-    
-    public static void joinExpectedDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
-        joinExpectedDescriptions(myPrecedence, nested, d, sep, sep);
-    }
-    
-    public static void joinExpectedDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
-        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
-        for (MatchResult<?> mr: nested) {
-            list.add(mr.getMismatch().getExpectedDescription());
-        }
-        joinDescriptions(myPrecedence, list, d, sep, lastSep);
-    }
-    
-    public static void joinMismatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep) {
-        joinMismatchDescriptions(myPrecedence, nested, d, sep, sep);
-    }
-    
-    public static void joinMismatchDescriptions(int myPrecedence, Collection<? extends MatchResult<?>> nested, Description d, String sep, String lastSep) {
-        final List<PrecedencedSelfDescribing> list = new ArrayList<>(nested.size());
-        for (MatchResult<?> mr: nested) {
-            list.add(mr.getMismatch().getMismatchDescription());
-        }
-        joinDescriptions(myPrecedence, list, d, sep, lastSep);
-    }
-    
-    public static void joinDescriptions(int myPrecedence, Collection<? extends PrecedencedSelfDescribing> nested, Description d, String sep) {
-        joinDescriptions(myPrecedence, nested, d, sep, sep);
-    }
-    
-    public static void joinDescriptions(int myPrecedence, Collection<? extends PrecedencedSelfDescribing> nested, Description d, String sep, String lastSep) {
-        int last = nested.size()-1;
-        int i = 0;
-        for (PrecedencedSelfDescribing sd: nested) {
-            if (i > 0) {
-                if (i < last) {
-                    d.appendText(sep);
-                } else {
-                    d.appendText(lastSep);
-                }
+    public static void joinMatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
+        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
+            @Override
+            protected SelfDescribing get(MatchResult source) {
+                return source.getMatch().getMatchDescription();
             }
-            boolean paren = useParentheses(myPrecedence, sd.getDescriptionPrecedence());
-            describeTo(paren, sd, d);
+        };
+        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+    }
+    
+    public static void joinExpectedDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinExpectedDescriptions(myPrecedence, nested, d, sep, sep, sep);
+    }
+    
+    public static void joinExpectedDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
+        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
+            @Override
+            protected SelfDescribing get(MatchResult source) {
+                return source.getMismatch().getExpectedDescription();
+            }
+        };
+        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+    }
+    
+    public static void joinMismatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep) {
+        joinMismatchDescriptions(myPrecedence, nested, d, sep, sep, sep);
+    }
+    
+    public static void joinMismatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
+        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
+            @Override
+            protected SelfDescribing get(MatchResult source) {
+                return source.getMismatch().getMismatchDescription();
+            }
+        };
+        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+    }
+    
+    public static void joinDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, Description description, String sep) {
+        joinDescriptions(myPrecedence, nested, description, sep, sep, sep);
+    }
+    
+    public static void joinDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, Description description, String sep, String lastSep, String singleSep) {
+        Iterator<? extends SelfDescribing> it = nested.iterator();
+        final SelfDescribing first = it.hasNext() ? it.next() : null;
+        SelfDescribing next = it.hasNext() ? it.next() : null;
+        SelfDescribing current = first;
+        while (current != null) {
+            boolean paren = useParentheses(myPrecedence, precedenceOf(current));
+            describeTo(paren, current, description);
+            current = next;
+            if (it.hasNext()) {
+                next = it.next();
+                description.appendText(sep); 
+            } else if (next != null) {
+                next = null;
+                description.appendText(current == first ? singleSep : lastSep);
+            }
         }
     }
     
-    public static PrecedencedSelfDescribing joinDescriptions(final int myPrecedence, final Collection<? extends PrecedencedSelfDescribing> nested, final String sep) {
-        return joinDescriptions(myPrecedence, nested, sep, sep);
+    public static void joinDescriptions(Collection<? extends SelfDescribing> nested, Description description, String sep) {
+        joinDescriptions(nested, description, sep, sep, sep);
     }
     
-    public static PrecedencedSelfDescribing joinDescriptions(final int myPrecedence, final Collection<? extends PrecedencedSelfDescribing> nested, final String sep, final String lastSep) {
+    public static void joinDescriptions(Collection<? extends SelfDescribing> nested, Description description, String sep, String lastSep, String singleSep) {
+        joinDescriptions(PrecedencedSelfDescribing.P_NONE, nested, description, sep, lastSep, singleSep);
+    }
+    
+    public static PrecedencedSelfDescribing joinDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, String sep) {
+        return joinDescriptions(myPrecedence, nested, sep, sep, sep);
+    }
+    
+    public static PrecedencedSelfDescribing joinDescriptions(final int myPrecedence, final Iterable<? extends SelfDescribing> nested, final String sep, final String lastSep, final String singleSep) {
         return new PrecedencedSelfDescribingBase() {
             @Override
             public int getDescriptionPrecedence() {
@@ -260,9 +239,43 @@ public class Nested<T> {
             }
             @Override
             public void describeTo(Description description) {
-                joinDescriptions(myPrecedence, nested, description, sep, lastSep);
+                joinDescriptions(myPrecedence, nested, description, sep, lastSep, singleSep);
             }
         };
+    }
+    
+    private static abstract class WrappedIterable<T, V> implements Iterable<T> {
+        
+        protected final Iterable<? extends V> it;
+
+        public WrappedIterable(Iterable<? extends V> it) {
+            this.it = it;
+        }
+
+        public WrappedIterable(V[] array) {
+            this(Arrays.asList(array));
+        }
+        
+        protected abstract T get(V source);
+
+        @Override
+        public Iterator<T> iterator() {
+            final Iterator<? extends V> i = it.iterator();
+            return new Iterator<T>() {
+                @Override
+                public boolean hasNext() {
+                    return i.hasNext();
+                }
+                @Override
+                public T next() {
+                    return get(i.next());
+                }
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
     }
     
     public static class Match<T, M extends Matcher<?>> 

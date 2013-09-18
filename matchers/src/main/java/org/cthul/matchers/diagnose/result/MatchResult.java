@@ -25,7 +25,7 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
 
     PrecedencedSelfDescribing getMatcherDescription();
     
-    static interface Match<T> extends MatchResult<T> {
+    interface Match<T> extends MatchResult<T> {
         
         void describeMatch(Description description);
         

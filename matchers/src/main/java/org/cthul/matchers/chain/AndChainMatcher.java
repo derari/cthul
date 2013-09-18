@@ -3,9 +3,9 @@ package org.cthul.matchers.chain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.result.MatchResult.Match;
-import org.cthul.matchers.diagnose.result.MatchResultSuccess;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -26,17 +26,18 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         super(matchers);
     }
 
+    @Override
+    public int getDescriptionPrecedence() {
+        return Nested.pAtomicUnaryOr(P_AND, matchers.length);
+    }
+    
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        boolean first = true;
-        for (Matcher<?> m: matchers) {
-            if (first) {
-                first = false;
-            } else {
-                description.appendText(" and ");
-            }
-            nestedDescribeTo(m, description);
+        if (matchers.length == 0) {
+            description.appendText("<anything>");
+        } else {
+            Nested.joinDescriptions(getDescriptionPrecedence(), matchersList(), description, " and ");
         }
     }
 
@@ -51,16 +52,6 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         return true;
     }
     
-    private <I> MatchResult.Mismatch<I> failedMatch(I item) {
-        for (Matcher<?> m: matchers) {
-            MatchResult<I> mr = quickMatchResult(m, item);
-            if (!mr.matched()) {
-                return mr.getMismatch();
-            }
-        }
-        return null;
-    }
-
     @Override
     public <I> MatchResult<I> matchResult(I item) {
         List<MatchResult.Match<I>> results = new ArrayList<>(matchers.length);
@@ -77,15 +68,11 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
     private <I> MatchResult<I> successResult(I item, final List<Match<I>> results) {
         return new NestedMatch<I, AndChainMatcher<T>>(item, this) {
             @Override
-            public void describeMatch(Description d) {
-                boolean first = true;
-                for (Match<?> m: results) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        d.appendText(" and ");
-                    }
-                    nestedDescribeMatch(m, d);
+            public void describeMatch(Description description) {
+                if (results.isEmpty()) {
+                    describeMatcher(description);
+                } else {
+                    Nested.joinMatchDescriptions(getMatchPrecedence(), results, description, " and ");
                 }
             }
         };
@@ -102,21 +89,14 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
                 nestedDescribeExpected(nested, d);
             }
             @Override
+            public int getMismatchPrecedence() {
+                return P_UNARY;
+            }
+            @Override
             public void describeMismatch(Description d) {
                 nestedDescribeMismatch(nested, d);
             }
         };
-    }
-
-    @Override
-    public int getDescriptionPrecedence() {
-        return P_AND;
-    }
-
-    @Override
-    public int getMismatchPrecedence() {
-        // prints only failed matcher
-        return P_UNARY;
     }
 
     @Factory
@@ -150,7 +130,12 @@ public class AndChainMatcher<T> extends MatcherChainBase<T> {
         return new Builder<T>().and(m);
     }
     
-    public static final ChainFactory FACTORY = new ChainFactory() {
+    @Factory
+    public static ChainFactory all() {
+        return FACTORY;
+    }
+    
+    public static final ChainFactory FACTORY = new ChainFactoryBase() {
         @Override
         public <T> Matcher<T> create(Collection<? extends Matcher<? super T>> chain) {
             return new AndChainMatcher<>(chain);

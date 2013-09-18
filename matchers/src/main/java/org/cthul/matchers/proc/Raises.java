@@ -49,6 +49,7 @@ public class Raises extends TypesafeNestedResultMatcher<Proc> {
         return new NestedResult<I, Raises>(proc, this, nested.matched()) {
             @Override
             public void describeTo(Description d) {
+                d.appendText("threw ");
                 nestedDescribeTo(getDescriptionPrecedence(), nested, d);
             }
             @Override
