@@ -50,7 +50,7 @@ public class RaisesTest {
         assertThat(ae.getMessage(), containsPattern("Expected"
                 + ".*throwable-matcher msg and message message-matcher msg.*"));
         assertThat(ae.getMessage(),
-                   containsPattern("but: message message-mismatch"));
+                   containsPattern("but: threw message message-mismatch"));
     }
 
 }
