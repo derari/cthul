@@ -57,7 +57,7 @@ public class Boxing extends BoxingBase {
     
     
     /**
-     * Returns the primitive type for a box, or {@code null}.
+     * Returns the primitive type for a boxAll, or {@code null}.
      * @param type boxed type
      * @return primitve type
      */
@@ -105,6 +105,14 @@ public class Boxing extends BoxingBase {
         if (i == null) return -1;
         return i;
     }
+    
+    public static Object unbox(Class<?> clazz, Object src) {
+        return box(clazz, src);
+    }
+    
+    public static <T> T unboxAs(Object src, Class<T> clazz) {
+        return boxAs(src, clazz); 
+    }
 
     /**
      * Transforms an array of {@code Boolean}, {@code Character}, or {@code Number}
@@ -115,7 +123,7 @@ public class Boxing extends BoxingBase {
      * @param len length
      * @return primitive array
      */
-    public static Object unbox(Class<?> type, Object[] src, int srcPos, int len) {
+    public static Object unboxAll(Class<?> type, Object[] src, int srcPos, int len) {
         switch (tId(type)) {
             case I_BOOLEAN:     return unboxBooleans(src, srcPos, len);
             case I_BYTE:        return unboxBytes(src, srcPos, len);
@@ -136,8 +144,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return primitive array
      */
-    public static Object unbox(Class<?> type, Object[] src) {
-        return unbox(type, src, 0, -1);
+    public static Object unboxAll(Class<?> type, Object[] src) {
+        return unboxAll(type, src, 0, -1);
     }
     
     /**
@@ -148,12 +156,12 @@ public class Boxing extends BoxingBase {
      * @param len length
      * @return primitive array
      */
-    public static Object unbox(Object[] src, int srcPos, int len) {
+    public static Object unboxAll(Object[] src, int srcPos, int len) {
         if (srcPos >= src.length) {
             throw new IndexOutOfBoundsException(String.valueOf(srcPos));
         }
         Class<?> type = src[srcPos].getClass();
-        return unbox(type, src, srcPos, len);
+        return unboxAll(type, src, srcPos, len);
     }
     
     /**
@@ -162,8 +170,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return primitive array
      */
-    public static Object unbox(Object[] src) {
-        return unbox(src, 0, -1);
+    public static Object unboxAll(Object[] src) {
+        return unboxAll(src, 0, -1);
     }
     
     /**
@@ -174,7 +182,7 @@ public class Boxing extends BoxingBase {
      * @param len length
      * @return primitive array
      */
-    public static Object unbox(Class<?> type, Object src, int srcPos, int len) {
+    public static Object unboxAll(Class<?> type, Object src, int srcPos, int len) {
         switch (tId(type)) {
             case I_BOOLEAN:     return unboxBooleans(src, srcPos, len);
             case I_BYTE:        return unboxBytes(src, srcPos, len);
@@ -194,8 +202,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return primitive array
      */
-    public static Object unbox(Class<?> type, Object src) {
-        return unbox(type, src, 0, -1);
+    public static Object unboxAll(Class<?> type, Object src) {
+        return unboxAll(type, src, 0, -1);
     }
     
     /**
@@ -206,8 +214,8 @@ public class Boxing extends BoxingBase {
      * @param type target type
      * @return primitive array
      */
-    public static <T> T unboxAs(Object src, int srcPos, int len, Class<T> type) {
-        return (T) unbox(type, src, srcPos, len);
+    public static <T> T unboxAllAs(Object src, int srcPos, int len, Class<T> type) {
+        return (T) unboxAll(type, src, srcPos, len);
     }
 
     /**
@@ -216,8 +224,8 @@ public class Boxing extends BoxingBase {
      * @param type target type
      * @return primitive array
      */
-    public static <T> T unboxAs(Object src, Class<T> type) {
-        return (T) unbox(type, src, 0, -1);
+    public static <T> T unboxAllAs(Object src, Class<T> type) {
+        return (T) unboxAll(type, src, 0, -1);
     }
 
     /**
@@ -380,6 +388,24 @@ public class Boxing extends BoxingBase {
         return unboxShorts(src, 0, -1);
     }
     
+    public static Object box(Class<?> type, Object src) {
+        switch (tId(type)) {
+            case I_BOOLEAN:     return boxBoolean(src);
+            case I_BYTE:        return boxByte(src);
+            case I_CHARACTER:   return boxCharacter(src);
+            case I_DOUBLE:      return boxDouble(src);
+            case I_FLOAT:       return boxFloat(src);
+            case I_INTEGER:     return boxInteger(src);
+            case I_LONG:        return boxLong(src);
+            case I_SHORT:       return boxShort(src);
+        }
+        throw new IllegalArgumentException("No primitive/box: " + type);
+    }
+    
+    public static <T> T boxAs(Object src, Class<T> type) {
+        return (T) box(type, src);
+    }
+    
     /**
      * Transforms a primitive array into an array of boxed values.
      * @param src source array
@@ -387,7 +413,7 @@ public class Boxing extends BoxingBase {
      * @param len length
      * @return array
      */
-    public static Object[] box(Object src, int srcPos, int len) {
+    public static Object[] boxAll(Object src, int srcPos, int len) {
         switch (tId(src.getClass())) {
             case I_BOOLEAN:     return box((boolean[]) src, srcPos, len);
             case I_BYTE:        return box((byte[]) src, srcPos, len);
@@ -406,8 +432,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return array
      */
-    public static Object[] box(Object src) {
-        return box(src, 0, -1);
+    public static Object[] boxAll(Object src) {
+        return boxAll(src, 0, -1);
     }
     
     /**
@@ -418,7 +444,7 @@ public class Boxing extends BoxingBase {
      * @param len length
      * @return array
      */
-    public static Object[] box(Class<?> type, Object src, int srcPos, int len) {
+    public static Object[] boxAll(Class<?> type, Object src, int srcPos, int len) {
         switch (tId(type)) {
             case I_BOOLEAN:     return boxBooleans(src, srcPos, len);
             case I_BYTE:        return boxBytes(src, srcPos, len);
@@ -438,8 +464,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return array
      */
-    public static Object[] box(Class<?> type, Object src) {
-        return box(type, src, 0, -1);
+    public static Object[] boxAll(Class<?> type, Object src) {
+        return boxAll(type, src, 0, -1);
     }
     
     /**
@@ -450,8 +476,8 @@ public class Boxing extends BoxingBase {
      * @param type target type
      * @return array
      */
-    public static <T> T boxAs(Object src, int srcPos, int len, Class<T> type) {
-        return (T) box(type, src, srcPos, len);
+    public static <T> T boxAllAs(Object src, int srcPos, int len, Class<T> type) {
+        return (T) boxAll(type, src, srcPos, len);
     }
 
     /**
@@ -460,8 +486,8 @@ public class Boxing extends BoxingBase {
      * @param src source array
      * @return array
      */
-    public static <T> T boxAs(Object src, Class<T> type) {
-        return (T) box(type, src, 0, -1);
+    public static <T> T boxAllAs(Object src, Class<T> type) {
+        return (T) boxAll(type, src, 0, -1);
     }
 
     /**
@@ -662,7 +688,7 @@ public class Boxing extends BoxingBase {
             }
             return result;
         } else {
-            return unbox(compType, src, 0, -1);
+            return unboxAll(compType, src, 0, -1);
         }
     }
     
@@ -702,7 +728,7 @@ public class Boxing extends BoxingBase {
             }
             return result;
         } else {
-            return box(compType, src, 0, -1);
+            return boxAll(compType, src, 0, -1);
         }
     }
     
@@ -727,10 +753,14 @@ public class Boxing extends BoxingBase {
         while (t.isArray()) {
             t = t.getComponentType();
         }
-        if (t.isPrimitive()) {
-            return deepUnboxAs(src, type);
-        } else {
-            return deepBoxAs(src, type);
+        if (t == type) {
+            return boxAs(src, type);
+        } else {        
+            if (t.isPrimitive()) {
+                return deepUnboxAs(src, type);
+            } else {
+                return deepBoxAs(src, type);
+            }
         }
     }
     
