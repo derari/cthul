@@ -120,6 +120,44 @@ public class SignaturesTest {
         int n = (Integer) mVarArgs.invoke(this, args);
         assertThat(n, is(2));
     }
+    
+    @Test
+    public void test_collect_public() {
+        Method[] m = Signatures.collectMethods(TestPublic.class, "m", Signatures.PUBLIC, Signatures.NONE);
+        assertThat(m, arrayWithSize(2));
+    }
+    
+    @Test
+    public void test_collect_non_public() {
+        Method[] m = Signatures.collectMethods(TestPublic.class, "m", Signatures.ANY, Signatures.PUBLIC);
+        assertThat(m, arrayWithSize(3));
+    }
+
+    private static class TestPublic {
+        private void m(byte b) {}
+        void m(short s) {}
+        protected void m(int i) {}
+        public void m(long l) {}
+        public void m(Long l) {}
+    }
+
+    @Test
+    public void test_collect_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.STATIC, Signatures.NONE);
+        assertThat(m, arrayWithSize(2));
+    }
+    
+    @Test
+    public void test_collect_non_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.ANY, Signatures.STATIC);
+        assertThat(m, arrayWithSize(1));
+    }
+
+    private static class TestStatic {
+        public void m(short s) {}
+        public static void m(long l) {}
+        public static void m(Long l) {}
+    }
 
     private static Class<?>[] sig(Class<?>... sig) {
         return sig;

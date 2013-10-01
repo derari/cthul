@@ -3,6 +3,7 @@ package org.cthul.objects.reflection;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -242,12 +243,69 @@ public class Signatures {
         return result;
     }
     
-    private static Method[] collectMethods(Class<?> clazz, String name) {
+    public static Method[] collectMethods(Class<?> clazz, String name) {
         final List<Method> result = new ArrayList<>();
         for (Method m: clazz.getMethods()) {
             if (m.getName().equals(name)) result.add(m);
         }
         return result.toArray(new Method[result.size()]);
+    }
+    
+    public static Method[] collectMethods(Class<?> clazz, String name, int include, int exclude) {
+        final List<Method> result = new ArrayList<>();
+        collectMethods(result, new ArrayList<Class[]>(), clazz, name, include, exclude);
+        return result.toArray(new Method[result.size()]);
+    }
+    
+    private static void collectMethods(List<Method> methods, List<Class[]> signatures, Class<?> clazz, String name, int include, int exclude) {
+        if (clazz == null) return;
+        for (Method m: clazz.getDeclaredMethods()) {
+            String n = m.getName();
+            int mod = m.getModifiers();
+            if (name.equals(n) && include(mod, include, exclude)) {
+                Class[] sig = m.getParameterTypes();
+                int len = methods.size();
+                boolean isNew = true;
+                for (int i = 0; i < len; i++) {
+                    if (n.equals(methods.get(i).getName()) &&
+                            Arrays.equals(sig, signatures.get(i))) {
+                        isNew = false;
+                        break;
+                    }
+                }
+                if (isNew) {
+                    methods.add(m);
+                    signatures.add(sig);
+                }
+            }
+        }
+        collectMethods(methods, signatures, clazz.getSuperclass(), name, include, exclude);
+        for (Class i: clazz.getInterfaces()) {
+            collectMethods(methods, signatures, i, name, include, exclude);
+        }
+    }
+    
+    public static <T> Constructor<T>[] collectConstructors(Class<T> clazz) {
+        return (Constructor[]) clazz.getConstructors();
+    }
+    
+    public static <T> Constructor<T>[] collectConstructors(Class<T> clazz, int include, int exclude) {
+        final List<Constructor> result = new ArrayList<>();
+        for (Constructor c: clazz.getDeclaredConstructors()) {
+            int mod = c.getModifiers();
+            if (include(mod, include, exclude)) {
+                result.add(c);
+            }
+        }
+        return (Constructor[]) result.toArray(new Constructor[result.size()]);
+    }
+    
+    private static boolean include(int mod, int include, int exclude) {
+        if (include == -1) {
+            return (mod & exclude) == 0;
+        } else {
+            return (mod & include) != 0 && (mod & exclude) == 0;
+        }
     }
     
     private static Class<?>[][] collectSignatures(final Method[] methods) {
@@ -266,10 +324,6 @@ public class Signatures {
         return result;
     }
 
-    private static <T> Constructor<T>[] collectConstructors(Class<T> clazz) {
-        return (Constructor[]) clazz.getConstructors();
-    }
-    
     private static Class<?>[][] collectSignatures(final Constructor<?>[] constructors) {
         final Class<?>[][] result = new Class<?>[constructors.length][];
         for (int i = 0; i < constructors.length; i++) {
@@ -421,7 +475,7 @@ public class Signatures {
         final Object varArgs;
         Class<?> varArgElementType = varArgType.getComponentType();
         if (varArgElementType.isPrimitive()) {
-            varArgs = Boxing.unbox(varArgElementType, arguments, length-1, -1);
+            varArgs = Boxing.unboxAll(varArgElementType, arguments, length-1, -1);
         } else {
             int varLen = arguments.length - length + 1;
             varArgs = Array.newInstance(varArgElementType, varLen);
@@ -430,5 +484,13 @@ public class Signatures {
         result[length-1] = varArgs;
         return result;
     }
+    
+    public static final int NONE = 0;
+    public static final int ANY = -1;
+    public static final int STATIC = Modifier.STATIC;
+    public static final int PRIVATE = Modifier.PRIVATE;
+    public static final int PROTECTED = Modifier.PROTECTED;
+    public static final int PUBLIC = Modifier.PUBLIC;
+    public static final int NOT_DEFAULT = PRIVATE | PROTECTED | PUBLIC;
     
 }
