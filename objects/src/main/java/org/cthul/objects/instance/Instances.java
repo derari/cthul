@@ -77,12 +77,16 @@ public class Instances {
                     type = value.getClass();
                     storeValue = true;
                 }
-            }
-            if (value == null && moreValues != null) {
+            } else if (moreValues != null) {
+                String[] keys = a.key().split(",");
+                Object[] v = new Object[keys.length];
                 try {
-                    int index = Integer.parseInt(a.key());
-                    value = moreValues[index];
-                    type = value != null ? value.getClass() : null;
+                    for (int j = 0; j < keys.length; j++) {
+                        int index = Integer.parseInt(keys[j]);
+                        v[j] = moreValues[index];
+                    }
+                    value = v;
+                    type = Object[].class;
                 } catch (NumberFormatException e) {
                 }
             }
@@ -104,11 +108,11 @@ public class Instances {
             }
         }
         Class<?> compType = a.arrayOf();
-        if (compType == void.class) {
+        if (compType == void.class && value != null) {
             int l = lengthOf(value);
-            if (l == 1 && value != null) {
-                type = value.getClass().getComponentType();
+            if (l == 1) {
                 value = Array.get(value, 0);
+                type = value != null ? value.getClass() : null;
             }
         } else if (value == null) {
             value = Array.newInstance(compType, 0);
