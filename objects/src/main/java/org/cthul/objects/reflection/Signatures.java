@@ -6,9 +6,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.cthul.objects.Boxing;
 
 /**
@@ -253,12 +255,12 @@ public class Signatures {
     
     public static Method[] collectMethods(Class<?> clazz, String name, int include, int exclude) {
         final List<Method> result = new ArrayList<>();
-        collectMethods(result, new ArrayList<Class[]>(), clazz, name, include, exclude);
+        collectMethods(result, new ArrayList<Class[]>(), new HashSet<Class<?>>(), clazz, name, include, exclude);
         return result.toArray(new Method[result.size()]);
     }
     
-    private static void collectMethods(List<Method> methods, List<Class[]> signatures, Class<?> clazz, String name, int include, int exclude) {
-        if (clazz == null) return;
+    private static void collectMethods(List<Method> methods, List<Class[]> signatures, Set<Class<?>> visited, Class<?> clazz, String name, int include, int exclude) {
+        if (clazz == null || !visited.add(clazz)) return;
         for (Method m: clazz.getDeclaredMethods()) {
             String n = m.getName();
             int mod = m.getModifiers();
@@ -279,9 +281,9 @@ public class Signatures {
                 }
             }
         }
-        collectMethods(methods, signatures, clazz.getSuperclass(), name, include, exclude);
+        collectMethods(methods, signatures, visited, clazz.getSuperclass(), name, include, exclude);
         for (Class i: clazz.getInterfaces()) {
-            collectMethods(methods, signatures, i, name, include, exclude);
+            collectMethods(methods, signatures, visited, i, name, include, exclude);
         }
     }
     
@@ -301,7 +303,7 @@ public class Signatures {
     }
     
     private static boolean include(int mod, int include, int exclude) {
-        if (include == -1) {
+        if (include == ANY) {
             return (mod & exclude) == 0;
         } else {
             return (mod & include) != 0 && (mod & exclude) == 0;
@@ -367,7 +369,8 @@ public class Signatures {
             if (level > bestLevel) {
                 // new is better
                 ambiguous = null;
-            } else if (level == bestLevel) {
+            } else {
+                assert level == bestLevel;
                 // check against previous matches
                 if (ambiguous != null) {
                     Iterator<Class<?>[]> it = ambiguous.iterator();
@@ -436,12 +439,7 @@ public class Signatures {
             }
             candidates.add(i);
         }
-        final int[] result = new int[candidates.size()];
-        int i = 0;
-        for (int index : candidates) {
-            result[i++] = index;
-        }
-        return result;
+        return Boxing.unboxIntegers(candidates);
     }
     
     /**

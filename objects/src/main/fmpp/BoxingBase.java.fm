@@ -4,6 +4,8 @@
 // generated code
 package org.cthul.objects.internal;
 
+import java.util.Collection;
+
 public class BoxingBase {
 <@each_type>
 
@@ -86,6 +88,32 @@ public class BoxingBase {
      */
     public static ${p}[] unbox${b}s(Object[] src) {
         return unbox${b}s(src, 0, -1);
+    }
+</@>
+<@each_type>
+
+    /**
+     * Transforms a collection of {@code Boolean}, {@code Character}, or {@code Number}
+     * into an array of {@code ${p}}.
+     * @param src source collection
+     * @param srcPos start position
+     * @param len length
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox${b}s(Collection<?> src, int srcPos, int len) {
+        return unbox${b}s(src.toArray(), srcPos, len);
+    }
+</@>
+<@each_type>
+
+    /**
+     * Transforms a collection of {@code Boolean}, {@code Character}, or {@code Number}
+     * into an array of {@code ${p}}.
+     * @param src source collection
+     * @return array of ${p}
+     */
+    public static ${p}[] unbox${b}s(Collection<?> src) {
+        return unbox${b}s(src.toArray(), 0, -1);
     }
 </@>
 <@each_type>
