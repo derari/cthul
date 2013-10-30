@@ -48,7 +48,7 @@ public class RaisesTest {
         
         assertThat("Matching failed", ae, not(nullValue()));
         assertThat(ae.getMessage(), containsPattern("Expected"
-                + ".*throwable-matcher msg and message message-matcher msg.*"));
+                + ".*throwable-matcher msg and throwable message is message-matcher msg.*"));
         assertThat(ae.getMessage(),
                    containsPattern("but: threw message message-mismatch"));
     }

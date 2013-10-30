@@ -1,9 +1,9 @@
 package org.cthul.matchers;
 
-import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
 import org.hamcrest.StringDescription;
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class CIsTest {
     
@@ -21,7 +21,7 @@ public class CIsTest {
     @Test
     public void test_match_description_is() {
         String s = StringDescription.toString(is_lt_6.matchResult(3));
-        assertThat(s, is("was a value less than <6>"));
+        assertThat(s, is("<3> was a value less than <6>"));
     }
 
     @Test
@@ -45,11 +45,11 @@ public class CIsTest {
     @Test
     public void test_match_description_has() {
         String s = StringDescription.toString(has_lt_6.matchResult(3));
-        assertThat(s, is("had a value less than <6>"));
+        assertThat(s, is("<3> had a value less than <6>"));
     }
 
     @Test
-    public void test_mismatch_description_ahs() {
+    public void test_mismatch_description_has() {
         String s = StringDescription.toString(has_lt_6.matchResult(7));
         assertThat(s, is("<7> was greater than <6>"));
     }
@@ -93,7 +93,7 @@ public class CIsTest {
     @Test
     public void test_match_description_is_not() {
         String s = StringDescription.toString(is_not_lt_6.matchResult(7));
-        assertThat(s, is("was <7> was greater than <6>"));
+        assertThat(s, is("<7> was greater than <6>"));
     }
 
     @Test

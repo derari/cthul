@@ -2,9 +2,7 @@ package org.cthul.matchers;
 
 import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.cthul.matchers.diagnose.result.MatchResult;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 public class CIs<T> extends NestedResultMatcher<T> {
     
@@ -105,7 +103,10 @@ public class CIs<T> extends NestedResultMatcher<T> {
         return new NestedResult<I, CIs<T>>(item, this, not ^ result.matched()) {
             @Override
             public void describeMatch(Description d) {
-                appendPastPrefix(d);
+                if (!not) {
+                    d.appendValue(getValue()).appendText(" ");
+                    appendPastPrefix(d);
+                }
                 nestedDescribeTo(getMatchPrecedence(), result, d);
             }
             @Override

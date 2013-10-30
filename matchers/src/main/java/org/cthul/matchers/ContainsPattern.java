@@ -2,16 +2,14 @@ package org.cthul.matchers;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.diagnose.safe.TypesafeQuickMatcherBase;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Tests if a string contains a regex pattern.
  * <p/>
  * Use the static factory methods to create instances.
  */
-public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
+public class ContainsPattern extends TypesafeQuickMatcherBase<CharSequence> {
 
     private final Pattern p;
     private final boolean match;
@@ -36,14 +34,15 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
 
     @Override
     public void describeTo(Description description) {
-        description.appendText(match ? "matches" : "contains")
+        description.appendText("a string ")
+                   .appendText(match ? "matching" : "containing")
                    .appendText(" /")
                    .appendText(p.pattern())
                    .appendText("/");
     }
 
     @Override
-    protected boolean matchesSafely(String item) {
+    protected boolean matchesSafely(CharSequence item) {
         if (match) {
             if (p.matcher(item).matches()) return true;
         } else {
@@ -53,7 +52,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
     }
 
     @Override
-    protected void describeMismatchSafely(String item, Description mismatch) {
+    protected void describeMismatchSafely(CharSequence item, Description mismatch) {
         mismatch.appendValue(item)
                 .appendText(" did not ")
                 .appendText(match ? "match" : "contain")
@@ -68,7 +67,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
      * @return String-Matcher
      */
     @Factory
-    public static Matcher<String> containsPattern(String regex) {
+    public static Matcher<CharSequence> containsPattern(String regex) {
         return new ContainsPattern(regex, false);
     }
 
@@ -78,7 +77,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
      * @return String-Matcher
      */
     @Factory
-    public static Matcher<String> containsPattern(Pattern p) {
+    public static Matcher<CharSequence> containsPattern(Pattern p) {
         return new ContainsPattern(p, false);
     }
 
@@ -88,7 +87,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
      * @return String-Matcher
      */
     @Factory
-    public static Matcher<String> matchesPattern(String regex) {
+    public static Matcher<CharSequence> matchesPattern(String regex) {
         return new ContainsPattern(regex, true);
     }
 
@@ -98,7 +97,7 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<String> {
      * @return String-Matcher
      */
     @Factory
-    public static Matcher<String> matchesPattern(Pattern p) {
+    public static Matcher<CharSequence> matchesPattern(Pattern p) {
         return new ContainsPattern(p, true);
     }
 

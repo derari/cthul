@@ -1,14 +1,10 @@
 package org.cthul.matchers.chain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.result.MatchResult.Match;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Conjunction of multiple matchers.

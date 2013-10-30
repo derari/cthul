@@ -1,14 +1,12 @@
 package org.cthul.matchers.diagnose.nested;
 
 import org.cthul.matchers.diagnose.QuickResultMatcherBase;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.SelfDescribing;
+import org.hamcrest.*;
 
 /**
  * Combines multiple matchers.
  * When creating a (mismatch) description, {@link #getPrecedence()} is
- * used to determine if parantheses should be inserted to resolve ambiguities.
+ * used to determine if parenthesis should be inserted to resolve ambiguities.
  * 
  * @param <T> 
  * @see Matcher
@@ -19,7 +17,7 @@ public abstract class NestedResultMatcher<T>
    
     /**
      * Appends description of {@code s} to {@code d},
-     * enclosed in parantheses if necessary.
+     * enclosed in parenthesis if necessary.
      * @param d
      * @param s 
      */
@@ -41,7 +39,7 @@ public abstract class NestedResultMatcher<T>
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)}
      * for {@code m}, 
-     * enclosed in parantheses if necessary.
+     * enclosed in parenthesis if necessary.
      * @param matcher
      * @param item
      * @param mismatch
@@ -54,7 +52,7 @@ public abstract class NestedResultMatcher<T>
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String)}
      * for {@code m}, 
-     * enclosed in parantheses if necessary.
+     * enclosed in parenthesis if necessary.
      * @param matcher
      * @param item
      * @param mismatch
