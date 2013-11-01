@@ -754,6 +754,7 @@ public class Boxing extends BoxingBase {
             t = t.getComponentType();
         }
         if (t == type) {
+            // not an array at all
             return boxAs(src, type);
         } else {        
             if (t.isPrimitive()) {
