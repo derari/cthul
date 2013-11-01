@@ -3,7 +3,7 @@ package org.cthul.matchers.diagnose.safe;
 import org.hamcrest.Description;
 
 /**
- *
+ * Provides utility methods for type-safe matching.
  */
 public class Typesafe {
 
@@ -11,12 +11,12 @@ public class Typesafe {
         return expectedType.isInstance(item);
     }
 
-    public static boolean matches(Object item, Class<?> expectedType, Description description) {
+    public static boolean matches(Object item, Class<?> expectedType, Description mismatch) {
         if (item == null) {
-            description.appendText("was null");
+            mismatch.appendText("was null");
             return false;
         } else if (! expectedType.isInstance(item)) {
-            description.appendText("was a ")
+            mismatch.appendText("was a ")
                        .appendText(item.getClass().getName())
                        .appendText(" (")
                        .appendValue(item)

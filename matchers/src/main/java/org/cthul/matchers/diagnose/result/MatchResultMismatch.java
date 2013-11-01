@@ -1,6 +1,5 @@
 package org.cthul.matchers.diagnose.result;
 
-import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.nested.PrecedencedSelfDescribing;
 import org.cthul.matchers.diagnose.nested.PrecedencedSelfDescribingBase;
 import org.hamcrest.Description;
@@ -8,7 +7,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 
 /**
- *
+ * Implements a failed match.
  */
 public class MatchResultMismatch<T, M extends Matcher<?>> 
                 extends MatchResultBase<T, M>
@@ -45,6 +44,8 @@ public class MatchResultMismatch<T, M extends Matcher<?>>
         super(value, matcher);
         if (mismatchDescription == null) {
             this.providedMismatchDescription = null;
+        } else if (mismatchDescription instanceof PrecedencedSelfDescribing) {
+            this.providedMismatchDescription = (PrecedencedSelfDescribing) mismatchDescription;
         } else {
             this.providedMismatchDescription = new PrecedencedSelfDescribingBase() {
                 @Override

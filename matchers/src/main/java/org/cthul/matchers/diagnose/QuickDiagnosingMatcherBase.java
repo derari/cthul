@@ -1,14 +1,24 @@
 package org.cthul.matchers.diagnose;
 
+import org.cthul.matchers.diagnose.nested.NestedMatcher;
+import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.result.MatchResultMismatch;
 import org.cthul.matchers.diagnose.result.MatchResultSuccess;
+import org.cthul.matchers.diagnose.safe.*;
 import org.hamcrest.*;
 
 /**
- * A {@link Matcher} that is able to match and diagnose in one step, but, unlike
- * {@link DiagnosingMatcher}, also provides an efficient implementation for the
- * simple match.
+ * All {@link QuickDiagnosingMatcher} implementations should extend this class,
+ * or {@link QuickMatcherBase}.
+ * Only {@link #matches(java.lang.Object, org.hamcrest.Description)} has to be implemented.
+ * <p>
+ * Has some abstract subclasses that provide a more features for matcher implementations.
+ * Each also has a typesafe variant.
+ * @see QuickMatcherBase
+ * @see QuickResultMatcherBase
+ * @see NestedMatcher
+ * @see NestedResultMatcher
  */
 public abstract class QuickDiagnosingMatcherBase<T> 
                 extends BaseMatcher<T> 
@@ -30,6 +40,12 @@ public abstract class QuickDiagnosingMatcherBase<T>
     @Override
     public abstract boolean matches(Object item, Description mismatch);
 
+    /**
+     * Returns a {@link MatchResult} that caches the mismatch descripton.
+     * @param <I>
+     * @param item
+     * @return match result
+     */
     @Override
     public <I> MatchResult<I> matchResult(I item) {
         StringDescription mismatch = new StringDescription();

@@ -5,24 +5,25 @@ import org.hamcrest.Description;
 import org.hamcrest.internal.ReflectiveTypeFinder;
 
 /**
- *
+ * Implements {@link QuickDiagnosingMatcher} interface, 
+ * but matches and describes in separate steps.
  */
-public abstract class TypesafeQuickMatcherBase<T> 
+public abstract class TypesafeQuickMatcher<T> 
                 extends QuickMatcherBase<T> {
 
     private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 1, 0);
 
     final private Class<?> expectedType;
 
-    public TypesafeQuickMatcherBase(Class<?> expectedType) {
+    public TypesafeQuickMatcher(Class<?> expectedType) {
         this.expectedType = expectedType;
     }
 
-    public TypesafeQuickMatcherBase(ReflectiveTypeFinder typeFinder) {
+    public TypesafeQuickMatcher(ReflectiveTypeFinder typeFinder) {
         this.expectedType = typeFinder.findExpectedType(getClass());
     }
 
-    public TypesafeQuickMatcherBase() {
+    public TypesafeQuickMatcher() {
         this(TYPE_FINDER);
     }
     

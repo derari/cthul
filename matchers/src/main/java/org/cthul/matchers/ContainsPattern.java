@@ -1,7 +1,7 @@
 package org.cthul.matchers;
 
 import java.util.regex.Pattern;
-import org.cthul.matchers.diagnose.safe.TypesafeQuickMatcherBase;
+import org.cthul.matchers.diagnose.safe.TypesafeQuickMatcher;
 import org.hamcrest.*;
 
 /**
@@ -9,7 +9,7 @@ import org.hamcrest.*;
  * <p/>
  * Use the static factory methods to create instances.
  */
-public class ContainsPattern extends TypesafeQuickMatcherBase<CharSequence> {
+public class ContainsPattern extends TypesafeQuickMatcher<CharSequence> {
 
     private final Pattern p;
     private final boolean match;
@@ -100,5 +100,4 @@ public class ContainsPattern extends TypesafeQuickMatcherBase<CharSequence> {
     public static Matcher<CharSequence> matchesPattern(Pattern p) {
         return new ContainsPattern(p, true);
     }
-
 }

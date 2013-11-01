@@ -5,22 +5,22 @@ import org.hamcrest.Description;
 import org.hamcrest.internal.ReflectiveTypeFinder;
 
 /**
- *
+ * A matcher that focuses on returning a {@link MatchResult}.
  */
-public abstract class TypesafeQuickResultMatcherBase<T> 
-                extends TypesafeQuickDiagnoseMatcherBase<T> {
+public abstract class TypesafeQuickResultMatcher<T> 
+                extends TypesafeQuickDiagnoseMatcher<T> {
     
     private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchResultSafely", 1, 0);
 
-    public TypesafeQuickResultMatcherBase(Class<?> expectedType) {
+    public TypesafeQuickResultMatcher(Class<?> expectedType) {
         super(expectedType);
     }
 
-    public TypesafeQuickResultMatcherBase(ReflectiveTypeFinder typeFinder) {
+    public TypesafeQuickResultMatcher(ReflectiveTypeFinder typeFinder) {
         super(typeFinder);
     }
 
-    public TypesafeQuickResultMatcherBase() {
+    public TypesafeQuickResultMatcher() {
         super(TYPE_FINDER);
     }
 

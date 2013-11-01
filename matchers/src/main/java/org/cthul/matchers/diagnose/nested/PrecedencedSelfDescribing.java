@@ -2,6 +2,10 @@ package org.cthul.matchers.diagnose.nested;
 
 import org.hamcrest.SelfDescribing;
 
+/**
+ * A {@link SelfDescribing} with a precedence that indicates when to set 
+ * parenthesis when nesting messages.
+ */
 public interface PrecedencedSelfDescribing extends SelfDescribing {
     
     public static final int P_ATOMIC = 0x0100_0000;

@@ -7,7 +7,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- *
+ * @see MatchResultSuccess
+ * @see MatchResultMismatch
+ * @see AbstractMatchResult
+ * @see MatchResultProxy
  */
 public abstract class MatchResultBase<T, M extends Matcher<?>> 
                 extends PrecedencedSelfDescribingBase

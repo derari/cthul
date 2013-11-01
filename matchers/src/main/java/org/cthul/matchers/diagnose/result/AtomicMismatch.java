@@ -5,7 +5,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 
 /**
- *
+ * A mismatch that is not nested.
  */
 public class AtomicMismatch<I, M extends Matcher<?>> extends MatchResultMismatch<I, M> {
 
@@ -21,5 +21,4 @@ public class AtomicMismatch<I, M extends Matcher<?>> extends MatchResultMismatch
     public int getMismatchPrecedence() {
         return PrecedencedSelfDescribing.P_ATOMIC;
     }
-    
 }

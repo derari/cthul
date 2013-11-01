@@ -7,7 +7,10 @@ import org.hamcrest.*;
  * A {@link Matcher} that is able to match and diagnose in one step, but, unlike
  * {@link DiagnosingMatcher}, also provides an efficient implementation for the
  * simple match.
- * <p/>
+ * <p>
+ * The matcher is also able to provide a {@link MatchResult} that caches
+ * all relevant information about the match.
+ * <p>
  * Implementations of this interface should extend 
  * {@link QuickDiagnosingMatcherBase}. 
  * See this class for more implementation tips.
@@ -26,6 +29,12 @@ public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
      */
     boolean matches(Object item, Description mismatch);
  
+    /**
+     * Returns a {@link MatchResult} for {@code item}
+     * @param <I>
+     * @param item
+     * @return match result
+     */
     <I> MatchResult<I> matchResult(I item);
     
 }

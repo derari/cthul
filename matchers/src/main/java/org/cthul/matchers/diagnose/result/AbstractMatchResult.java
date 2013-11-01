@@ -7,7 +7,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 
 /**
- *
+ * Implements a match result that can be either a match or a mismatch.
  */
 public class AbstractMatchResult<T, M extends Matcher<?>> 
                 extends MatchResultMismatch<T, M>

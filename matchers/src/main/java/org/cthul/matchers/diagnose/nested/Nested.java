@@ -14,7 +14,7 @@ import org.hamcrest.SelfDescribing;
 import org.hamcrest.StringDescription;
 
 /**
- * 
+ * Provides utility methods for generated messages with nested matchers.
  */
 public class Nested<T> {
 
