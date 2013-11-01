@@ -24,7 +24,7 @@ public class XOrChainMatcherTest {
     public void test_mismatch_description() {
         StringDescription desc = new StringDescription();
         either(greaterThan(1)).xor(lessThan(5)).describeMismatch(3, desc);
-        assertThat(desc.toString(), is("a value greater than <1> and a value less than <5>"));
+        assertThat(desc.toString(), is("was a value greater than <1> and was a value less than <5>"));
         
         desc = new StringDescription();
         either(greaterThan(5)).xor(lessThan(1)).describeMismatch(3, desc);

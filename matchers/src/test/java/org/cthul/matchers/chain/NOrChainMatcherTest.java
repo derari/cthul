@@ -24,10 +24,10 @@ public class NOrChainMatcherTest {
     public void test_mismatch_description() {
         StringDescription desc = new StringDescription();
         neither(greaterThan(5)).nor(lessThan(1)).describeMismatch(6, desc);
-        assertThat(desc.toString(), is("a value greater than <5>"));
+        assertThat(desc.toString(), is("was a value greater than <5>"));
         
         desc = new StringDescription();
         neither(greaterThan(5)).nor(lessThan(1)).describeMismatch(0, desc);
-        assertThat(desc.toString(), is("a value less than <1>"));
+        assertThat(desc.toString(), is("was a value less than <1>"));
     }
 }

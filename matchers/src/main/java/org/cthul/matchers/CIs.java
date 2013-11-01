@@ -103,9 +103,11 @@ public class CIs<T> extends NestedResultMatcher<T> {
         return new NestedResult<I, CIs<T>>(item, this, not ^ result.matched()) {
             @Override
             public void describeMatch(Description d) {
+                // in positive mode, nested match will be "was a good thing"
+                // in negative mode, nested match will be "was <bad-value>"
                 if (!not) {
                     d.appendValue(getValue()).appendText(" ");
-                    appendPastPrefix(d);
+//                    appendPastPrefix(d); <-- don't!
                 }
                 nestedDescribeTo(getMatchPrecedence(), result, d);
             }
@@ -116,16 +118,19 @@ public class CIs<T> extends NestedResultMatcher<T> {
                 }
                 if (not) {
                     d.appendText("not ");
-                    nestedDescribeTo(getExpectedPrecedence(), result, d);
+                    nestedDescribeTo(getExpectedPrecedence(), result.getMatcherDescription(), d);
+                    //nestedDescribeTo(getExpectedPrecedence(), result, d);
                 } else {
-                    result.getMismatch().describeExpected(d);
+                    nestedDescribeTo(getExpectedPrecedence(), result.getMismatch().getExpectedDescription(), d);
                 }
             }
             @Override
             public void describeMismatch(Description d) {
+                // in positive mode, nested match will be "was <bad-value>"
+                // in negative mode, nested match will be "was a good thing"
                 if (not) {
                     d.appendValue(getValue()).appendText(" ");
-                    appendPastPrefix(d);
+//                    appendPastPrefix(d); <-- don't
                 } 
                 nestedDescribeTo(getMismatchPrecedence(), result, d);
             }
