@@ -8,24 +8,25 @@ import org.hamcrest.StringDescription;
 import org.hamcrest.internal.ReflectiveTypeFinder;
 
 /**
- *
+ * A typesafe matcher that matches and diagnoses in one step.
+ * Only {@link #matches(java.lang.Object, org.hamcrest.Description)} has to be implemented.
  */
-public abstract class TypesafeQuickDiagnoseMatcherBase<T> 
+public abstract class TypesafeQuickDiagnoseMatcher<T> 
                 extends QuickDiagnosingMatcherBase<T> {
     
     private static final ReflectiveTypeFinder TYPE_FINDER = new ReflectiveTypeFinder("matchesSafely", 2, 0);
 
     private final Class<?> expectedType;
 
-    public TypesafeQuickDiagnoseMatcherBase(Class<?> expectedType) {
+    public TypesafeQuickDiagnoseMatcher(Class<?> expectedType) {
         this.expectedType = expectedType;
     }
 
-    public TypesafeQuickDiagnoseMatcherBase(ReflectiveTypeFinder typeFinder) {
+    public TypesafeQuickDiagnoseMatcher(ReflectiveTypeFinder typeFinder) {
         this.expectedType = typeFinder.findExpectedType(getClass());
     }
 
-    public TypesafeQuickDiagnoseMatcherBase() {
+    public TypesafeQuickDiagnoseMatcher() {
         this(TYPE_FINDER);
     }
 

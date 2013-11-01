@@ -83,12 +83,16 @@ public class Procs {
     }
     
     private static Class detectClass() {
+        return detectClass(1);
+    }
+    
+    private static Class detectClass(int i) {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         // 0: getStackTrace
         // 1: detectClass
         // 2: invoke
         // 3: caller
-        StackTraceElement caller = stack[3];
+        StackTraceElement caller = stack[i+3];
         try {
             return Class.forName(caller.getClassName());
         } catch (ClassNotFoundException ex) {

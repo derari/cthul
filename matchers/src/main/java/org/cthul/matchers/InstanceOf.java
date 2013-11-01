@@ -1,11 +1,9 @@
 package org.cthul.matchers;
 
 import org.cthul.matchers.chain.AndChainMatcher;
-import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.cthul.matchers.diagnose.result.MatchResult;
+import org.hamcrest.*;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;
 

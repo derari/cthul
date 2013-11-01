@@ -1,15 +1,11 @@
 package org.cthul.matchers.exceptions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import org.cthul.matchers.diagnose.nested.Nested;
 import org.cthul.matchers.diagnose.result.AtomicMismatch;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  * Matches exception chains.
@@ -47,6 +43,7 @@ public class CausedBy extends TypesafeNestedResultMatcher<Throwable> {
 
     @Override
     public void describeTo(Description description) {
+        description.appendText("a throwable ");
         if (direct) {
             description.appendText("directly ");
         }

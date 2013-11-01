@@ -6,12 +6,8 @@ import org.cthul.matchers.diagnose.result.AtomicMismatch;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.cthul.proc.Proc;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsAnything;
-import org.hamcrest.core.IsEqual;
+import org.hamcrest.*;
+import org.hamcrest.core.*;
 
 /**
  *
@@ -19,14 +15,15 @@ import org.hamcrest.core.IsEqual;
 public class Returns extends TypesafeNestedResultMatcher<Proc> {
 
     private final Matcher<?> resultMatcher;
-    private final String returns;
-    private final String returned;
+// ignored for now
+//    private final String returns;
+//    private final String returned;
 
     public Returns(Matcher<?> resultMatcher, String returns, String returned) {
         super(Proc.class);
         this.resultMatcher = resultMatcher;
-        this.returns = returns;
-        this.returned = returned;
+//        this.returns = returns;
+//        this.returned = returned;
     }
     
     public Returns(Matcher<?> resultMatcher) {
@@ -41,7 +38,7 @@ public class Returns extends TypesafeNestedResultMatcher<Proc> {
     /** {@inheritDoc} */
     @Override
     public void describeTo(Description description) {
-        description.appendText(returns).appendText(" ");
+        description.appendText("a call returning ");
         nestedDescribeTo(resultMatcher, description);
     }
 
@@ -68,7 +65,7 @@ public class Returns extends TypesafeNestedResultMatcher<Proc> {
         return new NestedResult<I, Returns>(proc, this, nested.matched()) {
             @Override
             public void describeTo(Description description) {
-                description.appendText(returned).appendText(" ");
+                description.appendText("result ");
                 nestedDescribeTo(getDescriptionPrecedence(), nested, description);
             }
             @Override
@@ -77,8 +74,8 @@ public class Returns extends TypesafeNestedResultMatcher<Proc> {
             }
             @Override
             public void describeExpected(Description description) {
-                description.appendText(returns).appendText(" ");
-                nestedDescribeTo(getExpectedPrecedence  (), nested.getMismatch().getExpectedDescription(), description);
+                description.appendText("a call returning ");
+                nestedDescribeTo(getExpectedPrecedence(), nested.getMismatch().getExpectedDescription(), description);
             }
             @Override
             public void describeMismatch(Description description) {

@@ -39,6 +39,6 @@ public class AndChainMatcherTest {
         QuickDiagnosingMatcher<Integer> m = both(either(lessThan(3)).or(greaterThan(5)));
         MatchResult<Integer> mr = m.matchResult(6);
         assertThat(mr.toString(),
-                    is("a value greater than <5>"));
+                    is("was a value greater than <5>"));
     }
 }

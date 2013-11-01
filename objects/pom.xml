@@ -112,6 +112,7 @@
         <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-matchers</artifactId>
+            <version>1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

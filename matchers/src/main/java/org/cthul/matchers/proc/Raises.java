@@ -5,9 +5,7 @@ import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.cthul.matchers.exceptions.IsThrowable;
 import org.cthul.proc.Proc;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 
 /**
  *
@@ -28,7 +26,7 @@ public class Raises extends TypesafeNestedResultMatcher<Proc> {
 
     @Override
     public void describeTo(Description description) {
-        description.appendText("throws ");
+        description.appendText("a call throwing ");
         nestedDescribeTo(exceptionMatcher, description);
     }
 
@@ -58,7 +56,7 @@ public class Raises extends TypesafeNestedResultMatcher<Proc> {
             }
             @Override
             public void describeExpected(Description d) {
-                d.appendText("throws ");
+                d.appendText("a call throwing ");
                 nestedDescribeTo(getExpectedPrecedence  (), nested.getMismatch().getExpectedDescription(), d);
             }
             @Override

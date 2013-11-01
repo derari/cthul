@@ -1,8 +1,6 @@
 package org.cthul.matchers.chain;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.hamcrest.Matcher;
 

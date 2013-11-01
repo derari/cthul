@@ -15,7 +15,7 @@ public class ContainsPatternTest {
 
     @Test
     public void test_mismatch_description() {
-        final Matcher<String> hasPattern = containsPattern("no value");
+        final Matcher<CharSequence> hasPattern = containsPattern("no value");
         final String string = "No value!";
         
         assertThat("Matching fails", hasPattern.matches(string), is(false));

@@ -5,7 +5,10 @@ import org.hamcrest.Description;
 import org.hamcrest.internal.ReflectiveTypeFinder;
 
 /**
- *
+ * Combines multiple matchers.
+ * When creating a (mismatch) description, {@link #getPrecedence()} is
+ * used to determine if parenthesis should be inserted to resolve ambiguities.
+ * 
  */
 public abstract class TypesafeNestedResultMatcher<T> 
                 extends TypesafeNestedMatcher<T> {

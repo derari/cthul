@@ -7,7 +7,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 
 /**
- *
+ * Implements a successful match.
  */
 public class MatchResultSuccess<T, M extends Matcher<?>> 
                 extends MatchResultBase<T, M>
@@ -42,7 +42,9 @@ public class MatchResultSuccess<T, M extends Matcher<?>>
     public MatchResultSuccess(T value, M matcher, final SelfDescribing matchDescription) {
         super(value, matcher);
         if (matchDescription == null) {
-            this.providedMatchDescription = null;   
+            this.providedMatchDescription = null;
+        } else if (matchDescription instanceof PrecedencedSelfDescribing) {
+            this.providedMatchDescription = (PrecedencedSelfDescribing) matchDescription;
         } else {
             this.providedMatchDescription = new PrecedencedSelfDescribingBase() {
                 @Override
@@ -92,6 +94,7 @@ public class MatchResultSuccess<T, M extends Matcher<?>>
         if (providedMatchDescription != null) {
             d.appendDescriptionOf(providedMatchDescription);
         } else {
+            d.appendText("was ");
             describeMatcher(d);
         }
     }

@@ -4,9 +4,7 @@ import java.util.regex.Pattern;
 import org.cthul.matchers.ContainsPattern;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 import org.hamcrest.core.Is;
 
 /**
@@ -33,7 +31,7 @@ public class ExceptionMessage extends TypesafeNestedResultMatcher<Throwable> {
 
     @Override
     public void describeTo(Description description) {
-        description.appendText("message ");
+        description.appendText("throwable message is ");
         nestedDescribeTo(messageMatcher, description);
     }
 
