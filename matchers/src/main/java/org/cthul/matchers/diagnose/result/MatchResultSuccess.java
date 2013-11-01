@@ -94,6 +94,7 @@ public class MatchResultSuccess<T, M extends Matcher<?>>
         if (providedMatchDescription != null) {
             d.appendDescriptionOf(providedMatchDescription);
         } else {
+            d.appendText("was ");
             describeMatcher(d);
         }
     }

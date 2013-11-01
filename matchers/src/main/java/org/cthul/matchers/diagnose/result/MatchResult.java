@@ -6,6 +6,8 @@ import org.hamcrest.Matcher;
 
 /**
  * Provides detailed information about the result of a match.
+ * The result's description is the {@linkplain #getMatch() match} or
+ * {@linkplain #getMismatch() mismatch} description.
  * <p>
  * Implementations should extends {@link MatchResultBase}
  */
@@ -63,6 +65,7 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
     
     /**
      * Provides detailed information about a match.
+     * The match's description is the {@linkplain #getMatchDescription() match description}.
      * @param <T> 
      */
     interface Match<T> extends MatchResult<T> {
@@ -85,9 +88,14 @@ public interface MatchResult<T> extends PrecedencedSelfDescribing {
          * @return match description
          */
         PrecedencedSelfDescribing getMatchDescription();
-        
     }
     
+    
+    /**
+     * Provides detailed information about a mismatch.
+     * The mismatch's description is the {@linkplain #getMismatchDescription() mismatch description}.
+     * @param <T> 
+     */
     static interface Mismatch<T> extends MatchResult<T> {
         
         /**
