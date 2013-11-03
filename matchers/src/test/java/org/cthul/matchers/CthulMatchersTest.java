@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 
 /**
  *
- * @author Arian Treffer
  */
 public class CthulMatchersTest {
     

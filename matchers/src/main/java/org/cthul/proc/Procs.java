@@ -38,7 +38,7 @@ public class Procs {
         return ReflectiveProc.invoke(object, name, paramTypes);
     }
     
-    public static Proc invoke(Object object, String name, Object... args) {
+    public static Proc invokeWith(Object object, String name, Object... args) {
         return ReflectiveProc.invokeWith(object, name, args);
     }
     

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.doAnswer;
  * A mockito answer that appends a fixed string to
  * Hamcrest descriptions that are passed as parameters.
  * 
- * @author Arian Treffer
  */
 public class DescribeAnswer implements Answer {
     

@@ -89,12 +89,12 @@ public class CIs<T> extends NestedResultMatcher<T> {
         if (not) {
             description.appendText("not ");
         }
-        nested.describeTo(description);
+        nestedDescribeTo(nested, description);
     }
 
     @Override
     public int getDescriptionPrecedence() {
-        return P_UNARY;
+        return not ? P_UNARY : P_UNARY_NO_PAREN;
     }
 
     @Override

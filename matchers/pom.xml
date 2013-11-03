@@ -130,6 +130,24 @@
                                     <sourceRoot>${generated-matcher-dir}</sourceRoot>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>generate-matchers-class2</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>org.hamcrest.generator.config.XmlConfigurator</mainClass>
+                                    <includePluginDependencies>true</includePluginDependencies>
+                                    <arguments>
+                                        <argument>${project.build.sourceDirectory}/../hamcrest/MetaMatchers.xml</argument>
+                                        <argument>${project.build.sourceDirectory}</argument>
+                                        <argument>org.cthul.matchers.MetaMatchers</argument>
+                                        <argument>${generated-matcher-dir}</argument>
+                                    </arguments>
+                                    <sourceRoot>${generated-matcher-dir}</sourceRoot>
+                                </configuration>
+                            </execution>
                         </executions>
                         <dependencies>
                             <dependency>

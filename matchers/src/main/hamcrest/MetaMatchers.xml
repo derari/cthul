@@ -1,0 +1,9 @@
+<matchers>
+
+    <factory class="org.cthul.matchers.hamcrest.HasDescription"/>
+    <factory class="org.cthul.matchers.hamcrest.HasMatchResult"/>
+    <factory class="org.cthul.matchers.hamcrest.IsMatchResult"/>
+    <factory class="org.cthul.matchers.hamcrest.MatchResultExpected"/>
+    <factory class="org.cthul.matchers.hamcrest.MatcherAccepts"/>
+
+</matchers>

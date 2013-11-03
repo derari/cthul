@@ -109,14 +109,16 @@ public class Nested<T> {
     }
     
     private static boolean useParen(int pSelf, Object nested) {
-        if (pSelf == PrecedencedSelfDescribing.P_NONE) {
+        if (pSelf == PrecedencedSelfDescribing.P_NONE 
+                || pSelf == PrecedencedSelfDescribing.P_UNARY_NO_PAREN) {
             return false;
         }
         return useParentheses(pSelf, precedenceOf(nested));
     }
     
     public static boolean useParentheses(int pSelf, int pNested) {
-        if (pSelf == PrecedencedSelfDescribing.P_NONE) {
+        if (pSelf == PrecedencedSelfDescribing.P_NONE
+                || pSelf == PrecedencedSelfDescribing.P_UNARY_NO_PAREN) {
             return false;
         }
         if (pNested < PrecedencedSelfDescribing.P_UNARY) {

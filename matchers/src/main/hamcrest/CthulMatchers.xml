@@ -1,5 +1,6 @@
 <matchers>
 
+    <factory class="org.cthul.matchers.CIs"/>
     <factory class="org.cthul.matchers.ContainsPattern"/>
     <factory class="org.cthul.matchers.InstanceThat"/>
     <factory class="org.cthul.matchers.InstanceOf"/>
@@ -12,6 +13,7 @@
     
     <factory class="org.cthul.matchers.exceptions.CausedBy"/>
     <factory class="org.cthul.matchers.exceptions.ExceptionMessage"/>
+    <factory class="org.cthul.matchers.exceptions.IsThrowable"/>
     
     <factory class="org.cthul.matchers.proc.Raises"/>
     <factory class="org.cthul.matchers.proc.Returns"/>
