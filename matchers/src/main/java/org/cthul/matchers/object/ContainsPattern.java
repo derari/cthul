@@ -1,4 +1,4 @@
-package org.cthul.matchers;
+package org.cthul.matchers.object;
 
 import java.util.regex.Pattern;
 import org.cthul.matchers.diagnose.safe.TypesafeQuickMatcher;

@@ -1,6 +1,6 @@
 package org.cthul.matchers.hamcrest;
 
-import org.cthul.matchers.CIs;
+import org.cthul.matchers.object.CIs;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import static org.cthul.matchers.hamcrest.HasDescription.description;
 import static org.cthul.matchers.hamcrest.MatcherAccepts.*;

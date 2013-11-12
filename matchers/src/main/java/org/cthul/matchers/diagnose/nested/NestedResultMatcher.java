@@ -6,7 +6,7 @@ import org.hamcrest.*;
 /**
  * Combines multiple matchers.
  * When creating a (mismatch) description, {@link #getPrecedence()} is
- * used to determine if parenthesis should be inserted to resolve ambiguities.
+ * used to determine if parentheses should be inserted to resolve ambiguities.
  * 
  * @param <T> 
  * @see Matcher
@@ -17,7 +17,7 @@ public abstract class NestedResultMatcher<T>
    
     /**
      * Appends description of {@code s} to {@code d},
-     * enclosed in parenthesis if necessary.
+     * enclosed in parentheses if necessary.
      * @param d
      * @param s 
      */
@@ -39,7 +39,7 @@ public abstract class NestedResultMatcher<T>
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)}
      * for {@code m}, 
-     * enclosed in parenthesis if necessary.
+     * enclosed in parentheses if necessary.
      * @param matcher
      * @param item
      * @param mismatch
@@ -52,7 +52,7 @@ public abstract class NestedResultMatcher<T>
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String)}
      * for {@code m}, 
-     * enclosed in parenthesis if necessary.
+     * enclosed in parentheses if necessary.
      * @param matcher
      * @param item
      * @param mismatch

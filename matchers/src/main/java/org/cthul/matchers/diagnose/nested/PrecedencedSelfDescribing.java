@@ -4,7 +4,7 @@ import org.hamcrest.SelfDescribing;
 
 /**
  * A {@link SelfDescribing} with a precedence that indicates when to set 
- * parenthesis when nesting messages.
+ * parentheses when nesting messages.
  */
 public interface PrecedencedSelfDescribing extends SelfDescribing {
     

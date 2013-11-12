@@ -1,9 +1,9 @@
 <matchers>
 
-    <factory class="org.cthul.matchers.CIs"/>
-    <factory class="org.cthul.matchers.ContainsPattern"/>
-    <factory class="org.cthul.matchers.InstanceThat"/>
-    <factory class="org.cthul.matchers.InstanceOf"/>
+    <factory class="org.cthul.matchers.object.CIs"/>
+    <factory class="org.cthul.matchers.object.ContainsPattern"/>
+    <factory class="org.cthul.matchers.object.InstanceThat"/>
+    <factory class="org.cthul.matchers.object.InstanceOf"/>
     
     <factory class="org.cthul.matchers.chain.AndChainMatcher"/>
     <factory class="org.cthul.matchers.chain.NOrChainMatcher"/>

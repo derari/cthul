@@ -1,7 +1,7 @@
 package org.cthul.matchers.exceptions;
 
 import java.util.regex.Pattern;
-import org.cthul.matchers.ContainsPattern;
+import org.cthul.matchers.object.ContainsPattern;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.safe.TypesafeNestedResultMatcher;
 import org.hamcrest.*;

@@ -1,7 +1,7 @@
 package org.cthul.matchers.exceptions;
 
-import org.cthul.matchers.InstanceOf;
-import org.cthul.matchers.InstanceThat;
+import org.cthul.matchers.object.InstanceOf;
+import org.cthul.matchers.object.InstanceThat;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 

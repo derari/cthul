@@ -1,5 +1,6 @@
-package org.cthul.matchers;
+package org.cthul.matchers.object;
 
+import org.cthul.matchers.object.CIs;
 import org.cthul.matchers.chain.AndChainMatcher;
 import org.junit.Test;
 import static org.cthul.matchers.hamcrest.HasDescription.*;

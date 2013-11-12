@@ -1,8 +1,8 @@
-package org.cthul.matchers;
+package org.cthul.matchers.object;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
-import static org.cthul.matchers.ContainsPattern.containsPattern;
+import static org.cthul.matchers.object.ContainsPattern.containsPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.cthul.matchers.hamcrest.MatcherAccepts.*;
 

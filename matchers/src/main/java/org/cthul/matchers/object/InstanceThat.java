@@ -1,4 +1,4 @@
-package org.cthul.matchers;
+package org.cthul.matchers.object;
 
 import org.cthul.matchers.chain.AndChainMatcher;
 import org.hamcrest.Factory;

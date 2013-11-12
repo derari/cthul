@@ -1,4 +1,4 @@
-package org.cthul.matchers;
+package org.cthul.matchers.object;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.cthul.matchers.hamcrest.HasDescription.*;
 import static org.cthul.matchers.hamcrest.MatcherAccepts.*;
-import static org.cthul.matchers.InstanceThat.*;
+import static org.cthul.matchers.object.InstanceThat.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
