@@ -54,6 +54,19 @@ public class SignaturesTest {
         assertThat(indices, is(new int[]{2, 4}));
     }
     
+    @Test
+    public void test_specific_match() {
+        Class<?>[] args = sig(StringBuilder.class);
+        Class<?>[][] params = sigs(
+                sig(CharSequence.class),
+                sig(Object.class),
+                sig(Appendable.class),
+                sig(StringBuilder.class));
+        boolean[] varArgs = {false, false, false, false};
+        int i = Signatures.bestMatch(params, varArgs, args);
+        assertThat(i, is(3));
+    }
+    
     private static final Class<?>[] mVarArgsParams = {String.class, String[].class};
     
     public int mVarArgs(String s, String... moreStrings) {

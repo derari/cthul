@@ -379,7 +379,7 @@ public class Signatures {
                 bestIndex = i;
             } else if (level == bestLevel) {
                 // check against previous matches
-                if (ambiguous != null) {
+                if (ambiguous != null && !ambiguous.isEmpty()) {
                     boolean isAmbiguous = true;
                     Iterator<Integer> it = ambiguous.iterator();
                     while (it.hasNext()) {
@@ -389,24 +389,31 @@ public class Signatures {
                         if (c > 0) it.remove();
                     }
                     if (isAmbiguous) {
-                        ambiguous.add(i);
+                        if (ambiguous.isEmpty()) {
+                            bestIndex = i;
+                        } else {
+                            ambiguous.add(i);
+                        }
                     }
                 } else {
                     assert bestIndex > -1;
                     int c = jsCmp.compareSpecificness(signatures[bestIndex], varArgs[bestIndex], sig, var);
                     if (c > 0) {
-                        bestLevel = level;
                         bestIndex = i;
                     } else if (c == 0) {
-                        ambiguous = new LinkedList<>();
+                        if (ambiguous == null) ambiguous = new LinkedList<>();
                         ambiguous.add(bestIndex);
                         ambiguous.add(i);
                     }
                 }
             }
         }
-        if (ambiguous != null && ambiguous.size() > 1) {
-            throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs, Boxing.unboxIntegers(ambiguous));
+        if (ambiguous != null) {
+            if (ambiguous.size() > 1){
+                throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs, Boxing.unboxIntegers(ambiguous));
+            } else if (ambiguous.size() == 1) {
+                return ambiguous.get(0);
+            }
         }
         return bestIndex;
     }
