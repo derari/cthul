@@ -163,6 +163,78 @@ public class Signatures2Test {
 //        validate().specific_args(1L, 1);
     }
     
+    public void box2(int i, Object o) {
+        called("box2_i_O");
+    }
+    
+    public void box2(Integer i, Object o) {
+        called("box2_I_O");
+    }
+    
+    @Test
+    public void test_boxing() {
+        Integer i = 1;
+        test()._("box2", i, new Object());
+        validate().box2(i, new Object());
+    }
+    
+    @Test
+    public void test_boxing_null() {
+        Integer i = null;
+        test()._("box2", i, new Object());
+        validate().box2(i, new Object());
+    }
+    
+    public void varargs(Object[] args) {
+        called("varargs_O[]");
+    }
+    
+    public void varargs(Number... args) {
+        called("varargs_N...");
+    }
+    
+    @Test
+    public void test_varargs_II() {
+        test()._("varargs", 1, 1);
+        validate().varargs(1, 1);
+    }
+    
+    @Test
+    public void test_varargs_explicit() {
+        Number[] ary = {1, 1};
+        test()._("varargs", (Object) ary);
+        validate().varargs(ary);
+    }
+    
+    public void box_varargs(Integer... args) {
+        called("box_varargs_I...");
+    }
+    
+    public void box_varargs(int... args) {
+        called("box_varargs_i...");
+    }
+    
+    @Test
+    public void test_box_varargs() {
+        Integer i = 1;
+        assert_ambiguous("box_varargs", i);
+//        validate().box_varargs(i);
+    }
+    
+    public void box_varargs2(Integer i, Object... args) {
+        called("box_varargs2_I_O...");
+    }
+    
+    public void box_varargs2(int i, Object... args) {
+        called("box_varargs_i_O...");
+    }
+    
+    @Test
+    public void test_box_varargs2() {
+        test()._("box_varargs2", NULL, new Object());
+        validate().box_varargs2(null, new Object());
+    }
+    
     // -----------------------------------------------------------------
     
     protected static final Object NULL = null;
@@ -171,7 +243,7 @@ public class Signatures2Test {
         try {
             Method m = Signatures.bestMethod(getClass(), method, args);
             assertThat("method", m, is(notNullValue()));
-            m.invoke(this, args);
+            Signatures.invoke(this, m, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -182,7 +254,7 @@ public class Signatures2Test {
             Object[] args = new Object[types.length];
             Method m = Signatures.bestMethod(getClass(), method, types);
             assertThat("method", m, is(notNullValue()));
-            m.invoke(this, args);
+            Signatures.invoke(this, m, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

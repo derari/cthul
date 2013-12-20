@@ -35,10 +35,9 @@ public class SignaturesTest {
             int i = Signatures.bestMatch(params, varArgs, args);
             assertThat("Expected exception, got " + i, false);
         } catch (AmbiguousSignatureMatchException e) {
-            assertThat(e.getSignatures(), is(params));
-            assertThat(e.getVarArgs(),    is(varArgs));
+            assertThat(e.getAllSignatures(), is(params));
+            assertThat(e.getAllVarArgs(),    is(varArgs));
         }
-        
     }
     
     @Test
@@ -155,7 +154,7 @@ public class SignaturesTest {
 
     private static class TestStatic {
         public void m(short s) {}
-        public static void m(long l) {}
+        static void m(long l) {}
         public static void m(Long l) {}
     }
 

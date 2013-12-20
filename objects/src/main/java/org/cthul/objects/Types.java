@@ -10,9 +10,9 @@ public class Types {
     /**
      * Returns an ordered set of superclasses of {@code clazz}. 
      * If {@code clazz} is a class, it begins with {@code clazz}, followed by 
-     * its superclasses and its interfaces in breadth-first order;
+     * its superclasses and then its interfaces in breadth-first order;
      * if {@code clazz} is an interface, it begins with {@code Object.class}, 
-     * follows by {@code clazz} and its super interfaces.
+     * followed by {@code clazz} and its super interfaces.
      * @param clazz the class
      * @return ordered set
      */
@@ -112,8 +112,7 @@ public class Types {
         final ArrayList<Class<?>> result = new ArrayList<>(classes.size());
         while (!source.isEmpty()) {
             Iterator<Class<?>> srcIt = source.iterator();
-            Class<?> c = srcIt.next();
-            srcIt.remove();
+            Class<?> c = Object.class;
             while (srcIt.hasNext()) {
                 Class<?> c2 = srcIt.next();
                 if (c2.isAssignableFrom(c)) {

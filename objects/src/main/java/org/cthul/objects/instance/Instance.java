@@ -11,5 +11,4 @@ public @interface Instance {
     Class<?> impl() default void.class;
     
     String factory() default "";
-
 }

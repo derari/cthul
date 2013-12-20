@@ -6,14 +6,61 @@ package org.cthul.objects.reflection;
 public class AmbiguousSignatureMatchException extends RuntimeException {
 
     private final JavaSignatureComparator jsCmp;
+    private final Class<?>[][] allSignatures;
+    private final boolean[] allVarArgs;
     private final Class<?>[][] signatures;
     private final boolean[] varArgs;
+    private final int[] ambiguousIndices;
     private String message;
+    
+    protected AmbiguousSignatureMatchException(AmbiguousSignatureMatchException src) {
+        this.jsCmp = src.jsCmp;
+        this.allSignatures = src.allSignatures;
+        this.allVarArgs = src.allVarArgs;
+        this.signatures = src.signatures;
+        this.varArgs = src.varArgs;
+        this.ambiguousIndices = src.ambiguousIndices;
+    }
+
+    public AmbiguousSignatureMatchException(JavaSignatureComparator jsCmp, Class<?>[][] allSignatures, boolean[] allVarArgs, int[] ambiguousIndices) {
+        this.jsCmp = jsCmp;
+        this.allSignatures = allSignatures;
+        this.allVarArgs = allVarArgs;
+        this.ambiguousIndices = ambiguousIndices;
+        signatures = new Class[ambiguousIndices.length][];
+        varArgs = new boolean[ambiguousIndices.length];
+        for (int i = 0; i < ambiguousIndices.length; i++) {
+            signatures[i] = allSignatures[ambiguousIndices[i]];
+            varArgs[i] = allVarArgs[ambiguousIndices[i]];
+        }
+    }
 
     public AmbiguousSignatureMatchException(JavaSignatureComparator jsCmp, Class<?>[][] signatures, boolean[] varArgs) {
         this.jsCmp = jsCmp;
+        this.allSignatures = signatures;
+        this.allVarArgs = varArgs;
         this.signatures = signatures;
         this.varArgs = varArgs;
+        this.ambiguousIndices = new int[signatures.length];
+        for (int i = 0; i < ambiguousIndices.length; i++) {
+            ambiguousIndices[i] = i;
+        }
+    }
+
+    /**
+     * Returns all signatures.
+     * @return signatures
+     */
+    public Class<?>[][] getAllSignatures() {
+        return allSignatures;
+    }
+
+    /**
+     * Indicates which signature were var-args.
+     * @return booleans
+     */
+    public boolean[] getAllVarArgs() {
+        return allVarArgs;
     }
 
     /**
@@ -32,6 +79,10 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
         return varArgs;
     }
 
+    public int[] getAmbiguousIndices() {
+        return ambiguousIndices;
+    }
+    
     /**
      * Returns the signature comparator that was used for matching.
      * @return comparator
@@ -51,9 +102,13 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
     @Override
     public String getMessage() {
         if (message == null) {
-            message = sigList(getReferenceSignature(), signatures, varArgs);
+            message = buildMessage();
         }
         return message;
+    }
+    
+    protected String buildMessage() {
+        return sigList(getReferenceSignature(), getSignatures(), getVarArgs());
     }
     
     protected static String sigList(Class<?>[] match, Class<?>[][] signatures, boolean[] varArgs) {
@@ -89,7 +144,7 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
         }
     }
     
-    private static void printClass(StringBuilder sb, Class<?> aClass) {
+    protected static void printClass(StringBuilder sb, Class<?> aClass) {
         if (aClass.isArray()) {
             printClass(sb, aClass.getComponentType());
             sb.append("[]");

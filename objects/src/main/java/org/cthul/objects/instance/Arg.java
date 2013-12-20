@@ -24,7 +24,7 @@ public @interface Arg {
     
     short[] s() default {};
     
-    String[] t() default {};
+    String[] str() default {};
     
     Instance[] o() default {};
     
