@@ -145,14 +145,21 @@ public class CIs<T> extends NestedResultMatcher<T> {
 
     public static String pastPrefix(String prefix) {
         if (prefix != null) {
-            switch (prefix) {
-                case "is":
-                    return "was";
-                case "has":
-                    return "had";
-                default:
-                    return prefix;
+//            switch (prefix) {
+//                case "is":
+//                    return "was";
+//                case "has":
+//                    return "had";
+//                default:
+//                    return prefix;
+//            }
+            if (prefix.equals("is")) {
+                return "was";
             }
+            if (prefix.equals("has")) {
+                return "had";
+            }
+            return prefix;
         }
         return null;
     }

@@ -10,7 +10,7 @@
     <groupId>org.cthul</groupId>
     <artifactId>cthul-objects</artifactId>
     <name>Cthul Objects</name>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <url>http://cthul.org</url>
     <description>
         Object-related tools
@@ -28,7 +28,9 @@
         <profile>
             <id>gen-data-classes</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!skipGenerateClasses</name>
+                </property>
             </activation>
             <build>
                 <plugins>
@@ -38,7 +40,7 @@
                         <version>1.0</version>
                         <configuration>
                             <cfgFile>src/main/fmpp/config.fmpp</cfgFile>
-                            <outputDirectory>${build.freemarker.sourceDirectory}/org/cthul/objects/internal</outputDirectory>
+                            <outputDirectory>${build.freemarker.sourceDirectory}</outputDirectory>
                             <templateDirectory>src/main/fmpp/</templateDirectory>
                         </configuration>
                         <executions>
@@ -62,8 +64,7 @@
                             </dependency> 
                         </dependencies>
                     </plugin>    
-                    <plugin>
-                        <!-- Add generated code to sources -->
+                    <!-- <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
                         <version>1.4</version>
@@ -88,6 +89,60 @@
                                 <source>${build.freemarker.sourceDirectory}</source>
                             </sources>
                         </configuration>
+                    </plugin>-->
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk16</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>compile-1.6</id>
+                                <phase>compile</phase>    
+                                <goals><goal>compile</goal></goals>  
+                                <configuration>
+                                    <compilerId>eclipse</compilerId>
+                                    <source>1.7</source>
+                                    <target>1.6</target>
+                                    <outputDirectory>${project.build.directory}/classes-1.6</outputDirectory>
+                                    <includes>
+                                        <include>org/cthul/objects/reflection/**</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-compiler-eclipse</artifactId>
+                                <version>2.3</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>package-1.6</id>
+                                <phase>package</phase>
+                                <goals><goal>jar</goal></goals>
+                                <configuration>
+                                    <classesDirectory>${project.build.directory}/classes-1.6</classesDirectory>
+                                    <classifier>jdk16</classifier>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
