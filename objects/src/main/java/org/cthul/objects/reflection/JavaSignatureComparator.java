@@ -101,9 +101,6 @@ public class JavaSignatureComparator {
      */
     private int compareParameter(Class<?> a, Class<?> b) {
         final int a_preferred = -1;
-//        if (index >= argTypes.length || argTypes[index] == null) {
-//            return 0;
-//        }
         if (a.equals(b)) {
             return  0;
         } else if (b.isAssignableFrom(a)) {
@@ -128,36 +125,43 @@ public class JavaSignatureComparator {
         if (argTypes == null) {
             return MATCH_WILDCARD;
         }
-        int bestLevel = 0;
+        int level = MATCH;
         final int fixArgs = paramTypes.length - (varArgs ? 1 : 0);
         if (fixArgs > argTypes.length 
                 || (!varArgs && fixArgs != argTypes.length)) {
             return NO_MATCH;
         }
+        // match fix args
         for (int i = 0; i < fixArgs; i++) {
-            int m = applicable(argTypes[i], paramTypes[i], false);
-            if (m == NO_MATCH) {
-                return NO_MATCH;
-            }
-            if (m > bestLevel) bestLevel = m;
+            int m = applicable(argTypes[i], paramTypes[i]);
+            if (m == NO_MATCH) return NO_MATCH;
+            if (m < level) level = m;
         }
         if (varArgs) {
-            Class<?> comp = paramTypes[fixArgs].getComponentType();
-            for (int i = fixArgs; i < argTypes.length; i++) {
-                // varargs not allowed, we test against the component type
-                int m = applicable(argTypes[i], comp, false);
-                if (m == NO_MATCH) {
-                    return NO_MATCH;
+            // try if last arg matches varargs parameter directly
+            Class<?> varArgType = paramTypes[fixArgs];
+            if (paramTypes.length == argTypes.length) {
+                int m = applicable(argTypes[fixArgs], varArgType);
+                if (m != NO_MATCH) {
+                    return Math.min(m, level);
                 }
-//                if (m > bestLevel) bestLevel = m;
             }
-            return MATCH_VARARGS;
+            // match remaining args against vararg component type
+            level = MATCH_VARARGS;
+            Class<?> comp = varArgType.getComponentType();
+            for (int i = fixArgs; i < argTypes.length; i++) {
+                int m = applicable(argTypes[i], comp);
+                if (m == NO_MATCH) return NO_MATCH;
+            }
         }
-        return bestLevel;
+        return level;
     }
     
-    private int applicable(Class<?> arg, Class<?> param, boolean varArgs) {
+    private int applicable(Class<?> arg, Class<?> param) {
         if (arg == null) {
+            if (param != null && param.isPrimitive()) {
+                return NO_MATCH;
+            }
             return MATCH;
         }
         if (param == null) {
@@ -169,13 +173,6 @@ public class JavaSignatureComparator {
         Class<?> boxArg = Boxing.boxingType(arg);
         if (boxArg != null && param.isAssignableFrom(boxArg)) {
             return MATCH_BOXING;
-        }
-        if (varArgs && param.isArray()) {
-            Class<?> comp = param.getComponentType();
-            if (comp.isAssignableFrom(arg) || 
-                    (boxArg != null && comp.isAssignableFrom(boxArg))) {
-                return MATCH_VARARGS;
-            }
         }
         return NO_MATCH;
     }

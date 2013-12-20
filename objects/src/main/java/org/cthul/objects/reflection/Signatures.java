@@ -2,6 +2,7 @@ package org.cthul.objects.reflection;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class Signatures {
      * @return constructor, or {@code null}
      * @throws AmbiguousSignatureMatchException if multiple constructors match equally
      */
-    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Object[] args) throws AmbiguousSignatureMatchException {
+    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Object[] args) throws AmbiguousConstructorMatchException {
         return bestConstructor(collectConstructors(clazz), args);
     }
     
@@ -38,7 +39,7 @@ public class Signatures {
      * @return constructor, or {@code null}
      * @throws AmbiguousSignatureMatchException if multiple constructors match equally
      */
-    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
+    public static <T> Constructor<T> bestConstructor(Class<T> clazz, Class<?>[] argTypes) throws AmbiguousConstructorMatchException {
         return bestConstructor(collectConstructors(clazz), argTypes);
     }
     
@@ -50,7 +51,7 @@ public class Signatures {
      * @return constructor, or {@code null}
      * @throws AmbiguousSignatureMatchException if multiple constructors match equally
      */
-    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Object[] args) throws AmbiguousSignatureMatchException {
+    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Object[] args) throws AmbiguousConstructorMatchException {
         return bestConstructor(constructors, collectArgTypes(args));
     }
     
@@ -62,8 +63,12 @@ public class Signatures {
      * @return constructor, or {@code null}
      * @throws AmbiguousSignatureMatchException if multiple constructors match equally
      */
-    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
-        return best(constructors, collectSignatures(constructors), collectVarArgs(constructors), argTypes);
+    public static <T> Constructor<T> bestConstructor(Constructor<T>[] constructors, Class<?>[] argTypes) throws AmbiguousConstructorMatchException {
+        try {
+            return best(constructors, collectSignatures(constructors), collectVarArgs(constructors), argTypes);
+        } catch (AmbiguousSignatureMatchException e) {
+            throw new AmbiguousConstructorMatchException(e, constructors);
+        }
     }
     
     /**
@@ -118,7 +123,7 @@ public class Signatures {
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
-    public static Method bestMethod(Class<?> clazz, String name, Object[] args) throws AmbiguousSignatureMatchException {
+    public static Method bestMethod(Class<?> clazz, String name, Object[] args) throws AmbiguousMethodMatchException {
         return bestMethod(collectMethods(clazz, name), args);
     }
     
@@ -130,7 +135,7 @@ public class Signatures {
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
-    public static Method bestMethod(Class<?> clazz, String name, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
+    public static Method bestMethod(Class<?> clazz, String name, Class<?>[] argTypes) throws AmbiguousMethodMatchException {
         return bestMethod(collectMethods(clazz, name), argTypes);
     }
     
@@ -142,7 +147,7 @@ public class Signatures {
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
-    public static Method bestMethod(Method[] methods, Object[] args) throws AmbiguousSignatureMatchException {
+    public static Method bestMethod(Method[] methods, Object[] args) throws AmbiguousMethodMatchException {
         return bestMethod(methods, collectArgTypes(args));
     }
     
@@ -154,8 +159,12 @@ public class Signatures {
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
-    public static Method bestMethod(Method[] methods, Class<?>[] argTypes) throws AmbiguousSignatureMatchException {
-        return best(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
+    public static Method bestMethod(Method[] methods, Class<?>[] argTypes) throws AmbiguousMethodMatchException {
+        try {
+            return best(methods, collectSignatures(methods), collectVarArgs(methods), argTypes);
+        } catch (AmbiguousSignatureMatchException e) {
+            throw new AmbiguousMethodMatchException(e, methods);
+        }
     }
     
     /**
@@ -236,7 +245,7 @@ public class Signatures {
         return result;
     }
     
-    private static Class<?>[] collectArgTypes(final Object[] args) {
+    public static Class<?>[] collectArgTypes(final Object[] args) {
         final Class<?>[] result = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++) {
             Object a = args[i];
@@ -310,7 +319,7 @@ public class Signatures {
         }
     }
     
-    private static Class<?>[][] collectSignatures(final Method[] methods) {
+    public static Class<?>[][] collectSignatures(final Method[] methods) {
         final Class<?>[][] result = new Class<?>[methods.length][];
         for (int i = 0; i < methods.length; i++) {
             result[i] = methods[i].getParameterTypes();
@@ -318,7 +327,7 @@ public class Signatures {
         return result;
     }
 
-    private static boolean[] collectVarArgs(final Method[] methods) {
+    public static boolean[] collectVarArgs(final Method[] methods) {
         final boolean[] result = new boolean[methods.length];
         for (int i = 0; i < methods.length; i++) {
             result[i] = methods[i].isVarArgs();
@@ -326,7 +335,7 @@ public class Signatures {
         return result;
     }
 
-    private static Class<?>[][] collectSignatures(final Constructor<?>[] constructors) {
+    public static Class<?>[][] collectSignatures(final Constructor<?>[] constructors) {
         final Class<?>[][] result = new Class<?>[constructors.length][];
         for (int i = 0; i < constructors.length; i++) {
             result[i] = constructors[i].getParameterTypes();
@@ -334,7 +343,7 @@ public class Signatures {
         return result;
     }
 
-    private static boolean[] collectVarArgs(final Constructor<?>[] constructors) {
+    public static boolean[] collectVarArgs(final Constructor<?>[] constructors) {
         final boolean[] result = new boolean[constructors.length];
         for (int i = 0; i < constructors.length; i++) {
             result[i] = constructors[i].isVarArgs();
@@ -355,49 +364,49 @@ public class Signatures {
     }
     
     /** @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
-    public static int bestMatch(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) throws AmbiguousSignatureMatchException {
+    public static int bestMatch(final Class<?>[][] signatures, final boolean[] varArgs, final JavaSignatureComparator jsCmp) throws AmbiguousSignatureMatchException {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         int bestIndex = -1;
-        Class<?>[] bestSig = null;
-        LinkedList<Class<?>[]> ambiguous = null;
-        boolean bestVarArgs = false;
-        signatures: for (int i = 0; i < signatures.length; i++) {
+        LinkedList<Integer> ambiguous = null;
+        for (int i = 0; i < signatures.length; i++) {
             Class<?>[] sig = signatures[i];
             boolean var = varArgs[i];
             int level = jsCmp.applicability(sig, var);
-            if (level < bestLevel) continue;
             if (level > bestLevel) {
                 // new is better
                 ambiguous = null;
-            } else {
-                assert level == bestLevel;
+                bestLevel = level;
+                bestIndex = i;
+            } else if (level == bestLevel) {
                 // check against previous matches
                 if (ambiguous != null) {
-                    Iterator<Class<?>[]> it = ambiguous.iterator();
+                    boolean isAmbiguous = true;
+                    Iterator<Integer> it = ambiguous.iterator();
                     while (it.hasNext()) {
-                        int c = jsCmp.compareSpecificness(it.next(), bestVarArgs, sig, var);
-                        if (c < 0) continue signatures;
+                        int a = it.next();
+                        int c = jsCmp.compareSpecificness(signatures[a], varArgs[a], sig, var);
+                        if (c < 0) isAmbiguous = false;
                         if (c > 0) it.remove();
                     }
-                    ambiguous.add(sig);
+                    if (isAmbiguous) {
+                        ambiguous.add(i);
+                    }
                 } else {
                     assert bestIndex > -1;
-                    int c = jsCmp.compareSpecificness(bestSig, bestVarArgs, sig, var);
-                    if (c < 0) continue;
-                    if (c == 0) {
+                    int c = jsCmp.compareSpecificness(signatures[bestIndex], varArgs[bestIndex], sig, var);
+                    if (c > 0) {
+                        bestLevel = level;
+                        bestIndex = i;
+                    } else if (c == 0) {
                         ambiguous = new LinkedList<>();
-                        ambiguous.add(bestSig);
-                        ambiguous.add(sig);
+                        ambiguous.add(bestIndex);
+                        ambiguous.add(i);
                     }
                 }
             }
-            bestLevel = level;
-            bestIndex = i;
-            bestSig = sig;
-            bestVarArgs = var;
         }
         if (ambiguous != null && ambiguous.size() > 1) {
-            throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs);
+            throw new AmbiguousSignatureMatchException(jsCmp, signatures, varArgs, Boxing.unboxIntegers(ambiguous));
         }
         return bestIndex;
     }
@@ -418,26 +427,29 @@ public class Signatures {
     public static int[] candidateMatches(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         final LinkedList<Integer> candidates = new LinkedList<>();
-        signatures: for (int i = 0; i < signatures.length; i++) {
+        for (int i = 0; i < signatures.length; i++) {
             Class<?>[] sig = signatures[i];
             boolean var = varArgs[i];
             int level = jsCmp.applicability(sig, var);
-            if (level < bestLevel) continue;
             if (level > bestLevel) {
                 // new is better than all previous
                 candidates.clear();
                 bestLevel = level;
-            } else {
+                candidates.add(i);
+            } else if (level == bestLevel) {
                 // check against previous matches
+                boolean isCandidate = true;
                 Iterator<Integer> it = candidates.iterator();
                 while (it.hasNext()) {
                     int k = it.next();
-                    int cmp = jsCmp.compareSpecificness(signatures[k], varArgs[k], sig, var);
-                    if (cmp < 0) continue signatures;
-                    if (cmp > 0) it.remove();
+                    int c = jsCmp.compareSpecificness(signatures[k], varArgs[k], sig, var);
+                    if (c < 0) isCandidate = false;
+                    if (c > 0) it.remove();
+                }
+                if (isCandidate) {
+                    candidates.add(i);
                 }
             }
-            candidates.add(i);
         }
         return Boxing.unboxIntegers(candidates);
     }
@@ -483,6 +495,20 @@ public class Signatures {
         return result;
     }
     
+    public static <T> T newInstance(Constructor<T> constructor, Object... args) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (constructor.isVarArgs()) {
+            args = fixVarArgs(constructor.getParameterTypes(), args);
+        }
+        return constructor.newInstance(args);
+    }
+    
+    public static Object invoke(Object instance, Method method, Object... args) throws IllegalAccessException, InvocationTargetException {
+        if (method.isVarArgs()) {
+            args = fixVarArgs(method.getParameterTypes(), args);
+        }
+        return method.invoke(instance, args);
+    }
+    
     public static final int NONE = 0;
     public static final int ANY = -1;
     public static final int STATIC = Modifier.STATIC;
@@ -490,5 +516,4 @@ public class Signatures {
     public static final int PROTECTED = Modifier.PROTECTED;
     public static final int PUBLIC = Modifier.PUBLIC;
     public static final int NOT_DEFAULT = PRIVATE | PROTECTED | PUBLIC;
-    
 }

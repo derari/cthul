@@ -52,6 +52,9 @@ public class Instances {
                 if (o != null) return o;
             }
         }
+        if (args == null) {
+            return newInstance(map, impl, factory, null, moreValues);
+        }
         Object[] argValues = new Object[lengthOf(args)];
         Class[] argTypes = new Class[argValues.length];
         fillArgs(map, args, argValues, argTypes, moreValues);
@@ -91,10 +94,10 @@ public class Instances {
                 }
             }
         }
-        Object[] prims = {a.x(), a.b(), a.c(), a.d(), a.f(), a.i(), a.l(), a.s(), a.t(), a.o()};
+        Object[] prims = {a.x(), a.b(), a.c(), a.d(), a.f(), a.i(), a.l(), a.s(), a.str(), a.o()};
         for (Object p: prims) {
             if (!isEmpty(p)) {
-                if (value != null) {
+                if (type != null) {
                     throw new IllegalArgumentException(
                             "Ambiguous @Arg, got " 
                             + type.getSimpleName() 
@@ -137,8 +140,53 @@ public class Instances {
         }
     }
     
+    public static Class[] getTypes(InstanceMap map, Arg[] args, Class[] inputTypes) {
+        Class[] result = new Class[args.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getType(map, args[i], inputTypes);
+        }
+        return result;
+    }
+    
+    private static Class getType(InstanceMap map, Arg a, Class[] inputTypes) {
+        if (!isDefault(a.key(), "")) {
+            if (map != null) {
+                return map.get(a.key()).getClass();
+            } else if (inputTypes != null) {
+                String[] keys = a.key().split(",");
+                if (keys.length > 1) {
+                    return Object[].class;
+                }
+                try {
+                    int i = Integer.parseInt(keys[0]);
+                    return inputTypes[i];
+                } catch (NumberFormatException e) {
+                    // continue
+                }
+            }
+        }
+        Class<?> compType = a.arrayOf();
+        if (compType != void.class && compType != null) {
+            return Array.newInstance(compType, 0).getClass();
+        }
+        Object[] prims = {a.x(), a.b(), a.c(), a.d(), a.f(), a.i(), a.l(), a.s(), a.str(), a.o()};
+        for (Object p: prims) {
+            if (!isEmpty(p)) {
+                if (p instanceof Instance[]) {
+                    p = getInstances(map, (Instance[]) p);
+                }
+                if (Array.getLength(p) == 1) {
+                    return p.getClass().getComponentType();
+                } else {
+                    return p.getClass();
+                }
+            }
+        }
+        return null;
+    }
+    
     public static Object[] getArgs(InstanceMap map, Arg[] args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     private static int lengthOf(Object array) {
@@ -189,6 +237,7 @@ public class Instances {
             }
             if (c != null) {
                 try {
+                    c.setAccessible(true);
                     return c.newInstance(argValues);
                 } catch (ReflectiveOperationException e) {
                     throw new RuntimeException(e);
@@ -197,16 +246,16 @@ public class Instances {
         }
         Method m;
         if (isDefault(factory, "")) {
-            if (argTypes != null) {
-                m = Signatures.bestMethod(impl, "instance", argTypes);
-            } else {
-                m = Signatures.bestMethod(impl, "instance", argValues);
-            }
-            if (m == null) {
+            m = null;
+            String[] methods = {"instance", "newInstance", "getInstance"};
+            for (String name: methods) {
                 if (argTypes != null) {
-                    m = Signatures.bestMethod(impl, "newInstance", argTypes);
+                    m = Signatures.bestMethod(impl, name, argTypes);
                 } else {
-                    m = Signatures.bestMethod(impl, "newInstance", argValues);
+                    m = Signatures.bestMethod(impl, name, argValues);
+                }
+                if (m != null) {
+                    break;
                 }
             }
         } else {
@@ -226,6 +275,7 @@ public class Instances {
                 factoryInstance = map.getOrCreate(impl);
             }
             try {
+                m.setAccessible(true);
                 return m.invoke(factoryInstance, argValues);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
@@ -261,6 +311,7 @@ public class Instances {
                         "No args allowed for field " + f);
             }
             try {
+                f.setAccessible(true);
                 return f.get(factoryInstance);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);

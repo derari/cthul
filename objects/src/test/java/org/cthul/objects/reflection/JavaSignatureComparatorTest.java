@@ -10,6 +10,15 @@ import static org.hamcrest.MatcherAssert.*;
 public class JavaSignatureComparatorTest {
     
     @Test
+    public void test_applicability_empty() {
+        Class[] args = {};
+        Class[] params = args;
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int appl = jsCmp.applicability(params, false);
+        assertThat(appl, is(JavaSignatureComparator.MATCH));
+    }
+    
+    @Test
     public void test_applicability_exact() {
         Class[] args = {Object.class, String.class, int.class};
         Class[] params = args;
@@ -45,6 +54,23 @@ public class JavaSignatureComparatorTest {
         assertThat(appl, is(JavaSignatureComparator.MATCH_BOXING));
     }
     
+    @Test
+    public void test_applicability_boxing2() {
+        Class[] args = {int.class, Object.class};
+        Class[] params = {Integer.class, Object.class};
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int appl = jsCmp.applicability(params, false);
+        assertThat(appl, is(JavaSignatureComparator.MATCH_BOXING));
+    }
+    
+    @Test
+    public void test_applicability_unboxing2() {
+        Class[] args = {Integer.class, Object.class};
+        Class[] params = {int.class, Object.class};
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int appl = jsCmp.applicability(params, false);
+        assertThat(appl, is(JavaSignatureComparator.MATCH_BOXING));
+    }
     
     @Test
     public void test_applicability_varArgs0() {
@@ -89,6 +115,15 @@ public class JavaSignatureComparatorTest {
         JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
         int appl = jsCmp.applicability(params, true);
         assertThat(appl, is(JavaSignatureComparator.MATCH_VARARGS));
+    }
+            
+    @Test
+    public void test_applicability_varArgs_direct_match() {
+        Class[] args = {Number[].class};
+        Class[] params = args;
+        JavaSignatureComparator jsCmp = new JavaSignatureComparator(args);
+        int appl = jsCmp.applicability(params, true);
+        assertThat(appl, is(JavaSignatureComparator.MATCH));
     }
 
     @Test
