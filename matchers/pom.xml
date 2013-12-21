@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-matchers</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <name>Cthul Matchers</name>
     <url>http://cthul.org</url>
     <description>
@@ -38,21 +38,20 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>assemble-jar-all-dependencies</id>
+                        <id>assemble-jar-wo-hamcrest</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <attach>false</attach>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
+                            <descriptors>
+                                <descriptor>src/assemble/wo-hamcrest.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>
-              </plugin>
-        </plugins>    
+            </plugin>
+        </plugins>
     </build>
     <profiles>
         <profile>
@@ -235,7 +234,7 @@
         <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-objects</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1.0</version>
             <classifier>jdk16</classifier>
         </dependency>
         <dependency>
