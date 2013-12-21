@@ -30,7 +30,7 @@ public class UriMappingResolverTest {
     @Test
     public void test_addSchemas() {
         Proc addSchemas = Procs.invoke(instance, "addSchemas", String[].class);
-        assertThat(addSchemas.call("a", "b"), not(raisesException()));
+        assertThat(addSchemas.call("a", "b"), _not(raisesException()));
         assertThat(addSchemas.call("a", "b", "c"), 
                 raises(IllegalArgumentException.class));
     }

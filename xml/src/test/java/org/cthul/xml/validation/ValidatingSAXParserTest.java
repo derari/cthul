@@ -51,7 +51,7 @@ public class ValidatingSAXParserTest {
         final CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
         final TestHandler handler = new TestHandler();
         final File f = new File("src/test/resources/invalid-menu.xml");
-        Proc parse = Procs.invoke(new ValidatingSAXParser(schemas), "parse", f, handler);
+        Proc parse = Procs.invokeWith(new ValidatingSAXParser(schemas), "parse", f, handler);
         assertThat(parse, raises(SAXParseException.class));
         
     }

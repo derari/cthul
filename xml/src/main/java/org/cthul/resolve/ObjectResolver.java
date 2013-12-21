@@ -1,6 +1,5 @@
 package org.cthul.resolve;
 
-import java.net.URLClassLoader;
 import org.cthul.log.CLogger;
 import org.cthul.log.CLoggerFactory;
 

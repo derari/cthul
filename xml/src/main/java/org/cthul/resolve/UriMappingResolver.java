@@ -225,6 +225,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
                 sb.append(", ");
                 sb.append(schemaSize - s);
                 sb.append(" more");
+                break;
             }
         }
         if (schemaSize > 0 && domainSize > 0) sb.append("; ");
@@ -232,10 +233,11 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
             if (d > 0) sb.append(", ");
             sb.append(domain.pattern());
             d++;
-            if (s > 2 && domainSize > 3) {
+            if (d > 2 && domainSize > 3) {
                 sb.append(", ");
                 sb.append(domainSize - s);
                 sb.append(" more");
+                break;
             }
         }
         return sb.toString();
