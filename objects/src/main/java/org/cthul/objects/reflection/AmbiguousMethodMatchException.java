@@ -41,4 +41,31 @@ public class AmbiguousMethodMatchException extends AmbiguousSignatureMatchExcept
     public Method[] getMethods() {
         return methods;
     }
+
+    @Override
+    protected String buildMessage() {
+        return methodList(getReferenceSignature(), getMethods());
+    }
+    
+    protected static String methodList(Class<?>[] match, Method[] methods) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        printSig(sb, match, false);
+        sb.append("): ");
+        for (int i = 0; i < methods.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            Method m = methods[i];
+            sb.append(m.getName());
+            sb.append("(");
+            printSig(sb, m.getParameterTypes(), m.isVarArgs());
+            sb.append(")");
+        }
+        String result = sb.toString();
+        if (result.length() > 70) {
+            result = result.replace(" (", "\n    (");
+        }
+        return result;
+    }
 }

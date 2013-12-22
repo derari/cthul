@@ -245,6 +245,12 @@ public class Signatures {
         return result;
     }
     
+    /**
+     * Returnes the types for all values. 
+     * For {@code null}-values, the type is {@code null}.
+     * @param args
+     * @return tyües
+     */
     public static Class<?>[] collectArgTypes(final Object[] args) {
         final Class<?>[] result = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -254,6 +260,12 @@ public class Signatures {
         return result;
     }
     
+    /**
+     * Collects all public methods of {@code clazz} with the given {@code name}.
+     * @param clazz
+     * @param name
+     * @return methods
+     */
     public static Method[] collectMethods(Class<?> clazz, String name) {
         final List<Method> result = new ArrayList<>();
         for (Method m: clazz.getMethods()) {
@@ -262,6 +274,16 @@ public class Signatures {
         return result.toArray(new Method[result.size()]);
     }
     
+    /**
+     * Collects methods of {@code clazz} with the given {@code name}.
+     * Methods are included if their modifier bits match each bit of {@code include}
+     * and no bit of {@code exclude}.
+     * @param clazz
+     * @param name
+     * @param include 
+     * @param exclude 
+     * @return methods
+     */
     public static Method[] collectMethods(Class<?> clazz, String name, int include, int exclude) {
         final List<Method> result = new ArrayList<>();
         collectMethods(result, new ArrayList<Class[]>(), new HashSet<Class<?>>(), clazz, name, include, exclude);
@@ -296,10 +318,26 @@ public class Signatures {
         }
     }
     
+    /**
+     * Collects all public constructors of {@code clazz}.
+     * @param <T>
+     * @param clazz
+     * @return constructors
+     */
     public static <T> Constructor<T>[] collectConstructors(Class<T> clazz) {
         return (Constructor[]) clazz.getConstructors();
     }
     
+    /**
+     * Collects constructors of {@code clazz}.
+     * Constructors are included if their modifier bits match each bit of {@code include}
+     * and no bit of {@code exclude}.
+     * @param <T>
+     * @param clazz
+     * @param include
+     * @param exclude
+     * @return constructors
+     */
     public static <T> Constructor<T>[] collectConstructors(Class<T> clazz, int include, int exclude) {
         final List<Constructor> result = new ArrayList<>();
         for (Constructor c: clazz.getDeclaredConstructors()) {
@@ -315,7 +353,7 @@ public class Signatures {
         if (include == ANY) {
             return (mod & exclude) == 0;
         } else {
-            return (mod & include) != 0 && (mod & exclude) == 0;
+            return (mod & include) == include && (mod & exclude) == 0;
         }
     }
     
@@ -502,6 +540,16 @@ public class Signatures {
         return result;
     }
     
+    /**
+     * Invokes {@code constructor}, automatically tries to fix varargs arguments.
+     * @param <T>
+     * @param constructor
+     * @param args
+     * @return new instance
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InstantiationException 
+     */
     public static <T> T newInstance(Constructor<T> constructor, Object... args) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (constructor.isVarArgs()) {
             args = fixVarArgs(constructor.getParameterTypes(), args);
@@ -509,6 +557,15 @@ public class Signatures {
         return constructor.newInstance(args);
     }
     
+    /**
+     * Invokes {@code method}, automatically tries to fix varargs arguments.
+     * @param instance
+     * @param method
+     * @param args
+     * @return result
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException 
+     */
     public static Object invoke(Object instance, Method method, Object... args) throws IllegalAccessException, InvocationTargetException {
         if (method.isVarArgs()) {
             args = fixVarArgs(method.getParameterTypes(), args);
@@ -517,7 +574,7 @@ public class Signatures {
     }
     
     public static final int NONE = 0;
-    public static final int ANY = -1;
+    public static final int ANY = 0;
     public static final int STATIC = Modifier.STATIC;
     public static final int PRIVATE = Modifier.PRIVATE;
     public static final int PROTECTED = Modifier.PROTECTED;

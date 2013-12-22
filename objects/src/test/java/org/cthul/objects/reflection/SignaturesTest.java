@@ -1,6 +1,8 @@
 package org.cthul.objects.reflection;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -9,6 +11,22 @@ import static org.hamcrest.MatcherAssert.*;
  *
  */
 public class SignaturesTest {
+    
+    public Object dynamicInvoke(String name, Object... args) throws IllegalAccessException, InvocationTargetException {
+        Method m;
+        try {
+            m = Signatures.bestMethod(getClass(), name, args);
+            if (m == null) {
+                System.err.println("No method " + name + Arrays.toString(args));
+                return null;
+            }
+        } catch (AmbiguousMethodMatchException e) {
+            System.err.println("Warning: ambiguous result:");
+            System.err.println(e.getMessage());
+            m = e.getMethods()[0];
+        }
+        return Signatures.invoke(this, m, args);
+    }
 
     @Test
     public void test_bestMatch() {
@@ -160,12 +178,31 @@ public class SignaturesTest {
     }
     
     @Test
-    public void test_collect_non_static() {
-        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.ANY, Signatures.STATIC);
+    public void test_collect_public_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.STATIC | Signatures.PUBLIC, Signatures.NONE);
         assertThat(m, arrayWithSize(1));
     }
+    
+    @Test
+    public void test_collect_non_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.ANY, Signatures.STATIC);
+        assertThat(m, arrayWithSize(2));
+    }
 
+    @Test
+    public void test_collect_public_non_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.PUBLIC, Signatures.STATIC);
+        assertThat(m, arrayWithSize(1));
+    }
+    
+    @Test
+    public void test_collect_non_public_static() {
+        Method[] m = Signatures.collectMethods(TestStatic.class, "m", Signatures.ANY, Signatures.PUBLIC | Signatures.STATIC);
+        assertThat(m, arrayWithSize(1));
+    }
+    
     private static class TestStatic {
+        void m(byte b) {}
         public void m(short s) {}
         static void m(long l) {}
         public static void m(Long l) {}

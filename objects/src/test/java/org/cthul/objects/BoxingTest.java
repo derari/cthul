@@ -65,4 +65,12 @@ public class BoxingTest {
         assertThat(boxed[2], is(new Integer[]{3}));
     }
 
+    @Test
+    public void test_as() {
+        Object[][] data = {{1L, 2.0}, {true, ' '}};
+        int[][] result = Boxing.as(data, int[][].class);
+        assertThat(result[0], is(new int[]{1, 2}));
+        assertThat(result[1], is(new int[]{1, 32}));
+    }
+    
 }
