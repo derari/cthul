@@ -106,12 +106,12 @@ public class ValidatingXMLReader implements XMLReader {
         SAXResult result = new SAXResult();
         result.setHandler(contentHandler);
 
-        v.validate(new SAXSource(input), result);
+        v.validate(new SAXSource(this, input), result);
     }
 
     @Override
     public void parse(String systemId) throws IOException, SAXException {
-        throw new UnsupportedOperationException();
+        parse(new InputSource(systemId));
     }
     
 }
