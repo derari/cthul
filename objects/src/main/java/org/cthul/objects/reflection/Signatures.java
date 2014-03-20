@@ -249,15 +249,19 @@ public class Signatures {
      * Returnes the types for all values. 
      * For {@code null}-values, the type is {@code null}.
      * @param args
-     * @return tyües
+     * @return types
      */
     public static Class<?>[] collectArgTypes(final Object[] args) {
         final Class<?>[] result = new Class<?>[args.length];
-        for (int i = 0; i < args.length; i++) {
-            Object a = args[i];
-            result[i] = a != null ? a.getClass() : null;
-        }
+        collectArgTypes(args, result, 0, 0, args.length);
         return result;
+    }
+    
+    public static void collectArgTypes(final Object[] args, final Class[] types, int argIndex, int typeIndex, int length) {
+        for (int i = 0; i < length; i++) {
+            Object a = args[i + argIndex];
+            types[i + typeIndex] = a != null ? a.getClass() : null;
+        }
     }
     
     /**
