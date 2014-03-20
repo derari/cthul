@@ -1,6 +1,12 @@
 package org.cthul.resolve;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Looks up resources on the local file system.
@@ -9,12 +15,14 @@ import java.io.*;
  */
 public class FileResolver extends UriMappingResolver {
 
-    private final File base;
-    private final String canonicalBase;
+    private final Path base;
+    private final Path canonicalBase;
 
     public FileResolver(File base, String baseCheck) {
-        this.base = base;
-        this.canonicalBase = baseCheck;
+        this.base = Paths.get(base.toURI());
+        this.canonicalBase = baseCheck != null 
+                ? Paths.get(baseCheck).normalize().toAbsolutePath() 
+                : null;
     }
     
     public FileResolver() {
@@ -44,21 +52,22 @@ public class FileResolver extends UriMappingResolver {
 
     @Override
     protected RResult get(RRequest request, String source) {
-        final File f = new File(base, source);
+        final Path p = base.resolve(source).normalize();
         if (canonicalBase != null) {
-            try {
-                if (!f.getCanonicalPath().startsWith(canonicalBase)) {
-                    return null;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (!p.toAbsolutePath().startsWith(canonicalBase)) {
+                return null;
             }
         }
-        if (!f.isFile()) return null;
-        return new RResult(request, f.toURI().toString()){
+        if (!Files.isRegularFile(p)) return null;
+        return new RResult(request, p.toUri().toString()){
             @Override
-            public InputStream createInputStream() throws FileNotFoundException {
-                return new FileInputStream(f);
+            public InputStream createInputStream() throws IOException {
+                return Files.newInputStream(p, StandardOpenOption.READ);
+            }
+            @Override
+            protected ByteBuffer createByteBuffer() throws Exception {
+                FileChannel fc = FileChannel.open(p, StandardOpenOption.READ);
+                return fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             }
         };
     }
