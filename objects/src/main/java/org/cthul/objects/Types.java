@@ -8,6 +8,15 @@ import java.util.*;
 public class Types {
 
     /**
+     * Alias for {@link #superclasses(java.lang.Class)}.
+     * @param clazz the class
+     * @return ordered set
+     */
+    public static Set<Class<?>> getSuperclasses(Class<?> clazz) {
+        return superclasses(clazz);
+    }
+    
+    /**
      * Returns an ordered set of superclasses of {@code clazz}. 
      * If {@code clazz} is a class, it begins with {@code clazz}, followed by 
      * its superclasses and then its interfaces in breadth-first order;
@@ -16,7 +25,7 @@ public class Types {
      * @param clazz the class
      * @return ordered set
      */
-    public static Set<Class<?>> getSuperclasses(Class<?> clazz) {
+    public static Set<Class<?>> superclasses(Class<?> clazz) {
         final Set<Class<?>> result = new LinkedHashSet<>();
         final Queue<Class<?>> queue = new ArrayDeque<>();
         if (clazz.isInterface()) {
@@ -122,7 +131,17 @@ public class Types {
                     srcIt.remove();
                 }
             }
-            result.add(c);
+            // in diamond hierarchies, result may already contain a subclass
+            boolean diamond = false;
+            for (Class<?> c2: result) {
+                if (c.isAssignableFrom(c2)) {
+                    diamond = true;
+                    break;
+                }
+            }
+            if (!diamond) {
+                result.add(c);
+            }
         }
         result.trimToSize();
         return result;

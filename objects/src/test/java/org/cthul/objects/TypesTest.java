@@ -18,8 +18,10 @@ public class TypesTest {
     static interface Ib2 extends Ib {}
     static class Ca implements Ia {}
     static class Cb implements Ib {}
-    static class Cab extends Ca implements Iab {};
-    static class CaIb extends Ca implements Ib {};
+    static class Cab extends Ca implements Iab {}
+    static class CaIb extends Ca implements Ib {}
+    static interface IaIbIab1 extends Ia, Ib, Iab {}
+    static interface IaIbIab2 extends Ia, Ib, Iab {}
     
     @Test
     public void test_commonSuperclasses_classes() {
@@ -62,5 +64,16 @@ public class TypesTest {
         List<Class<?>> l = Types.lowestCommonSuperclasses(Cab.class, Iab2.class);
         assertThat(l, contains(Ia.class, Ib.class));
     }
-
+    
+    @Test
+    public void test_lowestCommonSuperclasses_diamond() {
+        List<Class<?>> l = Types.lowestCommonSuperclasses(IaIbIab1.class, IaIbIab2.class);
+        assertThat(l, contains((Class) Iab.class));
+    }
+    
+    @Test
+    public void test_lowestClasses_diamond() {
+        List<Class<?>> l = Types.lowestClasses(Ia.class, Ib.class, Iab.class);
+        assertThat(l, contains((Class) Iab.class));
+    }
 }

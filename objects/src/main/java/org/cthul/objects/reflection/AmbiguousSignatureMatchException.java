@@ -27,7 +27,7 @@ public class AmbiguousSignatureMatchException extends RuntimeException {
         this.allSignatures = allSignatures;
         this.allVarArgs = allVarArgs;
         this.ambiguousIndices = ambiguousIndices;
-        signatures = new Class[ambiguousIndices.length][];
+        signatures = new Class<?>[ambiguousIndices.length][];
         varArgs = new boolean[ambiguousIndices.length];
         for (int i = 0; i < ambiguousIndices.length; i++) {
             signatures[i] = allSignatures[ambiguousIndices[i]];

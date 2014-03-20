@@ -108,7 +108,7 @@ public class Signatures {
      * Selects the best equally-matching constructors for the given argument types.
      * @param <T>
      * @param constructors
-     * @param args
+     * @param argTypes
      * @return constructors
      */
     public static <T> Constructor<T>[] candidateConstructors(Constructor<T>[] constructors, Class<?>[] argTypes) {
@@ -131,7 +131,7 @@ public class Signatures {
      * Finds the best method for the given argument types.
      * @param clazz
      * @param name
-     * @param args
+     * @param argTypes
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
@@ -141,8 +141,7 @@ public class Signatures {
     
     /**
      * Selects the best method for the given arguments.
-     * @param clazz
-     * @param name
+     * @param methods
      * @param args
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
@@ -153,9 +152,8 @@ public class Signatures {
     
     /**
      * Selects the best method for the given argument types.
-     * @param clazz
-     * @param name
-     * @param args
+     * @param methods
+     * @param argTypes
      * @return method
      * @throws AmbiguousSignatureMatchException if multiple methods match equally
      */
@@ -182,7 +180,7 @@ public class Signatures {
      * Finds the best equally-matching methods for the given argument types.
      * @param clazz
      * @param name
-     * @param args
+     * @param argTypes
      * @return methods
      */
     public static Method[] candidateMethods(Class<?> clazz, String name, Class<?>[] argTypes) {
@@ -191,8 +189,7 @@ public class Signatures {
     
     /**
      * Selects the best equally-matching methods for the given arguments.
-     * @param clazz
-     * @param name
+     * @param methods
      * @param args
      * @return methods
      */
@@ -202,9 +199,8 @@ public class Signatures {
     
     /**
      * Selects the best equally-matching methods for the given argument types.
-     * @param clazz
-     * @param name
-     * @param args
+     * @param methods
+     * @param argTypes
      * @return methods
      */
     public static Method[] candidateMethods(Method[] methods, Class<?>[] argTypes) {
@@ -238,11 +234,16 @@ public class Signatures {
      */
     public static <T> T[] candidates(T[] items, Class<?>[][] signatures, boolean[] varArgs, Class<?>[] argTypes) {
         final int[] indices = candidateMatches(signatures, varArgs, argTypes);
-        T[] result = (T[]) Array.newInstance(items.getClass().getComponentType(), indices.length);
+        T[] result = newArray(items.getClass().getComponentType(), indices.length);
         for (int i = 0; i < indices.length; i++) {
             result[i] = items[indices[i]];
         }
         return result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static <T> T[] newArray(Class<?> componentType, int length) {
+        return (T[]) Array.newInstance(componentType, length);
     }
     
     /**
@@ -286,17 +287,17 @@ public class Signatures {
      */
     public static Method[] collectMethods(Class<?> clazz, String name, int include, int exclude) {
         final List<Method> result = new ArrayList<>();
-        collectMethods(result, new ArrayList<Class[]>(), new HashSet<Class<?>>(), clazz, name, include, exclude);
+        collectMethods(result, new ArrayList<Class<?>[]>(), new HashSet<Class<?>>(), clazz, name, include, exclude);
         return result.toArray(new Method[result.size()]);
     }
     
-    private static void collectMethods(List<Method> methods, List<Class[]> signatures, Set<Class<?>> visited, Class<?> clazz, String name, int include, int exclude) {
+    private static void collectMethods(List<Method> methods, List<Class<?>[]> signatures, Set<Class<?>> visited, Class<?> clazz, String name, int include, int exclude) {
         if (clazz == null || !visited.add(clazz)) return;
         for (Method m: clazz.getDeclaredMethods()) {
             String n = m.getName();
             int mod = m.getModifiers();
             if (name.equals(n) && include(mod, include, exclude)) {
-                Class[] sig = m.getParameterTypes();
+                Class<?>[] sig = m.getParameterTypes();
                 int len = methods.size();
                 boolean isNew = true;
                 for (int i = 0; i < len; i++) {
@@ -313,7 +314,7 @@ public class Signatures {
             }
         }
         collectMethods(methods, signatures, visited, clazz.getSuperclass(), name, include, exclude);
-        for (Class i: clazz.getInterfaces()) {
+        for (Class<?> i: clazz.getInterfaces()) {
             collectMethods(methods, signatures, visited, i, name, include, exclude);
         }
     }
@@ -324,8 +325,9 @@ public class Signatures {
      * @param clazz
      * @return constructors
      */
+    @SuppressWarnings("unchecked")
     public static <T> Constructor<T>[] collectConstructors(Class<T> clazz) {
-        return (Constructor[]) clazz.getConstructors();
+        return (Constructor<T>[]) clazz.getConstructors();
     }
     
     /**
@@ -338,15 +340,16 @@ public class Signatures {
      * @param exclude
      * @return constructors
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> Constructor<T>[] collectConstructors(Class<T> clazz, int include, int exclude) {
-        final List<Constructor> result = new ArrayList<>();
-        for (Constructor c: clazz.getDeclaredConstructors()) {
+        final List<Constructor<?>> result = new ArrayList<>();
+        for (Constructor<?> c: clazz.getDeclaredConstructors()) {
             int mod = c.getModifiers();
             if (include(mod, include, exclude)) {
                 result.add(c);
             }
         }
-        return (Constructor[]) result.toArray(new Constructor[result.size()]);
+        return (Constructor<T>[]) result.toArray(new Constructor<?>[result.size()]);
     }
     
     private static boolean include(int mod, int include, int exclude) {
@@ -401,7 +404,13 @@ public class Signatures {
         return bestMatch(signatures, varArgs, new JavaSignatureComparator(argTypes));
     }
     
-    /** @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
+    /**
+     * @param signatures
+     * @param varArgs
+     * @param jsCmp
+     * @return index
+     * @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) 
+     */
     public static int bestMatch(final Class<?>[][] signatures, final boolean[] varArgs, final JavaSignatureComparator jsCmp) throws AmbiguousSignatureMatchException {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         int bestIndex = -1;
@@ -468,7 +477,13 @@ public class Signatures {
         return candidateMatches(signatures, varArgs, new JavaSignatureComparator(argTypes));
     }
     
-    /** @see #candidateMatches(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) */
+    /** 
+     * @param signatures
+     * @param varArgs
+     * @param jsCmp
+     * @return signature indices
+     * @see #candidateMatches(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) 
+     */
     public static int[] candidateMatches(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
         final LinkedList<Integer> candidates = new LinkedList<>();
