@@ -49,7 +49,7 @@ public abstract class ObjectResolver<T, E extends Exception> {
     }
     
     protected void log_notFound(RRequest req) {
-        log.warn("Could not resolve schema%if[ %s]%if[ as %<s]", req.getUri(), req.getSystemId());
+        log.warn("Could not resolve resource%if[ %<s at] %s", req.getSystemId(), req.getUriOrId());
     }
     
     protected void log_resolved(RResult res) {
