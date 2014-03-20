@@ -25,17 +25,36 @@ public abstract class ObjectResolver<T, E extends Exception> {
     
     protected T resolve(String uri, String publicId, String systemId, String baseURI) throws E {
         RRequest req = new RRequest(uri, publicId, systemId, baseURI);
+        return resolve(req);
+    }
+    
+    protected T resolve(String uri) throws E {
+        RRequest req = new RRequest(uri);
+        return resolve(req);
+    }
+    
+    protected T resolve(String systemId, String baseURI) throws E {
+        RRequest req = new RRequest(systemId, baseURI);
+        return resolve(req);
+    }
+    
+    protected T resolve(RRequest req) throws E {
         RResult res = resolver.resolve(req);
         if (res == null) {
-            if (uri != null) 
-                log.warn("Could not resolve schema %s %if[as %<s]", uri, systemId);
+            log_notFound(req);
             return null;
         }
-        
-        log.info("Resolved %s %if[as %<s]", uri, res.getSystemId());
+        log_resolved(res);
         return result(res);
+    }
+    
+    protected void log_notFound(RRequest req) {
+        log.warn("Could not resolve schema%if[ %s]%if[ as %<s]", req.getUri(), req.getSystemId());
+    }
+    
+    protected void log_resolved(RResult res) {
+        log.info("Resolved %s%if[ as %<s]", res.getRequest().getUriOrId(), res.getSystemId());
     }
 
     protected abstract T result(RResult result) throws E;
-    
 }

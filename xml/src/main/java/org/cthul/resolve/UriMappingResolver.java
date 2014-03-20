@@ -144,9 +144,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     }
     
     protected String uri(RRequest request) {
-        String uri = request.getUri();
-        if (uri == null) uri = request.getResolvedSystemId();
-        return uri;
+        return request.getUriOrId();
     }
     
     protected RResult resolve(RRequest request, String uri) {

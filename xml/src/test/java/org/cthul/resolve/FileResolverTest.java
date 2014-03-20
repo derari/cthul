@@ -48,6 +48,7 @@ public class FileResolverTest {
         
         // escapes base dir, but is in checked range
         RResult res = instance.get(req, "../a.xsd");
+        assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream(), is(notNullValue()));
         
         // escapes checked dir

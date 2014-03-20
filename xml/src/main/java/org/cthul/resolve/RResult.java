@@ -27,6 +27,10 @@ public class RResult {
         this.request = request;
         this.systemId = systemId;
     }
+    
+    public RResult(String uri, String publicId, String systemId, String baseUri) {
+        this(new RRequest(uri, publicId, systemId, baseUri), systemId);
+    }
 
     public RRequest getRequest() {
         return request;
@@ -70,6 +74,19 @@ public class RResult {
     
     protected InputStream createInputStream() throws Exception {
         return null;
+    }
+    
+    public void setDefaultEncoding(String enc) {
+        defaultEncoding = enc;
+    }
+    
+    public void setEncoding(String enc) {
+        setDefaultEncoding(enc);
+        if (!enc.equals(getEncoding())) {
+            throw new IllegalStateException(
+                    this + ": cannot change encoding from " +
+                    getEncoding() + " to " + enc);
+        }
     }
     
     public String getEncoding() {
@@ -131,7 +148,7 @@ public class RResult {
         return null;
     }
     
-    private String fromStringOrReader() {
+    protected String fromStringOrReader() {
         String s = getString();
         if (s != null) return s;
         Reader r = getReader();
@@ -139,7 +156,7 @@ public class RResult {
         return null;
     }
     
-    private InputStream fromStreamOrBuffer() {
+    protected InputStream fromStreamOrBuffer() {
         InputStream is = getInputStream();
         if (is != null) return is;
         ByteBuffer bb = getByteBuffer();
@@ -204,10 +221,12 @@ public class RResult {
     }
     
     protected byte[] stringAsBytes(String s) throws ResolvingException {
-        defaultEncoding = getEncoding();
-        if (defaultEncoding == null) defaultEncoding = "UTF-8";
+        String enc = getEncoding();
+        if (enc == null) {
+            enc = defaultEncoding = "UTF-8";
+        }
         try {
-            return s.getBytes(defaultEncoding);
+            return s.getBytes(enc);
         } catch (UnsupportedEncodingException e) {
             throw new ResolvingException(toString(), e);
         }
@@ -222,6 +241,7 @@ public class RResult {
         String cn = clazz.isAnonymousClass() ? "RResult" : clazz.getSimpleName();
         Class decl = clazz.getEnclosingClass();
         if (decl != null) cn = decl.getSimpleName() + "." + cn;
+        if (s == null) return cn;
         return cn + "(" + s + ")";
     }
 

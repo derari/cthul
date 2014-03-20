@@ -5,6 +5,13 @@ import java.net.URISyntaxException;
 
 /**
  * A resource request.
+ * Can contain any subset of following parameters:
+ * <ul>
+ * <li>uri: absolute unique identifier of the resource</li>
+ * <li>publicId</li>
+ * <li>systemId: absolute or relative path to the resource, can be system specific</li>
+ * <li>baseUri: uri of the request sender</li>
+ * </ul>
  * 
  * @author Arian Treffer
  */
@@ -35,6 +42,32 @@ public class RRequest {
         this.baseUri = baseUri;
     }
 
+    /**
+     * Creates a resource request.
+     * All parameters are optional.
+     * 
+     * @param systemId  System internal ID of the requested resource
+     * @param baseUri   URI of the system sending the request
+     */
+    public RRequest(String systemId, String baseUri) {
+        this.uri = null;
+        this.publicId = null;
+        this.systemId = systemId;
+        this.baseUri = baseUri;
+    }
+
+    /**
+     * Creates a resource request.
+     * 
+     * @param uri       URI of the requested resource
+     */
+    public RRequest(String uri) {
+        this.uri = uri;
+        this.publicId = null;
+        this.systemId = null;
+        this.baseUri = null;
+    }
+
     public String getUri() {
         return uri;
     }
@@ -49,6 +82,15 @@ public class RRequest {
 
     public String getBaseUri() {
         return baseUri;
+    }
+    
+    /**
+     * Returns {@linkplain #getUri() uri} or {@linkplain #getResolvedSystemId() resolved system id}.
+     * @return uri or system id
+     */
+    public String getUriOrId() {
+        if (uri != null) return getUri();
+        return getResolvedSystemId();
     }
 
     /**
@@ -85,10 +127,11 @@ public class RRequest {
     
     @Override
     public String toString() {
-        String s = getSystemId();
-        if (s == null) s = getUri();
+        String s = getUri();
+        if (s == null && resolvedSystemId != (Object) NULL_STR) s = resolvedSystemId;
+        if (s == null) s = getSystemId();
         if (s == null) s = getPublicId();
+        if (s == null) return "RRequest@" + Integer.toHexString(hashCode());
         return "RRequest(" + s + ")";
     }
-    
 }

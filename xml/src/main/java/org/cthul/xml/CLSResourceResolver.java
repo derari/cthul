@@ -81,7 +81,7 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
         @Override
         public Reader getCharacterStream() {
-            return result.getReader();
+            return result.asReader();
         }
 
         @Override
@@ -91,7 +91,7 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
         @Override
         public InputStream getByteStream() {
-            return result.getInputStream();
+            return result.asInputStream();
         }
 
         @Override
@@ -101,7 +101,7 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
         @Override
         public String getStringData() {
-            return result.getString();
+            return result.asString();
         }
 
         @Override
@@ -141,12 +141,12 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
         @Override
         public String getEncoding() {
-            return null;
+            return result.getEncoding();
         }
 
         @Override
         public void setEncoding(String encoding) {
-            throw new UnsupportedOperationException();
+            result.setEncoding(encoding);
         }
 
         @Override
@@ -158,7 +158,5 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
         public void setCertifiedText(boolean certifiedText) {
             throw new UnsupportedOperationException();
         }
-        
     }
-
 }
