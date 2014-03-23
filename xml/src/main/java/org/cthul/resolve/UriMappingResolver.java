@@ -54,23 +54,35 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     }
     
     public UriMappingResolver addSchema(String uri, String resource) {
+        return addResource(uri, resource);
+    }
+
+    public UriMappingResolver addSchemas(String... values) {
+        return addResources(values);
+    }
+
+    public UriMappingResolver addSchemas(Map<String, String> schemas) {
+        return addResources(schemas);
+    }
+    
+    public UriMappingResolver addResource(String uri, String resource) {
         schemaMap.put(uri, resource);
         return this;
     }
 
-    public UriMappingResolver addSchemas(String... values) {
-        if (values.length % 2 == 1) {
+    public UriMappingResolver addResources(String... resources) {
+        if (resources.length % 2 == 1) {
             throw new IllegalArgumentException
                     ("Expected even number of arguments");
         }
-        for (int i = 0; i < values.length; i += 2) {
-            addSchema(values[i], values[i+1]);
+        for (int i = 0; i < resources.length; i += 2) {
+            addSchema(resources[i], resources[i+1]);
         }
         return this;
     }
 
-    public UriMappingResolver addSchemas(Map<String, String> schemas) {
-        schemaMap.putAll(schemas);
+    public UriMappingResolver addResources(Map<String, String> resources) {
+        schemaMap.putAll(resources);
         return this;
     }
     
