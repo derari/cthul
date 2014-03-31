@@ -34,10 +34,10 @@
         </plugins>    
     </build>    
     <dependencies>
-        <dependency>
+<!--        <dependency>
             <groupId>org.cthul</groupId>    
             <artifactId>cthul-log</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-matchers</artifactId>

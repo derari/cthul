@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.cthul.strings.RegEx;
+//import org.cthul.strings.RegEx;
 
 /**
  * Uses regular expressions to convert a {@link RRequest#getUri() requested URI}
@@ -35,9 +35,14 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     public UriMappingResolver() {
     }
     
+//    /**
+//     * Make this use {@link Pattern#quote(java.lang.String)} instead of
+//     * {@link RegEx#quote(java.lang.String)} for creating patterns from domains.
+//     * @return this
+//     */
     /**
-     * Make this use {@link Pattern#quote(java.lang.String)} instead of
-     * {@link RegEx#quote(java.lang.String)} for creating patterns from domains.
+     * Configures that {@link Pattern#quote(java.lang.String)} will be used
+     * to escape domain names. Enabled by default.
      * @return this
      */
     public UriMappingResolver useSimpleQuoting() {
@@ -46,11 +51,11 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     }
     
     protected String quote(String pattern) {
-        if (simpleQuote) {
+//        if (simpleQuote) {
             return Pattern.quote(pattern);
-        } else {
-            return RegEx.quote(pattern);
-        }
+//        } else {
+//            return RegEx.quote(pattern);
+//        }
     }
     
     public UriMappingResolver addSchema(String uri, String resource) {
@@ -257,5 +262,4 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     public String toString() {
         return getClass().getSimpleName() + "(" + getMappingString() + ")";
     }
-
 }

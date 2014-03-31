@@ -1,12 +1,10 @@
-package org.cthul.xml.validation;
+package org.cthul.resolve;
 
-import org.cthul.resolve.ObjectResolver;
-import org.cthul.resolve.RResult;
-import org.cthul.resolve.ResourceResolver;
 import org.cthul.xml.OrgW3Resolver;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
+
 public class ObjectResolverTest {
 
     @Test

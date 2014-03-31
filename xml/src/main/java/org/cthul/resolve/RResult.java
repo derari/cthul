@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 /**
- * Result of id resolution.
+ * Result of resource resolution.
  * <p/>
  * Should be subclassed to implement {@link #createReader()}, 
  * {@link #createInputStream()} and {@link #getEncoding()}, 
@@ -177,7 +177,6 @@ public class RResult {
             throw new ResolvingException(toString(), e);
         }
     }
-
 
     protected Reader streamAsReader(InputStream is) throws ResolvingException {
         try {

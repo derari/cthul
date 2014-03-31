@@ -1,8 +1,5 @@
 package org.cthul.resolve;
 
-import org.cthul.log.CLogger;
-import org.cthul.log.CLoggerFactory;
-
 /**
  * Uses {@link ResourceResolver}s to create objects of type {@code T}.
  * 
@@ -12,7 +9,6 @@ import org.cthul.log.CLoggerFactory;
  */
 public abstract class ObjectResolver<T, E extends Exception> {
     
-    protected CLogger log = CLoggerFactory.getLogger(getClass());
     protected final ResourceResolver resolver;
 
     public ObjectResolver(ResourceResolver resolver) {
@@ -49,11 +45,11 @@ public abstract class ObjectResolver<T, E extends Exception> {
     }
     
     protected void log_notFound(RRequest req) {
-        log.warn("Could not resolve resource%if[ %<s at] %s", req.getSystemId(), req.getUriOrId());
+//        log.warn("Could not resolve resource%if[ %<s at] %s", req.getSystemId(), req.getUriOrId());
     }
     
     protected void log_resolved(RResult res) {
-        log.info("Resolved %s%if[ as %<s]", res.getRequest().getUriOrId(), res.getSystemId());
+//        log.info("Resolved %s%if[ as %<s]", res.getRequest().getUriOrId(), res.getSystemId());
     }
 
     protected abstract T result(RResult result) throws E;
