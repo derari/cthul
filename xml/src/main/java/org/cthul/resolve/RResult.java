@@ -2,6 +2,9 @@ package org.cthul.resolve;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Objects;
+import static org.cthul.resolve.RRequest.NULL_STR;
 
 /**
  * Result of resource resolution.
@@ -17,6 +20,7 @@ public class RResult {
     
     private final RRequest request;
     private final String systemId;
+    private String resolvedSystemId = RRequest.NULL_STR;
     private String defaultEncoding = null;
 
     public RResult(RRequest request) {
@@ -51,6 +55,47 @@ public class RResult {
     public String getBaseUri() {
         return request.getBaseUri();
     }
+    
+    /**
+     * Returns {@linkplain #getUri() uri} or {@linkplain #getResolvedSystemId() resolved system id}.
+     * @return uri or system id
+     */
+    public String getUriOrId() {
+        String uri = getUri();
+        if (uri != null) return uri;
+        return getResolvedSystemId();
+    }
+
+    /**
+     * Creates a URI from the {@link #getBaseUri() base URI} and 
+     * the {@link #getSystemId() system ID}.
+     * @return uri
+     */
+    public String getResolvedSystemId() {
+        if (resolvedSystemId == (Object) NULL_STR) {
+            resolvedSystemId = resolveSystemId();
+        }
+        return resolvedSystemId;
+    }
+    
+    protected String resolveSystemId() {
+        String mySysId = getSystemId();
+        String reqSysId = getRequest().getSystemId();
+        if (Objects.equals(mySysId, reqSysId)) {
+            return getRequest().getResolvedSystemId();
+        }
+        return expandSystemId(getBaseUri(), mySysId);
+    }
+    
+    /**
+     * Calculates the schema file location.
+     * @param baseId
+     * @param systemId
+     * @return schema file path
+     */
+    protected String expandSystemId(String baseId, String systemId) {
+        return getRequest().expandSystemId(baseId, systemId);
+    }
 
     public Reader getReader() {
         try {
@@ -80,9 +125,13 @@ public class RResult {
         defaultEncoding = enc;
     }
     
-    public void setEncoding(String enc) {
+    public boolean trySetEncoding(String enc) {
         setDefaultEncoding(enc);
-        if (!enc.equals(getEncoding())) {
+        return Objects.equals(enc, getEncoding());
+    }
+    
+    public void setEncoding(String enc) {
+        if (!trySetEncoding(enc)) {
             throw new IllegalStateException(
                     this + ": cannot change encoding from " +
                     getEncoding() + " to " + enc);
@@ -165,7 +214,7 @@ public class RResult {
     }
     
     protected String readerAsString(Reader r) {
-        try {
+        try (Reader _ = r) {
             final char[] buf = new char[BUF_SIZE];
             final StringWriter sw = new StringWriter();
             int n;
@@ -206,7 +255,23 @@ public class RResult {
     }
     
     protected ByteBuffer streamAsBuffer(InputStream is) {
-        try {
+        if (is instanceof FileInputStream) {
+            try {
+                FileInputStream fis = (FileInputStream) is;
+                return fis.getChannel().map(
+                        FileChannel.MapMode.READ_ONLY, 
+                        0, fis.getChannel().size());
+            } catch (IOException e) {
+                try {
+                    is.close();
+                } catch (IOException e2) {
+                    e2.addSuppressed(e);
+                    throw new RuntimeException(e2);
+                }
+                throw new RuntimeException(e);
+            }
+        }
+        try (InputStream _ = is) {
             ByteArrayOutputStream out = new ByteArrayOutputStream(BUF_SIZE); 
             byte[] buf = new byte[BUF_SIZE];
             int n;
@@ -222,10 +287,15 @@ public class RResult {
     protected byte[] stringAsBytes(String s) throws ResolvingException {
         String enc = getEncoding();
         if (enc == null) {
-            enc = defaultEncoding = "UTF-8";
+            setDefaultEncoding("UTF-8");
+            enc = getEncoding();
         }
         try {
-            return s.getBytes(enc);
+            if (enc == null) {
+                return s.getBytes();
+            } else {
+                return s.getBytes(enc);
+            }
         } catch (UnsupportedEncodingException e) {
             throw new ResolvingException(toString(), e);
         }
@@ -270,6 +340,11 @@ public class RResult {
             len = Math.min(len, buf.remaining());
             buf.get(bytes, off, len);
             return len;
+        }
+
+        @Override
+        public void close() throws IOException {
+            
         }
     }
 }

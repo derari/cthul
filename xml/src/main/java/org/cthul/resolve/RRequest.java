@@ -18,7 +18,7 @@ import java.net.URISyntaxException;
 public class RRequest {
     
     
-    private static final String NULL_STR = new String();
+    static final String NULL_STR = new String();
     
     private final String uri;
     private final String publicId;
@@ -89,20 +89,25 @@ public class RRequest {
      * @return uri or system id
      */
     public String getUriOrId() {
-        if (uri != null) return getUri();
+        String u = getUri();
+        if (u != null) return u;
         return getResolvedSystemId();
     }
 
     /**
-     * Create a URI from the {@link #getBaseUri() base URI} and 
+     * Creates a URI from the {@link #getBaseUri() base URI} and 
      * the {@link #getSystemId() system ID}.
      * @return uri
      */
     public String getResolvedSystemId() {
         if (resolvedSystemId == (Object) NULL_STR) {
-            resolvedSystemId = expandSystemId(baseUri, systemId);
+            resolvedSystemId = resolveSystemId();
         }
         return resolvedSystemId;
+    }
+    
+    protected String resolveSystemId() {
+        return expandSystemId(getBaseUri(), getSystemId());
     }
     
     /**
