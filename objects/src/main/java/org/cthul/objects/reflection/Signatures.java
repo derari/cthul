@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -246,6 +247,15 @@ public class Signatures {
         return (T[]) Array.newInstance(componentType, length);
     }
     
+    public static Class<?>[] collectArgTypes(Collection<?> args) {
+        final Class<?>[] result = new Class<?>[args.size()];
+        int i = 0;
+        for (Object a: args) {
+            result[i++] = argType(a);
+        }
+        return result;
+    }
+    
     /**
      * Returnes the types for all values. 
      * For {@code null}-values, the type is {@code null}.
@@ -258,11 +268,15 @@ public class Signatures {
         return result;
     }
     
-    public static void collectArgTypes(final Object[] args, final Class[] types, int argIndex, int typeIndex, int length) {
+    public static void collectArgTypes(final Object[] args, final Class<?>[] types, int argIndex, int typeIndex, int length) {
         for (int i = 0; i < length; i++) {
             Object a = args[i + argIndex];
-            types[i + typeIndex] = a != null ? a.getClass() : null;
+            types[i + typeIndex] = argType(a);
         }
+    }
+    
+    private static Class<?> argType(Object a) {
+        return a != null ? a.getClass() : null;
     }
     
     /**
@@ -395,7 +409,7 @@ public class Signatures {
         }
         return result;
     }
-
+    
     /**
      * Selects the best match in signatures for the given argument types.
      * @param signatures

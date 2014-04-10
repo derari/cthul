@@ -146,5 +146,4 @@ public class Types {
         result.trimToSize();
         return result;
     }
-    
 }
