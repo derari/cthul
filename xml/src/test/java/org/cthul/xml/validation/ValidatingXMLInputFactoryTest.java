@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.cthul.proc.P0;
 import org.cthul.proc.Proc;
-import org.cthul.resolve.ResourceResolverTest;
+import org.cthul.resolve.CompositeResolverTest;
 import org.cthul.xml.CLSResourceResolver;
 import org.junit.Test;
 import org.xml.sax.SAXParseException;
@@ -22,7 +22,7 @@ public class ValidatingXMLInputFactoryTest {
 
     @Test
     public void test_parse_valid_file() throws Exception {
-        CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         File f = new File("src/test/resources/valid-menu.xml");
         XMLStreamReader reader = new ValidatingXMLInputFactory(schemas).createXMLStreamReader(f);
         reader.next();
@@ -33,7 +33,7 @@ public class ValidatingXMLInputFactoryTest {
 
     @Test
     public void test_parse_invalid_file() throws Exception {
-        final CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        final CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         final File f = new File("src/test/resources/invalid-menu.xml");
         Proc parse = new P0() {
             @Override

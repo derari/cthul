@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * Looks up resources in the classpath of a given class.
+ * Looks up resources in the classpath relative to a given class.
  * @see Class#getResource(java.lang.String)
  * @author Arian Treffer
  */

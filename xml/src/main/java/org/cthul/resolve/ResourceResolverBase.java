@@ -2,7 +2,6 @@ package org.cthul.resolve;
 
 /**
  *
- * @author Arian Treffer
  */
 public abstract class ResourceResolverBase implements ResourceResolver {
     
@@ -14,5 +13,8 @@ public abstract class ResourceResolverBase implements ResourceResolver {
     public ResourceResolver immutable() {
         return new CompositeResolver(this);
     }
-
+    
+    public ResourceResolver join(ResourceResolver... others) {
+        return CompositeResolver.join(this, others);
+    }
 }

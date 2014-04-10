@@ -10,8 +10,6 @@ import java.nio.file.StandardOpenOption;
 
 /**
  * Looks up resources on the local file system.
- * 
- * @author Arian Treffer
  */
 public class FileResolver extends UriMappingResolver {
 

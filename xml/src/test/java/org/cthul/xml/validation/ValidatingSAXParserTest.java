@@ -3,7 +3,7 @@ package org.cthul.xml.validation;
 import java.io.File;
 import org.cthul.proc.Proc;
 import org.cthul.proc.Procs;
-import org.cthul.resolve.ResourceResolverTest;
+import org.cthul.resolve.CompositeResolverTest;
 import org.cthul.xml.CLSResourceResolver;
 import org.junit.Test;
 import org.xml.sax.Attributes;
@@ -22,7 +22,7 @@ public class ValidatingSAXParserTest {
     
     @Test
     public void test_parse_valid_file() throws Exception {
-        CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         TestHandler handler = new TestHandler();
         File f = new File("src/test/resources/valid-menu.xml");
         new ValidatingSAXParser(schemas).parse(f, handler);
@@ -32,7 +32,7 @@ public class ValidatingSAXParserTest {
     
     @Test
     public void test_parse_valid_file2() throws Exception {
-        CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         TestHandler handler = new TestHandler();
         File f = new File("src/test/resources/a.xml");
         new ValidatingSAXParser(schemas).parse(f, handler);
@@ -40,7 +40,7 @@ public class ValidatingSAXParserTest {
     
     @Test
     public void test_parse_valid_file3() throws Exception {
-        CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         TestHandler handler = new TestHandler();
         File f = new File("src/test/resources/schema/a.xsd");
         new ValidatingSAXParser(schemas).parse(f, handler);
@@ -48,7 +48,7 @@ public class ValidatingSAXParserTest {
     
     @Test
     public void test_parse_invalid_file() throws Exception {
-        final CLSResourceResolver schemas = new CLSResourceResolver(ResourceResolverTest.newTestInstance());
+        final CLSResourceResolver schemas = new CLSResourceResolver(CompositeResolverTest.newTestInstance());
         final TestHandler handler = new TestHandler();
         final File f = new File("src/test/resources/invalid-menu.xml");
         Proc parse = Procs.invokeWith(new ValidatingSAXParser(schemas), "parse", f, handler);

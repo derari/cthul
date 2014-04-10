@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  */
 public abstract class UriMappingResolver extends ResourceResolverBase {
 
-    private boolean simpleQuote = false;
+//    private boolean simpleQuote = false;
     private final Map<String, String> schemaMap = new HashMap<>();
     private final Map<Pattern, String> domainMap = new HashMap<>();
 
@@ -46,7 +46,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
      * @return this
      */
     public UriMappingResolver useSimpleQuoting() {
-        simpleQuote = true;
+//        simpleQuote = true;
         return this;
     }
     
@@ -58,23 +58,52 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
 //        }
     }
     
-    public UriMappingResolver addSchema(String uri, String resource) {
-        return addResource(uri, resource);
+    /**
+     * Alias for {@link #addResource(java.lang.String, java.lang.String)}
+     * @param uri
+     * @param schemas
+     * @return this
+     */
+    public UriMappingResolver addSchema(String uri, String schemas) {
+        return addResource(uri, schemas);
     }
 
-    public UriMappingResolver addSchemas(String... values) {
-        return addResources(values);
+    /**
+     * Alias for {@link #addResources(java.lang.String[])}
+     * @param schemas
+     * @return this
+     */
+    public UriMappingResolver addSchemas(String... schemas) {
+        return addResources(schemas);
     }
 
+    /**
+     * Alias for {@link #addResources(java.util.Map)}
+     * @param schemas
+     * @return 
+     */
     public UriMappingResolver addSchemas(Map<String, String> schemas) {
         return addResources(schemas);
     }
     
+    /**
+     * Adds a single resource that can be looked-up by its uri.
+     * @param uri
+     * @param resource
+     * @return this
+     */
     public UriMappingResolver addResource(String uri, String resource) {
         schemaMap.put(uri, resource);
         return this;
     }
 
+    /**
+     * Calls {@link #addResource(java.lang.String, java.lang.String)} with
+     * pairs taken from the argument array.
+     * @param resources array of uri-resource pairs
+     * @return this
+     * @throws IllegalArgumentException if length of resources is not even
+     */
     public UriMappingResolver addResources(String... resources) {
         if (resources.length % 2 == 1) {
             throw new IllegalArgumentException
@@ -86,21 +115,49 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         return this;
     }
 
+    /**
+     * Adds all resources so that they can be looked up by the uris.
+     * @param resources uri-resource map
+     * @return this
+     */
     public UriMappingResolver addResources(Map<String, String> resources) {
         schemaMap.putAll(resources);
         return this;
     }
     
+    /**
+     * Adds a domain for relative lookup.
+     * All uris starting with {@code domain} will be replaced with 
+     * {@code replacement}. In the replacement string {@code "$1"}, will
+     * be replaced with path of the request uri.
+     * Path separators ({@code '/') between the domain and the path will be removed.
+     * @param domain
+     * @param replacement
+     * @return this
+     */
+    public UriMappingResolver addDomain(String domain, String replacement) {
+        addDomainPattern(quote(domain) + "[/]*(.*)", replacement);
+        return this;
+    }
+    
+    /**
+     * Adds a domain for which paths will be looked up.
+     * 
+     * Equivalent to {@link #addDomain(java.lang.String, java.lang.String) addDomain(domain, "$1")}.
+     * @param domain
+     * @return this
+     */
     public UriMappingResolver addDomain(String domain) {
         return addDomain(domain, "$1");
     }
     
-    public UriMappingResolver addDomain(String domain, String altPath) {
-        Pattern domainPattern = Pattern.compile(quote(domain) + "(.*)");
-        addDomainPattern(domainPattern, altPath);
-        return this;
-    }
-    
+    /**
+     * Calls {@link #addDomain(java.lang.String, java.lang.String)} with
+     * pairs from the argument array.
+     * @param values
+     * @throws IllegalArgumentException if length of resources is not even
+     * @return this
+     */
     public UriMappingResolver addDomains(String... values) {
         if (values.length % 2 == 1) {
             throw new IllegalArgumentException
@@ -112,9 +169,27 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         return this;
     }
     
-    public UriMappingResolver addDomainPattern(String domain, String altPath) {
+    /**
+     * Adds a rule to look-up all uris as they are.
+     * Equivalent to {@link #addDomain(java.lang.String, java.lang.String) addDomain("", "$1")}.
+     * @return this
+     */
+    public UriMappingResolver lookupAll() {
+        return addDomain("", "$1");
+    }
+    
+//    /**
+//     * Adds a rule to look-up all uris as they are.
+//     * Equivalent to {@link #addDomain(java.lang.String, java.lang.String) addDomain("", "$1")}.
+//     * @return this
+//     */
+//    public UriMappingResolver lookupAllAbsolute() {
+//        return addDomain("", "$1");
+//    }
+    
+    public UriMappingResolver addDomainPattern(String domain, String replacement) {
         Pattern domainPattern = Pattern.compile(domain);
-        addDomainPattern(domainPattern, altPath);
+        addDomainPattern(domainPattern, replacement);
         return this;
     }
     
@@ -133,7 +208,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         }
         return this;
     }
-
+    
     protected Iterator<String> resolver(String uri) {
         return new Resolver(uri);
     }
@@ -175,7 +250,14 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         return null;
     }
 
-    protected abstract RResult get(RRequest request, String source);
+    /**
+     * Returns a resource for the requested uri, or {@code null} if it could
+     * not be found.
+     * @param request
+     * @param uri
+     * @return result or {@code null}
+     */
+    protected abstract RResult get(RRequest request, String uri);
     
     protected class Resolver implements Iterator<String> {
         

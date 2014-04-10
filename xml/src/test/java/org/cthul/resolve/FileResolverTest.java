@@ -18,7 +18,7 @@ public class FileResolverTest {
     @Before
     public void setUp() {
         instance = (FileResolver) new FileResolver("src/test/resources")
-                .addDomain("http://example.org", "$1");
+                .addDomain("http://example.org");
     }
     
     @After

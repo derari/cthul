@@ -37,7 +37,14 @@ public class UriMappingResolverTest {
     
     @Test
     public void test_addDomain() {
-        instance.addDomain("http://example.org", "./example$1.xsd");
+        instance.addDomain("http://example.org", "./example/$1.xsd");
+        
+        assertThat(resolve("http://example.org/b/c"), is("./example/b/c.xsd"));
+    }
+
+    @Test
+    public void test_addDomain_slash() {
+        instance.addDomain("http://example.org/", "./example/$1.xsd");
         
         assertThat(resolve("http://example.org/b/c"), is("./example/b/c.xsd"));
     }

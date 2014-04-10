@@ -7,9 +7,8 @@ import static org.hamcrest.Matchers.*;
 
 /**
  *
- * @author Arian Treffer
  */
-public class ResourceResolverTest {
+public class CompositeResolverTest {
 
     /*
      * Actually, this only tests the 3 schema finders
@@ -44,7 +43,7 @@ public class ResourceResolverTest {
     }
     
     protected RRequest r(String uri) {
-        return new RRequest(uri, null, null, null);
+        return new RRequest(uri);
     }
 
     @Test
