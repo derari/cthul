@@ -39,7 +39,7 @@ public class Boxing extends BoxingBase {
     
     /**
      * Returns the boxed type for a primitive and vice versa, or {@code null}.
-     * @param type primitive type
+     * @param clazz primitive type
      * @return boxed type
      */
     public static Class<?> boxingType(Class<?> clazz) {
@@ -58,8 +58,8 @@ public class Boxing extends BoxingBase {
     
     /**
      * Returns the primitive type for a boxAll, or {@code null}.
-     * @param type boxed type
-     * @return primitve type
+     * @param clazz boxed type
+     * @return primitive type
      */
     public static Class<?> primitive(Class<?> clazz) {
         return UNBOXED.get(clazz);
@@ -208,6 +208,7 @@ public class Boxing extends BoxingBase {
     
     /**
      * Transforms any array into a primitive array.
+     * @param <T>
      * @param src source array
      * @param srcPos start position
      * @param len length
@@ -220,6 +221,7 @@ public class Boxing extends BoxingBase {
 
     /**
      * Transforms any array into a primitive array.
+     * @param <T>
      * @param src source array
      * @param type target type
      * @return primitive array
@@ -470,6 +472,7 @@ public class Boxing extends BoxingBase {
     
     /**
      * Transforms a primitive array into an array of boxed values.
+     * @param <T>
      * @param src source array
      * @param srcPos start position
      * @param len length
@@ -482,6 +485,7 @@ public class Boxing extends BoxingBase {
 
     /**
      * Transforms any array into an array of boxed values.
+     * @param <T>
      * @param type target type
      * @param src source array
      * @return array
@@ -694,8 +698,9 @@ public class Boxing extends BoxingBase {
     
     /**
      * Returns any multidimensional array into an array of primitives.
+     * @param <T>
      * @param src source array
-     * @param type target type
+     * @param result target type
      * @return multidimensional array of primitives
      */
     public static <T> T deepUnboxAs(Object src, Class<T> result) {
@@ -714,7 +719,7 @@ public class Boxing extends BoxingBase {
 
     /**
      * Returns any multidimensional array into an array of boxed values.
-     * @param type target type
+     * @param resultType target type
      * @param src source array
      * @return multidimensional array
      */
@@ -734,6 +739,7 @@ public class Boxing extends BoxingBase {
     
     /**
      * Returns any multidimensional array into an array of boxed values.
+     * @param <T>
      * @param src source array
      * @param type target type
      * @return multidimensional array
@@ -744,6 +750,7 @@ public class Boxing extends BoxingBase {
     
     /**
      * Transforms any (multidimensional) array into an array of another type.
+     * @param <T>
      * @param src source array
      * @param type target type
      * @return array

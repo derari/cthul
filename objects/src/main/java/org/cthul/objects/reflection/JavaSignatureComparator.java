@@ -27,7 +27,7 @@ public class JavaSignatureComparator {
      * Compares two signatures against a reference signature, according to
      * the rules by which Java resolves method overloading.
      * It is assumed that both signatures have the same 
-     * {@linkplain #applicability(java.lang.Class<?>[], boolean) applicability level}.
+     * {@linkplain #applicability(java.lang.Class[], boolean) applicability level}.
      * @return {@code <0}: a is more specific; 
      *         {@code >0}: b is more specific; 
      *         {@code =0}: ambiguous

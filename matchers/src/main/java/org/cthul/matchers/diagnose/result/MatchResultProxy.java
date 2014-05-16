@@ -6,6 +6,8 @@ import org.hamcrest.Matcher;
 /**
  * Can be used as a base class to decorate another match result.
  * The other result is never exposed.
+ * @param <I>
+ * @param <M>
  */
 public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResult<I, M> {
     
@@ -27,6 +29,7 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     
     /**
      * For internal use. Fails if this is a mismatch.
+     * @return this
      */
     protected Match<?> match() {
         Match<?> m = result().getMatch();
@@ -38,6 +41,7 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     
     /**
      * For internal use. Fails if this is a match.
+     * @return this
      */
     protected Mismatch<?> mismatch() {
         Mismatch<?> m = result().getMismatch();

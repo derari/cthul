@@ -1,6 +1,8 @@
 package org.cthul.objects;
 
 import java.lang.reflect.Array;
+import java.util.Map;
+import org.cthul.objects.internal.BoxingBase;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -71,6 +73,5 @@ public class BoxingTest {
         int[][] result = Boxing.as(data, int[][].class);
         assertThat(result[0], is(new int[]{1, 2}));
         assertThat(result[1], is(new int[]{1, 32}));
-    }
-    
+    }   
 }

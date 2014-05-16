@@ -427,7 +427,7 @@ public class Signatures {
      * @param varArgs
      * @param jsCmp
      * @return index
-     * @see #bestMatch(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) 
+     * @see #bestMatch(java.lang.Class[][], boolean[], java.lang.Class[]) 
      */
     public static int bestMatch(final Class<?>[][] signatures, final boolean[] varArgs, final JavaSignatureComparator jsCmp) throws AmbiguousSignatureMatchException {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
@@ -500,7 +500,7 @@ public class Signatures {
      * @param varArgs
      * @param jsCmp
      * @return signature indices
-     * @see #candidateMatches(java.lang.Class<?>[][], boolean[], java.lang.Class<?>[]) 
+     * @see #candidateMatches(java.lang.Class[][], boolean[], java.lang.Class[]) 
      */
     public static int[] candidateMatches(Class<?>[][] signatures, boolean[] varArgs, JavaSignatureComparator jsCmp) {
         int bestLevel = JavaSignatureComparator.NO_MATCH+1;
