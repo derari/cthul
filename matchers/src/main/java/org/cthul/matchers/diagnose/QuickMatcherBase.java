@@ -20,10 +20,11 @@ import org.hamcrest.StringDescription;
  *       describeMismatch(item, description);
  *       return false;
  *   }
- * }<pre/>
+ * }</pre>
  * <p/>
  * If you want to override {@link #matches(java.lang.Object, org.hamcrest.Description)},
  * extend {@link QuickDiagnosingMatcherBase} instead.
+ * @param <T>
  */
 public abstract class QuickMatcherBase<T> 
                 extends BaseMatcher<T> 
@@ -45,7 +46,7 @@ public abstract class QuickMatcherBase<T>
      *       describeMismatch(item, description);
      *       return false;
      *   }
-     * }<pre/>
+     * }</pre>
      * @param item
      * @param mismatch
      * @return match 
@@ -69,5 +70,4 @@ public abstract class QuickMatcherBase<T>
             return new MatchResultMismatch<>(item, this, mismatch.toString());
         }
     }
-    
 }

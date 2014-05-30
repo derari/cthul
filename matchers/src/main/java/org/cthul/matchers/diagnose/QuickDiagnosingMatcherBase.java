@@ -5,7 +5,6 @@ import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.cthul.matchers.diagnose.result.MatchResultMismatch;
 import org.cthul.matchers.diagnose.result.MatchResultSuccess;
-import org.cthul.matchers.diagnose.safe.*;
 import org.hamcrest.*;
 
 /**
@@ -15,6 +14,7 @@ import org.hamcrest.*;
  * <p>
  * Has some abstract subclasses that provide a more features for matcher implementations.
  * Each also has a typesafe variant.
+ * @param <T>
  * @see QuickMatcherBase
  * @see QuickResultMatcherBase
  * @see NestedMatcher

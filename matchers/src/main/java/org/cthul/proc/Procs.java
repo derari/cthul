@@ -82,6 +82,84 @@ public class Procs {
         return ReflectiveProc.newInstance(clazz, anyParameters());
     }
     
+    public static Proc p(final LN lambda) {
+        return new PN() { 
+            @Override
+            protected Object runN(Object[] args) throws Throwable {
+                return lambda.run(args);
+            }
+        };
+    };
+    
+    public static Proc0 p(final L0 lambda) {
+        return new P0() { 
+            @Override
+            protected Object run() throws Throwable {
+                return lambda.run();
+            }
+        };
+    };
+    
+    public static <A> Proc1<A> p(final L1<? super A> lambda) {
+        return new P1<A>() { 
+            @Override
+            protected Object run(A a) throws Throwable {
+                return lambda.run(a);
+            }
+        };
+    };
+    
+    public static <A, B> Proc2<A, B> p(final L2<? super A, ? super B> lambda) {
+        return new P2<A, B>() { 
+            @Override
+            protected Object run(A a, B b) throws Throwable {
+                return lambda.run(a, b);
+            }
+        };
+    };
+    
+    public static <A, B, C> Proc3<A, B, C> p(final L3<? super A, ? super B, ? super C> lambda) {
+        return new P3<A, B, C>() { 
+            @Override
+            protected Object run(A a, B b, C c) throws Throwable {
+                return lambda.run(a, b, c);
+            }
+        };
+    };
+    
+    public static <A, B, C, D> Proc4<A, B, C, D> p(final L4<? super A, ? super B, ? super C, ? super D> lambda) {
+        return new P4<A, B, C, D>() { 
+            @Override
+            protected Object run(A a, B b, C c, D d) throws Throwable {
+                return lambda.run(a, b, c, d);
+            }
+        };
+    };
+    
+    public static Proc pn(LN lambda) {
+        return p(lambda);
+    }
+    
+    public static Proc0 p0(L0 lambda) {
+        return p(lambda);
+    }
+    
+    public static <A> Proc1<A> p1(L1<? super A> lambda) {
+        return p(lambda);
+    }
+    
+    public static <A, B> Proc2<A, B> p2(L2<? super A, ? super B> lambda) {
+        return p(lambda);
+    }
+    
+    public static <A, B, C> Proc3<A, B, C> p3(L3<? super A, ? super B, ? super C> lambda) {
+        return p(lambda);
+    }
+    
+    public static <A, B, C, D> Proc4<A, B, C, D> p4(L4<? super A, ? super B, ? super C, ? super D> lambda) {
+        return p(lambda);
+    }
+    
     private static Class detectClass() {
         return detectClass(1);
     }
@@ -103,5 +181,28 @@ public class Procs {
 
     protected Procs() {
     }
-    
+ 
+    public static interface LN {
+        Object run(Object... args) throws Throwable;
+    }
+ 
+    public static interface L0 {
+        Object run() throws Throwable;
+    }
+ 
+    public static interface L1<A> {
+        Object run(A a) throws Throwable;
+    }
+ 
+    public static interface L2<A, B> {
+        Object run(A a, B b) throws Throwable;
+    }
+ 
+    public static interface L3<A, B, C> {
+        Object run(A a, B b, C c) throws Throwable;
+    }
+ 
+    public static interface L4<A, B, C, D> {
+        Object run(A a, B b, C c, D d) throws Throwable;
+    }
 }

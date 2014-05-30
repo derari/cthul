@@ -9,6 +9,7 @@ import org.hamcrest.*;
  * A matcher that focuses on returning a {@link MatchResult}.
  * It is recommended that {@link #matches(java.lang.Object)} will be overridden
  * for better performance, but it is not necessary.
+ * @param <T>
  * @see NestedResultMatcher
  * @see TypesafeQuickResultMatcher
  */

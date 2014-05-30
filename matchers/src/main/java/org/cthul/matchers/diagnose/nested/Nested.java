@@ -33,6 +33,14 @@ public class Nested<T> {
         }
     }
     
+    /**
+     * Returns {@link PrecedencedSelfDescribing#P_ATOMIC P_ATOMIC} if {@code count == 0},
+     * {@link PrecedencedSelfDescribing#P_UNARYP_UNARY} if {@code count == 1},
+     * and otherwise {@code p}.
+     * @param p
+     * @param count
+     * @return precedence
+     */
     public static int pAtomicUnaryOr(int p, int count) {
         switch (count) {
             case 0: return PrecedencedSelfDescribing.P_ATOMIC;
@@ -43,7 +51,7 @@ public class Nested<T> {
 
     /**
      * Appends description of {@code s} to {@code d},
-     * enclosed in parantheses if necessary.
+     * enclosed in parentheses if necessary.
      * @param self
      * @param d
      * @param nested 
@@ -55,7 +63,7 @@ public class Nested<T> {
     
     /**
      * Appends description of {@code s} to {@code d},
-     * enclosed in parantheses if necessary.
+     * enclosed in parentheses if necessary.
      * @param self
      * @param nested 
      * @param d
@@ -69,7 +77,7 @@ public class Nested<T> {
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)}
      * for {@code m}, 
-     * enclosed in parantheses if necessary.
+     * enclosed in parentheses if necessary.
      * @param self
      * @param matcher
      * @param item
@@ -88,7 +96,8 @@ public class Nested<T> {
     /**
      * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String)}
      * for {@code m}, 
-     * enclosed in parantheses if necessary.
+     * enclosed in parentheses if necessary.
+     * @param self
      * @param matcher
      * @param item
      * @param mismatch
@@ -115,7 +124,13 @@ public class Nested<T> {
         }
         return useParentheses(pSelf, precedenceOf(nested));
     }
-    
+
+    /**
+     * Compares own precedence against nested and return 
+     * @param pSelf
+     * @param pNested
+     * @return true iff parentheses should be used
+     */
     public static boolean useParentheses(int pSelf, int pNested) {
         if (pSelf == PrecedencedSelfDescribing.P_NONE
                 || pSelf == PrecedencedSelfDescribing.P_UNARY_NO_PAREN) {

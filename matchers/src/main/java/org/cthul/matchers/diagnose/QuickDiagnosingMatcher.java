@@ -14,6 +14,7 @@ import org.hamcrest.*;
  * Implementations of this interface should extend 
  * {@link QuickDiagnosingMatcherBase}. 
  * See this class for more implementation tips.
+ * @param <T>
  */
 public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
     
