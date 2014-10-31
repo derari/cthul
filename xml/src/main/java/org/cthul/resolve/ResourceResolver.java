@@ -2,8 +2,6 @@ package org.cthul.resolve;
 
 /**
  * Finds a requested resource.
- * 
- * @author Arian Treffer
  */
 public interface ResourceResolver {
    

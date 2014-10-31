@@ -11,7 +11,7 @@ import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * Returns the schema file for a namespace uri.
- * <p/>
+ * <p>
  * Usage:
  * <pre>
  * new CLSResourceResolver(OrgW3Resolver.INSTANCE, myFinder1, myFinder2);
@@ -59,21 +59,41 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
     @Override
     protected LSInput result(RResult result) {
+        LSInput lsi;
         if (ls != null) {
-            LSInput lsi = ls.createLSInput();
+            lsi = ls.createLSInput();
             lsi.setPublicId(result.getPublicId());
             lsi.setSystemId(result.getSystemId());
             lsi.setBaseURI(result.getBaseUri());
-            lsi.setCharacterStream(result.getReader());
-            lsi.setByteStream(result.getInputStream());
-            lsi.setStringData(result.getString());
+        } else {
+            lsi = new LSInputResult(result);
         }
-        return new LSInputResult(result); 
+        Reader r = result.getReader();
+        if (r != null) {
+            lsi.setCharacterStream(r);
+            return lsi;
+        }
+        String s = result.getString();
+        if (s != null) {
+            lsi.setStringData(s);
+            return lsi;
+        }
+        if (result.getEncoding() != null) {
+            // use result encoding
+            lsi.setCharacterStream(result.asReader());
+        } else {
+            // let xml handle encoding
+            lsi.setByteStream(result.asInputStream());
+        }
+        return lsi;
     }
     
     public static class LSInputResult implements LSInput {
         
         private final RResult result;
+        private Reader characterStream;
+        private InputStream byteStream;
+        private String stringData;
 
         public LSInputResult(RResult result) {
             this.result = result;
@@ -81,32 +101,32 @@ public class CLSResourceResolver extends ObjectResolver<LSInput, RuntimeExceptio
 
         @Override
         public Reader getCharacterStream() {
-            return result.asReader();
+            return characterStream;
         }
 
         @Override
         public void setCharacterStream(Reader characterStream) {
-            throw new UnsupportedOperationException();
+            this.characterStream = characterStream;
         }
 
         @Override
         public InputStream getByteStream() {
-            return result.asInputStream();
+            return byteStream;
         }
 
         @Override
         public void setByteStream(InputStream byteStream) {
-            throw new UnsupportedOperationException();
+            this.byteStream = byteStream;
         }
 
         @Override
         public String getStringData() {
-            return result.asString();
+            return stringData;
         }
 
         @Override
         public void setStringData(String stringData) {
-            throw new UnsupportedOperationException();
+            this.stringData = stringData;
         }
 
         @Override

@@ -6,6 +6,10 @@
  */
 public class CompositeResolver extends ResourceResolverBase {
     
+    public static CompositeResolver all(ResourceResolver r0, ResourceResolver... more) {
+        return join(r0, more);
+    }
+    
     public static CompositeResolver join(ResourceResolver r0, ResourceResolver... more) {
         ResourceResolver[] all = new ResourceResolver[more.length+1];
         all[0] = r0;

@@ -12,11 +12,8 @@ import java.net.URISyntaxException;
  * <li>systemId: absolute or relative path to the resource, can be system specific</li>
  * <li>baseUri: uri of the request sender</li>
  * </ul>
- * 
- * @author Arian Treffer
  */
 public class RRequest {
-    
     
     static final String NULL_STR = new String();
     

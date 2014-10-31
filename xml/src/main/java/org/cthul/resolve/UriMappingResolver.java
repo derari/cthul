@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.cthul.strings.RegEx;
 //import org.cthul.strings.RegEx;
 
 /**
@@ -13,11 +14,10 @@ import java.util.regex.Pattern;
  * Subclasses are responsible for finding a result for the mapped string.
  * @see ClassResourceResolver
  * @see FileResolver
- * @author Arian Treffer
  */
 public abstract class UriMappingResolver extends ResourceResolverBase {
 
-//    private boolean simpleQuote = false;
+    private Quoter quoter = DEFAULT_QUOTER;
     private final Map<String, String> schemaMap = new HashMap<>();
     private final Map<Pattern, String> domainMap = new HashMap<>();
 
@@ -35,27 +35,18 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     public UriMappingResolver() {
     }
     
-//    /**
-//     * Make this use {@link Pattern#quote(java.lang.String)} instead of
-//     * {@link RegEx#quote(java.lang.String)} for creating patterns from domains.
-//     * @return this
-//     */
     /**
-     * Configures that {@link Pattern#quote(java.lang.String)} will be used
-     * to escape domain names. Enabled by default.
+     * Make this use {@link Pattern#quote(java.lang.String)} instead of
+     * {@link RegEx#quote(java.lang.String)} for creating patterns from domains.
      * @return this
      */
     public UriMappingResolver useSimpleQuoting() {
-//        simpleQuote = true;
+        quoter = SIMPLE_QUOTER;
         return this;
     }
     
     protected String quote(String pattern) {
-//        if (simpleQuote) {
-            return Pattern.quote(pattern);
-//        } else {
-//            return RegEx.quote(pattern);
-//        }
+        return quoter.quote(pattern);
     }
     
     /**
@@ -130,7 +121,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
      * All uris starting with {@code domain} will be replaced with 
      * {@code replacement}. In the replacement string {@code "$1"}, will
      * be replaced with path of the request uri.
-     * Path separators ({@code '/') between the domain and the path will be removed.
+     * Path separators ({@code '/'}) between the domain and the path will be removed.
      * @param domain
      * @param replacement
      * @return this
@@ -343,5 +334,40 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" + getMappingString() + ")";
+    }
+    
+    private static final Quoter SIMPLE_QUOTER = new Quoter() {
+        @Override
+        public String quote(String regex) {
+            return Pattern.quote(regex);
+        }
+    };
+    
+    private static final Quoter DEFAULT_QUOTER;
+    
+    static {
+        Quoter q;
+        try {
+            q = new CthulQuoter();
+        } catch (Throwable t) {
+            q = SIMPLE_QUOTER;
+        }
+        DEFAULT_QUOTER = q;
+    }
+    
+    private static interface Quoter {
+        String quote(String regex);
+    }
+    
+    private static class CthulQuoter implements Quoter {
+
+        public CthulQuoter() {
+            RegEx.quote(""); // test if available
+        }
+
+        @Override
+        public String quote(String regex) {
+            return RegEx.quote(regex);
+        }
     }
 }

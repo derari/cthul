@@ -1,12 +1,11 @@
 package org.cthul.resolve;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+import org.cthul.resolve.results.URLResult;
 
 /**
- * Looks up resources in the classpath of a given class.
+ * Looks up resources in the classpath of a given class loader.
  * @see ClassLoader#getResource(java.lang.String)
  */
 public class ClassLoaderResourceResolver extends UriMappingResolver {
@@ -40,11 +39,6 @@ public class ClassLoaderResourceResolver extends UriMappingResolver {
     protected RResult get(RRequest request, String source) {
         final URL url = clazzLoader.getResource(source);
         if (url == null) return null;
-        return new RResult(request, url.toString()) {
-            @Override
-            public InputStream createInputStream() throws IOException {
-                return url.openStream();
-            }
-        };
+        return new URLResult(request, url);
     }
 }

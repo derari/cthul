@@ -19,9 +19,8 @@ import org.xml.sax.SAXException;
 
 /**
  * Creates a StAX reader that validates the input file.
- * <p/>
+ * <p>
  * Kind of a hack, until StAX with proper validation is available.
- * @author Arian Treffer
  */
 public class ValidatingXMLInputFactory extends XMLInputFactory {
     

@@ -13,7 +13,6 @@ import org.xml.sax.*;
  * An XML reader that validates the input against schemas on the fly.
  * The schema has to be referenced in the xml-file and is loaded using the
  * {@link LSResourceResolver} of the {@link SchemaFactory}.
- * @author Arian Treffer
  */
 public class ValidatingXMLReader implements XMLReader {
     

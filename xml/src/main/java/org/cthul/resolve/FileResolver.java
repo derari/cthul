@@ -1,12 +1,11 @@
 package org.cthul.resolve;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import org.cthul.resolve.results.FileResult;
 
 /**
  * Looks up resources on the local file system.
@@ -16,27 +15,67 @@ public class FileResolver extends UriMappingResolver {
     private final Path base;
     private final Path canonicalBase;
 
-    public FileResolver(File base, String baseCheck) {
-        this.base = Paths.get(base.toURI());
-        this.canonicalBase = baseCheck != null 
-                ? Paths.get(baseCheck).normalize().toAbsolutePath() 
+    /**
+     * 
+     * @param base base path, relative to which all requests will be looked up
+     * @param check path that contains all available files. Access outside
+     *          of this path will be prevented. If null, every file in the
+     *          file system can be accessed.
+     */
+    public FileResolver(Path base, Path check) {
+        this.base = base;
+        this.canonicalBase = check != null 
+                ? base.resolve(check).normalize().toAbsolutePath() 
                 : null;
+    }
+
+    /**
+     * 
+     * @param base base path, relative to which all requests will be looked up
+     * @param check path that contains all available files. Access outside
+     *          of this path will be prevented. If null, every file in the
+     *          file system can be accessed.
+     */
+    public FileResolver(File base, String check) {
+        this(base != null ? Paths.get(base.toURI()) : null,
+                check != null ? Paths.get(check) : null);
     }
     
     public FileResolver() {
         this(null, (String) null);
     }
 
+    /**
+     * 
+     * @param base base path, relative to which all requests will be looked up
+     */
     public FileResolver(String base) {
         this(new File(base));
     }
 
+    /**
+     * 
+     * @param base base path, relative to which all requests will be looked up
+     */
     public FileResolver(File base) {
         this(base, base);
     }
 
+    /**
+     * 
+     * @param base base path, relative to which all requests will be looked up
+     * @param check path that contains all available files. Access outside
+     *          of this path will be prevented. If null, every file in the
+     *          file system can be accessed.
+     */
     public FileResolver(File base, File check) {
         this(base, canonicalPath(check));
+    }
+
+    @Override
+    public UriMappingResolver lookupAll() {
+        addDomain("file:/");
+        return super.lookupAll();
     }
     
     private static String canonicalPath(File f) {
@@ -50,31 +89,29 @@ public class FileResolver extends UriMappingResolver {
 
     @Override
     protected RResult get(RRequest request, String source) {
-        final Path p = base.resolve(source).normalize();
+        final Path p;
+        try {
+            p = base != null ?
+                    base.resolve(source).normalize() :
+                    Paths.get(source);
+        } catch (InvalidPathException e) {
+            return null;
+        }
         if (canonicalBase != null) {
             if (!p.toAbsolutePath().startsWith(canonicalBase)) {
                 return null;
             }
         }
         if (!Files.isRegularFile(p)) return null;
-        return new RResult(request, p.toUri().toString()){
-            @Override
-            public InputStream createInputStream() throws IOException {
-                return Files.newInputStream(p, StandardOpenOption.READ);
-            }
-            @Override
-            protected ByteBuffer createByteBuffer() throws Exception {
-                FileChannel fc = FileChannel.open(p, StandardOpenOption.READ);
-                return fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            }
-        };
+        return new FileResult(request, p);
     }
 
     @Override
     public String toString() {
         String m = getMappingString();
         return getClass().getSimpleName() + "(" +
-                base + (m.isEmpty() ? "" : ": " + m) + ")";
+                (base == null ? "" : base) + 
+                (m.isEmpty() ? "" : ": " + m) + ")";
     }
 
 }

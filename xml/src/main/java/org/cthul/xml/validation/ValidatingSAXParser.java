@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
  * The schema has to be referenced in the xml-file and is loaded using a
  * {@link LSResourceResolver }.
  * 
- * @author Arian Treffer
  * @see CLSResourceResolver
  */
 public class ValidatingSAXParser {

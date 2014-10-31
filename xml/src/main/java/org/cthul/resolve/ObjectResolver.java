@@ -3,7 +3,6 @@ package org.cthul.resolve;
 /**
  * Uses {@link ResourceResolver}s to create objects of type {@code T}.
  * 
- * @author Arian Treffer
  * @param <T> type of created objects
  * @param <E> exception thrown during result creation
  */
@@ -38,7 +37,7 @@ public abstract class ObjectResolver<T, E extends Exception> {
         RResult res = resolver.resolve(req);
         if (res == null) {
             log_notFound(req);
-            return null;
+            return noResult(req);
         }
         log_resolved(res);
         return result(res);
@@ -52,5 +51,9 @@ public abstract class ObjectResolver<T, E extends Exception> {
 //        log.info("Resolved %s%if[ as %<s]", res.getRequest().getUriOrId(), res.getSystemId());
     }
 
+    protected T noResult(RRequest req) throws E {
+        return null;
+    }
+    
     protected abstract T result(RResult result) throws E;
 }

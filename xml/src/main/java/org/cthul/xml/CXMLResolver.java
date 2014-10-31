@@ -1,6 +1,5 @@
 package org.cthul.xml;
 
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import javax.xml.stream.XMLInputFactory;
@@ -10,7 +9,7 @@ import org.cthul.resolve.*;
 
 /**
  * Returns the schema file for a namespace uri.
- * <p/>
+ * <p>
  * Usage:
  * <pre>
  * new CXMLResolver(OrgW3Resolver.INSTANCE, myFinder1, myFinder2);
@@ -65,11 +64,15 @@ public class CXMLResolver extends ObjectResolver<Object, XMLStreamException>
     protected Object result(RResult res) throws XMLStreamException {
         Reader r = res.getReader();
         if (r != null) return inputFactory.createXMLStreamReader(res.getSystemId(), r);
-        InputStream is = res.getInputStream();
-        if (is != null) return inputFactory.createXMLStreamReader(res.getSystemId(), is);
         String s = res.getString();
         if (s != null) return inputFactory.createXMLStreamReader(res.getSystemId(), new StringReader(s));
-        throw new XMLStreamException("Cannot create result from " + res);
+        if (res.getEncoding() != null) {
+            // use result encoding
+            return inputFactory.createXMLStreamReader(res.getSystemId(), res.asReader());
+        } else {
+            // let xml reader handle encoding
+            return inputFactory.createXMLStreamReader(res.getSystemId(), res.asInputStream());
+        }
     }
     
 }
