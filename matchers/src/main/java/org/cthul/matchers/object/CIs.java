@@ -1,5 +1,6 @@
 package org.cthul.matchers.object;
 
+import java.util.Objects;
 import org.cthul.matchers.diagnose.nested.NestedResultMatcher;
 import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.*;
@@ -141,6 +142,40 @@ public class CIs<T> extends NestedResultMatcher<T> {
         if (pastPrefix != null) {
             d.appendText(pastPrefix).appendText(" ");
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.nested);
+        hash = 29 * hash + Objects.hashCode(this.prefix);
+        hash = 29 * hash + Objects.hashCode(this.pastPrefix);
+        hash = 29 * hash + (this.not ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CIs<?> other = (CIs<?>) obj;
+        if (!Objects.equals(this.nested, other.nested)) {
+            return false;
+        }
+        if (!Objects.equals(this.prefix, other.prefix)) {
+            return false;
+        }
+        if (!Objects.equals(this.pastPrefix, other.pastPrefix)) {
+            return false;
+        }
+        if (this.not != other.not) {
+            return false;
+        }
+        return true;
     }
 
     public static String pastPrefix(String prefix) {

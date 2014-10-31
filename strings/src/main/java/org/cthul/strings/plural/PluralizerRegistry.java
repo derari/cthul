@@ -14,6 +14,10 @@ public class PluralizerRegistry {
 
     public static PluralizerRegistry INSTANCE;
 
+    public static PluralizerRegistry instance() {
+        return INSTANCE;
+    }
+
     private static final ResourceBundle.Control defControl = new ResourceBundle.Control() { };
     private static final String PLURALIZER_CLASS = Pluralizer.class.getName();
 

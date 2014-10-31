@@ -48,17 +48,14 @@ public class InstanceOf<T> extends QuickDiagnosingMatcherBase<Object> {
 
     @Override
     public void describeMismatch(Object item, Description description) {
+        //if (prependIs) description.appendText("was ");
         matcher().describeMismatch(item, description);
     }
 
     @Override
     public void describeTo(Description description) {
+        if (prependIs) description.appendText("is ");
         matcher().describeTo(description);
-    }
-
-    @Override
-    public <I> MatchResult<I> matchResult(I item) {
-        return quickMatchResult(matcher(), item);
     }
     
     public <X> AndChainMatcher.Builder<X> that(Matcher<? super T> m) {
