@@ -1,6 +1,5 @@
 package org.cthul.matchers.diagnose.nested;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.cthul.matchers.diagnose.QuickDiagnose;
@@ -16,7 +15,7 @@ import org.hamcrest.StringDescription;
 /**
  * Provides utility methods for generated messages with nested matchers.
  */
-public class Nested<T> {
+public class Nested {
 
     /**
      * If {@code o} is a {@link PrecedencedMatcher},
@@ -176,13 +175,9 @@ public class Nested<T> {
     }
     
     public static void joinMatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
-        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
-            @Override
-            protected SelfDescribing get(MatchResult source) {
-                return source.getMatch().getMatchDescription();
-            }
-        };
-        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+        for (MatchResult<?> mr: collectDescriptions(nested, d, sep, lastSep, singleSep)) {
+            mr.getMatch().describeMatch(d);
+        }
     }
     
     public static void joinExpectedDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep) {
@@ -190,13 +185,9 @@ public class Nested<T> {
     }
     
     public static void joinExpectedDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
-        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
-            @Override
-            protected SelfDescribing get(MatchResult source) {
-                return source.getMismatch().getExpectedDescription();
-            }
-        };
-        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+        for (MatchResult<?> mr: collectDescriptions(nested, d, sep, lastSep, singleSep)) {
+            mr.getMismatch().describeExpected(d);
+        }
     }
     
     public static void joinMismatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep) {
@@ -204,13 +195,9 @@ public class Nested<T> {
     }
     
     public static void joinMismatchDescriptions(int myPrecedence, Iterable<? extends MatchResult<?>> nested, Description d, String sep, String lastSep, String singleSep) {
-        Iterable<SelfDescribing> it = new WrappedIterable<SelfDescribing, MatchResult>(nested) {
-            @Override
-            protected SelfDescribing get(MatchResult source) {
-                return source.getMismatch().getMismatchDescription();
-            }
-        };
-        joinDescriptions(myPrecedence, it, d, sep, lastSep, singleSep);
+        for (MatchResult<?> mr: collectDescriptions(nested, d, sep, lastSep, singleSep)) {
+            mr.getMismatch().describeMismatch(d);
+        }
     }
     
     public static void joinDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, Description description, String sep) {
@@ -218,21 +205,9 @@ public class Nested<T> {
     }
     
     public static void joinDescriptions(int myPrecedence, Iterable<? extends SelfDescribing> nested, Description description, String sep, String lastSep, String singleSep) {
-        Iterator<? extends SelfDescribing> it = nested.iterator();
-        final SelfDescribing first = it.hasNext() ? it.next() : null;
-        SelfDescribing next = it.hasNext() ? it.next() : null;
-        SelfDescribing current = first;
-        while (current != null) {
-            boolean paren = useParentheses(myPrecedence, precedenceOf(current));
-            describeTo(paren, current, description);
-            current = next;
-            if (it.hasNext()) {
-                next = it.next();
-                description.appendText(sep); 
-            } else if (next != null) {
-                next = null;
-                description.appendText(current == first ? singleSep : lastSep);
-            }
+        for (SelfDescribing sd: collectDescriptions(nested, description, sep, lastSep, singleSep)) {
+            boolean paren = useParentheses(myPrecedence, precedenceOf(sd));
+            describeTo(paren, sd, description);
         }
     }
     
@@ -261,39 +236,97 @@ public class Nested<T> {
         };
     }
     
-    private static abstract class WrappedIterable<T, V> implements Iterable<T> {
-        
-        protected final Iterable<? extends V> it;
+    public static <T> Iterable<T> collectDescriptions(Iterable<T> data, Description target, String sep, String lastSep, String singleSep) {
+        return new CollectingIterable<>(data, target, sep, lastSep, singleSep);
+    }
+    
+    public static <T> Iterable<T> collectDescriptions(Iterable<T> data, Description target, String sep) {
+        return new CollectingIterable<>(data, target, sep);
+    }
+    
+    private static class CollectingIterable<T> implements Iterable<T> {
+        private final Iterable<T> data;
+        private final Description target;
+        private final String sep;
+        private final String lastSep;
+        private final String singleSep;
 
-        public WrappedIterable(Iterable<? extends V> it) {
-            this.it = it;
-        }
-
-        public WrappedIterable(V[] array) {
-            this(Arrays.asList(array));
+        public CollectingIterable(Iterable<T> data, Description target, String sep, String lastSep, String singleSep) {
+            this.data = data;
+            this.target = target;
+            this.sep = sep;
+            this.lastSep = lastSep;
+            this.singleSep = singleSep;
         }
         
-        protected abstract T get(V source);
+        public CollectingIterable(Iterable<T> data, Description target, String sep) {
+            this.data = data;
+            this.target = target;
+            this.sep = sep;
+            this.lastSep = sep;
+            this.singleSep = sep;
+        }
 
         @Override
         public Iterator<T> iterator() {
-            final Iterator<? extends V> i = it.iterator();
             return new Iterator<T>() {
+                Iterator<T> it = data.iterator();
+                int index = 0;
+                
                 @Override
                 public boolean hasNext() {
-                    return i.hasNext();
+                    return it.hasNext();
                 }
+
                 @Override
                 public T next() {
-                    return get(i.next());
-                }
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
+                    T result = it.next();
+                    if (index++ > 0) {
+                        if (it.hasNext()) {
+                            target.appendText(sep);
+                        } else {
+                            target.appendText(index == 2 ? singleSep : lastSep);
+                        }
+                    }
+                    return result;
                 }
             };
         }
     }
+    
+//    private static abstract class WrappedIterable<T, V> implements Iterable<T> {
+//        
+//        protected final Iterable<? extends V> it;
+//
+//        public WrappedIterable(Iterable<? extends V> it) {
+//            this.it = it;
+//        }
+//
+//        public WrappedIterable(V[] array) {
+//            this(Arrays.asList(array));
+//        }
+//        
+//        protected abstract T get(V source);
+//
+//        @Override
+//        public Iterator<T> iterator() {
+//            final Iterator<? extends V> i = it.iterator();
+//            return new Iterator<T>() {
+//                @Override
+//                public boolean hasNext() {
+//                    return i.hasNext();
+//                }
+//                @Override
+//                public T next() {
+//                    return get(i.next());
+//                }
+//                @Override
+//                public void remove() {
+//                    throw new UnsupportedOperationException();
+//                }
+//            };
+//        }
+//    }
     
     public static class Match<T, M extends Matcher<?>> 
                      extends MatchResultSuccess<T, M> {

@@ -10,6 +10,7 @@ import org.hamcrest.Matcher;
  * {@linkplain #getMismatch() mismatch} description.
  * <p>
  * Implementations should extends {@link MatchResultBase}
+ * @param <T>
  */
 public interface MatchResult<T> extends PrecedencedSelfDescribing {
     

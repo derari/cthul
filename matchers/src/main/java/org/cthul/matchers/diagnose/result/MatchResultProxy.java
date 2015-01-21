@@ -1,5 +1,6 @@
 package org.cthul.matchers.diagnose.result;
 
+import org.cthul.matchers.diagnose.nested.PrecedencedSelfDescribing;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
@@ -21,6 +22,10 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     public MatchResultProxy(MatchResult<?> result) {
         super(null, null);
         this.result = result;
+    }
+    
+    protected boolean fastProxy() {
+        return result != null;
     }
     
     protected MatchResult<?> result() {
@@ -60,7 +65,7 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     public void describeTo(Description description) {
         result().describeTo(description);
     }
-
+    
     @Override
     public int getDescriptionPrecedence() {
         return result().getDescriptionPrecedence();
@@ -77,6 +82,12 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     }
 
     @Override
+    public PrecedencedSelfDescribing getMatchDescription() {
+        if (fastProxy()) return match().getMatchDescription();
+        return super.getMatchDescription();
+    }
+
+    @Override
     public void describeExpected(Description description) {
         mismatch().describeExpected(description);
     }
@@ -87,6 +98,12 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     }
 
     @Override
+    public PrecedencedSelfDescribing getExpectedDescription() {
+        if (fastProxy()) return mismatch().getExpectedDescription();
+        return super.getExpectedDescription();
+    }
+
+    @Override
     public void describeMismatch(Description description) {
         mismatch().describeMismatch(description);
     }
@@ -94,5 +111,11 @@ public class MatchResultProxy<I, M extends Matcher<?>> extends AbstractMatchResu
     @Override
     public int getMismatchPrecedence() {
         return mismatch().getMismatchPrecedence();
+    }
+
+    @Override
+    public PrecedencedSelfDescribing getMismatchDescription() {
+        if (fastProxy()) return mismatch().getMismatchDescription();
+        return super.getMismatchDescription();
     }
 }
