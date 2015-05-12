@@ -18,8 +18,8 @@ import org.cthul.strings.RegEx;
 public abstract class UriMappingResolver extends ResourceResolverBase {
 
     private Quoter quoter = DEFAULT_QUOTER;
-    private final Map<String, String> schemaMap = new HashMap<>();
-    private final Map<Pattern, String> domainMap = new HashMap<>();
+    private final Map<String, String> uriMap = new HashMap<>();
+    private final Map<Pattern, String> patternMap = new HashMap<>();
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public UriMappingResolver(String... schemas) {
@@ -84,7 +84,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
      * @return this
      */
     public UriMappingResolver addResource(String uri, String resource) {
-        schemaMap.put(uri, resource);
+        uriMap.put(uri, resource);
         return this;
     }
 
@@ -112,7 +112,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
      * @return this
      */
     public UriMappingResolver addResources(Map<String, String> resources) {
-        schemaMap.putAll(resources);
+        uriMap.putAll(resources);
         return this;
     }
     
@@ -185,7 +185,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     }
     
     public UriMappingResolver addDomainPattern(Pattern pattern, String replacement) {
-        domainMap.put(pattern, replacement);
+        patternMap.put(pattern, replacement);
         return this;
     }
     
@@ -204,12 +204,12 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         return new Resolver(uri);
     }
     
-    protected String mapSchema(String uri) {
-        return schemaMap.get(uri);
+    protected String mapUri(String uri) {
+        return uriMap.get(uri);
     }
     
-    protected Iterator<Map.Entry<Pattern, String>> domains() {
-        return domainMap.entrySet().iterator();
+    protected Iterator<Map.Entry<Pattern, String>> patternIterator() {
+        return patternMap.entrySet().iterator();
     }
     
     protected String mapDomain(Map.Entry<Pattern, String> domain, String uri) {
@@ -222,7 +222,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     }
 
     @Override
-    public RResult resolve(RRequest request) {
+    public RResponse resolve(RRequest request) {
         return resolve(request, uri(request));
     }
     
@@ -230,15 +230,25 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
         return request.getUriOrId();
     }
     
-    protected RResult resolve(RRequest request, String uri) {
+    protected RResponse resolve(RRequest request, String uri) {
+        ResponseBuilder response = request.noResultResponse();
         final Iterator<String> resolver = resolver(uri);
         while (resolver.hasNext()) {
             String src = resolver.next();
-            if (src == null) continue;
-            RResult res = get(request, src);
-            if (res != null) return res;
+//            if (src == null) continue;
+            try {
+                RResponse res = get(request, src);
+                if (res != null) {
+                    if (res.hasResult()) {
+                        return response.withResult(res.getResult());
+                    }
+                    response = response.withResponse(res);
+                }
+            } catch (Exception e) {
+                throw ResolvingException.wrap(request, e);
+            }
         }
-        return null;
+        return response;
     }
 
     /**
@@ -247,8 +257,9 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
      * @param request
      * @param uri
      * @return result or {@code null}
+     * @throws java.lang.Exception
      */
-    protected abstract RResult get(RRequest request, String uri);
+    protected abstract RResponse get(RRequest request, String uri) throws Exception;
     
     protected class Resolver implements Iterator<String> {
         
@@ -280,12 +291,12 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
             if (next != null) return true;
             if (stage == 0) {
                 stage++;
-                next = mapSchema(uri);
+                next = mapUri(uri);
                 if (next != null) return true;
             }
             if (stage == 1) {
                 stage++;
-                patterns = domains();
+                patterns = patternIterator();
             }
             while (patterns.hasNext()) {
                 next = mapDomain(patterns.next(), uri);
@@ -302,10 +313,10 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
     /** string representation for debugging purposes */
     protected String getMappingString() {
         StringBuilder sb = new StringBuilder();
-        final int schemaSize = schemaMap.size();
-        final int domainSize = domainMap.size();
+        final int schemaSize = uriMap.size();
+        final int domainSize = patternMap.size();
         int s = 0, d = 0;
-        for (String schema: schemaMap.keySet()) {
+        for (String schema: uriMap.keySet()) {
             if (s > 0) sb.append(", ");
             sb.append(schema);
             s++;
@@ -317,7 +328,7 @@ public abstract class UriMappingResolver extends ResourceResolverBase {
             }
         }
         if (schemaSize > 0 && domainSize > 0) sb.append("; ");
-        for (Pattern domain: domainMap.keySet()) {
+        for (Pattern domain: patternMap.keySet()) {
             if (d > 0) sb.append(", ");
             sb.append(domain.pattern());
             d++;

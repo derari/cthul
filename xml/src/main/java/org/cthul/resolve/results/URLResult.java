@@ -23,6 +23,11 @@ public class URLResult extends RResult {
     }
 
     @Override
+    public ResultType getResultType() {
+        return ResultType.URL;
+    }
+
+    @Override
     public URL getResourceURL() throws Exception {
         return resourceUrl;
     }

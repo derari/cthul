@@ -88,14 +88,14 @@ public class FileResolver extends UriMappingResolver {
     }
 
     @Override
-    protected RResult get(RRequest request, String source) {
+    protected RResponse get(RRequest request, String source) {
         final Path p;
         try {
             p = base != null ?
                     base.resolve(source).normalize() :
                     Paths.get(source);
         } catch (InvalidPathException e) {
-            return null;
+            return request.noResultResponse().withWarning(e);
         }
         if (canonicalBase != null) {
             if (!p.toAbsolutePath().startsWith(canonicalBase)) {

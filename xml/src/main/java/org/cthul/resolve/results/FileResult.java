@@ -13,6 +13,9 @@ import java.nio.file.StandardOpenOption;
 import org.cthul.resolve.RRequest;
 import org.cthul.resolve.RResult;
 
+/**
+ * Result based on a File or Path.
+ */
 public class FileResult extends RResult {
     
     private final Path path;
@@ -34,6 +37,11 @@ public class FileResult extends RResult {
     public FileResult(RRequest request, File path, String encoding) {
         this(request, path);
         setDefaultEncoding(encoding);
+    }
+
+    @Override
+    public ResultType getResultType() {
+        return ResultType.STREAM;
     }
     
     @Override

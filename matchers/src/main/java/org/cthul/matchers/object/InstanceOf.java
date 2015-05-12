@@ -2,7 +2,6 @@ package org.cthul.matchers.object;
 
 import org.cthul.matchers.chain.AndChainMatcher;
 import org.cthul.matchers.diagnose.QuickDiagnosingMatcherBase;
-import org.cthul.matchers.diagnose.result.MatchResult;
 import org.hamcrest.*;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;

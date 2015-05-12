@@ -34,16 +34,19 @@ public abstract class ObjectResolver<T, E extends Exception> {
     }
     
     protected T resolve(RRequest req) throws E {
-        RResult res = resolver.resolve(req);
-        if (res == null) {
-            log_notFound(req);
-            return noResult(req);
+        RResponse res = resolver.resolve(req);
+        if (res == null) res = req.noResultResponse();
+        if (res.hasResult()) {
+            RResult result = res.getResult();
+            log_resolved(result);
+            return result(result);
+        } else {
+            log_notFound(res);
+            return noResult(res);
         }
-        log_resolved(res);
-        return result(res);
     }
     
-    protected void log_notFound(RRequest req) {
+    protected void log_notFound(RResponse res) {
 //        log.warn("Could not resolve resource%if[ %<s at] %s", req.getSystemId(), req.getUriOrId());
     }
     
@@ -51,7 +54,7 @@ public abstract class ObjectResolver<T, E extends Exception> {
 //        log.info("Resolved %s%if[ as %<s]", res.getRequest().getUriOrId(), res.getSystemId());
     }
 
-    protected T noResult(RRequest req) throws E {
+    protected T noResult(RResponse res) throws E {
         return null;
     }
     

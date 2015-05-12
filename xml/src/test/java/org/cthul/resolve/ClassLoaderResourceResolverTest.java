@@ -20,7 +20,7 @@ public class ClassLoaderResourceResolverTest {
     public void test_addDomain() throws Exception {
         resolver.addDomain("http://www.w3.org/2001/",    "org/w3/$1.xsd");
         RRequest req = new RRequest("http://www.w3.org/2001/xml");
-        assertThat(resolver.resolve(req).getSystemId(), endsWith("/org/w3/xml.xsd"));
+        assertThat(resolver.resolve(req).getResult().getSystemId(), endsWith("/org/w3/xml.xsd"));
     }
 
 }

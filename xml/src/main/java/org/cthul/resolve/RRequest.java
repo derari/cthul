@@ -22,6 +22,7 @@ public class RRequest {
     private final String systemId;
     private final String baseUri;
     private String resolvedSystemId = NULL_STR;
+    private ResponseBuilder noResult = null;
 
     /**
      * Creates a resource request.
@@ -125,6 +126,13 @@ public class RRequest {
         } catch (URISyntaxException ex) {
             throw new ResolvingException(toString(), ex);
         }
+    }
+
+    public ResponseBuilder noResultResponse() {
+        if (noResult == null) {
+            noResult = ResponseBuilder.noResult(this);
+        }
+        return noResult;
     }
     
     @Override

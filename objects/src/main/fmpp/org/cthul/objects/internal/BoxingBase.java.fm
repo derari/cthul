@@ -22,21 +22,21 @@ public class BoxingBase {
         } else if (b instanceof Character) {
             return (${p}) ((Character) b).charValue();
         } else if (b instanceof Boolean) {
-            return (${p}) (((Boolean) b).booleanValue() ? 1 : 0);
+            return (${p}) (((Boolean) b) ? 1 : 0);
     <#elseif p == "boolean">
         if (b instanceof Boolean) {
-            return((Boolean) b).booleanValue();
+            return (Boolean) b;
         } else if (b instanceof Number) {
             return ((Number) b).doubleValue() > 0;
         } else if (b instanceof Character) {
-            return ((Character) b).charValue() > '\0';
+            return ((Character) b) > '\0';
     <#elseif p == "char">
         if (b instanceof Character) {
-            return ((Character) b).charValue();
+            return (Character) b;
         } else if (b instanceof Number) {
             return (char) ((Number) b).intValue();
         } else if (b instanceof Boolean) {
-            return ((Boolean) b).booleanValue() ? '\1' : '\0';
+            return ((Boolean) b) ? '\1' : '\0';
     </#if>
         } else {
             throw new IllegalArgumentException(String.valueOf(b));

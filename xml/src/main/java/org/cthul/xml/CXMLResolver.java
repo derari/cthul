@@ -23,8 +23,6 @@ import org.cthul.resolve.*;
  *      );
  * new CXMLResolver(resolver);
  * </pre>
- * 
- * @author Arian Treffer
  */
 public class CXMLResolver extends ObjectResolver<Object, XMLStreamException>
                           implements XMLResolver {
@@ -62,11 +60,7 @@ public class CXMLResolver extends ObjectResolver<Object, XMLStreamException>
 
     @Override
     protected Object result(RResult res) throws XMLStreamException {
-        Reader r = res.getReader();
-        if (r != null) return inputFactory.createXMLStreamReader(res.getSystemId(), r);
-        String s = res.getString();
-        if (s != null) return inputFactory.createXMLStreamReader(res.getSystemId(), new StringReader(s));
-        if (res.getEncoding() != null) {
+        if (res.getResultType().isCharacterData() || res.getEncoding() != null) {
             // use result encoding
             return inputFactory.createXMLStreamReader(res.getSystemId(), res.asReader());
         } else {

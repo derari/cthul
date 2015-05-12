@@ -7,6 +7,9 @@ import java.nio.ByteBuffer;
 import org.cthul.resolve.RRequest;
 import org.cthul.resolve.RResult;
 
+/**
+ * Result based on a byte array or ByteBuffer.
+ */
 public class BytesResult extends RResult {
     
     private final ByteBuffer buffer;
@@ -16,9 +19,7 @@ public class BytesResult extends RResult {
     }
     
     public BytesResult(RRequest request, String systemId, byte[] data, boolean copy) {
-        super(request, systemId);
-        data = copy ? data.clone() : data;
-        this.buffer = ByteBuffer.wrap(data);
+        this(request, systemId, ByteBuffer.wrap(copy ? data.clone() : data));
     }
     
     public BytesResult(RRequest request, String systemId, ByteBuffer data) {
@@ -37,11 +38,12 @@ public class BytesResult extends RResult {
     
     public BytesResult(RRequest request, String systemId, InputStream is) throws IOException {
         super(request, systemId);
-        try {
-            this.buffer = bufferFrom(is);
-        } finally {
-            is.close();
-        }
+        this.buffer = bufferFrom(is);
+    }
+
+    @Override
+    public ResultType getResultType() {
+        return ResultType.BUFFER;
     }
 
     @Override

@@ -21,6 +21,11 @@ public abstract class InputStreamResult extends RResult {
     }
 
     @Override
+    public ResultType getResultType() {
+        return ResultType.STREAM;
+    }
+
+    @Override
     protected abstract InputStream createInputStream() throws Exception;
     
     @Override

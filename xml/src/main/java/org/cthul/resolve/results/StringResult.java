@@ -15,6 +15,11 @@ public class StringResult extends RResult {
     }
 
     @Override
+    public ResultType getResultType() {
+        return ResultType.STRING;
+    }
+
+    @Override
     public String getString() {
         return data;
     }

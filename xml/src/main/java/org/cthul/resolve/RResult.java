@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,18 +27,28 @@ import org.cthul.resolve.results.URLResult;
  * {@link #getString()}, or {@link #getEncoding()} and one of
  * {@link #createInputStream()}, {@link #createByteBuffer()}, 
  * {@link #createURLConnection()}, or {@link #getResourceURL()}.
+ * <p>
+ * The base class contains many convenience methods to convert between all
+ * supported data formats (String, Reader, InputStream, ByteBuffer, URL).
+ * The conversion between character data and binary data is done with the
+ * Charset returned by {@link #getCharset()}, which by default returns 
+ * the Charset specified by {@link #getEncoding()}.
+ * If the correct encoding was not set by the resource look-up, it should be set
+ * before converting data. Otherwise, the results depend on the default locale.
+ * 
  * @see BytesResult
  * @see FileResult
  * @see InputStreamResult
  * @see StringResult
  * @see URLResult
  */
-public class RResult {
+public abstract class RResult implements RResponse {
     
     private final RRequest request;
     private final String systemId;
     private String resolvedSystemId = RRequest.NULL_STR;
     private String defaultEncoding = null;
+    ResponseBuilder.WarningsList warnings = null;
 
     public RResult(RRequest request) {
         this(request, null);
@@ -52,10 +63,35 @@ public class RResult {
         this(new RRequest(uri, publicId, systemId, baseUri), systemId);
     }
 
+    @Override
+    public boolean hasResult() {
+        return true;
+    }
+
+    @Override
+    public RResult getResult() {
+        return this;
+    }
+
+    @Override
+    public List<Exception> getWarningsLog() {
+        if (warnings == null) {
+            return Collections.emptyList();
+        } else {
+            return warnings.asReadOnly();
+        }
+    }
+
+    @Override
+    public ResolvingException asException() {
+        return ResponseBuilder.asException(getRequest(), warnings);
+    }
+    
     /**
      * Returns the request for this result.
      * @return request
      */
+    @Override
     public RRequest getRequest() {
         return request;
     }
@@ -134,6 +170,12 @@ public class RResult {
         return getRequest().expandSystemId(baseId, systemId);
     }
 
+    /**
+     * Indicates the native format of this result.
+     * @return result type
+     */
+    public abstract ResultType getResultType();
+    
     /**
      * Returns the resource as a reader, or {@code null}.
      * @return reader
@@ -274,7 +316,7 @@ public class RResult {
     
     /**
      * Sets the result's encoding. 
-     * Throws an excption if encoding could not be changed.
+     * Throws an exception if encoding could not be changed.
      * @param enc 
      * @throws IllegalStateException if encoding could not be changed.
      */
@@ -310,6 +352,8 @@ public class RResult {
     
     /**
      * Returns the resource as a reader, converting it if necessary.
+     * <p>
+     * See the docs of {@linkplain RResult} for notes on data conversion.
      * @return reader
      */
     public Reader asReader() {
@@ -324,6 +368,8 @@ public class RResult {
     
     /**
      * Returns the resource as an input stream, converting it if necessary.
+     * <p>
+     * See the docs of {@linkplain RResult} for notes on data conversion.
      * @return input stream
      */
     public InputStream asInputStream() {
@@ -336,6 +382,8 @@ public class RResult {
     
     /**
      * Returns the resource as a byte buffer, converting it if necessary.
+     * <p>
+     * See the docs of {@linkplain RResult} for notes on data conversion.
      * @return byte buffer
      */
     public ByteBuffer asByteBuffer() {
@@ -344,12 +392,14 @@ public class RResult {
         InputStream is = fromStreamOrUrl();
         if (is != null) return bufferFrom(is);
         String s = fromStringOrReader();
-        if (s != null) return RResult.this.bufferFrom(s);
+        if (s != null) return bufferFrom(s);
         throw resourceUnaccessible();
     }
     
     /**
      * Returns the resource as a string, converting it if necessary.
+     * <p>
+     * See the docs of {@linkplain RResult} for notes on data conversion.
      * @return string
      */
     public String asString() {
@@ -367,6 +417,8 @@ public class RResult {
     
     /**
      * Returns the resource as URL connection, converting it if necessary.
+     * <p>
+     * See the docs of {@linkplain RResult} for notes on data conversion.
      * @return URL connection
      */
     public URLConnection asURLConnection() {
@@ -386,6 +438,10 @@ public class RResult {
         return null;
     }
     
+    /**
+     * Like {@link #asInputStream()}, but always returns a buffered stream.
+     * @return buffered input stream
+     */
     public BufferedInputStream asBufferedInputStream() {
         InputStream is = asInputStream();
         if (is == null) return null;
@@ -579,18 +635,22 @@ public class RResult {
         public synchronized void connect() throws IOException {
             if (connected) return;
             connected = true;
-            is = result.asInputStream();
             String enc = headerMap.get("content-encoding");
             if (enc != null) {
                 result.setDefaultEncoding(enc);
-            } else {
-                headerMap.put("content-encoding", result.getEncoding());
             }
+            try {
+                is = result.asInputStream();
+            } catch (ResolvingException e) {
+                throw e.againAs(IOException.class);
+            }
+            headerMap.put("content-encoding", result.getEncoding());
             headerKeys = new ArrayList<>(headerMap.keySet());
         }
 
         @Override
         public InputStream getInputStream() throws IOException {
+            if (is == null) connect();
             return is;
         }
 
@@ -617,6 +677,47 @@ public class RResult {
                 fields.put(e.getKey(), Arrays.asList(e.getValue()));
             }
             return fields;
+        }
+    }
+    
+    /**
+     * Describes the format of the result data.
+     * There are two basic types of data: character and binary.
+     * When converting from one to the other, 
+     * the correct encoding has to be chosen.
+     */
+    public static enum ResultType {
+        
+        /** Character data: string or reader. */
+        CHARACTERS,
+        
+        /** Plan Java String. */
+        STRING,
+        
+        /** Some form of Reader. */
+        READER,
+        
+        /** Both character and binary data is available. */
+        ANY,
+        
+        /** Binary data: buffer, stream, or URL. */
+        BINARY,
+        
+        /** A nio ByteBuffer. */
+        BUFFER,
+        
+        /** Some form of InputStream. */
+        STREAM,
+        
+        /** Result is based on URL or URLConnection. */
+        URL;
+        
+        public boolean isCharacterData() {
+            return ordinal() <= ANY.ordinal();
+        }
+        
+        public boolean isBinaryData() {
+            return ordinal() >= ANY.ordinal();
         }
     }
 }

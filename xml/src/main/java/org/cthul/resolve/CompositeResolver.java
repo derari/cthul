@@ -1,5 +1,7 @@
  package org.cthul.resolve;
 
+import java.util.Collection;
+
 /**
  * Looks up resources from an array of resolvers, returning the first
  * result that was found.
@@ -23,17 +25,26 @@ public class CompositeResolver extends ResourceResolverBase {
         this(true, inputs);
     }
     
+    @SuppressWarnings("SuspiciousToArrayCall")
+    public CompositeResolver(Collection<? extends ResourceResolver> inputs) {
+        this(false, inputs.toArray(new ResourceResolver[inputs.size()]));
+    }
+    
     protected CompositeResolver(boolean clone, ResourceResolver... inputs) {
         this.inputs = clone ? inputs.clone() : inputs;
     }
 
     @Override
-    public RResult resolve(RRequest request) {
+    public RResponse resolve(RRequest request) {
+        ResponseBuilder response = request.noResultResponse();
         for (ResourceResolver r: inputs) {
-            RResult res = r.resolve(request);
-            if (res != null) return res;
+            RResponse res = r.resolve(request);
+            if (res.hasResult()) {
+                return response.withResult(res.getResult());
+            }
+            response = response.withResponse(res);
         }
-        return null;
+        return response;
     }
 
     /**

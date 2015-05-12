@@ -45,31 +45,35 @@ public class CompositeResolverTest {
     protected RRequest r(String uri) {
         return new RRequest(uri);
     }
+    
+    protected RResult resolve(RRequest request) {
+        return instance.resolve(request).getResult();
+    }
 
     @Test
     public void test_w3XMLSchema_resource_exists() throws Exception {
-        RResult res = instance.resolve(r(OrgW3Resolver.NS_W3_XMLSCHEMA));
+        RResult res = resolve(r(OrgW3Resolver.NS_W3_XMLSCHEMA));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
 
     @Test
     public void test_w3XML_resource_exists() throws Exception {
-        RResult res = instance.resolve(r(OrgW3Resolver.NS_W3_XML));
+        RResult res = resolve(r(OrgW3Resolver.NS_W3_XML));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
 
     @Test
     public void test_menu_schema_file_exists() throws Exception {
-        RResult res = instance.resolve(r(NS_MENU));
+        RResult res = resolve(r(NS_MENU));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }
     
     @Test
     public void test_cars_schema_file_exists() throws Exception {
-        RResult res = instance.resolve(r(NS_CARS));
+        RResult res = resolve(r(NS_CARS));
         assertThat(res, is(notNullValue()));
         assertThat(res.getInputStream().read(), is(greaterThan(-1)));
     }

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>7</version>
+        <version>9</version>
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul</artifactId>
@@ -17,13 +17,13 @@
     </description>
     <modules>
         <module>matchers</module>
-        <module>strings</module>
+        <!--<module>strings</module>
         <module>log</module>
-        <module>log-cal10n</module>
+        <module>log-cal10n</module>-->
         <module>objects</module>
         <module>xml</module>
-        <module>parser</module>
-        <module>parser-lib</module>
+        <!--<module>parser</module>
+        <module>parser-lib</module>-->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
