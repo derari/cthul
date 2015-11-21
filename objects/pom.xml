@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-objects</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <name>Cthul Objects</name>
     <url>http://cthul.org</url>
     <description>
@@ -99,7 +99,7 @@
                 <property>
                     <name>performRelease</name>
                 </property>
-            </activation>
+            </activation>            
             <build>
                 <plugins>
                     <plugin>

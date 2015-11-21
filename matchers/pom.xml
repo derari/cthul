@@ -234,7 +234,7 @@
         <dependency>
             <groupId>org.cthul</groupId>
             <artifactId>cthul-objects</artifactId>
-            <version>1.1.0</version>
+            <version>1.2</version>
             <classifier>jdk16</classifier>
         </dependency>
         <dependency>

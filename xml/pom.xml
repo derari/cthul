@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-xml</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <name>Cthul XML</name>
     <url>http://cthul.org</url>
     <description>
