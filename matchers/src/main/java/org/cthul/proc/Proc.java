@@ -7,11 +7,11 @@ import org.hamcrest.SelfDescribing;
  * For implementations, see {@link ProcBase}.
  * For quick implementations in anonymous classes, see {@link P0}, {@link P1},
  * {@link P2}, {@link P3}, {@link P4}, and {@link PN}.
- * <p/>
+ * <p>
  * A proc is generally executed only once. The result or the exception
  * that was thrown are cached.
  * The only way to reset the state of a proc is with {@link #retry()}.
- * <p/>
+ * <p>
  * If a proc is {@link #call(java.lang.Object[]) called} a new instance is 
  * created that will execute the code of the original proc, but may use 
  * different arguments.
@@ -52,7 +52,7 @@ public interface Proc extends SelfDescribing {
     
     /**
      * Returns true iff executing this Proc caused no exceptions.
-     * <p/>
+     * <p>
      * If true, {@link #getResult()} can be called to retrieve the result of 
      * the execution. Otherwise, {@link #getException()} will return the 
      * exception that was thrown.

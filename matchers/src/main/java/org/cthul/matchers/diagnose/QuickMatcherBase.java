@@ -10,7 +10,7 @@ import org.hamcrest.StringDescription;
 /**
  * Implements {@link QuickDiagnosingMatcher} interface, 
  * but matches and describes in separate steps.
- * <p/>
+ * <p>
  * {@link QuickDiagnosingMatcher#matches(java.lang.Object, org.hamcrest.Description)} 
  * is implemented as
  * <pre>{@code 
@@ -21,7 +21,7 @@ import org.hamcrest.StringDescription;
  *       return false;
  *   }
  * }</pre>
- * <p/>
+ * <p>
  * If you want to override {@link #matches(java.lang.Object, org.hamcrest.Description)},
  * extend {@link QuickDiagnosingMatcherBase} instead.
  * @param <T>

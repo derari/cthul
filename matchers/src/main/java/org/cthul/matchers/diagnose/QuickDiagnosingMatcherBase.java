@@ -59,7 +59,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
     /**
      * Uses the {@code matcher} to validate {@code item}.
      * If validation fails, an error message is appended to {@code mismatch}.
-     * <p/>
+     * <p>
      * The code is equivalent to
      * <pre>{@code
      * if (matcher.matches(item)) {
@@ -85,7 +85,7 @@ public abstract class QuickDiagnosingMatcherBase<T>
     /**
      * Similar to {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)},
      * but allows to override the mismatch message.
-     * <p/>
+     * <p>
      * If matching fails, {@code message} will be appended to {@code mismatch}.
      * Any occurrence of {@code "$1"} in (@code message} will be replaced with
      * the actual mismatch description of {@code matcher}.

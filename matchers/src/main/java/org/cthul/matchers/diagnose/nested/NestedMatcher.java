@@ -7,7 +7,7 @@ import org.hamcrest.SelfDescribing;
 
 /**
  * Combines multiple matchers.
- * When creating a (mismatch) description, {@link #getPrecedence()} is
+ * When creating a (mismatch) description, {@link #getDescriptionPrecedence()} is
  * used to determine if parantheses should be inserted to resolve ambiguities.
  * 
  * @param <T> 

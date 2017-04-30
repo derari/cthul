@@ -6,7 +6,7 @@ import org.hamcrest.*;
 
 /**
  * Tests if a string contains a regex pattern.
- * <p/>
+ * <p>
  * Use the static factory methods to create instances.
  */
 public class ContainsPattern extends TypesafeQuickMatcher<CharSequence> {

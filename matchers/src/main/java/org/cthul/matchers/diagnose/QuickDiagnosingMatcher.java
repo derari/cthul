@@ -20,7 +20,7 @@ public interface QuickDiagnosingMatcher<T> extends Matcher<T> {
     
     /**
      * Evaluates the matcher for argument {@code item}.
-     * <p/>
+     * <p>
      * A mismatch description is appended to {@code mismatch} 
      * if and only if the match fails.
      *

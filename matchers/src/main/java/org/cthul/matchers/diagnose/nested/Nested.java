@@ -18,9 +18,9 @@ import org.hamcrest.StringDescription;
 public class Nested {
 
     /**
-     * If {@code o} is a {@link PrecedencedMatcher},
-     * calls {@link PrecedencedMatcher#getPrecedence()},
-     * otherwise returns {@link PrecedencedMatcher#P_ATOMIC}.
+     * If {@code o} is a {@link PrecedencedSelfDescribing},
+     * calls {@link PrecedencedSelfDescribing#getDescriptionPrecedence()},
+     * otherwise returns {@link PrecedencedSelfDescribing#P_ATOMIC}.
      * @param o
      * @return precedence value
      */
@@ -34,7 +34,7 @@ public class Nested {
     
     /**
      * Returns {@link PrecedencedSelfDescribing#P_ATOMIC P_ATOMIC} if {@code count == 0},
-     * {@link PrecedencedSelfDescribing#P_UNARYP_UNARY} if {@code count == 1},
+     * {@link PrecedencedSelfDescribing#P_UNARY P_UNARY} if {@code count == 1},
      * and otherwise {@code p}.
      * @param p
      * @param count
@@ -74,7 +74,7 @@ public class Nested {
     }
     
     /**
-     * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)}
+     * Invokes {@link QuickDiagnose#matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)}
      * for {@code m}, 
      * enclosed in parentheses if necessary.
      * @param self
@@ -93,7 +93,7 @@ public class Nested {
     }
     
     /**
-     * Invokes {@link #quickMatch(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String)}
+     * Invokes {@link QuickDiagnose#matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description, java.lang.String)}
      * for {@code m}, 
      * enclosed in parentheses if necessary.
      * @param self

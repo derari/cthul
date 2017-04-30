@@ -1,5 +1,6 @@
 package org.cthul.matchers.diagnose.safe;
 
+import org.cthul.matchers.diagnose.QuickDiagnosingMatcher;
 import org.cthul.matchers.diagnose.QuickMatcherBase;
 import org.hamcrest.Description;
 import org.hamcrest.internal.ReflectiveTypeFinder;

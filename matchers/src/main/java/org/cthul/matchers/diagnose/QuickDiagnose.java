@@ -21,7 +21,7 @@ public class QuickDiagnose {
     /**
      * Uses the {@code matcher} to validate {@code item}.
      * If validation fails, an error message is stored in {@code mismatch}.
-     * <p/>
+     * <p>
      * The code is equivalent to
      * <pre>{@code
      * if (matcher.matches(item)) {
@@ -56,7 +56,7 @@ public class QuickDiagnose {
     /**
      * Similar to {@link #matches(org.hamcrest.Matcher, java.lang.Object, org.hamcrest.Description)},
      * but allows to override the mismatch message.
-     * <p/>
+     * <p>
      * If matching fails, {@code message} will be appended to {@code mismatch}.
      * Any occurrence of {@code "$1"} in (@code message} will be replaced with
      * the actual mismatch description of {@code matcher}.
@@ -129,7 +129,7 @@ public class QuickDiagnose {
      * Disables the optimization hack for {@link DiagnosingMatcher},
      * which calls {@link DiagnosingMatcher#matches(java.lang.Object, org.hamcrest.Description) }
      * directly.
-     * <p/>
+     * <p>
      * This method has to be invoked before the hack is executed the first time.
      * @throws IllegalStateException if the hack was already activated.
      */
