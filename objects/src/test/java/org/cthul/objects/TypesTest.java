@@ -60,6 +60,12 @@ public class TypesTest {
     }
 
     @Test
+    public void test_lowestCommonSuperclasses_interfaces_2() {
+        List<Class<?>> l = Types.lowestCommonSuperclasses(Ia.class, Ib2.class);
+        assertThat(l, contains((Class) Object.class));
+    }
+
+    @Test
     public void test_lowestCommonSuperclasses_mixed() {
         List<Class<?>> l = Types.lowestCommonSuperclasses(Cab.class, Iab2.class);
         assertThat(l, contains(Ia.class, Ib.class));

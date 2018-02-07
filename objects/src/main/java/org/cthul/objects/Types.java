@@ -26,7 +26,6 @@ public class Types {
      * @return ordered set
      */
     public static Set<Class<?>> superclasses(Class<?> clazz) {
-        final Set<Class<?>> result = new LinkedHashSet<>();
         final Queue<Class<?>> queue = new ArrayDeque<>();
         if (clazz.isInterface()) {
             queue.add(Object.class);
@@ -35,6 +34,7 @@ public class Types {
             queue.add(clazz);
             clazz = clazz.getSuperclass();
         }
+        final Set<Class<?>> result = new LinkedHashSet<>();
         while (!queue.isEmpty()) {
             Class<?> c = queue.remove();
             if (result.add(c)) {
@@ -120,28 +120,31 @@ public class Types {
         final LinkedList<Class<?>> source = new LinkedList<>(classes);
         final ArrayList<Class<?>> result = new ArrayList<>(classes.size());
         while (!source.isEmpty()) {
-            Iterator<Class<?>> srcIt = source.iterator();
-            Class<?> c = Object.class;
-            while (srcIt.hasNext()) {
-                Class<?> c2 = srcIt.next();
-                if (c2.isAssignableFrom(c)) {
+            Class<?> lowest = source.remove();
+            boolean possibleDiamond = false;
+            for (Iterator<Class<?>> srcIt = source.iterator(); srcIt.hasNext();) {
+                Class<?> c = srcIt.next();
+                if (c.isAssignableFrom(lowest)) {
+                    // remove higher class
                     srcIt.remove();
-                } else if (c.isAssignableFrom(c2)) {
-                    c = c2;
-                    srcIt.remove();
+                } else if (lowest.isAssignableFrom(c)) {
+                    // leave lowest in source as marker for second iteration
+                    possibleDiamond = true;
+                    lowest = c;
                 }
             }
-            // in diamond hierarchies, result may already contain a subclass
-            boolean diamond = false;
-            for (Class<?> c2: result) {
-                if (c.isAssignableFrom(c2)) {
-                    diamond = true;
-                    break;
+            if (possibleDiamond) {
+                for (Iterator<Class<?>> srcIt = source.iterator(); srcIt.hasNext();) {
+                    Class<?> c = srcIt.next();
+                    if (c.isAssignableFrom(lowest)) {
+                        // remove higher class
+                        // if lowest was found, no need to continue scanning
+                        srcIt.remove();
+                        if (c == lowest) break;
+                    }
                 }
             }
-            if (!diamond) {
-                result.add(c);
-            }
+            result.add(lowest);
         }
         result.trimToSize();
         return result;

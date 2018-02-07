@@ -2,9 +2,6 @@ package org.cthul.objects.instance;
 
 import org.junit.*;
 import static org.cthul.matchers.CthulMatchers.*;
-import org.cthul.objects.instance.DefaultInject;
-import org.cthul.objects.instance.Inject;
-import org.cthul.objects.instance.InstanceMap;
 import org.cthul.objects.instance.InstanceMap.Factory;
 import static org.cthul.proc.Procs.invoke;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -280,7 +277,7 @@ public class InstanceMapTest {
             this.foo = foo;
         }
         @Inject
-        public Bar bar;        
+        public Bar bar;
         @Inject("bar2")
         public void setBar2(Bar bar2) { this.bar2 = bar2; }
         public Bar bar2;

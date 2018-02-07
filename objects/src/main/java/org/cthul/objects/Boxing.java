@@ -86,12 +86,11 @@ public class Boxing extends BoxingBase {
             Class<?> prim = PRIMITIVES[i], box = BOXES[i];
             BOXED.put(prim, box);
             UNBOXED.put(box, prim);
-            AUTO_BOXED.put(prim, box);
-            AUTO_BOXED.put(box, prim);
             INDICES.put(prim, i);
             INDICES.put(box, i);
         }
-        
+        AUTO_BOXED.putAll(BOXED);
+        AUTO_BOXED.putAll(UNBOXED);
         P_BOXED = Collections.unmodifiableMap(BOXED);
         P_UNBOXED = Collections.unmodifiableMap(UNBOXED);
         P_AUTO_BOXED = Collections.unmodifiableMap(AUTO_BOXED);
@@ -102,8 +101,7 @@ public class Boxing extends BoxingBase {
             type = type.getComponentType();
         }
         Integer i = INDICES.get(type);
-        if (i == null) return -1;
-        return i;
+        return i == null ? -1 : i;
     }
     
     public static Object unbox(Class<?> clazz, Object src) {
