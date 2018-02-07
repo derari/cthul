@@ -41,7 +41,7 @@ public class FileResult extends RResult {
 
     @Override
     public ResultType getResultType() {
-        return ResultType.STREAM;
+        return ResultType.BINARY;
     }
     
     @Override
