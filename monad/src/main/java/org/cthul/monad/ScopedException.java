@@ -1,6 +1,6 @@
 package org.cthul.monad;
 
-public class ScopedException extends Exception implements NoValue<Object> {
+public class ScopedException extends Exception implements Result<Object> {
     
     private final Module module;
     private final Status status;
@@ -45,6 +45,16 @@ public class ScopedException extends Exception implements NoValue<Object> {
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean hasValue() {
+        return false;
+    }
+
+    @Override
+    public Object getValue() throws ScopedException {
+        throw getException();
     }
 
     @Override

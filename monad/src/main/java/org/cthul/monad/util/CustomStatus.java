@@ -1,4 +1,7 @@
-package org.cthul.monad;
+package org.cthul.monad.util;
+
+import org.cthul.monad.DefaultStatus;
+import org.cthul.monad.Status;
 
 public class CustomStatus implements Status {
     

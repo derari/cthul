@@ -1,6 +1,6 @@
 package org.cthul.monad;
 
-public class ScopedRuntimeException extends RuntimeException implements UncheckedResult<Object>, NoValue<Object> {
+public class ScopedRuntimeException extends RuntimeException implements Result.Unchecked<Object> {
     
     private final Module module;
     private final Status status;
@@ -48,8 +48,13 @@ public class ScopedRuntimeException extends RuntimeException implements Unchecke
     }
 
     @Override
+    public boolean hasValue() {
+        return false;
+    }
+
+    @Override
     public Object getValue() {
-        throw this;
+        throw getRuntimeException();
     }
 
     @Override

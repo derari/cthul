@@ -3,6 +3,7 @@ package org.cthul.monad;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
+import org.cthul.monad.util.ResultValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class Module {
     }
     
     public <T> ResultValue<T> value(T value) {
-        return new ResultValue<>(this, value);
+        return value(DefaultStatus.OK, value);
     }
     
     public <T> ResultValue<T> value(Status status, T value) {
@@ -87,10 +88,10 @@ public class Module {
     }
     
     public ScopedException wrap(Throwable throwable, Status defaultStatus) {
-        if (throwable instanceof NoValue) {
-            NoValue<?> noValue = (NoValue) throwable;
-            if (noValue.getModule() == this) {
-                return noValue.getException();
+        if (throwable instanceof Result) {
+            Result<?> result = (Result) throwable;
+            if (!result.hasValue() && result.getModule() == this) {
+                return result.getException();
             }
         }
         return exception(defaultStatus, throwable);

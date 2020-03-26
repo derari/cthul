@@ -3,27 +3,29 @@ package org.cthul.monad;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.cthul.monad.util.IncompleteStatusSwitch;
+import org.cthul.monad.util.ScopedResult;
+import org.cthul.monad.util.StatusSwitch;
 
-public interface Result<T> extends Status.Delegate {
-    
-    Module getModule();
-    
-    Status getStatus();
-    
-    boolean hasValue();
+public interface Result<T> extends ScopedResult<T>, StatusSwitch<T> {
     
     T getValue() throws ScopedException;
+
+    @Override
+    default Step<T> ifStatus(Predicate<? super Status> status, Function<? super Result<T>, ? extends Result<T>> action) {
+        return new IncompleteStatusSwitch<>(this).ifStatus(status, action);
+    }
     
-    ScopedException getException();
+    default void requireOk() throws ScopedException {
+        if (isOk()) return;
+        throw getException();
+    }
     
-    ScopedRuntimeException getRuntimeException();
-    
-    UncheckedResult<T> unchecked();
-    
-    default <U> NoValue<U> noValue() {
+    default <U> Result<U> noValue() {
         if (hasValue()) throw new IllegalArgumentException("has value");
-        return (NoValue) this;
+        return (Result) this;
     }
     
     default Result<T> ifPresent(Consumer<? super T> action) {
@@ -38,7 +40,7 @@ public interface Result<T> extends Status.Delegate {
             return noValue();
         }
         U value = mapping.apply(unchecked().getValue());
-        return new ResultValue<>(getModule(), value);
+        return getModule().value(value);
     }
 
     default <U> Result<U> mapFlat(Function<? super T, ? extends Result<U>> mapping) {
@@ -47,22 +49,8 @@ public interface Result<T> extends Status.Delegate {
         }
         return mapping.apply(unchecked().getValue());
     }
-    
-    default T or(T defaultValue) {
-        if (!hasValue()) {
-            return defaultValue;
-        }
-        return unchecked().getValue();
-    }
-    
-    default T orGet(Supplier<? extends T> defaultSupplier) {
-        if (!hasValue()) {
-            return defaultSupplier.get();
-        }
-        return unchecked().getValue();
-    }
-    
-    default T orApply(Function<? super NoValue<? super T>, ? extends T> defaultFunction) {
+
+    default T orApply(Function<? super Result<? super T>, ? extends T> defaultFunction) {
         if (!hasValue()) {
             return defaultFunction.apply(noValue());
         }
@@ -83,7 +71,7 @@ public interface Result<T> extends Status.Delegate {
         return this;
     }
     
-    default Result<T> orElseApply(Function<? super NoValue<? super T>, ? extends Result<? extends T>> elseGet) {
+    default Result<T> orElseApply(Function<? super Result<? super T>, ? extends Result<? extends T>> elseGet) {
         if (!hasValue()) {
             return (Result) elseGet.apply(noValue());
         }
@@ -97,5 +85,22 @@ public interface Result<T> extends Status.Delegate {
         Object[] allArgs = Arrays.copyOf(args, args.length + 1);
         allArgs[args.length - 1] = getException();
         return getModule().internalize(msg, allArgs).noValue();
+    }
+    
+    interface Unchecked<T> extends ScopedResult<T> {
+        
+        T getValue() throws ScopedRuntimeException;
+        
+        default void requireOk() throws ScopedRuntimeException {
+            if (isOk()) return;
+            throw getRuntimeException();
+        }
+        
+        Result<T> checked();
+
+        @Override
+        default Unchecked<T> unchecked() {
+            return this;
+        }
     }
 }

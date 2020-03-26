@@ -19,7 +19,6 @@ public enum DefaultStatus implements Status {
     GATEWAY(502),
     TIMEOUT(504),
     UNKNOWN(591),
-    
     ;
     
     final int code;

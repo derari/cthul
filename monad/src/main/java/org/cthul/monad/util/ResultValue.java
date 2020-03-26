@@ -1,16 +1,21 @@
-package org.cthul.monad;
+package org.cthul.monad.util;
 
-public class ResultValue<T> implements UncheckedResult<T> {
+import org.cthul.monad.*;
+
+public class ResultValue<T> implements Result<T>, Result.Unchecked<T> {
     
     private final Module module;
     private final Status status;
     private final T value;
 
-    protected ResultValue(Module module, T value) {
+    public ResultValue(Module module, T value) {
         this(module, DefaultStatus.OK, value);
     }
 
-    protected ResultValue(Module module, Status status, T value) {
+    public ResultValue(Module module, Status status, T value) {
+        if (!status.isOk()) {
+            throw new IllegalArgumentException("Value requires OK status");
+        }
         this.module = module;
         this.status = status;
         this.value = value;
@@ -49,5 +54,9 @@ public class ResultValue<T> implements UncheckedResult<T> {
     @Override
     public Result<T> checked() {
         return this;
+    }
+
+    @Override
+    public void requireOk() {
     }
 }
