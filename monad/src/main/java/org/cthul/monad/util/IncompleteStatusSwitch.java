@@ -2,32 +2,42 @@ package org.cthul.monad.util;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
-import org.cthul.monad.Result;
 import org.cthul.monad.Status;
 
 public class IncompleteStatusSwitch<T> implements StatusSwitch.Step<T>{
     
-    private final Result<T> result;
+    private final Status status;
+    private final T value;
 
-    public IncompleteStatusSwitch(Result<T> result) {
-        this.result = result;
+    public IncompleteStatusSwitch(Status status, T value) {
+        this.status = status;
+        this.value = value;
     }
 
     @Override
-    public Result<T> otherwise(Function<? super Result<T>, ? extends Result<T>> action) {
-        return action.apply(result);
+    public T otherwise(Function<? super T, ? extends T> action) {
+        return action.apply(value);
     }
 
     @Override
-    public Result<T> orKeep() {
-        return result;
+    public T orKeep() {
+        return value;
     }
 
     @Override
-    public Step<T> ifStatus(Predicate<? super Status> status, Function<? super Result<T>, ? extends Result<T>> action) {
-        if (status.test(result)) {
-            Result<T> next = action.apply(result);
+    public Step<T> ifStatus(Predicate<? super Status> status, Function<? super T, ? extends T> action) {
+        if (status.test(this.status)) {
+            T next = action.apply(value);
             return new CompleteStatusSwitch<>(next);
+        }
+        return this;
+    }
+
+    @Override
+    public Step<T> ifStatus(Predicate<? super Status> status, Runnable action) {
+        if (status.test(this.status)) {
+            action.run();
+            return new CompleteStatusSwitch<>(orKeep());
         }
         return this;
     }

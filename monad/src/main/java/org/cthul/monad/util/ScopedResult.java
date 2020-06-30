@@ -1,34 +1,42 @@
 package org.cthul.monad.util;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
-import org.cthul.monad.*;
+import org.cthul.monad.Status;
 
-public interface ScopedResult<T> extends Status.Delegate {
+public interface ScopedResult<T, X extends Exception> extends Status.Delegate {
     
-    Module getModule();
+    GenericScope<?> getScope();
     
     @Override
     Status getStatus();
     
     boolean hasValue();
     
-    ScopedException getException();
+    T get() throws X;
     
-    ScopedRuntimeException getRuntimeException();
+    X getException();
     
-    Result.Unchecked<T> unchecked();
+    default String getMessage() {
+        return toString();
+    }
+    
+    default void requireOk() throws X {
+        if (isOk()) return;
+        throw getException();
+    }
+    
+    <U> U reduce(Function<? super T, ? extends U> map, Function<? super X, ? extends U> onError);
 
     default T or(T defaultValue) {
-        if (!hasValue()) {
-            return defaultValue;
-        }
-        return unchecked().getValue();
+        return reduce(Function.identity(), x -> defaultValue);
     }
 
     default T orGet(Supplier<? extends T> defaultSupplier) {
-        if (!hasValue()) {
-            return defaultSupplier.get();
-        }
-        return unchecked().getValue();
+        return reduce(Function.identity(), x -> defaultSupplier.get());
+    }
+    
+    default ResultMessage asMessage() {
+        return new ResultMessage(getScope().toString(), this, getMessage());
     }
 }

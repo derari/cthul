@@ -1,45 +1,75 @@
 package org.cthul.monad;
 
-public class ScopedException extends Exception implements Result<Object> {
+import java.util.function.Function;
+import org.cthul.monad.cache.Cached;
+import org.cthul.monad.cache.CachedMeta;
+import org.cthul.monad.error.ErrorState;
+import org.cthul.monad.error.GeneralError;
+
+public class ScopedException extends Exception implements Cached<Object>, CachedMeta.Delegator {
     
-    private final Module module;
+    private static final CachedMeta NO_STORE = CachedMeta.noStore();
+    
+    private final Scope scope;
     private final Status status;
     private ScopedRuntimeException runtimeException;
+    private CachedMeta cachedMeta;
+    private ErrorState<?> errorState;
 
-    protected ScopedException(Module module, Status status, String message) {
+    protected ScopedException(Scope scope, Status status, String message) {
         super(message);
-        this.module = module;
+        this.scope = scope;
         this.status = status;
+        this.cachedMeta = NO_STORE;
     }
 
-    protected ScopedException(Module module, Status status, String message, Throwable cause) {
+    protected ScopedException(Scope scope, Status status, String message, Throwable cause) {
         super(message, cause);
-        this.module = module;
+        this.scope = scope;
         this.status = status;
+        this.cachedMeta = NO_STORE;
     }
 
-    protected ScopedException(Module module, Status status, Throwable cause) {
+    protected ScopedException(Scope scope, Status status, Throwable cause) {
         super(cause);
-        this.module = module;
+        this.scope = scope;
         this.status = status;
+        this.cachedMeta = NO_STORE;
     }
 
-    protected ScopedException(Module module, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected ScopedException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-        this.module = module;
+        this.scope = scope;
         this.status = status;
+        this.cachedMeta = NO_STORE;
     }
 
     protected ScopedException(ScopedRuntimeException runtimeException) {
         super(runtimeException.getMessage(), runtimeException);
         this.runtimeException = runtimeException;
-        this.module = runtimeException.getModule();
+        this.scope = runtimeException.getScope();
         this.status = runtimeException.getStatus();
+        this.cachedMeta = runtimeException.getCachedMeta();
     }
 
     @Override
-    public Module getModule() {
-        return module;
+    public CachedMeta getCachedMeta() {
+        return cachedMeta;
+    }
+    
+    @Override
+    public ScopedException cacheControl(CachedMeta meta) {
+        this.cachedMeta = meta;
+        return this;
+    }
+
+    public void setCacheControl(CachedMeta cachedMeta) {
+        this.cachedMeta = cachedMeta;
+    }
+
+    @Override
+    public Scope getScope() {
+        return scope;
     }
 
     @Override
@@ -53,7 +83,7 @@ public class ScopedException extends Exception implements Result<Object> {
     }
 
     @Override
-    public Object getValue() throws ScopedException {
+    public Object get() throws ScopedException {
         throw getException();
     }
 
@@ -63,6 +93,10 @@ public class ScopedException extends Exception implements Result<Object> {
     }
 
     @Override
+    public <U> U reduce(Function<? super Object, ? extends U> map, Function<? super ScopedException, ? extends U> onError) {
+        return onError.apply(this);
+    }
+
     public ScopedRuntimeException getRuntimeException() {
         if (runtimeException == null) {
             runtimeException = new ScopedRuntimeException(this);
@@ -73,5 +107,23 @@ public class ScopedException extends Exception implements Result<Object> {
     @Override
     public ScopedRuntimeException unchecked() {
         return getRuntimeException();
+    }
+
+    public ErrorState<?> getErrorState() {
+        if (errorState == null) {
+            errorState = new GeneralError<>((Exception) this);
+        }
+        return errorState;
+    }
+
+    protected void setErrorState(ErrorState<?> errorState) {
+        this.errorState = errorState;
+    }
+
+    @Override
+    public String toString() {
+        String s = getScope() + " " + getStatus();
+        String message = getLocalizedMessage();
+        return (message != null) ? (s + ": " + message) : s;
     }
 }

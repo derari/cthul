@@ -5,22 +5,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.cthul.monad.cache.Cached;
+import org.cthul.monad.cache.CachedMeta;
 import org.cthul.monad.util.IncompleteStatusSwitch;
 import org.cthul.monad.util.ScopedResult;
 import org.cthul.monad.util.StatusSwitch;
+import org.cthul.monad.util.StatusSwitch.Step;
 
-public interface Result<T> extends ScopedResult<T>, StatusSwitch<T> {
-    
-    T getValue() throws ScopedException;
+public interface Result<T> extends ScopedResult<T, ScopedException>, StatusSwitch<Result<T>> {
 
     @Override
-    default Step<T> ifStatus(Predicate<? super Status> status, Function<? super Result<T>, ? extends Result<T>> action) {
-        return new IncompleteStatusSwitch<>(this).ifStatus(status, action);
-    }
+    Scope getScope();
     
-    default void requireOk() throws ScopedException {
-        if (isOk()) return;
-        throw getException();
+    Cached<T> cacheControl(CachedMeta meta);
+    
+    Unchecked<T> unchecked();
+    
+    @Override
+    default Step<Result<T>> ifStatus(Predicate<? super Status> status, Function<? super Result<T>, ? extends Result<T>> action) {
+        return new IncompleteStatusSwitch<>(this, this).ifStatus(status, action);
     }
     
     default <U> Result<U> noValue() {
@@ -30,7 +33,7 @@ public interface Result<T> extends ScopedResult<T>, StatusSwitch<T> {
     
     default Result<T> ifPresent(Consumer<? super T> action) {
         if (hasValue()) {
-            action.accept(unchecked().getValue());
+            action.accept(unchecked().get());
         }
         return this;
     }
@@ -39,22 +42,22 @@ public interface Result<T> extends ScopedResult<T>, StatusSwitch<T> {
         if (!hasValue()) {
             return noValue();
         }
-        U value = mapping.apply(unchecked().getValue());
-        return getModule().value(value);
+        U value = mapping.apply(unchecked().get());
+        return getScope().value(value);
     }
 
     default <U> Result<U> mapFlat(Function<? super T, ? extends Result<U>> mapping) {
         if (!hasValue()) {
             return noValue();
         }
-        return mapping.apply(unchecked().getValue());
+        return mapping.apply(unchecked().get());
     }
 
     default T orApply(Function<? super Result<? super T>, ? extends T> defaultFunction) {
         if (!hasValue()) {
             return defaultFunction.apply(noValue());
         }
-        return unchecked().getValue();
+        return unchecked().get();
     }
     
     default Result<T> orElse(Result<? extends T> elseResult) {
@@ -79,27 +82,49 @@ public interface Result<T> extends ScopedResult<T>, StatusSwitch<T> {
     }
     
     default Result<T> internalize(String msg, Object... args) {
+        return internalize(DefaultStatus.INTERNAL_ERROR, msg, args);
+    }
+    
+    default Result<T> internalize(Status status, String msg, Object... args) {
         if (hasValue() || getStatus().isOk()) {
             return this;
         }
         Object[] allArgs = Arrays.copyOf(args, args.length + 1);
-        allArgs[args.length - 1] = getException();
-        return getModule().internalize(msg, allArgs).noValue();
+        allArgs[args.length] = getException();
+        return getScope().internalize(status, msg, allArgs).noValue();
     }
     
-    interface Unchecked<T> extends ScopedResult<T> {
-        
-        T getValue() throws ScopedRuntimeException;
-        
-        default void requireOk() throws ScopedRuntimeException {
-            if (isOk()) return;
-            throw getRuntimeException();
+    default <X extends ScopedException> Result<T> throwIf(Class<X> type) throws X {
+        if (hasValue()) {
+            return this;
         }
+        if (type.isInstance(getException())) {
+            throw (X) getException();
+        }
+        return this;
+    }
+    
+    interface Unchecked<T> extends ScopedResult<T, ScopedRuntimeException> {
         
         Result<T> checked();
 
         @Override
-        default Unchecked<T> unchecked() {
+        default Scope getScope() {
+            return checked().getScope();
+        }
+        
+        @Override
+        default Status getStatus() {
+            return checked().getStatus();
+        }
+        
+        default <X extends ScopedRuntimeException> Result.Unchecked<T> throwIf(Class<X> type) throws X {
+            if (hasValue()) {
+                return this;
+            }
+            if (type.isInstance(getException())) {
+                throw (X) getException();
+            }
             return this;
         }
     }
