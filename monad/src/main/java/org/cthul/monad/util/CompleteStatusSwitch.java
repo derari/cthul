@@ -1,8 +1,8 @@
 package org.cthul.monad.util;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 import org.cthul.monad.Status;
+import org.cthul.monad.error.Checked;
 
 public class CompleteStatusSwitch<T> implements StatusSwitch.Step<T>{
     
@@ -13,7 +13,7 @@ public class CompleteStatusSwitch<T> implements StatusSwitch.Step<T>{
     }
 
     @Override
-    public T otherwise(Function<? super T, ? extends T> action) {
+    public <X extends Exception> T otherwise(Checked.Function<? super T, ? extends T, X> action) throws X {
         return result;
     }
 
@@ -23,12 +23,7 @@ public class CompleteStatusSwitch<T> implements StatusSwitch.Step<T>{
     }
 
     @Override
-    public Step<T> ifStatus(Predicate<? super Status> status, Function<? super T, ? extends T> action) {
-        return this;
-    }
-
-    @Override
-    public Step<T> ifStatus(Predicate<? super Status> status, Runnable action) {
+    public <X extends Exception> Step<T> ifStatus(Predicate<? super Status> status, Checked.Function<? super T, ? extends T, X> action) throws X {
         return this;
     }
 }

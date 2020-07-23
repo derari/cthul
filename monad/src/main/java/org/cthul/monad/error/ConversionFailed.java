@@ -1,6 +1,7 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
+import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.util.GenericScope;
 import org.cthul.monad.util.ScopedResult;
 
@@ -10,8 +11,8 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
         return "Expected " + expected + ", got " + (value == null ? "null" : value.getClass());
     }
 
-    public ConversionFailed(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, S value, String error) {
-        super(scope, context, operation, parameter, expected, value, error);
+    public ConversionFailed(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, S value, String error, Object... args) {
+        super(context, operation, parameter, expected, value, scope.noValue(DefaultStatus.UNPROCESSABLE, error, args));
     }
 
     public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, ScopedResult<?, ? extends X> result) {
@@ -27,7 +28,7 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
     }
 
     public ConversionFailed(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, S value) {
-        super(scope, context, operation, parameter, expected, value, message(expected, value));
+        this(scope, context, operation, parameter, expected, value, message(expected, value));
     }
 
     public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, X exception) {

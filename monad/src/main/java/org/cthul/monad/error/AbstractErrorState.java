@@ -57,6 +57,24 @@ public abstract class AbstractErrorState<This extends ErrorState<This>, X extend
         this.handled = handled;
     }
     
+    protected This self() {
+        return (This) this;
+    }
+    
+    public This handledOnce(ErrorHandler handler) {
+        if (isHandled()) return self();
+        return handledWith(handler);
+    }
+    
+    public This handledWith(ErrorHandler handler) {
+        try {
+            ErrorState<?> state = handler.handle(this);
+            return cast(state);
+        } finally {
+            setHandled(true);
+        }
+    }
+    
     @Override
     public String toString() {
         return ""+ exception;

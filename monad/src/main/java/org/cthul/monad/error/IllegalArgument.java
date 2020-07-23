@@ -1,13 +1,14 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
+import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.util.GenericScope;
 import org.cthul.monad.util.ScopedResult;
 
 public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X> {
 
     public IllegalArgument(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, T value, String error) {
-        super(scope, context, operation, parameter, expected, value, error);
+        this(context, operation, parameter, expected, value, scope.noValue(DefaultStatus.UNPROCESSABLE, error));
     }
 
     public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, T value, ScopedResult<?, ? extends X> result) {
@@ -24,7 +25,7 @@ public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X>
 
     @Override
     public T getValue() {
-        if (isResolved()) return getResolvedValue();
+        if (isResolved()) return peekResolvedValue();
         return (T) super.getValue();
     }
 

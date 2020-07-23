@@ -1,5 +1,6 @@
 package org.cthul.monad.error;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.util.GenericScope;
@@ -16,17 +17,6 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
     private final Class<T> expected;
     private T resolvedValue = null;
     private boolean resolved = false;
-
-    public ArgumentError(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, Object value, String error) {
-        super(EXCEPTION_NOT_SUPPORTED);
-        this.scope = scope;
-        this.context = context;
-        this.operation = operation;
-        this.parameter = parameter;
-        this.expected = expected;
-        this.value = value;
-        this.error = error;
-    }
 
     public ArgumentError(Object context, String operation, String parameter, Class<T> expected, Object value, ScopedResult<?, ? extends X> result) {
         super(result);
@@ -116,11 +106,19 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
     }
 
     public T getResolved() throws X {
-        if (isResolved()) return getResolvedValue();
+        if (isResolved()) return peekResolvedValue();
         throw getException();
     }
+
+    public T getResolved(Predicate<? super T> condition) throws X {
+        T newValue = getResolved();
+        if (!condition.test(newValue)) {
+            throw getException();
+        }
+        return newValue;
+    }
     
-    public T getResolvedValue() {
+    public T peekResolvedValue() {
         return resolvedValue;
     }
 
@@ -157,7 +155,7 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
     
     protected boolean matchTargetType(ArgumentError<?, ?> errorState) {
         Class<T> type = getExpectedType();
-        Object target = errorState.getResolvedValue();
+        Object target = errorState.peekResolvedValue();
         return !errorState.isResolved() ||
                 type == null || target == null ||
                 type.isInstance(target);
@@ -165,10 +163,7 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
     
     protected T getAsTargetType(ArgumentError<?, ?> errorState) {
         Class<T> type = getExpectedType();
-        Object target = errorState.getResolvedValue();
+        Object target = errorState.peekResolvedValue();
         return type == null ? (T) target : type.cast(target);
     }
-    
-    protected static final Supplier EXCEPTION_NOT_SUPPORTED = () -> { throw new UnsupportedOperationException(); };
-    
 }

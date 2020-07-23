@@ -21,7 +21,9 @@ public enum DefaultStatus implements Status {
     UNPROCESSABLE(422),
     
     INTERNAL_ERROR(500),
+    NOT_IMPLEMENTED(501),
     BAD_GATEWAY(502),
+    UNAVAILABLE(503),
     TIMEOUT(504),
     UNKNOWN(591),
     ;

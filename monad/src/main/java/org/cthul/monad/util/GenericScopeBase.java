@@ -58,7 +58,7 @@ public abstract class GenericScopeBase<X extends Exception> implements GenericSc
         if (msg.contains("%s")) {
             msg = format(msg, args);
         } else {
-            msg = safeConcatenate(msg, args);
+            msg = SafeStrings.safeConcatenate(msg, args);
         }
         log.error(m, msg, last);
     }
@@ -79,26 +79,7 @@ public abstract class GenericScopeBase<X extends Exception> implements GenericSc
     }
     
     protected String format(String format, Object[] args) {
-        try {
-            return String.format(format, args);
-        } catch (RuntimeException ex) {
-            return safeConcatenate(format, args);
-        }
-    }
-    
-    protected String safeConcatenate(String string, Object[]... args) {
-        StringBuilder sb = new StringBuilder(string);
-        sb.append(" % [");
-        for (int i = 0; i < args.length; i++) {
-            if (i > 0) sb.append(",");
-            try {
-                sb.append(args[i]);
-            } catch (RuntimeException ex2) {
-                sb.append(ex2);
-            }
-        }
-        sb.append("]");
-        return sb.toString();
+        return SafeStrings.format(format, args);
     }
 
     @Override

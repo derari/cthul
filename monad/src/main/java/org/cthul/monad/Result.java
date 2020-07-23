@@ -7,10 +7,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.cthul.monad.cache.Cached;
 import org.cthul.monad.cache.CachedMeta;
-import org.cthul.monad.util.IncompleteStatusSwitch;
+import org.cthul.monad.error.Checked;
 import org.cthul.monad.util.ScopedResult;
 import org.cthul.monad.util.StatusSwitch;
-import org.cthul.monad.util.StatusSwitch.Step;
 
 public interface Result<T> extends ScopedResult<T, ScopedException>, StatusSwitch<Result<T>> {
 
@@ -20,10 +19,14 @@ public interface Result<T> extends ScopedResult<T, ScopedException>, StatusSwitc
     Cached<T> cacheControl(CachedMeta meta);
     
     Unchecked<T> unchecked();
-    
+
     @Override
-    default Step<Result<T>> ifStatus(Predicate<? super Status> status, Function<? super Result<T>, ? extends Result<T>> action) {
-        return new IncompleteStatusSwitch<>(this, this).ifStatus(status, action);
+    default <X extends Exception> StatusSwitch.Step<Result<T>> ifStatus(Predicate<? super Status> status, Checked.Function<? super Result<T>, ? extends Result<T>, X> action) throws X {
+        return StatusSwitch.choose(this).ifStatus(status, action);
+    }
+    
+    default <U> StatusSwitch<U> chooseWithValue(U value) {
+        return StatusSwitch.choose(this).withValue(value);
     }
     
     default <U> Result<U> noValue() {

@@ -3,13 +3,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>de.easybell</groupId>
-        <artifactId>easybell-parent</artifactId>
-        <version>1.0.2</version>
+        <groupId>org.cthul</groupId>
+        <artifactId>cthul</artifactId>
+        <version>1.1.0</version>
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-monad</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Cthul Monad</name>
 <!--    <url>http://cthul.org</url>
     <description>

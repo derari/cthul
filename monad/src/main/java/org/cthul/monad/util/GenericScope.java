@@ -16,6 +16,14 @@ public interface GenericScope<X extends Exception> {
     
     <T> ScopedResult<T, X> noValue(X exception);
     
+    default <T> ScopedResult<T, X> noValue(Status status, String message) {
+        return noValue(exception(status, message));
+    }
+    
+    default <T> ScopedResult<T, X> noValue(Status status, String message, Object... args) {
+        return noValue(exception(status, message, args));
+    }
+    
     default <T> ScopedResult<T, X> result(T value, Exception exception) {
         if (exception != null) {
             return noValue(wrapAsInternal(exception));
@@ -60,7 +68,7 @@ public interface GenericScope<X extends Exception> {
     default X wrap(Status defaultStatus, Throwable throwable) {
         if (throwable instanceof ScopedResult) {
             ScopedResult<?,?> result = (ScopedResult) throwable;
-            if (!result.hasValue() && result.getScope() == this) {
+            if (!result.hasValue() && isSameScope(result.getScope())) {
                 return asException(result);
             }
         }
@@ -69,6 +77,10 @@ public interface GenericScope<X extends Exception> {
     
     default Function<Throwable, X> wrapper(Status defaultStatus) {
         return throwable -> wrap(defaultStatus, throwable);
+    }
+    
+    default boolean isSameScope(GenericScope<?> other) {
+        return equals(other);
     }
     
     default X asException(ScopedResult<?,?> noValue) {

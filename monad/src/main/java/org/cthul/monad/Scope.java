@@ -168,6 +168,11 @@ public class Scope extends GenericScopeBase<ScopedException> {
         return parseMessage(message).noValue();
     }
     
+    @Override
+    public boolean isSameScope(GenericScope<?> other) {
+        return equals(other) || unchecked().equals(other);
+    }
+    
     public class Unchecked extends GenericScopeBase<ScopedRuntimeException> implements UncheckedScope<ScopedRuntimeException> {
 
         public Unchecked() {
@@ -207,6 +212,11 @@ public class Scope extends GenericScopeBase<ScopedException> {
         @Override
         public ScopedRuntimeException exception(Status status, Throwable cause) {
             return Scope.this.exception(status, cause).unchecked();
+        }
+
+        @Override
+        public boolean isSameScope(GenericScope<?> other) {
+            return Scope.this.isSameScope(other);
         }
     }
 }

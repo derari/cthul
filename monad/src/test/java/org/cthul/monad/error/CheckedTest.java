@@ -18,7 +18,7 @@ public class CheckedTest {
     public void testSafe() {
         Supplier<Integer> supplier = () -> 1;
         Checked.Supplier<Integer, RuntimeException> cSupplier = Checked.from(supplier);
-        Checked.Supplier<Integer, ScopedException> cSupplier2 = cSupplier.wrap(testScope::wrapAsInternal);
+        Checked.Supplier<Integer, ScopedException> cSupplier2 = cSupplier.checked(testScope::wrapAsInternal);
         Supplier<Result<Integer>> safe = cSupplier2.safe(testScope::result);
         assertThat(safe.get().unchecked().get(), is(1));
     }

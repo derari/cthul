@@ -32,7 +32,7 @@ public interface Checked {
         
         void run() throws X;
         
-        default <Y extends Exception> Runnable<Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> Runnable<Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return () -> {
                 try {
                     run();
@@ -84,7 +84,7 @@ public interface Checked {
         
         T get() throws X;
         
-        default <Y extends Exception> Supplier<T, Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> Supplier<T, Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return () -> {
                 try {
                    return get();
@@ -136,7 +136,7 @@ public interface Checked {
         
         void accept(T t) throws X;
         
-        default <Y extends Exception> Consumer<T, Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> Consumer<T, Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return t -> {
                 try {
                    accept(t);
@@ -188,7 +188,7 @@ public interface Checked {
         
         R apply(T t) throws X;
         
-        default <Y extends Exception> Function<T, R, Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> Function<T, R, Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return t -> {
                 try {
                     return apply(t);
@@ -240,7 +240,7 @@ public interface Checked {
         
         void accept(T t, U u) throws X;
         
-        default <Y extends Exception> BiConsumer<T, U, Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> BiConsumer<T, U, Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return (t, u) -> {
                 try {
                     accept(t, u);
@@ -292,7 +292,7 @@ public interface Checked {
         
         R apply(T t, U u) throws X;
         
-        default <Y extends Exception> BiFunction<T, U, R, Y> wrap(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
+        default <Y extends Exception> BiFunction<T, U, R, Y> checked(java.util.function.Function<? super Exception, ? extends Y> errorHandler) {
             return (t, u) -> {
                 try {
                     return apply(t, u);
