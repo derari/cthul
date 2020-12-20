@@ -1,8 +1,10 @@
 package org.cthul.monad.error;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 public interface ErrorState<This extends ErrorState<This>> {
     
-    default This cast(ErrorState<?> errorState) {
+    default @NonNull This cast(@NonNull ErrorState<?> errorState) {
         if (!getClass().isInstance(errorState)) {
             throw new ClassCastException(errorState + " can not be cast to " + getClass());
         }

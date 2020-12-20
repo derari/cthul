@@ -1,46 +1,65 @@
 package org.cthul.monad.error;
 
-import java.util.function.Supplier;
-import org.cthul.monad.DefaultStatus;
-import org.cthul.monad.util.GenericScope;
-import org.cthul.monad.util.ScopedResult;
+import java.util.function.Function;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import static org.cthul.monad.error.GeneralErrorState.exception;
+import org.cthul.monad.GenericScope;
+import org.cthul.monad.ScopedResult;
 
 public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T, X> {
     
-    public static String message(Class<?> expected, Object value) {
-        return "Expected " + expected + ", got " + (value == null ? "null" : value.getClass());
+    public static <T, X extends Exception> CFActualValueStep<T, X> unprocessable(Class<T> expected, GenericScope<X> scope, String message) {
+        return new CFBuilder<>(expected, exception(scope), message);
     }
 
-    public ConversionFailed(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, S value, String error, Object... args) {
-        super(context, operation, parameter, expected, value, scope.noValue(DefaultStatus.UNPROCESSABLE, error, args));
+    public static <T, X extends Exception> CFActualValueStep<T, X> unprocessable(Class<T> expected, X exception) {
+        return new CFBuilder<>(expected, exception(exception), exception.getMessage());
     }
 
-    public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, ScopedResult<?, ? extends X> result) {
-        super(context, operation, parameter, expected, value, result);
+    public static <T, X extends Exception> CFActualValueStep<T, X> unprocessable(Class<T> expected, ScopedResult<?, X> result) {
+        return new CFBuilder<>(expected, exception(result), result.getMessage());
     }
 
-    public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, String error, X exception) {
-        super(context, operation, parameter, expected, value, error, exception);
+    public ConversionFailed(Operation operation, Parameter<T> parameter, Object value, ScopedResult<?, ? extends X> result) {
+        super(operation, parameter, value, result);
     }
 
-    public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, String error, Supplier<? extends X> exceptionSource) {
-        super(context, operation, parameter, expected, value, error, exceptionSource);
+    public ConversionFailed(Operation operation, Parameter<T> parameter, Object value, X exception) {
+        super(operation, parameter, value, exception);
     }
 
-    public ConversionFailed(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, S value) {
-        this(scope, context, operation, parameter, expected, value, message(expected, value));
+    public ConversionFailed(Operation operation, Parameter<T> parameter, Object value, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
+        super(operation, parameter, value, exceptionSource, message);
     }
 
-    public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, X exception) {
-        super(context, operation, parameter, expected, value, message(expected, value), exception);
-    }
-
-    public ConversionFailed(Object context, String operation, String parameter, Class<T> expected, S value, Supplier<? extends X> exceptionSource) {
-        super(context, operation, parameter, expected, value, message(expected, value), exceptionSource);
+    protected ConversionFailed(Builder<T, X, ?> builder) {
+        super(builder);
     }
 
     @Override
     public S getValue() {
         return (S) super.getValue();
+    }
+    
+    public static interface CFActualValueStep<T, X extends Exception> {
+
+        <S> OperationStep<ConversionFailed<S, T, X>> from(@Nullable S value);
+    }
+
+    private static class CFBuilder<S, T, X extends Exception> extends Builder<T, X, ConversionFailed<S, T, X>> implements CFActualValueStep<T, X> {
+
+        public CFBuilder(Class<T> expected, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
+            super(expected, exceptionSource, message);
+        }
+
+        @Override
+        protected ConversionFailed<S, T, X> build() {
+            return new ConversionFailed<>(this);
+        }
+
+        @Override
+        public <S> OperationStep<ConversionFailed<S, T, X>> from(S value) {
+            return (OperationStep) this.got(value);
+        }
     }
 }

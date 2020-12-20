@@ -42,8 +42,11 @@ public class CheckedTest {
     @Test
     public void testWithHandler() {
         Checked.Supplier<Integer, RuntimeException> cSupplier = () -> {
-            IllegalArgument<Integer, RuntimeException> illegalArgument = new IllegalArgument<>(this, "testWithHandler", "value", Integer.class, 0, "zero", new RuntimeException("0"));
-            return ErrorHandler.current().handle(illegalArgument).getResolved();
+            return IllegalArgument
+                    .unprocessable(Integer.class, new RuntimeException("0"))
+                    .got(0).in(this, "testwithHandler", "value")
+                    .handledOnce(ErrorHandler.current())
+                    .getResolved();
         };
         try {
             cSupplier.get();

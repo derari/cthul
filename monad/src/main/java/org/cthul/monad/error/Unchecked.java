@@ -1,4 +1,4 @@
-package org.cthul.monad.util;
+package org.cthul.monad.error;
 
 import org.cthul.monad.error.Checked;
 import org.cthul.monad.error.ErrorHandler;

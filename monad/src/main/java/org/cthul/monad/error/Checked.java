@@ -1,7 +1,5 @@
 package org.cthul.monad.error;
 
-import org.cthul.monad.util.Unchecked;
-
 public interface Checked {
     
     static Unchecked.Runnable<RuntimeException> from(java.lang.Runnable runnable) {

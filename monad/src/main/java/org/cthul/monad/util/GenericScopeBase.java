@@ -1,5 +1,7 @@
 package org.cthul.monad.util;
 
+import org.cthul.monad.GenericScope;
+import org.cthul.monad.ResultMessage;
 import java.util.Arrays;
 import java.util.Random;
 import org.cthul.monad.Status;

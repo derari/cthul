@@ -13,16 +13,26 @@ public interface ErrorHandlerLayer {
         return ErrorContext.enable(this);
     }
     
-    static ErrorHandlerLayer DO_NOT_HANDLE = new ErrorHandlerLayer() {
-        @Override
-        public <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent) {
-            return state;
-        }
-        @Override
-        public String toString() {
-            return "NO ERROR HANDLER";
-        }
-    };
+    default ErrorHandler withCurrentAsParent() {
+        return new ErrorHandler() {
+            @Override
+            public <State extends ErrorState<? extends State>> State handle(State state) {
+                return ErrorHandlerLayer.this.handle(state, ErrorHandler.current());
+            }
+            @Override
+            public ErrorContext enable() {
+                return ErrorContext.enable(ErrorHandlerLayer.this);
+            }
+        };
+    }
+    
+    static ErrorHandlerLayer doNotHandle() {
+        return Builder.DO_NOT_HANDLE;
+    }
+    
+    static ErrorHandlerLayer delegateToParent() {
+        return Builder.DELEGATE_TO_PARENT;
+    }
     
     static <E extends ErrorState<?>> Builder handle(Class<? extends E> type, BiFunction<? super E, ? super ErrorHandler, ? extends ErrorState<?>> handler) {
         return new Builder().handle(type, handler);
@@ -33,6 +43,44 @@ public interface ErrorHandlerLayer {
     }
     
     class Builder implements ErrorHandlerLayer {
+
+        private static final ErrorHandlerLayer DO_NOT_HANDLE = new ErrorHandlerLayer() {
+            @Override
+            public <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent) {
+                return state;
+            }
+            @Override
+            public ErrorHandler withCurrentAsParent() {
+                return ErrorHandler.doNotHandle();
+            }
+            @Override
+            public ErrorContext enable() {
+                return ErrorHandler.doNotHandle().enable();
+            }
+            @Override
+            public String toString() {
+                return "NO ERROR HANDLER";
+            }
+        };
+
+        private static final  ErrorHandlerLayer DELEGATE_TO_PARENT = new ErrorHandlerLayer() {
+            @Override
+            public <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent) {
+                return parent.handle(state);
+            }
+            @Override
+            public ErrorHandler withCurrentAsParent() {
+                return ErrorHandler.delegateCurrent();
+            }
+            @Override
+            public ErrorContext enable() {
+                return ErrorHandler.delegateCurrent().enable();
+            }
+            @Override
+            public String toString() {
+                return "DELEGATE TO PARENT";
+            }
+        };
 
         private final List<Predicate<? super ErrorState<?>>> filters = new ArrayList<>();
         private final List<BiFunction<? super ErrorState<?>, ? super ErrorHandler, ? extends ErrorState<?>>> handlers = new ArrayList<>();

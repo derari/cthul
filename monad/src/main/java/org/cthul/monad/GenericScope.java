@@ -1,4 +1,4 @@
-package org.cthul.monad.util;
+package org.cthul.monad;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

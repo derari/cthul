@@ -1,5 +1,7 @@
 package org.cthul.monad.util;
 
+import org.cthul.monad.GenericScope;
+import org.cthul.monad.ScopedResult;
 import java.util.function.Function;
 import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.Status;

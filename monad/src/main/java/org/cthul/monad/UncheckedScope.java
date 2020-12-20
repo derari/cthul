@@ -1,4 +1,4 @@
-package org.cthul.monad.util;
+package org.cthul.monad;
 
 public interface UncheckedScope<X extends RuntimeException> extends GenericScope<X> {
 

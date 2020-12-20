@@ -18,7 +18,7 @@ public class ErrorContext implements AutoCloseable, ErrorHandler {
     private boolean closed = false;
     
     private ErrorContext() {
-        this.handler = ErrorHandler.DO_NOT_HANDLE;
+        this.handler = DO_NOT_HANDLE;
         this.previous = null;
     }
     
@@ -31,6 +31,7 @@ public class ErrorContext implements AutoCloseable, ErrorHandler {
         this.previous = previous;
     }
     
+    @Override
     public ErrorContext enable() {
         closed = false;
         CURRENT.set(this);
@@ -41,6 +42,7 @@ public class ErrorContext implements AutoCloseable, ErrorHandler {
         return handler;
     }
 
+    @Override
     public <State extends ErrorState<? extends State>> State handle(State state) {
         return getHandler().handle(state);
     }
@@ -63,6 +65,40 @@ public class ErrorContext implements AutoCloseable, ErrorHandler {
             CURRENT.set(this);
         }
     }
+    
+    static ErrorHandler DO_NOT_HANDLE = new ErrorHandler() {
+        @Override
+        public <State extends ErrorState<? extends State>> State handle(State state) {
+            return state;
+        }
+
+        @Override
+        public String toString() {
+            return "NO ERROR HANDLER";
+        }
+    };
+    
+    static ErrorHandler DELEGATE_CURRENT = new ErrorHandler() {
+        @Override
+        public <State extends ErrorState<? extends State>> State handle(State state) {
+            return CURRENT.get().getHandler().handle(state);
+        }
+
+        @Override
+        public ErrorHandler with(ErrorHandlerLayer layer) {
+            return layer.withCurrentAsParent();
+        }
+
+        @Override
+        public ErrorContext enable() {
+            return CURRENT.get().getHandler().enable();
+        }
+
+        @Override
+        public String toString() {
+            return "Delegate to current(" + CURRENT.get().getHandler() + ")";
+        }
+    };
     
     @SuppressWarnings("Convert2Lambda")
     public static final ErrorContext ROOT = new ErrorContext() {

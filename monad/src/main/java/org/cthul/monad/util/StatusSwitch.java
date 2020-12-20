@@ -1,6 +1,7 @@
 package org.cthul.monad.util;
 
 import java.util.function.Predicate;
+import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.Status;
 import org.cthul.monad.error.Checked;
 
@@ -20,86 +21,30 @@ public interface StatusSwitch<T> {
         return new IncompleteStatusSwitch<>(status, status);
     }
     
-    <X extends Exception> StatusSwitch.Step<T> ifStatus(Predicate<? super Status> status, Checked.Function<? super T, ? extends T, X> action) throws X;
+    StepBuilder<T, StatusSwitch.Step<T>> ifStatus(Predicate<? super Status> status);
     
-    default <X extends Exception> StatusSwitch.Step<T> ifStatus(Status status, Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(status::equals, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifStatus(Status status) {
+        return ifStatus(status::equals);
     }
     
-    default <X extends Exception> StatusSwitch.Step<T> ifCode(int code, Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(status -> status.getCode() == code, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifCode(int code) {
+        return ifStatus(status -> status.getCode() == code);
     }
     
-    default <X extends Exception> StatusSwitch.Step<T> ifOk(Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(Status::isOk, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifOk() {
+        return ifStatus(Status::isOk);
     }
     
-    default <X extends Exception> StatusSwitch.Step<T> ifIllegal(Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(Status::isIllegal, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifIllegal() {
+        return ifStatus(Status::isIllegal);
     }
     
-    default <X extends Exception> StatusSwitch.Step<T> ifNotFound(Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(Status::isNotFound, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifNotFound() {
+        return ifStatus(Status::isNotFound);
     }
     
-    default <X extends Exception> StatusSwitch.Step<T> ifInternal(Checked.Function<? super T, ? extends T, X> action) throws X {
-        return ifStatus(Status::isInternal, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifStatus(Predicate<? super Status> status, Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(status, r -> action.get());
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifStatus(Status status, Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(status::equals, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifCode(int code, Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(status -> status.getCode() == code, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifOk(Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(Status::isOk, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifIllegal(Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(Status::isIllegal, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifNotFound(Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(Status::isNotFound, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifInternal(Checked.Supplier<? extends T, X> action) throws X {
-        return ifStatus(Status::isInternal, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifStatus(Predicate<? super Status> status, Checked.Runnable<X> action) throws X {
-        return ifStatus(status, r -> { action.run(); return r; });
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifStatus(Status status, Checked.Runnable<X> action) throws X {
-        return ifStatus(status::equals, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifCode(int code, Checked.Runnable<X> action) throws X {
-        return ifStatus(status -> status.getCode() == code, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifOk(Checked.Runnable<X> action) throws X {
-        return ifStatus(Status::isOk, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifIllegal(Checked.Runnable<X> action) throws X {
-        return ifStatus(Status::isIllegal, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifNotFound(Checked.Runnable<X> action) throws X {
-        return ifStatus(Status::isNotFound, action);
-    }
-    
-    default <X extends Exception> StatusSwitch.Step<T> ifInternal(Checked.Runnable<X> action) throws X {
-        return ifStatus(Status::isInternal, action);
+    default StepBuilder<T, StatusSwitch.Step<T>> ifInternal() {
+        return ifStatus(Status::isInternal);
     }
     
     interface Initial<T> extends StatusSwitch<T> {
@@ -107,22 +52,23 @@ public interface StatusSwitch<T> {
         <U> StatusSwitch<U> withValue(U value);
     }
     
+    interface StepBuilder<T, Result> {
+        
+        <X extends Exception> Result map(Checked.Function<? super T, ? extends T, X> action) throws X;
+        
+        default <X extends Exception> Result get(Checked.Supplier<? extends T, X> action) throws X {
+            return map(t -> action.get());
+        }
+        
+        default <X extends Exception> Result run(Checked.Runnable<X> action) throws X {
+            return map(t -> { action.run(); return t; });
+        }
+    }
+    
     interface Step<T> extends StatusSwitch<T> {
-
-        <X extends Exception> T otherwise(Checked.Function<? super T, ? extends T, X> action) throws X;
+        
+        StepBuilder<T, T> otherwise();
         
         T orKeep();
-
-        default <X extends Exception> T otherwise(Checked.Supplier<? extends T, X> action) throws X {
-            return otherwise(r -> action.get());
-        }
-
-        default <X extends Exception> T otherwise(Checked.Runnable<X> action) throws X {
-            return otherwise(r -> { action.run(); return r; });
-        }
-
-        default <X extends Exception> void or(Checked.Consumer<? super T, X> action) throws X {
-            otherwise(r -> { action.accept(r); return r; });
-        }
     }
 }

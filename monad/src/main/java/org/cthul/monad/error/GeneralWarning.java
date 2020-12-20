@@ -1,9 +1,9 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
-import org.cthul.monad.util.ScopedResult;
+import org.cthul.monad.ScopedResult;
 
-public class GeneralWarning<X extends Exception> extends AbstractErrorState<GeneralWarning<X>, X> {
+public class GeneralWarning<X extends Exception> extends GeneralErrorState<GeneralWarning<X>, X> {
     
     private boolean acknowledged = false;
 
@@ -15,8 +15,8 @@ public class GeneralWarning<X extends Exception> extends AbstractErrorState<Gene
         super(exception);
     }
 
-    public GeneralWarning(Supplier<? extends X> exceptionSource) {
-        super(exceptionSource);
+    public GeneralWarning(Supplier<? extends X> exceptionSupplier, String message) {
+        super(exception(exceptionSupplier), message);
     }
 
     public boolean isAcknowledged() {

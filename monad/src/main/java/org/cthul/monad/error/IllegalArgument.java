@@ -1,26 +1,38 @@
 package org.cthul.monad.error;
 
-import java.util.function.Supplier;
-import org.cthul.monad.DefaultStatus;
-import org.cthul.monad.util.GenericScope;
-import org.cthul.monad.util.ScopedResult;
+import java.util.function.Function;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.cthul.monad.GenericScope;
+import org.cthul.monad.ScopedResult;
 
 public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X> {
-
-    public IllegalArgument(GenericScope<? extends X> scope, Object context, String operation, String parameter, Class<T> expected, T value, String error) {
-        this(context, operation, parameter, expected, value, scope.noValue(DefaultStatus.UNPROCESSABLE, error));
+    
+    public static <T, X extends Exception> IAActualValueStep<T, IllegalArgument<T, X>> unprocessable(Class<T> expected, GenericScope<X> scope, String message) {
+        return new IABuilder<>(expected, exception(scope), message);
+    }
+    
+    public static <T, X extends Exception> IAActualValueStep<T, IllegalArgument<T, X>> unprocessable(Class<T> expected, X exception) {
+        return new IABuilder<>(expected, exception(exception), exception.getMessage());
+    }
+    
+    public static <T, X extends Exception> IAActualValueStep<T, IllegalArgument<T, X>> unprocessable(Class<T> expected, ScopedResult<?, X> result) {
+        return new IABuilder<>(expected, exception(result), result.getMessage());
     }
 
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, T value, ScopedResult<?, ? extends X> result) {
-        super(context, operation, parameter, expected, value, result);
+    public IllegalArgument(Operation operation, Parameter<T> parameter, Object value, ScopedResult<?, ? extends X> result) {
+        super(operation, parameter, value, result);
     }
 
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, T value, String error, X exception) {
-        super(context, operation, parameter, expected, value, error, exception);
+    public IllegalArgument(Operation operation, Parameter<T> parameter, Object value, X exception) {
+        super(operation, parameter, value, exception);
     }
 
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, T value, String error, Supplier<? extends X> exceptionSource) {
-        super(context, operation, parameter, expected, value, error, exceptionSource);
+    public IllegalArgument(Operation operation, Parameter<T> parameter, Object value, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
+        super(operation, parameter, value, exceptionSource, message);
+    }
+
+    protected IllegalArgument(Builder<T, X, ?> builder) {
+        super(builder);
     }
 
     @Override
@@ -31,5 +43,22 @@ public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X>
 
     public void setValue(T resolvedValue) {
         setResolvedValue(resolvedValue);
+    }
+    
+    public static interface IAActualValueStep<T, State> {
+        
+        OperationStep<State> got(@Nullable T value);
+    }
+    
+    private static class IABuilder<T, X extends Exception> extends Builder<T, X, IllegalArgument<T, X>> implements IAActualValueStep<T, IllegalArgument<T, X>> {
+
+        public IABuilder(Class<T> expected, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
+            super(expected, exceptionSource, message);
+        }
+        
+        @Override
+        protected IllegalArgument<T, X> build() {
+            return new IllegalArgument<>(this);
+        }
     }
 }

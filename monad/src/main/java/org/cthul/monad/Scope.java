@@ -73,10 +73,12 @@ public class Scope extends GenericScopeBase<ScopedException> {
         return new ScopedException(this, status, cause);
     }
     
+    @Override
     public <T> Result<T> noValue(Status status, String message, Object... args) {
         return exception(status, message, args).noValue();
     }
     
+    @Override
     public <T> Result<T> noValue(Status status, String message) {
         return exception(status, message).noValue();
     }

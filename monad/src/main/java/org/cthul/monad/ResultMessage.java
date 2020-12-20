@@ -1,4 +1,4 @@
-package org.cthul.monad.util;
+package org.cthul.monad;
 
 import org.cthul.monad.Status;
 
