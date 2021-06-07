@@ -1,19 +1,24 @@
 package org.cthul.monad;
 
-import java.util.function.Function;
-import org.cthul.monad.cache.Cached;
-import org.cthul.monad.cache.CachedMeta;
+import org.cthul.monad.cache.CacheInfo;
 import org.cthul.monad.error.ErrorState;
 import org.cthul.monad.error.GeneralError;
+import org.cthul.monad.result.NoValue;
+import org.cthul.monad.result.ResultMessage;
+import org.cthul.monad.util.ScopedExceptionType;
 
-public class ScopedException extends Exception implements Cached<Object>, CachedMeta.Delegator {
+public class ScopedException extends Exception implements NoValue<ScopedException>, CacheInfo.Delegator {
     
-    private static final CachedMeta NO_STORE = CachedMeta.noStore();
+    public static Type withScope(Scope scope) {
+        return new Type(scope);
+    }
+    
+    private static final CacheInfo NO_STORE = CacheInfo.noStore();
     
     private final Scope scope;
     private final Status status;
     private ScopedRuntimeException runtimeException;
-    private CachedMeta cachedMeta;
+    private CacheInfo cachedMeta;
     private ErrorState<?> errorState;
 
     protected ScopedException(Scope scope, Status status, String message) {
@@ -49,21 +54,20 @@ public class ScopedException extends Exception implements Cached<Object>, Cached
         this.runtimeException = runtimeException;
         this.scope = runtimeException.getScope();
         this.status = runtimeException.getStatus();
-        this.cachedMeta = runtimeException.getCachedMeta();
+        this.cachedMeta = runtimeException.getCacheInfo();
     }
 
     @Override
-    public CachedMeta getCachedMeta() {
+    public CacheInfo getCacheInfo() {
         return cachedMeta;
     }
     
-    @Override
-    public ScopedException cacheControl(CachedMeta meta) {
+    public ScopedException cacheControl(CacheInfo meta) {
         this.cachedMeta = meta;
         return this;
     }
 
-    public void setCacheControl(CachedMeta cachedMeta) {
+    public void setCacheControl(CacheInfo cachedMeta) {
         this.cachedMeta = cachedMeta;
     }
 
@@ -78,23 +82,8 @@ public class ScopedException extends Exception implements Cached<Object>, Cached
     }
 
     @Override
-    public boolean hasValue() {
-        return false;
-    }
-
-    @Override
-    public Object get() throws ScopedException {
-        throw getException();
-    }
-
-    @Override
     public ScopedException getException() {
         return this;
-    }
-
-    @Override
-    public <U> U reduce(Function<? super Object, ? extends U> map, Function<? super ScopedException, ? extends U> onError) {
-        return onError.apply(this);
     }
 
     public ScopedRuntimeException getRuntimeException() {
@@ -125,5 +114,31 @@ public class ScopedException extends Exception implements Cached<Object>, Cached
         String s = getScope() + " " + getStatus();
         String message = getLocalizedMessage();
         return (message != null) ? (s + ": " + message) : s;
+    }
+    
+    public static class Type extends ScopedExceptionType<ScopedException> {
+
+        public Type(Scope scope) {
+            this(scope, DefaultStatus.INTERNAL_ERROR);
+        }
+
+        public Type(Scope scope, Status defaultStatus) {
+            super(ScopedException.class, scope, defaultStatus);
+        }
+        
+        @Override
+        public ScopedException exception(Status status, String message, Throwable cause) {
+            return new ScopedException(scope, status, message, cause);
+        }
+        
+        public ScopedException parseMessage(ResultMessage resultMessage) {
+            Status status = Status.withDescription(resultMessage.getCode(), resultMessage.getStatus());
+            String messageScope = resultMessage.getScope();
+            if (messageScope == null || messageScope.isEmpty() || messageScope.equals(scope.getName())) {
+                return exception(status, resultMessage.getMessage());
+            }
+            Scope adhocScope = resultMessage::getScope;
+            return new ScopedException(adhocScope, status, resultMessage.getMessage());
+        }
     }
 }

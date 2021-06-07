@@ -1,13 +1,16 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
-import org.cthul.monad.ScopedResult;
+import org.cthul.monad.Status;
+import org.cthul.monad.Unsafe;
+import org.cthul.monad.function.CheckedConsumer;
+import org.cthul.monad.util.ExceptionType;
 
-public class GeneralWarning<X extends Exception> extends GeneralErrorState<GeneralWarning<X>, X> {
+public class GeneralWarning<X extends Exception> extends AbstractErrorState<GeneralWarning<X>, X> {
     
     private boolean acknowledged = false;
 
-    public GeneralWarning(ScopedResult<?, ? extends X> result) {
+    public GeneralWarning(Unsafe<?, ? extends X> result) {
         super(result);
     }
 
@@ -15,8 +18,16 @@ public class GeneralWarning<X extends Exception> extends GeneralErrorState<Gener
         super(exception);
     }
 
-    public GeneralWarning(Supplier<? extends X> exceptionSupplier, String message) {
-        super(exception(exceptionSupplier), message);
+    public GeneralWarning(Supplier<? extends X> exceptionSource) {
+        super(exceptionSource);
+    }
+
+    public GeneralWarning(ExceptionType<? extends X> exceptionType, Status status, String message, Object... args) {
+        super(exceptionType, status, message, args);
+    }
+
+    protected GeneralWarning(AbstractErrorState<?, ? extends X> source) {
+        super(source);
     }
 
     public boolean isAcknowledged() {
@@ -38,14 +49,14 @@ public class GeneralWarning<X extends Exception> extends GeneralErrorState<Gener
         }
     }
     
-    public <Y extends Exception> GeneralWarning<X> ifNotAcknowledged(Checked.Consumer<? super X, Y> consumer) throws Y {
+    public <Y extends Exception> GeneralWarning<X> ifNotAcknowledged(CheckedConsumer<? super X, Y> consumer) throws Y {
         if (!isAcknowledged()) {
             consumer.accept(getException());
         }
         return this;
     }
     
-    public <Y extends Exception> GeneralWarning<X> ifAcknowledged(Checked.Consumer<? super X, Y> consumer) throws Y {
+    public <Y extends Exception> GeneralWarning<X> ifAcknowledged(CheckedConsumer<? super X, Y> consumer) throws Y {
         if (isAcknowledged()) {
             consumer.accept(getException());
         }

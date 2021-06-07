@@ -1,10 +1,15 @@
 package org.cthul.monad;
 
-import java.util.function.Function;
-import org.cthul.monad.cache.CachedMeta;
+import org.cthul.monad.cache.CacheInfo;
 import org.cthul.monad.error.ErrorState;
+import org.cthul.monad.result.NoResult;
+import org.cthul.monad.util.ScopedRuntimeExceptionType;
 
-public class ScopedRuntimeException extends RuntimeException implements Result.Unchecked<Object>, CachedMeta.Delegator {
+public class ScopedRuntimeException extends RuntimeException implements NoResult, CacheInfo.Delegator {
+    
+    public static Type withScope(Scope scope) {
+        return new Type(scope);
+    }
     
     private final Scope scope;
     private final Status status;
@@ -42,11 +47,11 @@ public class ScopedRuntimeException extends RuntimeException implements Result.U
     }
 
     @Override
-    public CachedMeta getCachedMeta() {
+    public CacheInfo getCacheInfo() {
         return getCheckedException();
     }
     
-    public ScopedRuntimeException cacheControl(CachedMeta meta) {
+    public ScopedRuntimeException cacheControl(CacheInfo meta) {
         getCheckedException().setCacheControl(meta);
         return this;
     }
@@ -59,16 +64,6 @@ public class ScopedRuntimeException extends RuntimeException implements Result.U
     @Override
     public Status getStatus() {
         return status;
-    }
-
-    @Override
-    public boolean hasValue() {
-        return false;
-    }
-
-    @Override
-    public Object get() {
-        throw getException();
     }
 
     public ScopedException getCheckedException() {
@@ -91,12 +86,6 @@ public class ScopedRuntimeException extends RuntimeException implements Result.U
         getCheckedException().setErrorState(errorState);
     }
 
-    @Override
-    public <U> U reduce(Function<? super Object, ? extends U> map, Function<? super ScopedRuntimeException, ? extends U> onError) {
-        return onError.apply(this);
-    }
-    
-    @Override
     public ScopedException checked() {
         return getCheckedException();
     }
@@ -106,5 +95,21 @@ public class ScopedRuntimeException extends RuntimeException implements Result.U
         String s = String.valueOf(getStatus());
         String message = getLocalizedMessage();
         return (message != null) ? (s + ": " + message) : s;
+    }
+    
+    public static class Type extends ScopedRuntimeExceptionType<ScopedRuntimeException> {
+
+        public Type(Scope scope) {
+            this(scope, DefaultStatus.INTERNAL_ERROR);
+        }
+
+        public Type(Scope scope, Status defaultStatus) {
+            super(ScopedRuntimeException.class, scope, defaultStatus);
+        }
+
+        @Override
+        public ScopedRuntimeException exception(Status status, String message, Throwable cause) {
+            return new ScopedRuntimeException(scope, status, message, cause);
+        }
     }
 }

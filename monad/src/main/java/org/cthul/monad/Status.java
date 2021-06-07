@@ -1,6 +1,6 @@
 package org.cthul.monad;
 
-import org.cthul.monad.util.CustomStatus;
+import org.cthul.monad.result.CustomStatus;
 
 public interface Status {
     

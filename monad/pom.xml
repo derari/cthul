@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.cthul</groupId>
     <artifactId>cthul-monad</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>Cthul Monad</name>
 <!--    <url>http://cthul.org</url>
     <description>
@@ -39,6 +39,11 @@
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
+            </plugin>
         </plugins>    
     </build>
     <dependencies>

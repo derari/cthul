@@ -2,7 +2,16 @@ package org.cthul.monad.util;
 
 public class SafeStrings {
     
-    public static String format(String format, Object[] args) {
+    public static String toString(Object value) {
+        try {
+            return String.valueOf(value);
+        } catch (RuntimeException ex) {
+            return ex.getClass().getSimpleName() + ": " + ex.getMessage();
+        }
+    }
+    
+    public static String format(String format, Object... args) {
+        if (args == null || args.length == 0) return format;
         try {
             return String.format(format, args);
         } catch (RuntimeException ex) {
@@ -10,7 +19,7 @@ public class SafeStrings {
         }
     }
     
-    public static String safeConcatenate(String string, Object[]... args) {
+    public static String safeConcatenate(String string, Object... args) {
         StringBuilder sb = new StringBuilder(string);
         sb.append(" % [");
         for (int i = 0; i < args.length; i++) {

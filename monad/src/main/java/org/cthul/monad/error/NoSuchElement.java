@@ -1,51 +1,32 @@
 package org.cthul.monad.error;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
-import org.cthul.monad.DefaultStatus;
-import static org.cthul.monad.error.GeneralErrorState.exception;
-import org.cthul.monad.GenericScope;
-import org.cthul.monad.ScopedResult;
+import org.cthul.monad.Unsafe;
+import org.cthul.monad.util.ExceptionType;
 
 public class NoSuchElement<T, X extends Exception> extends ArgumentError<T, X> {
-
-    public static <T, X extends Exception> ActualValueStep<NoSuchElement<T, X>> unprocessable(Class<T> expected, GenericScope<X> scope, String message) {
-        return new NSEBuilder<>(expected, exception(scope), message);
-    }
-
-    public static <T, X extends Exception> ActualValueStep<NoSuchElement<T, X>> unprocessable(Class<T> expected, X exception) {
-        return new NSEBuilder<>(expected, exception(exception), exception.getMessage());
-    }
-
-    public static <T, X extends Exception> ActualValueStep<NoSuchElement<T, X>> unprocessable(Class<T> expected, ScopedResult<?, X> result) {
-        return new NSEBuilder<>(expected, exception(result), result.getMessage());
-    }
     
-    public NoSuchElement(Operation operation, Parameter<T> parameter, Object value, ScopedResult<?, ? extends X> result) {
-        super(operation, parameter, value, result);
+    public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, Unsafe<?, ? extends X> result) {
+        super(context, operation, parameter, expected, value, result);
     }
 
-    public NoSuchElement(Operation operation, Parameter<T> parameter, Object value, X exception) {
-        super(operation, parameter, value, exception);
+    public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, String error, X exception) {
+        super(context, operation, parameter, expected, value, error, exception);
     }
 
-    public NoSuchElement(Operation operation, Parameter<T> parameter, Object value, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
-        super(operation, parameter, value, exceptionSource, message);
+    public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, String error, Supplier<? extends X> exceptionSource) {
+        super(context, operation, parameter, expected, value, error, exceptionSource);
     }
 
-    public NoSuchElement(Builder<T, X, ?> builder) {
-        super(builder);
+    public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, ExceptionType<? extends X> exceptionType, String error, Object... args) {
+        super(context, operation, parameter, expected, value, exceptionType, error, args);
     }
-    
-    private static class NSEBuilder<T, X extends Exception> extends Builder<T, X, NoSuchElement<T, X>>  {
 
-        public NSEBuilder(Class<T> expected, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
-            super(expected, exceptionSource, message);
-        }
+    public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, ExceptionType<? extends X> exceptionType) {
+        super(context, operation, parameter, expected, value, exceptionType, "No such element");
+    }
 
-        @Override
-        protected NoSuchElement<T, X> build() {
-            return new NoSuchElement<>(this);
-        }
+    protected NoSuchElement(ArgumentError<T, ? extends X> source) {
+        super(source);
     }
 }

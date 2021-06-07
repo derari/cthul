@@ -1,52 +1,37 @@
 package org.cthul.monad.error;
 
-import java.util.function.Function;
-import org.cthul.monad.GenericScope;
-import org.cthul.monad.ScopedResult;
+import java.util.function.Supplier;
+import org.cthul.monad.Unsafe;
+import org.cthul.monad.util.ExceptionType;
 
 public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
     
-    public static <T, X extends Exception> OperationStep<NullValue<T, X>> expected(Class<T> expected, GenericScope<X> scope) {
-        return new NVBuilder<>(expected, exception(scope), "Value must not be null").got(null);
-    }
-    
-    public static <T, X extends Exception> OperationStep<NullValue<T, X>> expected(Class<T> expected, GenericScope<X> scope, String message) {
-        return new NVBuilder<>(expected, exception(scope), message).got(null);
+    public static <T, X extends Exception> T check(T value, ErrorHandler errorContext, Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType) throws X {
+        if (value != null) return value;
+        return new NullValue<>(context, operation, parameter, expected, exceptionType).handledOnce(errorContext).getResolved();
     }
 
-    public static <T, X extends Exception> OperationStep<NullValue<T, X>> expected(Class<T> expected, X exception) {
-        return new NVBuilder<>(expected, exception(exception), exception.getMessage()).got(null);
+    public NullValue(Object context, String operation, String parameter, Class<T> expected, Unsafe<?, ? extends X> result) {
+        super(context, operation, parameter, expected, null, result);
     }
 
-    public static <T, X extends Exception> OperationStep<NullValue<T, X>> expected(Class<T> expected, ScopedResult<?, X> result) {
-        return new NVBuilder<>(expected, exception(result), result.getMessage()).got(null);
+    public NullValue(Object context, String operation, String parameter, Class<T> expected, String error, X exception) {
+        super(context, operation, parameter, expected, null, error, exception);
     }
 
-    public NullValue(Operation operation, Parameter<T> parameter, Object value, ScopedResult<?, ? extends X> result) {
-        super(operation, parameter, value, result);
+    public NullValue(Object context, String operation, String parameter, Class<T> expected, String error, Supplier<? extends X> exceptionSource) {
+        super(context, operation, parameter, expected, null, error, exceptionSource);
     }
 
-    public NullValue(Operation operation, Parameter<T> parameter, Object value, X exception) {
-        super(operation, parameter, value, exception);
+    public NullValue(Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType, String error, Object... args) {
+        super(context, operation, parameter, expected, null, exceptionType, error, args);
     }
 
-    public NullValue(Operation operation, Parameter<T> parameter, Object value, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
-        super(operation, parameter, value, exceptionSource, message);
+    public NullValue(Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType) {
+        super(context, operation, parameter, expected, null, exceptionType, "Value must not be null");
     }
 
-    public NullValue(Builder<T, X, ?> builder) {
-        super(builder);
-    }
-
-    private static class NVBuilder<T, X extends Exception> extends Builder<T, X, NullValue<T, X>> {
-
-        public NVBuilder(Class<T> expected, Function<? super ErrorState<?>, ? extends X> exceptionSource, String message) {
-            super(expected, exceptionSource, message);
-        }
-
-        @Override
-        protected NullValue<T, X> build() {
-            return new NullValue<>(this);
-        }
+    protected NullValue(ArgumentError<T, ? extends X> source) {
+        super(source);
     }
 }

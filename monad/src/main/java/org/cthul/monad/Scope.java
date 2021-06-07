@@ -1,224 +1,61 @@
 package org.cthul.monad;
 
-import java.util.Optional;
-import org.cthul.monad.error.ErrorState;
-import org.cthul.monad.util.*;
+import java.util.NoSuchElementException;
+import org.cthul.monad.function.ResultWrapper;
+import org.cthul.monad.result.*;
+import org.cthul.monad.util.ScopedResultWrapper;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Scope extends GenericScopeBase<ScopedException> {
-
-    private final Unchecked unchecked;
+public interface Scope {
     
-    public Scope(String name) {
-        super(name);
-        this.unchecked = new Unchecked();
-    }
-
-    public Scope(String name, Logger log) {
-        super(name, log);
-        this.unchecked = new Unchecked();
+    String getName();
+    
+    default <T> ValueResult<T> value(Status status, T value) {
+        return new OkValue<>(this, status, value);
     }
     
-    public Unchecked unchecked() {
-        return unchecked;
-    }
-    
-    @Override
-    public <T> Result<T> value(T value) {
+    default <T> ValueResult<T> value(T value) {
         return value(DefaultStatus.OK, value);
     }
     
-    @Override
-    public <T> Result<T> value(Status okStatus, T value) {
-        return new OkValue<>(this, okStatus, value);
-    }
-
-    @Override
-    public <T> Result<T> noValue(ScopedException exception) {
-        return exception.noValue();
+    default <X extends Exception> NoValue<X> noValue(Status status, X exception) {
+        return new ExceptionResult<>(this, status, exception);
     }
     
-    @Override
-    public <T> Result<T> result(T value, Exception exception) {
-        if (exception != null) {
-            return wrapAsInternal(exception).noValue();
-        }
-        return value(value);
+    default <X extends Exception> NoValue<X> noValue(X exception) {
+        return noValue(DefaultStatus.NO_VALUE, exception);
     }
     
-    @Override
-    public ScopedException exception(Status status, String message) {
-        return newException(status, message);
+    default NoResult noValue(Status status) {
+        return new RuntimeExceptionResult(this, status, new NoSuchElementException());
     }
     
-    @Override
-    public ScopedException exception(Status status, String message, Throwable cause) {
-        return newException(status, message, cause);
+    default NoResult okNoValue() {
+        return noValue(DefaultStatus.NO_VALUE);
     }
     
-    @Override
-    public ScopedException exception(Status status, Throwable cause) {
-        return newException(status, cause);
+    default <X extends Exception> NoValue<X> internal(X exception) {
+        return noValue(DefaultStatus.INTERNAL_ERROR, exception);
     }
     
-    public ScopedException newException(Status status, String message) {
-        return new ScopedException(this, status, message);
+    default NoValue<?> parseMessage(ResultMessage resultMessage) {
+        return ScopedException.withScope(this).parseMessage(resultMessage);
     }
     
-    public ScopedException newException(Status status, String message, Throwable cause) {
-        return new ScopedException(this, status, message, cause);
+    default boolean sameScope(Scope other) {
+        return getName().equals(other.getName());
     }
     
-    public ScopedException newException(Status status, Throwable cause) {
-        return new ScopedException(this, status, cause);
+    default Logger getLogger() {
+        return LoggerFactory.getLogger(getName());
     }
     
-    @Override
-    public <T> Result<T> noValue(Status status, String message, Object... args) {
-        return exception(status, message, args).noValue();
+    default ResultWrapper asResultWrapper() {
+        return new ScopedResultWrapper(this);
     }
     
-    @Override
-    public <T> Result<T> noValue(Status status, String message) {
-        return exception(status, message).noValue();
-    }
-    
-    public <T> Result<T> noValue(Status status, String message, Throwable cause) {
-        return exception(status, message, cause).noValue();
-    }
-    
-    public <T> Result<T> noValue(Status status, Throwable cause) {
-        return exception(status, cause).noValue();
-    }
-    
-    public <T> Result<T> noValue(int code, String message, Object... args) {
-        return exception(code, message, args).noValue();
-    }
-    
-    public <T> Result<T> noValue(int code, String message) {
-        return exception(code, message).noValue();
-    }
-    
-    public <T> Result<T> notFound(String message) {
-        return noValue(DefaultStatus.NOT_FOUND, message);
-    }
-    
-    public <T> Result<T> notFound(String message, Object... args) {
-        return noValue(DefaultStatus.NOT_FOUND, message, args);
-    }
-    
-    public <T> Result<T> forbidden(String message) {
-        return noValue(DefaultStatus.FORBIDDEN, message);
-    }
-    
-    public <T> Result<T> forbidden(String message, Object... args) {
-        return noValue(DefaultStatus.FORBIDDEN, message, args);
-    }
-    
-    public <T> Result<T> internal(String message, Object... args) {
-        return noValue(DefaultStatus.INTERNAL_ERROR, message, args);
-    }
-    
-    public <T> Result<T> internal(Throwable cause) {
-        return noValue(DefaultStatus.INTERNAL_ERROR, cause);
-    }
-    
-    public <T> Result<T> internalize(String msg, Object... args) {
-        return internalLoggedException(msg, args).noValue();
-    }
-    
-    public <T> Result<T> internalize(Status status, String msg, Object... args) {
-        return internalLoggedException(status, msg, args).noValue();
-    }
-
-    @Override
-    public <X2> X2 initializeErrorState(X2 exception, ErrorState<?> state) {
-        if (exception instanceof ScopedException) {
-            ((ScopedException) exception).setErrorState(state);
-        } else if (exception instanceof ScopedRuntimeException) {
-            ((ScopedRuntimeException) exception).setErrorState(state);
-        }
-        return super.initializeErrorState(exception, state);
-    }
-
-    @Override
-    public ScopedException asException(ScopedResult<?, ?> noValue) {
-        if (noValue instanceof Result) {
-            return ((Result<?>) noValue).getException();
-        }
-        if (noValue instanceof Result.Unchecked) {
-            return ((Result.Unchecked<?>) noValue).checked().getException();
-        }
-        return super.asException(noValue);
-    }
-
-    public <T> Result<T> fromOptional(Optional<T> opt, String message, Object... args) {
-        if (opt.isPresent()) {
-            return value(opt.get());
-        }
-        return notFound(message, args).noValue();
-    }
-    
-    public <T> Result<T> fromOptional(Optional<T> opt, String message) {
-        if (opt.isPresent()) {
-            return value(opt.get());
-        }
-        return notFound(message).noValue();
-    }
-    
-    public <T> Result<T> parse(ResultMessage message) {
-        return parseMessage(message).noValue();
-    }
-    
-    @Override
-    public boolean isSameScope(GenericScope<?> other) {
-        return equals(other) || unchecked().equals(other);
-    }
-    
-    public class Unchecked extends GenericScopeBase<ScopedRuntimeException> implements UncheckedScope<ScopedRuntimeException> {
-
-        public Unchecked() {
-            super(Scope.this.name, Scope.this.log);
-        }
-
-        @Override
-        public <T> Result.Unchecked<T> value(T value) {
-            return Scope.this.value(value).unchecked();
-        }
-
-        @Override
-        public <T> Result.Unchecked<T> value(Status okStatus, T value) {
-            return Scope.this.value(okStatus, value).unchecked();
-        }
-
-        @Override
-        public <T> Result.Unchecked<T> noValue(ScopedRuntimeException exception) {
-            return exception.checked().<T>noValue().unchecked();
-        }
-
-        @Override
-        public <T> Result.Unchecked<T> result(T value, Exception exception) {
-            return Scope.this.result(value, exception).unchecked();
-        }
-
-        @Override
-        public ScopedRuntimeException exception(Status status, String message) {
-            return Scope.this.exception(status, message).unchecked();
-        }
-
-        @Override
-        public ScopedRuntimeException exception(Status status, String message, Throwable cause) {
-            return Scope.this.exception(status, message, cause).unchecked();
-        }
-
-        @Override
-        public ScopedRuntimeException exception(Status status, Throwable cause) {
-            return Scope.this.exception(status, cause).unchecked();
-        }
-
-        @Override
-        public boolean isSameScope(GenericScope<?> other) {
-            return Scope.this.isSameScope(other);
-        }
+    default ResultWrapper.Safe safe() {
+        return asResultWrapper().safe();
     }
 }

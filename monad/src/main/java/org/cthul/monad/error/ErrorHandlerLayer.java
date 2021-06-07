@@ -3,35 +3,16 @@ package org.cthul.monad.error;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface ErrorHandlerLayer {
     
     <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent);
     
-    default ErrorContext enable() {
-        return ErrorContext.enable(this);
-    }
-    
-    default ErrorHandler withCurrentAsParent() {
-        return new ErrorHandler() {
-            @Override
-            public <State extends ErrorState<? extends State>> State handle(State state) {
-                return ErrorHandlerLayer.this.handle(state, ErrorHandler.current());
-            }
-            @Override
-            public ErrorContext enable() {
-                return ErrorContext.enable(ErrorHandlerLayer.this);
-            }
-        };
-    }
-    
-    static ErrorHandlerLayer doNotHandle() {
-        return Builder.DO_NOT_HANDLE;
-    }
-    
-    static ErrorHandlerLayer delegateToParent() {
-        return Builder.DELEGATE_TO_PARENT;
+    default ErrorHandlingScope enable() {
+        return ErrorHandlingScope.enable(this);
     }
     
     static <E extends ErrorState<?>> Builder handle(Class<? extends E> type, BiFunction<? super E, ? super ErrorHandler, ? extends ErrorState<?>> handler) {
@@ -42,45 +23,11 @@ public interface ErrorHandlerLayer {
         return new Builder().handle(type);
     }
     
+    static ErrorHandlerLayer doNothing() {
+        return ErrorHandlingScope.DO_NOT_HANDLE;
+    }
+    
     class Builder implements ErrorHandlerLayer {
-
-        private static final ErrorHandlerLayer DO_NOT_HANDLE = new ErrorHandlerLayer() {
-            @Override
-            public <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent) {
-                return state;
-            }
-            @Override
-            public ErrorHandler withCurrentAsParent() {
-                return ErrorHandler.doNotHandle();
-            }
-            @Override
-            public ErrorContext enable() {
-                return ErrorHandler.doNotHandle().enable();
-            }
-            @Override
-            public String toString() {
-                return "NO ERROR HANDLER";
-            }
-        };
-
-        private static final  ErrorHandlerLayer DELEGATE_TO_PARENT = new ErrorHandlerLayer() {
-            @Override
-            public <State extends ErrorState<? extends State>> State handle(State state, ErrorHandler parent) {
-                return parent.handle(state);
-            }
-            @Override
-            public ErrorHandler withCurrentAsParent() {
-                return ErrorHandler.delegateCurrent();
-            }
-            @Override
-            public ErrorContext enable() {
-                return ErrorHandler.delegateCurrent().enable();
-            }
-            @Override
-            public String toString() {
-                return "DELEGATE TO PARENT";
-            }
-        };
 
         private final List<Predicate<? super ErrorState<?>>> filters = new ArrayList<>();
         private final List<BiFunction<? super ErrorState<?>, ? super ErrorHandler, ? extends ErrorState<?>>> handlers = new ArrayList<>();
@@ -117,6 +64,14 @@ public interface ErrorHandlerLayer {
 
             default Builder apply(BiFunction<? super E, ? super ErrorHandler, ? extends ErrorState<?>> handler) {
                 return handle(null, handler);
+            }
+
+            default Builder apply(Function<? super E, ? extends ErrorState<?>> handler) {
+                return handle(null, (e, p) -> handler.apply(e));
+            }
+
+            default Builder run(Consumer<? super E> handler) {
+                return handle(null, (e, p) -> { handler.accept(e); return e; });
             }
             
             default Step<E> filter(Predicate<? super E> filter) {
