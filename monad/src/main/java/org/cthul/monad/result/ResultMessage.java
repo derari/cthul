@@ -1,8 +1,4 @@
-<<<<<<< HEAD:monad/src/main/java/org/cthul/monad/ResultMessage.java
-package org.cthul.monad;
-=======
 package org.cthul.monad.result;
->>>>>>> 2caeb56 (monad: api 2.0):monad/src/main/java/org/cthul/monad/result/ResultMessage.java
 
 import org.cthul.monad.Status;
 
@@ -66,5 +62,4 @@ public class ResultMessage {
     public void setMessage(String message) {
         this.message = message;
     }
-    
 }
