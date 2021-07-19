@@ -1,20 +1,4 @@
-
-/idstax/target
-/log/target
-/matcher/target
-/matcher-fluent/target
-/matcher-fluent-gen/target
-/parser/target
-/xml/target
-/idstax-gen/target/
-/strings/target/
-/log-cal10n/target/
-/parser - Kopie/target/
+/*/target
 /target/
-/matchers/target/
-/parser-lib/target/
-/matchers-fluent/target/
-/objects/target/
-/monad/target/
-/monad/nbproject/
-/observe/nbproject/
+/*/nbproject/
+/nbproject/
