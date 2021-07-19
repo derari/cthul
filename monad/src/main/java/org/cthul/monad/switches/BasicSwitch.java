@@ -2,6 +2,7 @@ package org.cthul.monad.switches;
 
 import java.util.function.Function;
 import org.cthul.monad.Unsafe;
+import org.cthul.monad.function.CheckedPredicate;
 
 
 public interface BasicSwitch<K, T, U, R> 
@@ -45,6 +46,11 @@ public interface BasicSwitch<K, T, U, R>
             return (A) this;
         }
         return Switch.super.as(adapter);
+    }
+
+    @Override
+    default <K2> BasicSwitch<K2, T, U, R> mapKey(CheckedPredicate.Adapter<? super K, ? extends K2> conditionAdapter) {
+        return Switch.super.<K2>mapKey(conditionAdapter).asBasicSwitch();
     }
     
     interface Identity<K, T, R>

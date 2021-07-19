@@ -8,12 +8,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NullValueTest {
-    
+
     public NullValueTest() {
     }
-    
+
     BasicScope scope = new BasicScope("test.scope");
-    
+
     @BeforeEach
     public void setUp() {
     }
@@ -30,8 +30,13 @@ public class NullValueTest {
            assertThat(value, is(17));
        }
     }
-    
+
     private Integer failWithNull() {
-        return NullValue.check(null, ErrorHandler.getCurrent(), this, "failWithNull", "theValue", Integer.class, scope.unchecked());
+        return NullValue.builder()
+                .operation(this, "failWithNull")
+                .parameter("theValue", Integer.class)
+                .exceptionType(scope.unchecked())
+                .handledWith(ErrorHandler.getCurrent())
+                .getResolved();
     }
 }

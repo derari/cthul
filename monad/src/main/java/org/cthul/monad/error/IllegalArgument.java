@@ -1,24 +1,14 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
-import org.cthul.monad.Unsafe;
-import org.cthul.monad.util.ExceptionType;
 public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X> {
 
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, Object value, Unsafe<?, ? extends X> result) {
-        super(context, operation, parameter, expected, value, result);
-    }
-
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, Object value, String error, X exception) {
-        super(context, operation, parameter, expected, value, error, exception);
+    public static Builder builder() {
+        return new BuilderImpl();
     }
 
     public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, Object value, String error, Supplier<? extends X> exceptionSource) {
         super(context, operation, parameter, expected, value, error, exceptionSource);
-    }
-
-    public IllegalArgument(Object context, String operation, String parameter, Class<T> expected, Object value, ExceptionType<? extends X> exceptionType, String error, Object... args) {
-        super(context, operation, parameter, expected, value, exceptionType, error, args);
     }
 
     protected IllegalArgument(ArgumentError<T, ? extends X> source) {
@@ -33,5 +23,13 @@ public class IllegalArgument<T, X extends Exception> extends ArgumentError<T, X>
 
     public void setValue(T resolvedValue) {
         setResolvedValue(resolvedValue);
+    }
+
+    protected static class BuilderImpl extends ArgumentError.BuilderImpl {
+
+        @Override
+        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+            return new IllegalArgument<>(context, operation, parameter, expected, value, error, exceptionSource);
+        }
     }
 }

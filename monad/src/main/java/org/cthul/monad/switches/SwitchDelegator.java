@@ -70,20 +70,34 @@ public abstract class SwitchDelegator<K, T, U, R, S extends Switch<K, T, U, R, S
         return function.apply(key);
     }
     
-    protected static class CaseDelegator<T, U, S0, S1> implements Switch.Case<T, U, S1> {
+    protected static abstract class CaseDelegator<T, U, S0, S1, C extends Switch.Case<?, ?, S0>> implements Switch.Case<T, U, S1> {
         
-        private final Switch.Case<T, U, S0> delegate;
+        private final C delegate;
         private final Function<? super S0, ? extends S1> resultMapping;
 
-        public CaseDelegator(Case<T, U, S0> delegate, Function<? super S0, ? extends S1> resultMapping) {
+        public CaseDelegator(C delegate, Function<? super S0, ? extends S1> resultMapping) {
             this.delegate = delegate;
             this.resultMapping = resultMapping;
         }
 
         @Override
         public <X extends Exception> S1 map(CheckedFunction<T, U, X> function) throws X {
-            S0 delegateResult = delegate.map(function);
+            S0 delegateResult = delegateCase(delegate, function);
             return resultMapping.apply(delegateResult);
+        }
+        
+        protected abstract <X extends Exception> S0 delegateCase(C delegate, CheckedFunction<T, U, X> function) throws X;
+    }
+    
+    protected static class IdentityDelegator<T, U, S0, S1> extends CaseDelegator<T, U, S0, S1, Switch.Case<T, U, S0>> {
+
+        public IdentityDelegator(Case<T, U, S0> delegate, Function<? super S0, ? extends S1> resultMapping) {
+            super(delegate, resultMapping);
+        }
+
+        @Override
+        protected <X extends Exception> S0 delegateCase(Case<T, U, S0> delegate, CheckedFunction<T, U, X> function) throws X {
+            return delegate.map(function);
         }
     }
     

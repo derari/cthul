@@ -8,13 +8,19 @@ import org.cthul.monad.result.ResultMessage;
 import org.cthul.monad.util.ScopedExceptionType;
 
 public class ScopedException extends Exception implements NoValue<ScopedException>, CacheInfo.Delegator {
-    
+
     public static Type withScope(Scope scope) {
         return new Type(scope);
     }
-    
+
+    public static ScopedException parseMessage(ResultMessage resultMessage) {
+        Status status = Status.withDescription(resultMessage.getCode(), resultMessage.getStatus());
+        Scope adhocScope = resultMessage::getScope;
+        return new ScopedException(adhocScope, status, resultMessage.getMessage());
+    }
+
     private static final CacheInfo NO_STORE = CacheInfo.noStore();
-    
+
     private final Scope scope;
     private final Status status;
     private ScopedRuntimeException runtimeException;
@@ -61,7 +67,7 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
     public CacheInfo getCacheInfo() {
         return cachedMeta;
     }
-    
+
     public ScopedException cacheControl(CacheInfo meta) {
         this.cachedMeta = meta;
         return this;
@@ -115,7 +121,7 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
         String message = getLocalizedMessage();
         return (message != null) ? (s + ": " + message) : s;
     }
-    
+
     public static class Type extends ScopedExceptionType<ScopedException> {
 
         public Type(Scope scope) {
@@ -125,20 +131,10 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
         public Type(Scope scope, Status defaultStatus) {
             super(ScopedException.class, scope, defaultStatus);
         }
-        
+
         @Override
-        public ScopedException exception(Status status, String message, Throwable cause) {
+        protected ScopedException exception(Scope scope, Status status, String message, Throwable cause) {
             return new ScopedException(scope, status, message, cause);
-        }
-        
-        public ScopedException parseMessage(ResultMessage resultMessage) {
-            Status status = Status.withDescription(resultMessage.getCode(), resultMessage.getStatus());
-            String messageScope = resultMessage.getScope();
-            if (messageScope == null || messageScope.isEmpty() || messageScope.equals(scope.getName())) {
-                return exception(status, resultMessage.getMessage());
-            }
-            Scope adhocScope = resultMessage::getScope;
-            return new ScopedException(adhocScope, status, resultMessage.getMessage());
         }
     }
 }

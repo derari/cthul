@@ -13,19 +13,19 @@ import org.cthul.monad.switches.BasicSwitch;
 import org.cthul.monad.util.UnsafeStatusAdapter;
 
 public interface ExceptionWrapper<X extends Exception> {
-    
+
     default <T> Unsafe<T, X> result(T value, Exception exception) {
-        if (exception == null) 
+        if (exception == null)
             return value(value).value();
         return failed(exception).asUnsafe();
     }
-     
+
     NoValue<X> failed(Exception exception);
-     
+
     <T> ValueResult<T> value(T value);
-    
+
     NoResult okNoValue();
-    
+
     default RuntimeExceptionWrapper<?> unchecked() {
         return new RuntimeExceptionWrapper<RuntimeException>() {
             @Override
@@ -46,37 +46,36 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         };
     }
-    
+
     default ExceptionWrapper withStatus(Status status) {
         return withStatus().orElse().set(status);
     }
-    
+
     default BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatus() {
         return new UnsafeStatusAdapter.Checked(this).withStatus();
     }
-    
-    default BasicSwitch<Scope, Scope, Status, ? extends ExceptionWrapper<X>> withStatusByScope() {
-        return withStatus().mapKey(Unsafe::getScope).mapSource(Unsafe::getScope).asBasicSwitch();
+
+    default BasicSwitch<Scope, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatusByScope() {
+        return withStatus().mapKey(Unsafe::getScope).asBasicSwitch();
     }
-    
-    default BasicSwitch<Exception, Exception, Status, ? extends ExceptionWrapper<X>> withStatusByException() {
+
+    default BasicSwitch<Exception, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatusByException() {
         return withStatus()
-                .<Exception>mapKey(Unsafe::getException)
-                .<Exception>mapSource(Unsafe::getException).asBasicSwitch();
+                .<Exception>mapKey(Unsafe::getException).asBasicSwitch();
     }
-    
+
     default Safe<X> safe() {
         return () -> this;
     }
-    
+
     default Wrap<X> wrap() {
         return () -> this;
     }
-    
+
     interface Safe<X extends Exception> {
-        
+
         ExceptionWrapper<X> exceptionWrapper();
-        
+
         default RuntimeExceptionWrapper.Safe<?> unchecked() {
             return exceptionWrapper().unchecked().safe();
         }
@@ -164,7 +163,7 @@ public interface ExceptionWrapper<X extends Exception> {
                 return exceptionWrapper().failed(x).asUnsafe();
             }
         }
-        
+
         default Supplier<Unsafe<?, X>> runnable(CheckedRunnable<?> runnable) {
             return () -> run(runnable);
         }
@@ -178,7 +177,7 @@ public interface ExceptionWrapper<X extends Exception> {
                 return exceptionWrapper().failed(x);
             }
         }
-        
+
         default <T> Supplier<Unsafe<T, X>> supplier(CheckedSupplier<T, ?> supplier) {
             return () -> get(supplier);
         }
@@ -193,11 +192,11 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
     }
-    
+
     interface Wrap<X extends Exception> {
-        
+
         ExceptionWrapper<X> exceptionWrapper();
-        
+
         default RuntimeExceptionWrapper.Wrap<?> unchecked() {
             return exceptionWrapper().unchecked().wrap();
         }
@@ -279,7 +278,7 @@ public interface ExceptionWrapper<X extends Exception> {
                 throw exceptionWrapper().failed(x).getException();
             }
         }
-        
+
         default CheckedRunnable<X> runnable(CheckedRunnable<?> runnable) {
             return () -> run(runnable);
         }
@@ -292,7 +291,7 @@ public interface ExceptionWrapper<X extends Exception> {
                 throw exceptionWrapper().failed(x).getException();
             }
         }
-        
+
         default <T> CheckedSupplier<T, X> supplier(CheckedSupplier<T, ?> supplier) {
             return () -> get(supplier);
         }

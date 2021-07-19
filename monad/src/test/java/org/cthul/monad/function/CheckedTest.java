@@ -16,9 +16,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class CheckedTest {
-    
+
     private final BasicScope testScope = new BasicScope("TestScope");
-    
+
     @Test
     public void testSafe() {
         Supplier<Integer> supplier = () -> 1;
@@ -26,7 +26,7 @@ public class CheckedTest {
         Supplier<Unsafe<Integer, RuntimeException>> safe = testScope.safe().supplier(cSupplier);
         assertThat(safe.get().unchecked().get(), is(1));
     }
-    
+
     @Test
     public void testCheckedSafe() {
         Supplier<Integer> supplier = () -> 1;
@@ -34,7 +34,7 @@ public class CheckedTest {
         Supplier<Unsafe<Integer, ScopedException>> safe = testScope.checked().safe().supplier(cSupplier);
         assertThat(safe.get().unchecked().get(), is(1));
     }
-    
+
     @Test
     public void testSafeUnchecked() {
         Supplier<Integer> supplier = () -> 1;
@@ -42,7 +42,7 @@ public class CheckedTest {
         Supplier<Result<Integer>> safe = testScope.safe().unchecked().supplier(cSupplier);
         assertThat(safe.get().get(), is(1));
     }
-    
+
     @Test
     public void testUncheckedSafe() {
         Supplier<Integer> supplier = () -> 1;
@@ -50,13 +50,15 @@ public class CheckedTest {
         Supplier<Result<Integer>> safe = testScope.unchecked().safe().supplier(cSupplier);
         assertThat(safe.get().get(), is(1));
     }
-    
+
     @Test
     public void testWithHandler() {
-        CheckedSupplier<Integer, RuntimeException> cSupplier = () -> {
-            IllegalArgument<Integer, RuntimeException> illegalArgument = new IllegalArgument<>(this, "testWithHandler", "value", Integer.class, 0, "zero", new RuntimeException("0"));
-            return ErrorHandler.getCurrent().handle(illegalArgument).getResolved();
-        };
+        CheckedSupplier<Integer, RuntimeException> cSupplier = () -> IllegalArgument.builder()
+                    .operation(this, "testWithHandler")
+                    .parameter("value", Integer.class)
+                    .got(0, "zero", new RuntimeException("0"))
+                    .handledWith(ErrorHandler.getCurrent())
+                    .getResolved();
         try {
             cSupplier.get();
             fail("exception expected");
@@ -70,7 +72,7 @@ public class CheckedTest {
             assertThat(i2, is(2));
         }
     }
-    
+
     private static final ErrorHandlerLayer LAYER1 = ErrorHandlerLayer.handle(IllegalArgument.class, (ia, h) -> ia.resolve(1));
     private static final ErrorHandlerLayer LAYER2 = ErrorHandlerLayer.handle(IllegalArgument.class, (ia, h) -> ia.resolve(2));
 }

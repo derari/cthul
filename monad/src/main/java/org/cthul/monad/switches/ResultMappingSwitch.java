@@ -24,17 +24,15 @@ public class ResultMappingSwitch<K, T, U, R0, R1>
 
     @Override
     protected <X extends Exception> Switch.Case<T, U, ResultMappingSwitch<K, T, U, R0, R1>> ifTrue(Switch<K, T, U, R0, ?, ?, ?> delegate, CheckedPredicate<? super K, X> condition) throws X {
-        Switch.Case<T, U, ? extends Switch<K, T, U, R0, ?, ?, ?>> case1 = delegate.ifTrue(condition);
-        return cached(case1, this::newCase);
+        return cached(delegate.ifTrue(condition), this::newCase);
     }
 
     private Switch.Case<T, U, ResultMappingSwitch<K, T, U, R0, R1>> newCase(Switch.Case<T, U, ? extends Switch<K, T, U, R0, ?, ?, ?>> case1) {
-        return new CaseDelegator<>(case1, wrapNextStep());
+        return new IdentityDelegator<>(case1, wrapNextStep());
     }
 
     @Override
     protected Switch.Case<T, U, R1> orElse(Switch<K, T, U, R0, ?, ?, ?> delegate) {
-        Switch.Case<T, U, R0> case2 = delegate.orElse();
-        return new CaseDelegator<>(case2, resultMapping);
+        return new IdentityDelegator<>(delegate.orElse(), resultMapping);
     }
 }

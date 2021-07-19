@@ -38,8 +38,7 @@ public class DirectResultMappingSwitch<K, T, U1>
 
     @Override
     protected <X extends Exception> Case<T, U1, BasicSwitch<K, T, U1, U1>> ifTrue(Switch<K, T, ?, ?, ?, ?, ?> delegate, CheckedPredicate<? super K, X> condition) throws X {
-        Case<T, ?, ? extends Switch<K, T, ?, ?, ?, ?, ?>> case1 = delegate.ifTrue(condition);
-        return cached(case1, this::newCase);
+        return cached(delegate.ifTrue(condition), this::newCase);
     }
 
     private Case<T, U1, BasicSwitch<K, T, U1, U1>> newCase(Case<T, ?, ? extends Switch<K, T, ?, ?, ?, ?, ?>> case1) {
@@ -53,8 +52,7 @@ public class DirectResultMappingSwitch<K, T, U1>
 
     @Override
     protected Case<T, U1, U1> orElse(Switch<K, T, ?, ?, ?, ?, ?> delegate) {
-        Case<T, ?, ?> case2 = delegate.orElse();
-        return new ValueMappingCase<>(case2, matchExpected(), SwitchDelegator.identity());
+        return new ValueMappingCase<>(delegate.orElse(), matchExpected(), SwitchDelegator.identity());
     }
 
     @Override

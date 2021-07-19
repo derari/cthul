@@ -1,13 +1,15 @@
 package org.cthul.monad.switches;
 
+import java.util.function.Function;
 import org.cthul.monad.function.CheckedPredicate;
 
 public class ConditionAdaptingSwitch<K0, K1, T, U, R>
         extends SwitchDelegator<K1, T, U, R, 
-                        ConditionAdaptingSwitch<K0, K1, T, U, R>,
-                        Switch.Case<T, U, ConditionAdaptingSwitch<K0, K1, T, U, R>>,
-                        Switch.Case<T, U, R>,
-                        Switch<K0, T, U, R, ?, ?, ?>> {
+                        BasicSwitch<K1, T, U, R>,
+                        BasicSwitch.Case<T, U, BasicSwitch<K1, T, U, R>>,
+                        BasicSwitch.Case<T, U, R>,
+                        Switch<K0, T, U, R, ?, ?, ?>>
+        implements BasicSwitch<K1, T, U, R> {
     
     private final CheckedPredicate.Adapter<? super K0, ? extends K1> adapter;
     
@@ -22,28 +24,27 @@ public class ConditionAdaptingSwitch<K0, K1, T, U, R>
     }
 
     @Override
-    protected <X extends Exception> Switch.Case<T, U, ConditionAdaptingSwitch<K0, K1, T, U, R>> ifTrue(Switch<K0, T, U, R, ?, ?, ?> delegate, CheckedPredicate<? super K1, X> condition) throws X {
-        Switch.Case<T, U, ? extends Switch<K0, T, U, R, ?, ?, ?>> case1 = delegate.ifTrue(test(condition));
-        return cached(case1, this::newCase);
+    protected <X extends Exception> Case<T, U, BasicSwitch<K1, T, U, R>> ifTrue(Switch<K0, T, U, R, ?, ?, ?> delegate, CheckedPredicate<? super K1, X> condition) throws X {
+        return cached(delegate.ifTrue(test(condition)), this::newCase);
     }
     
     protected <X extends Exception> CheckedPredicate<K0, X> test(CheckedPredicate<? super K1, X> condition) {
-        return k0 -> {
-            try {
-                return adapter.test(k0, condition);
-            } catch (Exception ex) {
-                throw (X) ex;
-            }
-        };
+        return k0 -> adapter.testChecked(k0, condition);
     }
 
-    private Switch.Case<T, U, ConditionAdaptingSwitch<K0, K1, T, U, R>> newCase(Switch.Case<T, U, ? extends Switch<K0, T, U, R, ?, ?, ?>> case1) {
-        return new CaseDelegator<>(case1, wrapNextStep());
+    private Case<T, U, BasicSwitch<K1, T, U, R>> newCase(Switch.Case<T, U, ? extends Switch<K0, T, U, R, ?, ?, ?>> case1) {
+        return new BasicDelegator<>(case1, wrapNextStep());
     }
 
     @Override
     protected Switch.Case<T, U, R> orElse(Switch<K0, T, U, R, ?, ?, ?> delegate) {
-        Switch.Case<T, U, R> case2 = delegate.orElse();
-        return new CaseDelegator<>(case2, identity());
+        return new IdentityDelegator<>(delegate.orElse(), identity());
+    }
+    
+    private static class BasicDelegator<T, U, S0, S1> extends IdentityDelegator<T, U, S0, S1> implements BasicSwitch.Case<T, U, S1> {
+
+        public BasicDelegator(Case<T, U, S0> delegate, Function<? super S0, ? extends S1> resultMapping) {
+            super(delegate, resultMapping);
+        }
     }
 }

@@ -34,6 +34,14 @@ public interface CheckedPredicate<T, X extends Exception> {
         
         boolean test(T value, CheckedPredicate<? super U, ?> predicate) throws Exception;
         
+        default <X extends Exception> boolean testChecked(T value, CheckedPredicate<? super U, ?> predicate) throws X {
+            try {
+                return test(value, predicate);
+            } catch (Exception ex) {
+                throw (X) ex;
+            }
+        }
+        
         static <T, U> Adapter<T, U> map(Function<? super T, ? extends U> mapping) {
             return (value, predicate) -> predicate.test(mapping.apply(value));
         }

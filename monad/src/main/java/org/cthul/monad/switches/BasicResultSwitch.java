@@ -53,7 +53,7 @@ public class BasicResultSwitch<K, T, U, X extends Exception, R>
     }
     
     protected static class ResultCaseDelegator<T, U, X extends Exception, R0, R1> 
-            extends CaseDelegator<Unsafe<T, X>, Unsafe<U, X>, R0, R1>
+            extends IdentityDelegator<Unsafe<T, X>, Unsafe<U, X>, R0, R1>
             implements ResultSwitch.Case<T, U, X, R1> {
 
         public ResultCaseDelegator(Switch.Case<Unsafe<T, X>, Unsafe<U, X>, R0> delegate, Function<? super R0, ? extends R1> resultMapping) {
@@ -84,7 +84,7 @@ public class BasicResultSwitch<K, T, U, X extends Exception, R>
     }
     
     protected static class ResultIdentityCaseDelegator<T, X extends Exception, R0, R1> 
-            extends CaseDelegator<Unsafe<T, X>, Unsafe<T, X>, R0, R1>
+            extends IdentityDelegator<Unsafe<T, X>, Unsafe<T, X>, R0, R1>
             implements ResultSwitch.IdentityCase<T, X, R1> {
 
         public ResultIdentityCaseDelegator(Switch.Case<Unsafe<T, X>, Unsafe<T, X>, R0> delegate, Function<? super R0, ? extends R1> resultMapping) {

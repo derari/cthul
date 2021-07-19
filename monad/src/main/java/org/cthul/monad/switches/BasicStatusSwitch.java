@@ -32,7 +32,7 @@ public class BasicStatusSwitch<T, U, R>
 
     @Override
     protected <R0, R1> Case<T, U, R1> newCaseImplementation(Case<T, U, R0> caseDelegate, Function<? super R0, ? extends R1> resultMapping) {
-        return new CaseDelegator<>(caseDelegate, resultMapping);
+        return new IdentityDelegator<>(caseDelegate, resultMapping);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class BasicStatusSwitch<T, U, R>
 
         @Override
         protected <R0, R1> Case<T, U, R1> newCaseImplementation(Case<T, U, R0> caseDelegate, Function<? super R0, ? extends R1> resultMapping) {
-            return new CaseDelegator<>(caseDelegate, resultMapping);
+            return new IdentityDelegator<>(caseDelegate, resultMapping);
         }
 
         @Override

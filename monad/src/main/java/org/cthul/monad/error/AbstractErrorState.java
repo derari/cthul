@@ -7,7 +7,7 @@ import org.cthul.monad.util.ExceptionType;
 import org.cthul.monad.util.SafeStrings;
 
 public abstract class AbstractErrorState<This extends ErrorState<This>, X extends Exception> implements ErrorState<This> {
-    
+
     private X exception;
     private Supplier<? extends X> exceptionSource;
     private boolean handled = false;
@@ -34,13 +34,13 @@ public abstract class AbstractErrorState<This extends ErrorState<This>, X extend
         if (message == null) throw new NullPointerException("message");
         this.exceptionSource = () -> exceptionType.exception(status, message, args);
     }
-    
+
     protected AbstractErrorState(AbstractErrorState<?, ? extends X> source) {
         this.exception = source.exception;
         this.exceptionSource = source.exceptionSource;
         this.handled = source.handled;
     }
-    
+
     public X getException() {
         handled = true;
         if (exception == null) {
@@ -48,7 +48,7 @@ public abstract class AbstractErrorState<This extends ErrorState<This>, X extend
         }
         return exception;
     }
-    
+
     protected X createException() {
         return exceptionSource.get();
     }
@@ -65,16 +65,16 @@ public abstract class AbstractErrorState<This extends ErrorState<This>, X extend
     public void setHandled(boolean handled) {
         this.handled = handled;
     }
-    
+
     protected This self() {
         return (This) this;
     }
-    
+
     public This handledOnce(ErrorHandler handler) {
         if (isHandled()) return self();
         return handledWith(handler);
     }
-    
+
     public This handledWith(ErrorHandler handler) {
         try {
             ErrorState<?> state = handler.handle(this);
@@ -83,7 +83,7 @@ public abstract class AbstractErrorState<This extends ErrorState<This>, X extend
             setHandled(true);
         }
     }
-    
+
     @Override
     public String toString() {
         return SafeStrings.toString(exception);

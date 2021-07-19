@@ -1,37 +1,86 @@
 package org.cthul.monad.error;
 
 import java.util.function.Supplier;
-import org.cthul.monad.Unsafe;
+import org.cthul.monad.result.NoValue;
 import org.cthul.monad.util.ExceptionType;
 
 public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
-    
-    public static <T, X extends Exception> T check(T value, ErrorHandler errorContext, Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType) throws X {
-        if (value != null) return value;
-        return new NullValue<>(context, operation, parameter, expected, exceptionType).handledOnce(errorContext).getResolved();
-    }
 
-    public NullValue(Object context, String operation, String parameter, Class<T> expected, Unsafe<?, ? extends X> result) {
-        super(context, operation, parameter, expected, null, result);
-    }
-
-    public NullValue(Object context, String operation, String parameter, Class<T> expected, String error, X exception) {
-        super(context, operation, parameter, expected, null, error, exception);
+    public static Builder builder() {
+        return new BuilderImpl();
     }
 
     public NullValue(Object context, String operation, String parameter, Class<T> expected, String error, Supplier<? extends X> exceptionSource) {
         super(context, operation, parameter, expected, null, error, exceptionSource);
     }
 
-    public NullValue(Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType, String error, Object... args) {
-        super(context, operation, parameter, expected, null, exceptionType, error, args);
-    }
-
-    public NullValue(Object context, String operation, String parameter, Class<T> expected, ExceptionType<? extends X> exceptionType) {
-        super(context, operation, parameter, expected, null, exceptionType, "Value must not be null");
-    }
-
     protected NullValue(ArgumentError<T, ? extends X> source) {
         super(source);
+    }
+
+    public static interface Builder extends ArgumentError.Builder {
+
+        @Override
+        BuilderWithOperation operation(Object context, String operation);
+    }
+
+    public static interface BuilderWithOperation extends ArgumentError.BuilderWithOperation {
+
+        @Override
+        <T> BuilderWithParameter<T> parameter(String name, Class<T> expected);
+    }
+
+    public static interface BuilderWithParameter<T> extends ArgumentError.BuilderWithParameter<T> {
+
+        default <X extends Exception> BuilderCompleted<T, X> got(NoValue<X> result) {
+            return this.<X>got(null, result);
+        }
+
+        default <X extends Exception> BuilderCompleted<T, X> got(String error, X exception) {
+            return this.<X>got(null, error, exception);
+        }
+
+        default <X extends Exception> BuilderCompleted<T, X> got(ExceptionType<? extends X> exceptionType, String error, Object... args) {
+            return this.<X>got(null, exceptionType, error, args);
+        }
+
+        default <X extends Exception> BuilderCompleted<T, X> got(String error, Supplier<? extends X> exceptionSource) {
+            return this.<X>got(null, error, exceptionSource);
+        }
+
+        <X extends Exception> BuilderCompleted<T, X> exceptionType(ExceptionType<? extends X> exceptionType);
+    }
+
+    protected static class BuilderImpl extends ArgumentError.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object> {
+
+        @Override
+        public BuilderWithOperation operation(Object context, String operation) {
+            return (BuilderWithOperation) super.operation(context, operation);
+        }
+
+        @Override
+        public <T> BuilderWithParameter<T> parameter(String name, Class<T> expected) {
+            return (BuilderWithParameter<T>) super.parameter(name, expected);
+        }
+
+        @Override
+        public <X extends Exception> BuilderCompleted<Object, X> got(Object value, String error, Supplier<? extends X> exceptionSource) {
+            return (BuilderCompleted) super.got(value, error, exceptionSource);
+        }
+
+        @Override
+        public <X extends Exception> BuilderCompleted<Object, X> exceptionType(ExceptionType<? extends X> exceptionType) {
+            return this.<X>got(null, exceptionType, "Value must not be null");
+        }
+
+        @Override
+        public ConversionFailed<Object, Object, Exception> build() {
+            return (ConversionFailed) super.build();
+        }
+
+        @Override
+        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+            return new ConversionFailed<>(context, operation, parameter, expected, value, error, exceptionSource);
+        }
     }
 }

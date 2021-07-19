@@ -28,7 +28,7 @@ public class BasicIdentitySwitch<K, T, R>
     }
     
     protected static class IdentityCaseDelegator<T, R0, R1> 
-            extends CaseDelegator<T, T, R0, R1>
+            extends IdentityDelegator<T, T, R0, R1>
             implements Switch.IdentityCase<T, R1> {
 
         public IdentityCaseDelegator(Case<T, T, R0> delegate, Function<? super R0, ? extends R1> resultMapping) {

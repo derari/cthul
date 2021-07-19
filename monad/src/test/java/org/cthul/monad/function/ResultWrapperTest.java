@@ -10,9 +10,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResultWrapperTest {
-    
+
     private final BasicScope testScope = new BasicScope("TestScope");
-    
+
     @Test
     public void testWithStatus() {
         Unsafe<Integer, RuntimeException> unsafe = testScope.asResultWrapper()
@@ -24,10 +24,10 @@ public class ResultWrapperTest {
                 .safe().get(() -> {
                     throw new IllegalArgumentException();
                 });
-        
+
         assertThat(unsafe.getStatus(), is(DefaultStatus.BAD_REQUEST));
     }
-    
+
     @Test
     public void testWithStatusDefault() {
         Unsafe<Integer, RuntimeException> unsafe = testScope.asResultWrapper()
@@ -39,7 +39,7 @@ public class ResultWrapperTest {
                 .safe().get(() -> {
                     throw new NoSuchElementException();
                 });
-        
+
         assertThat(unsafe.getStatus(), is(DefaultStatus.INTERNAL_ERROR));
     }
 }

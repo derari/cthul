@@ -28,4 +28,11 @@ public class BasicResultSwitchTest {
         assertThat(result, is(17));
     }
     
+    @Test
+    public void testBasicKeyMapping() {
+        Switch<String, Integer, Integer, Integer, ?, ?, ?> s0 = Switch.choose(10).mapKey(Integer::toHexString);
+        BasicSwitch<String, Integer, Integer, Integer> b0 = s0.asBasicSwitch();
+        
+        assertThat(b0, is(s0));
+    }
 }
