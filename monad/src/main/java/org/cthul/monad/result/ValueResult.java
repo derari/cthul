@@ -12,7 +12,11 @@ import org.cthul.monad.function.CheckedFunction;
 public interface ValueResult<T> extends Result<T> {
 
     @Override
-    default <X2 extends Exception> Unsafe<T, X2> value() {
+    default ValueResult<T> value() {
+        return this;
+    }
+
+    default <X2 extends Exception> Unsafe<T, X2> unsafe() {
         return (Unsafe) this;
     }
 
@@ -28,9 +32,19 @@ public interface ValueResult<T> extends Result<T> {
     }
 
     @Override
+    default <X2 extends Exception> Unsafe<T, X2> flatMapException(Function<? super RuntimeException, ? extends Unsafe<? extends T, X2>> function) {
+        return unsafe();
+    }
+
+    @Override
     default <U, X2 extends Exception> Result<U> map(CheckedFunction<? super T, ? extends U, X2> function) throws X2 {
         U next = function.apply(get());
         return getScope().value(getStatus(), next);
+    }
+
+    @Override
+    default <X2 extends Exception, X3 extends Exception> Unsafe<T, X2> mapException(CheckedFunction<? super RuntimeException, ? extends X2, X3> function) throws X3 {
+        return unsafe();
     }
 
     @Override
@@ -49,7 +63,7 @@ public interface ValueResult<T> extends Result<T> {
     }
 
     @Override
-    default ValueResult<T> ifMissing(Consumer<? super RuntimeException> consumer) {
+    default ValueResult<T> ifException(Consumer<? super RuntimeException> consumer) {
         return this;
     }
 
@@ -64,10 +78,15 @@ public interface ValueResult<T> extends Result<T> {
     }
 
     @Override
+    default T orElseApply(Function<? super Unsafe<?, RuntimeException>, ? extends T> other) {
+        return get();
+    }
+
+    @Override
     default <X2 extends Exception> T orElseThrow(Supplier<? extends X2> exceptionSupplier) throws X2 {
         return get();
     }
-    
+
     @Override
     public default void logInfo(String format, Object... args) {
         args = args == null ? new Object[1] : Arrays.copyOf(args, args.length + 1);

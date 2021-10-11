@@ -1,6 +1,9 @@
 package org.cthul.monad.function;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.Result;
 import org.cthul.monad.ScopedException;
 import org.cthul.monad.Unsafe;
@@ -28,19 +31,19 @@ public class CheckedTest {
     }
 
     @Test
+    public void testSafeConsumer() {
+        Consumer<Integer> consumer = i -> System.out.println(i);
+        CheckedConsumer<Integer, RuntimeException> cConsumer = CheckedConsumer.from(consumer);
+        Function<Integer, Unsafe<?, RuntimeException>> safe = testScope.safe().consumer(cConsumer);
+        assertThat(safe.apply(1).getStatus(), is(DefaultStatus.NO_VALUE));
+    }
+
+    @Test
     public void testCheckedSafe() {
         Supplier<Integer> supplier = () -> 1;
         CheckedSupplier<Integer, RuntimeException> cSupplier = CheckedSupplier.from(supplier);
         Supplier<Unsafe<Integer, ScopedException>> safe = testScope.checked().safe().supplier(cSupplier);
         assertThat(safe.get().unchecked().get(), is(1));
-    }
-
-    @Test
-    public void testSafeUnchecked() {
-        Supplier<Integer> supplier = () -> 1;
-        CheckedSupplier<Integer, RuntimeException> cSupplier = CheckedSupplier.from(supplier);
-        Supplier<Result<Integer>> safe = testScope.safe().unchecked().supplier(cSupplier);
-        assertThat(safe.get().get(), is(1));
     }
 
     @Test

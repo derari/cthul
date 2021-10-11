@@ -1,4 +1,4 @@
-package org.cthul.monad.function;
+package org.cthul.monad.adapt;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -6,79 +6,67 @@ import java.util.function.Supplier;
 import org.cthul.monad.Scope;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
-import org.cthul.monad.result.NoResult;
+import org.cthul.monad.function.*;
 import org.cthul.monad.result.NoValue;
 import org.cthul.monad.result.ValueResult;
 import org.cthul.monad.switches.BasicSwitch;
-import org.cthul.monad.util.UnsafeStatusAdapter;
+import org.cthul.monad.switches.Switch;
+import org.cthul.monad.util.ResultAdapter;
 
 public interface ExceptionWrapper<X extends Exception> {
 
-    default <T> Unsafe<T, X> result(T value, Exception exception) {
-        if (exception == null)
-            return value(value).value();
-        return failed(exception).asUnsafe();
-    }
-
-    NoValue<X> failed(Exception exception);
-
-    <T> ValueResult<T> value(T value);
-
-    NoResult okNoValue();
+    ResultFactory<X> resultFactory();
 
     default RuntimeExceptionWrapper<?> unchecked() {
-        return new RuntimeExceptionWrapper<RuntimeException>() {
-            @Override
-            public NoResult failed(Exception exception) {
-                return ExceptionWrapper.this.failed(exception).unchecked();
-            }
-            @Override
-            public <T> ValueResult<T> value(T value) {
-                return ExceptionWrapper.this.value(value);
-            }
-            @Override
-            public NoResult okNoValue() {
-                return ExceptionWrapper.this.okNoValue();
-            }
-            @Override
-            public String toString() {
-                return ExceptionWrapper.this.toString();
-            }
-        };
+        return resultFactory()::unchecked;
     }
 
-    default ExceptionWrapper withStatus(Status status) {
-        return withStatus().orElse().set(status);
+    default BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, ExceptionAdapter, ExceptionWrapper<X>> adaptResult() {
+        return BasicSwitch.asBasicSwitch(resultFactory().adaptUnsafe()
+                .mapResult(rf -> rf::self));
     }
 
-    default BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatus() {
-        return new UnsafeStatusAdapter.Checked(this).withStatus();
+    default BasicSwitch.Identity<NoValue<X>, NoValue<X>, ? extends ExceptionWrapper<X>> adaptNoValue() {
+        Switch choice = adaptResult()
+            .ifTrue(Unsafe::isPresent).map(u -> nv -> nv)
+            .mapKey(Unsafe::noValue)
+            .mapSource(Unsafe::noValue)
+            .mapTargetFromSource(u -> nv -> u.noValue());
+        return BasicSwitch.asIdentitySwitch(choice);
     }
 
-    default BasicSwitch<Scope, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatusByScope() {
-        return withStatus().mapKey(Unsafe::getScope).asBasicSwitch();
+    default ExceptionWrapper<X> withStatus(Status status) {
+        return adaptResult().orElse().set(nv -> ResultAdapter.setStatus(nv, status).noValue());
     }
 
-    default BasicSwitch<Exception, Unsafe<?, ?>, Status, ? extends ExceptionWrapper<X>> withStatusByException() {
-        return withStatus()
-                .<Exception>mapKey(Unsafe::getException).asBasicSwitch();
+    default BasicSwitch<NoValue<X>, NoValue<X>, Status, ? extends ExceptionWrapper<X>> chooseStatus() {
+        return BasicSwitch.asBasicSwitch(adaptNoValue()
+            .mapTarget((u, s) -> ResultAdapter.setStatus(u, s).noValue()));
+    }
+
+    default BasicSwitch<Scope, NoValue<X>, Status, ? extends ExceptionWrapper<X>> chooseStatusByScope() {
+        return chooseStatus().mapKey(Unsafe::getScope).asBasicSwitch();
+    }
+
+    default BasicSwitch<Exception, NoValue<X>, Status, ? extends ExceptionWrapper<X>> chooseStatusByException() {
+        return BasicSwitch.asBasicSwitch(chooseStatus().mapKey(Unsafe::getException));
     }
 
     default Safe<X> safe() {
-        return () -> this;
+        return this::resultFactory;
     }
 
     default Wrap<X> wrap() {
-        return () -> this;
+        return this::resultFactory;
+    }
+
+    default NoValue<X> failed(Exception exception) {
+        return resultFactory().failed(exception);
     }
 
     interface Safe<X extends Exception> {
 
-        ExceptionWrapper<X> exceptionWrapper();
-
-        default RuntimeExceptionWrapper.Safe<?> unchecked() {
-            return exceptionWrapper().unchecked().safe();
-        }
+        ResultFactory<X> exceptionWrapper();
 
         default <T> Function<T, Unsafe<?, X>> consumer(CheckedConsumer<T, ?> consumer) {
             return t -> accept(t, consumer);
@@ -88,7 +76,7 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T> Unsafe<?, X> accept(T value, CheckedConsumer<T, ?> consumer) {
             try {
                 consumer.accept(value);
-                return exceptionWrapper().okNoValue().value();
+                return exceptionWrapper().noValue();
             } catch (Exception x) {
                 return exceptionWrapper().failed(x);
             }
@@ -102,7 +90,7 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T, U> Unsafe<?, X> accept(T value1, U value2, CheckedBiConsumer<T, U, ?> consumer) {
             try {
                 consumer.accept(value1, value2);
-                return exceptionWrapper().okNoValue().value();
+                return exceptionWrapper().noValue();
             } catch (Exception x) {
                 return exceptionWrapper().failed(x);
             }
@@ -116,9 +104,9 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T, R> Unsafe<R, X> apply(T value, CheckedFunction<T, R, ?> function) {
             try {
                 R r = function.apply(value);
-                return exceptionWrapper().value(r).value();
+                return exceptionWrapper().value(r).unsafe();
             } catch (Exception x) {
-                return exceptionWrapper().failed(x).asUnsafe();
+                return exceptionWrapper().failed(x).unsafe();
             }
         }
 
@@ -130,9 +118,9 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T, U, R> Unsafe<R, X> apply(T value1, U value2, CheckedBiFunction<T, U, R, ?> function) {
             try {
                 R r = function.apply(value1, value2);
-                return exceptionWrapper().value(r).value();
+                return exceptionWrapper().value(r).unsafe();
             } catch (Exception x) {
-                return exceptionWrapper().failed(x).asUnsafe();
+                return exceptionWrapper().failed(x).unsafe();
             }
         }
 
@@ -144,9 +132,9 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T> Unsafe<Boolean, X> test(T value, CheckedPredicate<T, ?> predicate) {
             try {
                 Boolean r = predicate.test(value);
-                return exceptionWrapper().value(r).value();
+                return exceptionWrapper().value(r).unsafe();
             } catch (Exception x) {
-                return exceptionWrapper().failed(x).asUnsafe();
+                return exceptionWrapper().failed(x).unsafe();
             }
         }
 
@@ -158,9 +146,9 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T, U> Unsafe<Boolean, X> test(T value1, U value2, CheckedBiPredicate<T, U, ?> predicate) {
             try {
                 Boolean r = predicate.test(value1, value2);
-                return exceptionWrapper().value(r).value();
+                return exceptionWrapper().value(r).unsafe();
             } catch (Exception x) {
-                return exceptionWrapper().failed(x).asUnsafe();
+                return exceptionWrapper().failed(x).unsafe();
             }
         }
 
@@ -172,7 +160,7 @@ public interface ExceptionWrapper<X extends Exception> {
         default Unsafe<?, X> run(CheckedRunnable<?> runnable) {
             try {
                 runnable.run();
-                return exceptionWrapper().okNoValue().value();
+                return exceptionWrapper().noValue();
             } catch (Exception x) {
                 return exceptionWrapper().failed(x);
             }
@@ -186,20 +174,16 @@ public interface ExceptionWrapper<X extends Exception> {
         default <T> Unsafe<T, X> get(CheckedSupplier<T, ?> supplier) {
             try {
                 T t = supplier.get();
-                return exceptionWrapper().value(t).value();
+                return exceptionWrapper().value(t).unsafe();
             } catch (Exception x) {
-                return exceptionWrapper().failed(x).asUnsafe();
+                return exceptionWrapper().failed(x).unsafe();
             }
         }
     }
 
     interface Wrap<X extends Exception> {
 
-        ExceptionWrapper<X> exceptionWrapper();
-
-        default RuntimeExceptionWrapper.Wrap<?> unchecked() {
-            return exceptionWrapper().unchecked().wrap();
-        }
+        ResultFactory<X> exceptionWrapper();
 
         default <T> CheckedConsumer<T, X> consumer(CheckedConsumer<T, ?> consumer) {
             return t -> accept(t, consumer);
@@ -303,6 +287,23 @@ public interface ExceptionWrapper<X extends Exception> {
             } catch (Exception x) {
                 throw exceptionWrapper().failed(x).getException();
             }
+        }
+    }
+
+    interface ResultFactory<X extends Exception> {
+
+        NoValue<X> failed(Exception exception);
+
+        <T> ValueResult<T> value(T value);
+
+        NoValue<X> noValue();
+
+        BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, ExceptionAdapter, ResultFactory<X>> adaptUnsafe();
+
+        ResultFactory<RuntimeException> unchecked();
+
+        default ResultFactory<X> self() {
+            return this;
         }
     }
 }

@@ -1,7 +1,7 @@
 package org.cthul.monad.util;
 
 public class SafeStrings {
-    
+
     public static String toString(Object value) {
         try {
             return String.valueOf(value);
@@ -9,16 +9,16 @@ public class SafeStrings {
             return ex.getClass().getSimpleName() + ": " + ex.getMessage();
         }
     }
-    
+
     public static String format(String format, Object... args) {
-        if (args == null || args.length == 0) return format;
+        if (format == null || args == null || args.length == 0) return format;
         try {
             return String.format(format, args);
         } catch (RuntimeException ex) {
             return safeConcatenate(format, args);
         }
     }
-    
+
     public static String safeConcatenate(String string, Object... args) {
         StringBuilder sb = new StringBuilder(string);
         sb.append(" % [");

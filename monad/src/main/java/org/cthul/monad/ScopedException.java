@@ -133,7 +133,7 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
         }
 
         @Override
-        protected ScopedException exception(Scope scope, Status status, String message, Throwable cause) {
+        protected ScopedException newException(Scope scope, Status status, String message, Throwable cause) {
             return new ScopedException(scope, status, message, cause);
         }
     }

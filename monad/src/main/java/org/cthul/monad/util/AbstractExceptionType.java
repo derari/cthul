@@ -1,35 +1,33 @@
 package org.cthul.monad.util;
 
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.Scope;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
-import org.cthul.monad.function.ExceptionWrapper;
-import org.cthul.monad.result.*;
+import org.cthul.monad.adapt.ExceptionAdapter;
+import org.cthul.monad.adapt.ExceptionWrapper;
+import org.cthul.monad.result.ExceptionResult;
+import org.cthul.monad.result.NoValue;
+import org.cthul.monad.result.ResultMessage;
+import org.cthul.monad.result.ValueResult;
+import org.cthul.monad.switches.BasicSwitch;
 
-public abstract class AbstractExceptionType<X extends Exception>
-        extends AbstractExceptionWrapper<X>
-        implements ExceptionType<X> {
+public abstract class AbstractExceptionType<X extends Exception> implements ExceptionType<X> {
 
     private final Class<X> exceptionClass;
     private final Scope scope;
     private final Status defaultStatus;
-    private final Internalizer internalizer = new Internalizer(this::getInternalStatus);
+    private final ExceptionWrapper.ResultFactory<X> resultFactory;
 
     public AbstractExceptionType(Class<X> exceptionClass, Scope scope, Status defaultStatus) {
         this.exceptionClass = exceptionClass;
         this.scope = scope;
         this.defaultStatus = defaultStatus;
+        this.resultFactory = new ResultFactory(new ResultAdapter(this::exceptionToNoValue));
     }
 
-    public <T> ValueResult<T> value(T value) {
-        return scope.value(value);
-    }
-
-    public NoResult okNoValue() {
-        return scope.okNoValue();
+    public ExceptionWrapper.ResultFactory<X> resultFactory() {
+        return resultFactory;
     }
 
     public X parseMessage(ResultMessage resultMessage) {
@@ -39,102 +37,43 @@ public abstract class AbstractExceptionType<X extends Exception>
             return exception(status, resultMessage.getMessage());
         }
         Scope adhocScope = resultMessage::getScope;
-        return exception(adhocScope, status, resultMessage.getMessage(), null);
-    }
-
-    @Override
-    protected NoValue<X> wrapException(Exception exception) {
-        if (isValidWrapper(exception)) {
-            return (NoValue<X>) exception;
-        }
-        X x = cast(exception);
-        if (isValidWrapper(x)) {
-            return (NoValue<X>) x;
-        }
-        return new ExceptionResult<>(scope, defaultStatus, x);
-    }
-
-    @Override
-    protected NoValue<X> wrapUnsafe(NoValue<?> unsafe) {
-        Exception exception = unsafe.getException();
-        if (isValidWrapper(exception)) {
-            return (NoValue<X>) exception;
-        }
-        X x = cast(exception);
-        if (isValidWrapper(x)) {
-            return (NoValue<X>) x;
-        }
-        return new ExceptionResult<>(scope, unsafe.getStatus(), x);
+        return newException(adhocScope, status, resultMessage.getMessage(), null);
     }
 
     @Override
     public X exception(Status status, String message, Throwable cause) {
-        return exception(scope, status, message, cause);
+        return newException(scope, status, message, cause);
     }
 
-    protected abstract X exception(Scope scope, Status status, String message, Throwable cause);
+    private NoValue<?> exceptionToNoValue(Exception exception) {
+        if (exception instanceof NoValue) {
+            return (NoValue) exception;
+        }
+        return scope.failed(defaultStatus, exception);
+    }
+
+    protected <T> Unsafe<T, X> wrap(Unsafe<T, ?> unsafe) {
+        if (unsafe.isPresent()) return unsafe.unchecked().value().unsafe();
+        Exception exception = unsafe.getException();
+        if (exceptionClass.isInstance(exception)) {
+            return (Unsafe) unsafe;
+        }
+        return noValue(scope, unsafe.noValue()).unsafe();
+    }
+
+    protected NoValue<X> noValue(Scope scope, NoValue<?> noValue) {
+        Exception exception = noValue.getException();
+        X x = newException(scope, noValue.getStatus(), exception.getMessage(), exception);
+        if (x instanceof NoValue) {
+            return (NoValue) x;
+        }
+        return new ExceptionResult<>(scope, noValue.getStatus(), x);
+    }
+
+    protected abstract X newException(Scope scope, Status status, String message, Throwable cause);
 
     public Scope getScope() {
         return scope;
-    }
-
-    private Status getInternalStatus(Unsafe<?, ?> unsafe) {
-        if (unsafe.getStatus().isInternal() && !getScope().sameScope(unsafe.getScope())) {
-            return DefaultStatus.BAD_GATEWAY;
-        }
-        return DefaultStatus.INTERNAL_ERROR;
-    }
-
-    public <T> Unsafe<T, X> internalize(Unsafe<T, ?> unsafe) {
-        if (unsafe.isPresent()) {
-            return unsafe.unchecked().value();
-        }
-        return internalize(unsafe.noValue()).asUnsafe();
-    }
-
-    public NoValue<X> internalize(NoValue<?> unsafe) {
-        int statusCode = scope.sameScope(unsafe.getScope()) ? 500 : 502;
-        Status status = Status.withCode(statusCode);
-        return internalize(status, unsafe, unsafe.getException());
-    }
-
-    public NoValue<X> internalize(Exception exception) {
-        return internalize(DefaultStatus.INTERNAL_ERROR, exception);
-    }
-
-    public NoValue<X> internalize(Status status, Exception exception) {
-        String message = exception.getMessage();
-        return internalize(status, message != null ? message : exception, exception);
-    }
-
-    public Internalizer internalize() {
-        return internalizer;
-    }
-
-    public Internalizer internalize(Status status) {
-        return new Internalizer(u -> status);
-    }
-
-    public NoValue<X> internalize(Status status, Object message, Exception exception) {
-        long randomId = ThreadLocalRandom.current().nextLong();
-        String randomCode = Long.toHexString(randomId);
-        scope.getLogger().info("Internal error ({}): {}", randomCode, message, exception);
-        return wrapException(exception(status, "Internal error (%s)", randomCode));
-    }
-
-    private X cast(Exception exception) {
-        if (exceptionClass.isInstance(exception)) {
-            return (X) exception;
-        }
-        return exception(defaultStatus, exception);
-    }
-
-    protected boolean isValidWrapper(Exception exception) {
-        if (!(exception instanceof Unsafe)) return false;
-        Unsafe<?,?> unsafe = (Unsafe) exception;
-        if (unsafe.isPresent()) return false;
-        Exception wrapped = unsafe.getException();
-        return exceptionClass.isInstance(wrapped);
     }
 
     @Override
@@ -142,46 +81,74 @@ public abstract class AbstractExceptionType<X extends Exception>
         return scope.toString() + "/" + exceptionClass.getSimpleName();
     }
 
-    public class Internalizer extends AbstractExceptionWrapper<X> implements ExceptionType<X>, ExceptionWrapper<X> {
-
-        private final Function<? super Unsafe<?,?>, ? extends Status> statusMapping;
-
-        public Internalizer(Function<? super Unsafe<?, ?>, ? extends Status> statusMapping) {
-            this.statusMapping = statusMapping;
-        }
-
-        @Override
-        public <T> ValueResult<T> value(T value) {
-            return AbstractExceptionType.this.value(value);
-        }
-
-        @Override
-        public NoResult okNoValue() {
-            return AbstractExceptionType.this.okNoValue();
-        }
-
-        @Override
-        protected NoValue<X> wrapException(Exception exception) {
-            if (exception instanceof NoValue) {
-                return wrapUnsafe((NoValue) exception);
+    protected ExceptionWrapper.ResultFactory<RuntimeException> unchecked(ResultFactory resultFactory) {
+        return new ExceptionWrapper.ResultFactory<RuntimeException>() {
+            @Override
+            public NoValue<RuntimeException> failed(Exception exception) {
+                return resultFactory.failed(exception).unchecked();
             }
-            return wrapUnsafe(new ExceptionResult<>(scope, DefaultStatus.BAD_REQUEST, exception));
+            @Override
+            public <T> ValueResult<T> value(T value) {
+                return resultFactory.value(value);
+            }
+            @Override
+            public NoValue<RuntimeException> noValue() {
+                return resultFactory.noValue().unchecked();
+            }
+            @Override
+            public BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, ExceptionAdapter, ExceptionWrapper.ResultFactory<RuntimeException>> adaptUnsafe() {
+                return resultFactory.adaptUnsafe().mapResult(rf -> rf.unchecked()).asBasicSwitch();
+            }
+            @Override
+            public ExceptionWrapper.ResultFactory<RuntimeException> unchecked() {
+                return this;
+            }
+        };
+    }
+
+    public ExceptionAdapter internalize(Status status, String message) {
+        return noValue -> exceptionToNoValue(internalize(status, message, noValue));
+    }
+
+    protected class ResultFactory implements ExceptionWrapper.ResultFactory<X> {
+
+        protected final ResultAdapter resultAdapter;
+
+        public ResultFactory(ResultAdapter resultAdapter) {
+            this.resultAdapter = resultAdapter;
         }
 
-        @Override
-        protected NoValue<X> wrapUnsafe(NoValue<?> unsafe) {
-            Status status = statusMapping.apply(unsafe);
-            return AbstractExceptionType.this.internalize(status, unsafe.getException());
-        }
-
-        @Override
-        public X exception(Status status, String message, Throwable cause) {
-            return wrapException(AbstractExceptionType.this.exception(status, message, cause)).getException();
+        protected <T> Unsafe<T,X> adapt(Unsafe<T,?> unsafe) {
+            unsafe = (Unsafe) resultAdapter.adaptUnsafe(unsafe);
+            return wrap(unsafe);
         }
 
         @Override
         public NoValue<X> failed(Exception exception) {
-            return wrapException(exception);
+            return wrap(resultAdapter.adaptException(exception)).noValue();
+        }
+
+        @Override
+        public <T> ValueResult<T> value(T value) {
+            return adapt(scope.value(value)).unchecked().value();
+        }
+
+        @Override
+        public NoValue<X> noValue() {
+            return failed(exception(DefaultStatus.NO_VALUE));
+        }
+
+        @Override
+        public BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, ExceptionAdapter, ExceptionWrapper.ResultFactory<X>> adaptUnsafe() {
+            return resultAdapter.chooseResult()
+                    .<ExceptionWrapper.ResultFactory<X>>mapResult(ResultFactory::new)
+                    .<ExceptionAdapter>mapTarget((unsafe, adapter) -> adapter.unsafe(unsafe))
+                    .asBasicSwitch();
+        }
+
+        @Override
+        public ExceptionWrapper.ResultFactory<RuntimeException> unchecked() {
+            return AbstractExceptionType.this.unchecked(this);
         }
     }
 }

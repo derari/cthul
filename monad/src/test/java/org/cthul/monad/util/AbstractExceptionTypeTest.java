@@ -9,8 +9,8 @@ import org.cthul.monad.function.UncheckedSupplier;
 import org.cthul.monad.result.BasicScope;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AbstractExceptionTypeTest {
@@ -20,16 +20,20 @@ public class AbstractExceptionTypeTest {
     @Test
     public void testInternalize() {
         UncheckedSupplier<String, ?> supplier = () -> { throw new IllegalArgumentException("foo"); };
-        Supplier<Unsafe<String, ScopedException>> safe = scope.checked().internalize().safe().supplier(supplier);
+        Supplier<Unsafe<String, ScopedException>> safe = scope.checked().adaptResult()
+                .orElse().set(scope.unchecked()::internalize)
+                .safe().supplier(supplier);
         Unsafe<String, ScopedException> result = safe.get();
         assertThat(result.getStatus(), is(DefaultStatus.INTERNAL_ERROR));
-        assertThat(result.getException().getMessage(), startsWith("Internal error"));
+        assertThat(result.getException().getMessage(), containsString("internal error"));
     }
 
     @Test
     public void testInternalizeGateway() {
         UncheckedSupplier<String, ?> supplier = () -> { throw ScopedRuntimeException.withScope(() -> "x").internal("foo"); };
-        Supplier<Unsafe<String, ScopedException>> safe = scope.checked().internalize().safe().supplier(supplier);
+        Supplier<Unsafe<String, ScopedException>> safe = scope.checked().adaptResult()
+                .orElse().set(scope.unchecked().internalize(DefaultStatus.BAD_GATEWAY, null))
+                .safe().supplier(supplier);
         Unsafe<String, ScopedException> result = safe.get();
         assertThat(result.getStatus(), is(DefaultStatus.BAD_GATEWAY));
     }

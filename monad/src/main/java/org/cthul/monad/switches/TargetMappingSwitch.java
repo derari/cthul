@@ -1,19 +1,25 @@
 package org.cthul.monad.switches;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.cthul.monad.function.CheckedFunction;
 import org.cthul.monad.function.CheckedPredicate;
 
 public class TargetMappingSwitch<K, T, U0, U1, R>
-        extends SwitchDelegator<K, T, U1, R, 
+        extends SwitchDelegator<K, T, U1, R,
                         TargetMappingSwitch<K, T, U0, U1, R>,
                         Switch.Case<T, U1, TargetMappingSwitch<K, T, U0, U1, R>>,
                         Switch.Case<T, U1, R>,
                         Switch<K, T, U0, R, ?, ?, ?>> {
-    
-    private final Function<? super U1, ? extends U0> valueMapping;
+
+    private final BiFunction<? super T, ? super U1, ? extends U0> valueMapping;
 
     public TargetMappingSwitch(Switch<K, T, U0, R, ?, ?, ?> delegate, Function<? super U1, ? extends U0> valueMapping) {
+        super(delegate);
+        this.valueMapping = (t, u) -> valueMapping.apply(u);
+    }
+
+    public TargetMappingSwitch(Switch<K, T, U0, R, ?, ?, ?> delegate, BiFunction<? super T, ? super U1, ? extends U0> valueMapping) {
         super(delegate);
         this.valueMapping = valueMapping;
     }
@@ -36,7 +42,7 @@ public class TargetMappingSwitch<K, T, U0, U1, R>
     protected Switch.Case<T, U1, R> orElse(Switch<K, T, U0, R, ?, ?, ?> delegate) {
         return new MappingDelegator<>(delegate.orElse(), identity());
     }
-    
+
     protected class MappingDelegator<S0, S1> extends CaseDelegator<T, U1, S0, S1, Case<T, U0, S0>>{
 
         public MappingDelegator(Case<T, U0, S0> delegate, Function<? super S0, ? extends S1> resultMapping) {
@@ -44,10 +50,10 @@ public class TargetMappingSwitch<K, T, U0, U1, R>
         }
 
         @Override
-        protected <X extends Exception> S0 delegateCase(Case<T, U0, S0> delegate, CheckedFunction<T, U1, X> function) throws X {
+        protected <X extends Exception> S0 delegateCase(Case<T, U0, S0> delegate, CheckedFunction<T, ? extends U1, X> function) throws X {
             return delegate.map(t -> {
                 U1 u1 = function.apply(t);
-                return valueMapping.apply(u1);
+                return valueMapping.apply(t, u1);
             });
         }
     }

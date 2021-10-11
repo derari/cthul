@@ -21,7 +21,7 @@ public class BasicResultSwitchTest {
                     .orElse()
                         .chooseByStatus()
                             .ifOk().setValue(17)
-                            .orElse().map(n -> n) // todo: identity interface
+                            .orElse().map(n -> n)
                         .endUnchecked()
                 .get();
         

@@ -1,10 +1,11 @@
 package org.cthul.monad.switches;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.cthul.monad.function.CheckedPredicate;
 
 public class SwitchOperations {
-    
+
     public static <K, K2, T, U, R> BasicSwitch<K2, T, U, R> mapKey(Switch<K, T, U, R, ?, ?, ?> instance, CheckedPredicate.Adapter<? super K, ? extends K2> conditionAdapter) {
         return instance.wrapWith(delegate -> new ConditionAdaptingSwitch<>(delegate, conditionAdapter));
     }
@@ -18,6 +19,10 @@ public class SwitchOperations {
     }
 
     public static <K, T, U, U2, R> Switch<K, T, U2, R, ?, ?, ?> mapTarget(Switch<K, T, U, R, ?, ?, ?> instance, Function<? super U2, ? extends U> valueMapping) {
+        return instance.wrapWith(delegate -> new TargetMappingSwitch<>(delegate, valueMapping));
+    }
+
+    public static <K, T, U, U2, R> Switch<K, T, U2, R, ?, ?, ?> mapTarget(Switch<K, T, U, R, ?, ?, ?> instance, BiFunction<? super T, ? super U2, ? extends U> valueMapping) {
         return instance.wrapWith(delegate -> new TargetMappingSwitch<>(delegate, valueMapping));
     }
 

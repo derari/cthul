@@ -15,8 +15,8 @@ public class ResultWrapperTest {
 
     @Test
     public void testWithStatus() {
-        Unsafe<Integer, RuntimeException> unsafe = testScope.asResultWrapper()
-                .withStatusByException()
+        Unsafe<Integer, RuntimeException> unsafe = testScope.overrideScope()
+                .chooseStatusByException()
                     .ifInstanceOf(IllegalArgumentException.class)
                         .set(DefaultStatus.BAD_REQUEST)
                     .orElse()
@@ -30,8 +30,8 @@ public class ResultWrapperTest {
 
     @Test
     public void testWithStatusDefault() {
-        Unsafe<Integer, RuntimeException> unsafe = testScope.asResultWrapper()
-                .withStatusByException()
+        Unsafe<Integer, RuntimeException> unsafe = testScope.overrideScope()
+                .chooseStatusByException()
                     .ifInstanceOf(IllegalArgumentException.class)
                         .set(DefaultStatus.BAD_REQUEST)
                     .orElse()

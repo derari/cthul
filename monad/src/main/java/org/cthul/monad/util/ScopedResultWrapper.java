@@ -3,49 +3,62 @@ package org.cthul.monad.util;
 import org.cthul.monad.Scope;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
-import org.cthul.monad.function.CheckedFunction;
-import org.cthul.monad.function.ResultWrapper;
-import org.cthul.monad.result.NoResult;
+import org.cthul.monad.adapt.ResultWrapper;
+import org.cthul.monad.adapt.UnsafeAdapter;
 import org.cthul.monad.result.NoValue;
 import org.cthul.monad.result.ValueResult;
 import org.cthul.monad.switches.BasicSwitch;
-import org.cthul.monad.switches.SwitchFunctionBuilder;
+import org.cthul.monad.switches.Switch;
 
-public class ScopedResultWrapper extends UnsafeStatusAdapter implements ResultWrapper {
+public class ScopedResultWrapper implements ResultWrapper {
 
-    private final Scope scope;
+    final Scope scope;
+    final boolean forceScope;
+    final ResultAdapter resultAdapter;
 
-    public ScopedResultWrapper(Scope scope) {
-        super(scope::internal);
+    public ScopedResultWrapper(Scope scope, boolean forceScope) {
         this.scope = scope;
+        this.forceScope = forceScope;
+        this.resultAdapter = new ResultAdapter(scope::internal);
     }
 
-    protected ScopedResultWrapper(ScopedResultWrapper parent, CheckedFunction<Unsafe<?, ?>, Status, ?> statusMapper) {
-        super(parent, statusMapper);
-        this.scope = parent.scope;
+    public ScopedResultWrapper(Scope scope, boolean forceScope, ResultAdapter resultAdapter) {
+        this.scope = scope;
+        this.forceScope = forceScope;
+        this.resultAdapter = resultAdapter;
     }
-    
-    public ResultWrapper withStatusMapper(CheckedFunction<Unsafe<?, ?>, Status, ?> statusMapper) {
-        return new ScopedResultWrapper(this, statusMapper);
+
+    protected ResultWrapper extend(ResultAdapter resultAdapter) {
+        return new ScopedResultWrapper(scope, forceScope, resultAdapter);
+    }
+
+    @Override
+    public BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, UnsafeAdapter, ? extends ResultWrapper> adaptResult() {
+        Switch choice = resultAdapter.chooseResult()
+                .<UnsafeAdapter>mapTarget((unsafe, adapter) -> adapter.unsafe(unsafe))
+                .mapResult(this::extend);
+        return choice.asBasicSwitch();
     }
 
     @Override
     public <X extends Exception> NoValue<X> failed(X exception) {
-        return (NoValue) apply(exception);
+        return (NoValue) forceScope(resultAdapter.adaptException(exception));
     }
 
     @Override
-    public <T> ValueResult<T> value(T value) {
-        return scope.value(value);
+    public <T> ValueResult<T> value(Status status, T value) {
+        return scope.value(status, value);
     }
 
     @Override
-    public NoResult okNoValue() {
-        return scope.okNoValue();
+    public <T, X extends Exception> Unsafe<T, X> unsafe(Unsafe<T, X> unsafe) {
+        return (Unsafe) forceScope(resultAdapter.adaptUnsafe(unsafe));
     }
 
-    @Override
-    public BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, Status, ? extends ResultWrapper> withStatus() {
-        return SwitchFunctionBuilder.functionBuilder(this::withStatusMapper).asBasicSwitch();
+    private <T, X extends Exception> Unsafe<T, X> forceScope(Unsafe<T, X> unsafe) {
+        if (!forceScope || scope.sameScope(unsafe.getScope())) return unsafe;
+        return unsafe
+                .flatMap(t -> scope.value(unsafe.getStatus(), t).unsafe())
+                .flatMapException(x -> scope.failed(unsafe.getStatus(), x).unsafe());
     }
 }

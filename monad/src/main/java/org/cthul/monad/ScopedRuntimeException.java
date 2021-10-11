@@ -108,7 +108,7 @@ public class ScopedRuntimeException extends RuntimeException implements NoResult
         }
 
         @Override
-        protected ScopedRuntimeException exception(Scope scope, Status status, String message, Throwable cause) {
+        protected ScopedRuntimeException newException(Scope scope, Status status, String message, Throwable cause) {
             return new ScopedRuntimeException(scope, status, message, cause);
         }
     }

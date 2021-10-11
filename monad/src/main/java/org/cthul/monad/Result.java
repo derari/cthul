@@ -11,7 +11,7 @@ public interface Result<T> extends Unsafe<T, RuntimeException> {
     default Result<T> unchecked() {
         return this;
     }
-    
+
     @Override
     Result<T> ifPresent(Consumer<? super T> consumer);
 

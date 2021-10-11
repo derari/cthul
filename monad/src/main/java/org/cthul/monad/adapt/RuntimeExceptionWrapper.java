@@ -1,4 +1,4 @@
-package org.cthul.monad.function;
+package org.cthul.monad.adapt;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -7,92 +7,86 @@ import org.cthul.monad.Result;
 import org.cthul.monad.Scope;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
-import org.cthul.monad.result.NoResult;
+import org.cthul.monad.function.CheckedBiConsumer;
+import org.cthul.monad.function.CheckedBiFunction;
+import org.cthul.monad.function.CheckedBiPredicate;
+import org.cthul.monad.function.CheckedConsumer;
+import org.cthul.monad.function.CheckedFunction;
+import org.cthul.monad.function.CheckedPredicate;
+import org.cthul.monad.function.CheckedRunnable;
+import org.cthul.monad.function.CheckedSupplier;
+import org.cthul.monad.function.UncheckedBiConsumer;
+import org.cthul.monad.function.UncheckedBiFunction;
+import org.cthul.monad.function.UncheckedBiPredicate;
+import org.cthul.monad.function.UncheckedConsumer;
+import org.cthul.monad.function.UncheckedFunction;
+import org.cthul.monad.function.UncheckedPredicate;
+import org.cthul.monad.function.UncheckedRunnable;
+import org.cthul.monad.function.UncheckedSupplier;
 import org.cthul.monad.result.NoValue;
-import org.cthul.monad.result.ValueResult;
 import org.cthul.monad.switches.BasicSwitch;
-import org.cthul.monad.util.UnsafeStatusAdapter;
+import org.cthul.monad.switches.Switch;
+import org.cthul.monad.util.ResultAdapter;
 
 public interface RuntimeExceptionWrapper<X extends RuntimeException> {
-    
-    default <T> Result<T> result(T value, Exception exception) {
-        if (exception == null) 
-            return value(value);
-        return failed(exception).asUnsafe();
-    }
-     
-    NoResult failed(Exception exception);
-     
-    <T> ValueResult<T> value(T value);
-    
-    NoResult okNoValue();
-    
+
+    ExceptionWrapper.ResultFactory<X> resultFactory();
+
     default ExceptionWrapper<X> typed() {
-        return new ExceptionWrapper<X>() {
-            @Override
-            public NoValue<X> failed(Exception exception) {
-                return (NoValue) RuntimeExceptionWrapper.this.failed(exception);
-            }
-            @Override
-            public <T> ValueResult<T> value(T value) {
-                return RuntimeExceptionWrapper.this.value(value);
-            }
-            @Override
-            public NoResult okNoValue() {
-                return RuntimeExceptionWrapper.this.okNoValue();
-            }
-            @Override
-            public RuntimeExceptionWrapper<X> unchecked() {
-                return RuntimeExceptionWrapper.this;
-            }
-            @Override
-            public String toString() {
-                return RuntimeExceptionWrapper.this.toString();
-            }
-        };
+        return resultFactory()::self;
     }
-    
-    default RuntimeExceptionWrapper withStatus(Status status) {
-        return withStatus().orElse().set(status);
+
+    default BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, ExceptionAdapter, RuntimeExceptionWrapper<X>> adaptUnsafe() {
+        return BasicSwitch.asBasicSwitch(resultFactory().adaptUnsafe()
+                .mapResult(rf -> (RuntimeExceptionWrapper) rf.unchecked()));
     }
-    
-    default BasicSwitch<Unsafe<?, ?>, Unsafe<?, ?>, Status, ? extends RuntimeExceptionWrapper<X>> withStatus() {
-        return new UnsafeStatusAdapter.Unchecked(this).withStatus();
+
+    default BasicSwitch.Identity<NoValue<X>, NoValue<X>, ? extends RuntimeExceptionWrapper<X>> adaptNoValue() {
+        Switch choice = adaptUnsafe()
+                .ifTrue(Unsafe::isPresent).map(u -> nv -> nv)
+                .mapKey(Unsafe::noValue)
+                .mapSource(Unsafe::noValue)
+                .mapTargetFromSource(u -> nv -> u.noValue());
+        return BasicSwitch.asIdentitySwitch(choice);
     }
-    
-    default BasicSwitch<Scope, Scope, Status, ? extends RuntimeExceptionWrapper<X>> withStatusByScope() {
-        return BasicSwitch.asBasicSwitch(withStatus().mapKey(Unsafe::getScope).mapSource(Unsafe::getScope));
+
+    default RuntimeExceptionWrapper<X> withStatus(Status status) {
+        return adaptUnsafe().orElse().set(nv -> ResultAdapter.setStatus(nv, status).noValue());
     }
-    
-    default BasicSwitch<Exception, Exception, Status, ? extends RuntimeExceptionWrapper<X>> withStatusByException() {
-        return (BasicSwitch) BasicSwitch.asBasicSwitch(withStatus().mapKey(Unsafe::getException).mapSource(Unsafe::getException));
+
+    default BasicSwitch<NoValue<X>, NoValue<X>, Status, ? extends RuntimeExceptionWrapper<X>> withStatus() {
+        return BasicSwitch.asBasicSwitch(adaptNoValue()
+                .mapTarget((u, s) -> ResultAdapter.setStatus(u, s).noValue()));
     }
-    
+
+    default BasicSwitch<Scope, NoValue<X>, Status, ? extends RuntimeExceptionWrapper<X>> withStatusByScope() {
+        return withStatus().mapKey(Unsafe::getScope).asBasicSwitch();
+    }
+
+    default BasicSwitch<Exception, NoValue<X>, Status, ? extends RuntimeExceptionWrapper<X>> withStatusByException() {
+        return BasicSwitch.asBasicSwitch(withStatus().mapKey(Unsafe::getException));
+    }
+
     default Safe<X> safe() {
-        return () -> this;
+        return this::resultFactory;
     }
-    
+
     default Wrap<X> wrap() {
-        ExceptionWrapper<X> typed = typed();
-        return () -> typed;
+        return this::resultFactory;
     }
-    
+
     interface Safe<X extends RuntimeException> {
-        
-        RuntimeExceptionWrapper<X> exceptionWrapper();
-        
-        default ExceptionWrapper.Safe<X> typed() {
-            return exceptionWrapper().typed().safe();
-        }
+
+        ExceptionWrapper.ResultFactory<X> exceptionWrapper();
 
         @SuppressWarnings("UseSpecificCatch")
         default <T> Function<T, Result<?>> consumer(CheckedConsumer<T, ?> consumer) {
             return t -> {
                 try {
                     consumer.accept(t);
-                    return exceptionWrapper().okNoValue();
+                    return exceptionWrapper().value(null);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x);
+                    return exceptionWrapper().failed(x).unchecked();
                 }
             };
         }
@@ -106,9 +100,9 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
             return (t, u) -> {
                 try {
                     consumer.accept(t, u);
-                    return exceptionWrapper().okNoValue();
+                    return exceptionWrapper().noValue().unchecked();
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x);
+                    return exceptionWrapper().failed(x).unchecked();
                 }
             };
         }
@@ -124,7 +118,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
                     R r = function.apply(t);
                     return exceptionWrapper().value(r);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x).asUnsafe();
+                    return exceptionWrapper().failed(x).unchecked().result();
                 }
             };
         }
@@ -140,7 +134,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
                     R r = function.apply(t, u);
                     return exceptionWrapper().value(r);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x).asUnsafe();
+                    return exceptionWrapper().failed(x).unchecked().result();
                 }
             };
         }
@@ -156,7 +150,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
                     Boolean r = predicate.test(t);
                     return exceptionWrapper().value(r);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x).asUnsafe();
+                    return exceptionWrapper().failed(x).unchecked().result();
                 }
             };
         }
@@ -172,7 +166,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
                     Boolean r = predicate.test(t, u);
                     return exceptionWrapper().value(r);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x).asUnsafe();
+                    return exceptionWrapper().failed(x).unchecked().result();
                 }
             };
         }
@@ -180,15 +174,15 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         default <T, U> Result<Boolean> test(T value1, U value2, CheckedBiPredicate<T, U, ?> predicate) {
             return bipredicate(predicate).apply(value1, value2);
         }
-        
+
         @SuppressWarnings("UseSpecificCatch")
         default Supplier<Result<?>> runnable(CheckedRunnable<?> runnable) {
             return () -> {
                 try {
                     runnable.run();
-                    return exceptionWrapper().okNoValue();
+                    return exceptionWrapper().noValue().unchecked();
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x);
+                    return exceptionWrapper().failed(x).unchecked();
                 }
             };
         }
@@ -196,7 +190,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         default Unsafe<?, ?> run(CheckedRunnable<?> runnable) {
             return runnable(runnable).get();
         }
-        
+
         @SuppressWarnings("UseSpecificCatch")
         default <T> Supplier<Result<T>> supplier(CheckedSupplier<T, ?> supplier) {
             return () -> {
@@ -204,7 +198,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
                     T t = supplier.get();
                     return exceptionWrapper().value(t);
                 } catch (Exception x) {
-                    return exceptionWrapper().failed(x).asUnsafe();
+                    return exceptionWrapper().failed(x).unchecked().result();
                 }
             };
         }
@@ -213,9 +207,9 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
             return supplier(supplier).get();
         }
     }
-    
+
     interface Wrap<X extends RuntimeException> extends ExceptionWrapper.Wrap<X> {
-        
+
         @Override
         default <T> UncheckedConsumer<T, X> consumer(CheckedConsumer<T, ?> consumer) {
             return t -> accept(t, consumer);
@@ -245,12 +239,12 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         default <T, U> UncheckedBiPredicate<T, U, X> bipredicate(CheckedBiPredicate<T, U, ?> predicate) {
             return (t, u) -> test(t, u, predicate);
         }
-        
+
         @Override
         default UncheckedRunnable<X> runnable(CheckedRunnable<?> runnable) {
             return () -> run(runnable);
         }
-        
+
         @Override
         default <T> UncheckedSupplier<T, X> supplier(CheckedSupplier<T, ?> supplier) {
             return () -> get(supplier);

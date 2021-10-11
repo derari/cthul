@@ -25,13 +25,13 @@ public interface NoValue<X extends Exception> extends Unsafe<Object, X> {
     default NoValue<X> noValue() {
         return this;
     }
-    
-    default <U> Unsafe<U, X> asUnsafe() {
+
+    default <U> Unsafe<U, X> unsafe() {
         return (Unsafe) this;
     }
-    
+
     @Override
-    default <X2 extends Exception> Unsafe<Object, X2> value() throws X {
+    default ValueResult<Object> value() throws X {
         throw getException();
     }
 
@@ -47,19 +47,30 @@ public interface NoValue<X extends Exception> extends Unsafe<Object, X> {
     }
 
     @Override
-    default NoValue<X> ifMissing(Consumer<? super X> consumer) {
+    default NoValue<X> ifException(Consumer<? super X> consumer) {
         consumer.accept(getException());
         return this;
     }
 
     @Override
     default <U> Unsafe<U, X> flatMap(Function<? super Object, ? extends Unsafe<U, ? extends X>> function) {
-        return asUnsafe();
+        return unsafe();
+    }
+
+    @Override
+    default <X2 extends Exception> Unsafe<Object, X2> flatMapException(Function<? super X, ? extends Unsafe<? extends Object, X2>> function) {
+        return (Unsafe) function.apply(getException());
     }
 
     @Override
     default <U, X2 extends Exception> Unsafe<U, X> map(CheckedFunction<? super Object, ? extends U, X2> function) throws X2 {
-        return asUnsafe();
+        return unsafe();
+    }
+
+    @Override
+    default <X2 extends Exception, X3 extends Exception> Unsafe<Object, X2> mapException(CheckedFunction<? super X, ? extends X2, X3> function) throws X3 {
+        X2 newException = function.apply(getException());
+        return getScope().failed(getStatus(), newException);
     }
 
     @Override
@@ -70,6 +81,11 @@ public interface NoValue<X extends Exception> extends Unsafe<Object, X> {
     @Override
     default Object orElseGet(Supplier<? extends Object> other) {
         return other.get();
+    }
+
+    @Override
+    default Object orElseApply(Function<? super Unsafe<?, X>, ? extends Object> other) {
+        return other.apply(this);
     }
 
     @Override
