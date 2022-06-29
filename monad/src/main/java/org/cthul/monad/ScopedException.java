@@ -29,6 +29,8 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
 
     protected ScopedException(Scope scope, Status status, String message) {
         super(message);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
         this.cachedMeta = NO_STORE;
@@ -36,6 +38,8 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
 
     protected ScopedException(Scope scope, Status status, String message, Throwable cause) {
         super(message, cause);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
         this.cachedMeta = NO_STORE;
@@ -43,6 +47,8 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
 
     protected ScopedException(Scope scope, Status status, Throwable cause) {
         super(cause);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
         this.cachedMeta = NO_STORE;
@@ -50,6 +56,8 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
 
     protected ScopedException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
         this.cachedMeta = NO_STORE;

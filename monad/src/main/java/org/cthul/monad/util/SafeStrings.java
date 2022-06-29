@@ -1,17 +1,20 @@
 package org.cthul.monad.util;
 
+import java.util.Arrays;
+
 public class SafeStrings {
 
     public static String toString(Object value) {
         try {
             return String.valueOf(value);
         } catch (RuntimeException ex) {
-            return ex.getClass().getSimpleName() + ": " + ex.getMessage();
+            return value.getClass().getCanonicalName() + ": " + ex.getMessage();
         }
     }
 
     public static String format(String format, Object... args) {
-        if (format == null || args == null || args.length == 0) return format;
+        if (args == null || args.length == 0) return format;
+        if (format == null) return Arrays.toString(args);
         try {
             return String.format(format, args);
         } catch (RuntimeException ex) {

@@ -7,11 +7,7 @@ import org.cthul.monad.result.NoValue;
 import org.cthul.monad.util.ExceptionType;
 import org.cthul.monad.util.SafeStrings;
 
-public class ArgumentError<T, X extends Exception> extends AbstractErrorState<ArgumentError<T, X>, X> {
-
-    public static Builder builder() {
-        return new BuilderImpl();
-    }
+public class ArgumentErrorState<T, X extends Exception> extends AbstractErrorState<ArgumentErrorState<T, X>, X> {
 
     private final Object context;
     private final String operation;
@@ -22,7 +18,7 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
     private T resolvedValue = null;
     private boolean resolved = false;
 
-    public ArgumentError(Object context, String operation, String parameter, Class<T> expected, Object value, String error, Supplier<? extends X> exceptionSource) {
+    public ArgumentErrorState(Object context, String operation, String parameter, Class<T> expected, Object value, String error, Supplier<? extends X> exceptionSource) {
         super(exceptionSource);
         this.context = context;
         this.operation = operation;
@@ -32,7 +28,7 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
         this.error = error;
     }
 
-    protected ArgumentError(ArgumentError<T, ? extends X> source) {
+    protected ArgumentErrorState(ArgumentErrorState<T, ? extends X> source) {
         super(source);
         this.context = source.context;
         this.operation = source.operation;
@@ -97,30 +93,30 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
         this.resolvedValue = resolvedValue;
     }
 
-    public ArgumentError<T, X> resolve(T resolvedValue) {
+    public ArgumentErrorState<T, X> resolve(T resolvedValue) {
         setResolvedValue(resolvedValue);
         return this;
     }
 
     @Override
-    public ArgumentError<T, X> cast(ErrorState<?> errorState) {
-        if (errorState instanceof ArgumentError) {
-            return cast((ArgumentError) errorState);
+    public ArgumentErrorState<T, X> cast(ErrorState<?> errorState) {
+        if (errorState instanceof ArgumentErrorState) {
+            return cast((ArgumentErrorState) errorState);
         }
         throw new ClassCastException(errorState + " can not be cast to " + getClass());
     }
 
-    protected ArgumentError<T, X> cast(ArgumentError<?, ?> errorState) {
+    protected ArgumentErrorState<T, X> cast(ArgumentErrorState<?, ?> errorState) {
         if (matchTargetType(errorState)) {
-            return (ArgumentError) errorState;
+            return (ArgumentErrorState) errorState;
         }
         T newResolved = getAsTargetType(errorState);
-        ArgumentError<T, X> copy = new ArgumentError<>(this);
+        ArgumentErrorState<T, X> copy = new ArgumentErrorState<>(this);
         copy.setResolvedValue(newResolved);
         return copy;
     }
 
-    protected boolean matchTargetType(ArgumentError<?, ?> errorState) {
+    protected boolean matchTargetType(ArgumentErrorState<?, ?> errorState) {
         Class<T> type = getExpectedType();
         Object target = errorState.peekResolvedValue();
         return !errorState.isResolved() ||
@@ -128,7 +124,7 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
                 type.isInstance(target);
     }
 
-    protected T getAsTargetType(ArgumentError<?, ?> errorState) {
+    protected T getAsTargetType(ArgumentErrorState<?, ?> errorState) {
         Class<T> type = getExpectedType();
         Object target = errorState.peekResolvedValue();
         return type == null ? (T) target : type.cast(target);
@@ -165,9 +161,9 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
 
     public static interface BuilderCompleted<T, X extends Exception> {
 
-        ArgumentError<T, X> build();
+        ArgumentErrorState<T, X> build();
 
-        default ArgumentError<T, X> handledWith(ErrorHandler handler) {
+        default ArgumentErrorState<T, X> handledWith(ErrorHandler handler) {
             return build().handledWith(handler);
         }
     }
@@ -193,12 +189,12 @@ public class ArgumentError<T, X extends Exception> extends AbstractErrorState<Ar
             return expected;
         }
 
-        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
-            return new ArgumentError<>(context, operation, parameter, expected, value, error, exceptionSource);
+        protected ArgumentErrorState<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+            return new ArgumentErrorState<>(context, operation, parameter, expected, value, error, exceptionSource);
         }
 
-        public ArgumentError<Object, Exception> build() {
-            return (ArgumentError) build(context, operation, parameter, expected, value, error, exceptionSource);
+        public ArgumentErrorState<Object, Exception> build() {
+            return (ArgumentErrorState) build(context, operation, parameter, expected, value, error, exceptionSource);
         }
 
         @Override

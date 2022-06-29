@@ -1,21 +1,17 @@
 package org.cthul.monad.function;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import org.cthul.monad.DefaultStatus;
-import org.cthul.monad.Result;
-import org.cthul.monad.ScopedException;
-import org.cthul.monad.Unsafe;
-import org.cthul.monad.error.ErrorHandler;
-import org.cthul.monad.error.ErrorHandlerLayer;
-import org.cthul.monad.error.ErrorHandlingScope;
-import org.cthul.monad.error.IllegalArgument;
+import java.io.IOException;
+import java.util.function.*;
+import org.cthul.monad.ScopeTest.CustomException;
+import org.cthul.monad.*;
+import org.cthul.monad.error.*;
 import org.cthul.monad.result.BasicScope;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class CheckedTest {
@@ -55,8 +51,19 @@ public class CheckedTest {
     }
 
     @Test
+    public void testTypedUnchecked() {
+        Supplier<String> getString = CustomException.SCOPE.unchecked().wrap().supplier(this::throwIOException);
+        CustomException ex = assertThrows(CustomException.class, getString::get);
+        assertThat(ex.getCause(), instanceOf(IOException.class));
+    }
+
+    private String throwIOException() throws IOException {
+        throw new IOException("io");
+    }
+
+    @Test
     public void testWithHandler() {
-        CheckedSupplier<Integer, RuntimeException> cSupplier = () -> IllegalArgument.builder()
+        CheckedSupplier<Integer, RuntimeException> cSupplier = () -> IllegalArgument.illegalArgument()
                     .operation(this, "testWithHandler")
                     .parameter("value", Integer.class)
                     .got(0, "zero", new RuntimeException("0"))

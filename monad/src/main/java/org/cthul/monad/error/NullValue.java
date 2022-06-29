@@ -6,7 +6,7 @@ import org.cthul.monad.util.ExceptionType;
 
 public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
 
-    public static Builder builder() {
+    public static Builder nullValue() {
         return new BuilderImpl();
     }
 
@@ -14,23 +14,23 @@ public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
         super(context, operation, parameter, expected, null, error, exceptionSource);
     }
 
-    protected NullValue(ArgumentError<T, ? extends X> source) {
+    protected NullValue(ArgumentErrorState<T, ? extends X> source) {
         super(source);
     }
 
-    public static interface Builder extends ArgumentError.Builder {
+    public static interface Builder extends ArgumentErrorState.Builder {
 
         @Override
         BuilderWithOperation operation(Object context, String operation);
     }
 
-    public static interface BuilderWithOperation extends ArgumentError.BuilderWithOperation {
+    public static interface BuilderWithOperation extends ArgumentErrorState.BuilderWithOperation {
 
         @Override
         <T> BuilderWithParameter<T> parameter(String name, Class<T> expected);
     }
 
-    public static interface BuilderWithParameter<T> extends ArgumentError.BuilderWithParameter<T> {
+    public static interface BuilderWithParameter<T> extends ArgumentErrorState.BuilderWithParameter<T> {
 
         default <X extends Exception> BuilderCompleted<T, X> got(NoValue<X> result) {
             return this.<X>got(null, result);
@@ -51,7 +51,7 @@ public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
         <X extends Exception> BuilderCompleted<T, X> exceptionType(ExceptionType<? extends X> exceptionType);
     }
 
-    protected static class BuilderImpl extends ArgumentError.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object> {
+    protected static class BuilderImpl extends ArgumentErrorState.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object> {
 
         @Override
         public BuilderWithOperation operation(Object context, String operation) {
@@ -79,7 +79,7 @@ public class NullValue<T, X extends Exception> extends IllegalArgument<T, X> {
         }
 
         @Override
-        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+        protected ArgumentErrorState<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
             return new ConversionFailed<>(context, operation, parameter, expected, value, error, exceptionSource);
         }
     }

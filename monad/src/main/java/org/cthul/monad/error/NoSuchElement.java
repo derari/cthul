@@ -4,29 +4,33 @@ import java.util.function.Supplier;
 import org.cthul.monad.result.NoValue;
 import org.cthul.monad.util.ExceptionType;
 
-public class NoSuchElement<T, X extends Exception> extends ArgumentError<T, X> {
+public class NoSuchElement<T, X extends Exception> extends ArgumentErrorState<T, X> {
+
+    public static Builder noSuchElement() {
+        return new BuilderImpl();
+    }
 
     public NoSuchElement(Object context, String operation, String parameter, Class<T> expected, Object value, String error, Supplier<? extends X> exceptionSource) {
         super(context, operation, parameter, expected, value, error, exceptionSource);
     }
 
-    protected NoSuchElement(ArgumentError<T, ? extends X> source) {
+    protected NoSuchElement(ArgumentErrorState<T, ? extends X> source) {
         super(source);
     }
 
-    public static interface Builder extends ArgumentError.Builder {
+    public static interface Builder extends ArgumentErrorState.Builder {
 
         @Override
         BuilderWithOperation operation(Object context, String operation);
     }
 
-    public static interface BuilderWithOperation extends ArgumentError.BuilderWithOperation {
+    public static interface BuilderWithOperation extends ArgumentErrorState.BuilderWithOperation {
 
         @Override
         <T> BuilderWithParameter<T> parameter(String name, Class<T> expected);
     }
 
-    public static interface BuilderWithParameter<T> extends ArgumentError.BuilderWithParameter<T> {
+    public static interface BuilderWithParameter<T> extends ArgumentErrorState.BuilderWithParameter<T> {
 
         default <X extends Exception> BuilderCompleted<T, X> got(NoValue<X> result) {
             return this.<X>got(null, result);
@@ -47,7 +51,7 @@ public class NoSuchElement<T, X extends Exception> extends ArgumentError<T, X> {
         <X extends Exception> BuilderCompleted<T, X> got(ExceptionType<? extends X> exceptionType);
     }
 
-    protected static class BuilderImpl extends ArgumentError.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object> {
+    protected static class BuilderImpl extends ArgumentErrorState.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object> {
 
         @Override
         public BuilderWithOperation operation(Object context, String operation) {
@@ -70,12 +74,7 @@ public class NoSuchElement<T, X extends Exception> extends ArgumentError<T, X> {
         }
 
         @Override
-        public ConversionFailed<Object, Object, Exception> build() {
-            return (ConversionFailed) super.build();
-        }
-
-        @Override
-        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+        protected ArgumentErrorState<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
             return new NoSuchElement<>(context, operation, parameter, expected, value, error, exceptionSource);
         }
     }

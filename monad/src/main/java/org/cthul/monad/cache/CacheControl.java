@@ -1,40 +1,42 @@
 package org.cthul.monad.cache;
 
-import java.time.Duration;
-import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Stream;
+import org.cthul.monad.util.RelativeDateTime;
+import org.cthul.monad.util.TemporalParser;
 
 public interface CacheControl {
-    
-    Duration getMaxAge();
-    
-    Duration getMaxStale();
-    
-    Duration getMinFresh();
-    
+
+    RelativeDateTime getMaxAge();
+
+    RelativeDateTime getMaxStale();
+
+    RelativeDateTime getMinFresh();
+
     boolean isCacheable();
-    
+
     boolean isStorable();
-    
+
     boolean isCacheOnly();
-    
+
     class Builder implements CacheControl {
-        
-        Duration maxAge;
-        Duration maxStale;
-        Duration minFresh;
+
+        private static final TemporalParser AGE_PARSER = TemporalParser.builder().numberIsDuration(ChronoUnit.SECONDS).durationIsPast().create();
+        private static final TemporalParser FRESH_PARSER = TemporalParser.builder().numberIsDuration(ChronoUnit.SECONDS).durationIsFuture().create();
+
+        RelativeDateTime maxAge;
+        RelativeDateTime maxStale;
+        RelativeDateTime minFresh;
         boolean cacheable;
         boolean storable;
         boolean cacheOnly;
 
         public Builder() {
-            maxAge = Duration.ZERO;
-            maxStale = Duration.ZERO;
-            minFresh = Duration.ZERO;
+            maxAge = RelativeDateTime.epoch();
+            maxStale = RelativeDateTime.epoch();
+            minFresh = RelativeDateTime.max();
             cacheable = true;
             storable = true;
             cacheOnly = false;
@@ -48,40 +50,40 @@ public interface CacheControl {
             storable = source.isStorable();
             cacheOnly = source.isCacheOnly();
         }
-        
-        public Builder maxAge(Duration maxAge) {
+
+        public Builder maxAge(RelativeDateTime maxAge) {
             if (maxAge == null) throw new NullPointerException("maxAge");
             this.maxAge = maxAge;
             return this;
         }
 
-        public Builder maxStale(Duration maxStale) {
+        public Builder maxStale(RelativeDateTime maxStale) {
             if (maxStale == null) throw new NullPointerException("maxStale");
             this.maxStale = maxStale;
             return this;
         }
-        
-        public Builder minFresh(Duration minFresh) {
+
+        public Builder minFresh(RelativeDateTime minFresh) {
             if (minFresh == null) throw new NullPointerException("minFresh");
             this.minFresh = minFresh;
             return this;
         }
-        
+
         public Builder cacheable(boolean cacheable) {
             this.cacheable = cacheable;
             return this;
         }
-        
+
         public Builder storable(boolean storable) {
             this.storable = storable;
             return this;
         }
-        
+
         public Builder cacheOnly(boolean cacheOnly) {
             this.cacheOnly = cacheOnly;
             return this;
         }
-        
+
         public Builder parse(String string) {
             String[] parts = string.split(",");
             Stream.of(parts).forEach(this::parsePart);
@@ -103,50 +105,32 @@ public interface CacheControl {
                 case "only-if-cached":
                     return cacheOnly(parseBoolean(part, eq, true));
                 case "max-age":
-                    return maxAge(parseDuration(part, eq));
+                    return maxAge(parseAge(part, eq));
                 case "max-stale":
-                    return maxStale(parseDuration(part, eq));
+                    return maxStale(parseAge(part, eq));
                 case "min-fresh":
-                    return minFresh(parseDuration(part, eq));
+                    return minFresh(parseFresh(part, eq));
             }
             return this;
         }
 
-        static Duration parseDuration(String part, int eq) {
+        static RelativeDateTime parseAge(String part, int eq) {
             if (eq < 0) {
-                return Duration.ZERO;
+                return RelativeDateTime.zero();
             }
             part = part.substring(eq + 1).trim().toUpperCase();
-            if (P_ONLY_DIGITS.matcher(part).matches()) {
-                try {
-                    long seconds = Long.parseLong(part);
-                    return Duration.ofSeconds(seconds);
-                } catch (NumberFormatException ex) { }
-            }
-            StringBuilder fullDuration = new StringBuilder();
-            if (!part.contains("P")) {
-                fullDuration.append('P');
-            }
-            int d = part.indexOf("D");
-            if (part.contains("T") || d + 1 == part.length()) {
-                fullDuration.append(part);
-            } else {
-                if (d < 0) d = part.indexOf('P');
-                fullDuration.append(part, 0, d+1)
-                    .append('T')
-                    .append(part, d + 1, part.length());
-            }
-            if (part.charAt(part.length() - 1) <= '9') {
-                fullDuration.append('S');
-            }
-            try {
-                return Duration.parse(fullDuration);
-            } catch (DateTimeParseException ex) {
-                return Duration.ZERO;
-            }
+            return AGE_PARSER.parse(part, OffsetDateTime::now, RelativeDateTime::zero);
         }
-        
-        
+
+        static RelativeDateTime parseFresh(String part, int eq) {
+            if (eq < 0) {
+                return RelativeDateTime.zero();
+            }
+            part = part.substring(eq + 1).trim().toUpperCase();
+            return FRESH_PARSER.parse(part, OffsetDateTime::now, RelativeDateTime::zero);
+        }
+
+
         static boolean parseBoolean(String part, int eq, boolean defaultValue) {
             if (eq < 0) {
                 return defaultValue;
@@ -160,23 +144,22 @@ public interface CacheControl {
             }
             return defaultValue;
         }
-        
-        private static final Pattern P_ONLY_DIGITS = Pattern.compile("\\d+");
+
         private static final Set<String> TRUE_STRINGS = new HashSet<>(Arrays.asList("1", "true", "t", "yes", "y"));
         private static final Set<String> FALSE_STRINGS = new HashSet<>(Arrays.asList("0", "-1", "false", "f", "no", "n"));
-        
+
         @Override
-        public Duration getMaxAge() {
+        public RelativeDateTime getMaxAge() {
             return maxAge;
         }
 
         @Override
-        public Duration getMaxStale() {
+        public RelativeDateTime getMaxStale() {
             return maxStale;
         }
 
         @Override
-        public Duration getMinFresh() {
+        public RelativeDateTime getMinFresh() {
             return minFresh;
         }
 
@@ -194,24 +177,36 @@ public interface CacheControl {
         public boolean isCacheOnly() {
             return cacheOnly;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (!isStorable()) sb.append(" no-store");
+            if (!isCacheable()) sb.append(" no-cache");
+            if (isCacheOnly()) sb.append(" only-if-cached");
+            if (getMaxAge().isAfter(RelativeDateTime.epoch())) sb.append(" max-age=").append(getMaxAge().asPast().getSeconds());
+            if (getMaxStale().isAfter(RelativeDateTime.epoch())) sb.append(" max-stale=").append(getMaxStale().asPast().getSeconds());
+            if (getMinFresh().isBefore(RelativeDateTime.max())) sb.append(" min-fresh=").append(getMinFresh().asFuture().getSeconds());
+            return sb.isEmpty() ? "" : sb.substring(1);
+        }
     }
-    
+
     interface Delegator extends CacheControl {
-        
+
         CacheControl getCacheControl();
 
         @Override
-        default Duration getMaxAge() {
+        default RelativeDateTime getMaxAge() {
             return getCacheControl().getMaxAge();
         }
 
         @Override
-        default Duration getMaxStale() {
+        default RelativeDateTime getMaxStale() {
             return getCacheControl().getMaxStale();
         }
 
         @Override
-        default Duration getMinFresh() {
+        default RelativeDateTime getMinFresh() {
             return getCacheControl().getMinFresh();
         }
 

@@ -1,45 +1,42 @@
 package org.cthul.monad.cache;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.util.stream.Stream;
+import org.cthul.monad.util.RelativeDateTime;
 
-import static org.cthul.monad.cache.CacheControl.Builder.parseBoolean;
-import static org.cthul.monad.cache.CacheControl.Builder.parseDuration;
+import static org.cthul.monad.cache.CacheControl.Builder.*;
 
 public interface CacheInfo {
-    
-    Duration getAge();
-    
-    Duration getMaxAge();
- 
+
+    RelativeDateTime getAge();
+
+    RelativeDateTime getMaxAge();
+
     boolean isCacheable();
-    
+
     boolean isStorable();
-    
+
     static Builder noStore() {
         return new Builder().storable(false);
     }
-    
+
     static Builder cacheable() {
         return new Builder();
     }
-    
-    static Builder lastModified(OffsetDateTime lastModified) {
-        Duration age = Duration.between(lastModified, OffsetDateTime.now());
+
+    static Builder lastModified(RelativeDateTime age) {
         return new Builder().age(age);
     }
-    
+
     class Builder implements CacheInfo {
-        
-        Duration age;
-        Duration maxAge;
+
+        RelativeDateTime age;
+        RelativeDateTime maxAge;
         boolean cacheable;
         boolean storable;
 
         public Builder() {
-            age = Duration.ZERO;
-            maxAge = Duration.ZERO;
+            age = RelativeDateTime.zero();
+            maxAge = RelativeDateTime.max();
             cacheable = true;
             storable = true;
         }
@@ -50,7 +47,7 @@ public interface CacheInfo {
             cacheable = source.isCacheable();
             storable = source.isStorable();
         }
-        
+
         public Builder merge(CacheInfo other) {
             Builder self = this;
             if (age.compareTo(other.getAge()) < 0) {
@@ -63,29 +60,29 @@ public interface CacheInfo {
             self = self.storable(storable && other.isStorable());
             return self;
         }
-        
-        public Builder age(Duration age) {
+
+        public Builder age(RelativeDateTime age) {
             if (age == null) throw new NullPointerException("age");
             this.age = age;
             return this;
         }
-        
-        public Builder maxAge(Duration maxAge) {
+
+        public Builder maxAge(RelativeDateTime maxAge) {
             if (maxAge == null) throw new NullPointerException("maxAge");
             this.maxAge = maxAge;
             return this;
         }
-        
+
         public Builder cacheable(boolean cacheable) {
             this.cacheable = cacheable;
             return this;
         }
-        
+
         public Builder storable(boolean storable) {
             this.storable = storable;
             return this;
         }
-        
+
         public Builder parse(String string) {
             String[] parts = string.split(",");
             Stream.of(parts).forEach(this::parsePart);
@@ -97,28 +94,28 @@ public interface CacheInfo {
             String key = eq < 0 ? part : part.substring(0, eq);
             switch (key.trim().toLowerCase()) {
                 case "no-cache":
-                    return cacheable(parseBoolean(part, eq, false));
+                    return cacheable(!parseBoolean(part, eq, true));
                 case "cache":
                     return cacheable(parseBoolean(part, eq, true));
                 case "no-store":
-                    return storable(parseBoolean(part, eq, false));
+                    return storable(!parseBoolean(part, eq, true));
                 case "store":
                     return storable(parseBoolean(part, eq, true));
                 case "age":
-                    return age(parseDuration(part, eq));
+                    return age(parseAge(part, eq).frozen());
                 case "max-age":
-                    return maxAge(parseDuration(part, eq));
+                    return maxAge(parseFresh(part, eq).frozen());
             }
             return this;
         }
 
         @Override
-        public Duration getAge() {
+        public RelativeDateTime getAge() {
             return age;
         }
 
         @Override
-        public Duration getMaxAge() {
+        public RelativeDateTime getMaxAge() {
             return maxAge;
         }
 
@@ -131,11 +128,11 @@ public interface CacheInfo {
         public boolean isStorable() {
             return storable;
         }
-        
+
         public Builder copy() {
             return new Builder(this);
         }
-        
+
         public CacheInfo readOnly() {
             class ReadOnly implements Delegator {
                 @Override
@@ -149,19 +146,29 @@ public interface CacheInfo {
             }
             return new ReadOnly();
         }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (!isStorable()) sb.append(" no-store");
+            if (!isCacheable()) sb.append(" no-cache");
+            if (getMaxAge().isBefore(RelativeDateTime.max())) sb.append(" max-age=").append(getMaxAge().asFuture().getSeconds());
+            if (getAge().isBefore(RelativeDateTime.zero())) sb.append(" age=").append(getAge().asPast().getSeconds());
+            return sb.isEmpty() ? "" : sb.substring(1);
+        }
     }
-    
+
     interface Delegator extends CacheInfo {
-        
+
         CacheInfo getCacheInfo();
 
         @Override
-        default Duration getAge() {
+        default RelativeDateTime getAge() {
             return getCacheInfo().getAge();
         }
 
         @Override
-        default Duration getMaxAge() {
+        default RelativeDateTime getMaxAge() {
             return getCacheInfo().getMaxAge();
         }
 

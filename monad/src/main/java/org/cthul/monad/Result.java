@@ -3,9 +3,13 @@ package org.cthul.monad;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.cthul.monad.function.CheckedFunction;
-import org.cthul.monad.result.NoResult;
+import org.cthul.monad.result.*;
 
 public interface Result<T> extends Unsafe<T, RuntimeException> {
+
+    static <T> ValueResult<T> value(T value) {
+        return new OkValue<>(value);
+    }
 
     @Override
     default Result<T> unchecked() {

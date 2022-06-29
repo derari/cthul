@@ -1,15 +1,9 @@
 package org.cthul.monad.util;
 
-import org.cthul.monad.DefaultStatus;
-import org.cthul.monad.Scope;
-import org.cthul.monad.Status;
-import org.cthul.monad.Unsafe;
+import org.cthul.monad.*;
 import org.cthul.monad.adapt.ExceptionAdapter;
 import org.cthul.monad.adapt.ExceptionWrapper;
-import org.cthul.monad.result.ExceptionResult;
-import org.cthul.monad.result.NoValue;
-import org.cthul.monad.result.ResultMessage;
-import org.cthul.monad.result.ValueResult;
+import org.cthul.monad.result.*;
 import org.cthul.monad.switches.BasicSwitch;
 
 public abstract class AbstractExceptionType<X extends Exception> implements ExceptionType<X> {
@@ -24,6 +18,10 @@ public abstract class AbstractExceptionType<X extends Exception> implements Exce
         this.scope = scope;
         this.defaultStatus = defaultStatus;
         this.resultFactory = new ResultFactory(new ResultAdapter(this::exceptionToNoValue));
+    }
+
+    public Class<X> getExceptionClass() {
+        return exceptionClass;
     }
 
     public ExceptionWrapper.ResultFactory<X> resultFactory() {
@@ -149,6 +147,31 @@ public abstract class AbstractExceptionType<X extends Exception> implements Exce
         @Override
         public ExceptionWrapper.ResultFactory<RuntimeException> unchecked() {
             return AbstractExceptionType.this.unchecked(this);
+        }
+    }
+
+    protected static <X> X noValue(Scope scope, Factory<X> factory) {
+        return factory.newException(scope, DefaultStatus.NO_VALUE, null, null);
+    }
+
+    protected static <X> X noValue(ScopedFactory<X> factory) {
+        return factory.newException(DefaultStatus.NO_VALUE, null, null);
+    }
+
+    public static interface Factory<X> {
+        X newException(Scope scope, Status status, String message, Throwable cause);
+
+        default ScopedFactory<X> withScope(Scope scope) {
+            return (s, m, c) -> newException(scope, s, m, c);
+        }
+    }
+
+    public static interface ScopedFactory<X> extends Factory<X> {
+        X newException(Status status, String message, Throwable cause);
+
+        @Override
+        default X newException(Scope scope, Status status, String message, Throwable cause) {
+            return newException(status, message, cause);
         }
     }
 }

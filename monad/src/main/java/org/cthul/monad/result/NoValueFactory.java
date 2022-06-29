@@ -1,8 +1,10 @@
-package org.cthul.monad.util;
+package org.cthul.monad.result;
 
 import org.cthul.monad.DefaultStatus;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
+import org.cthul.monad.util.InternalId;
+import org.cthul.monad.util.SafeStrings;
 
 public interface NoValueFactory<T> {
 

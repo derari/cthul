@@ -21,7 +21,7 @@ public class NullValueTest {
     @Test
     @SuppressWarnings("Convert2Lambda")
     public void testErrorResolving() {
-       ErrorHandlerLayer layer = ErrorHandlerLayer.handle(ArgumentError.class)
+       ErrorHandlerLayer layer = ErrorHandlerLayer.handle(ArgumentErrorState.class)
                 .filter(e -> e.getExpectedType() == Integer.class)
                 .filter(e -> e.getParameter().equals("theValue"))
                 .apply(e -> e.resolve(17));
@@ -32,7 +32,7 @@ public class NullValueTest {
     }
 
     private Integer failWithNull() {
-        return NullValue.builder()
+        return NullValue.nullValue()
                 .operation(this, "failWithNull")
                 .parameter("theValue", Integer.class)
                 .exceptionType(scope.unchecked())

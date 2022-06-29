@@ -3,9 +3,9 @@ package org.cthul.monad.error;
 import java.util.function.Supplier;
 import org.cthul.monad.util.ExceptionType;
 
-public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T, X> {
+public class ConversionFailed<S, T, X extends Exception> extends ArgumentErrorState<T, X> {
 
-    public static Builder build() {
+    public static Builder conversionFailed() {
         return new BuilderImpl();
     }
 
@@ -13,7 +13,7 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
         super(context, operation, parameter, expected, value, error, exceptionSource);
     }
 
-    protected ConversionFailed(ArgumentError<T, ? extends X> source) {
+    protected ConversionFailed(ArgumentErrorState<T, ? extends X> source) {
         super(source);
     }
 
@@ -22,19 +22,19 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
         return (S) super.getValue();
     }
 
-    public static interface Builder extends ArgumentError.Builder {
+    public static interface Builder extends ArgumentErrorState.Builder {
 
         @Override
         BuilderWithOperation operation(Object context, String operation);
     }
 
-    public static interface BuilderWithOperation extends ArgumentError.BuilderWithOperation {
+    public static interface BuilderWithOperation extends ArgumentErrorState.BuilderWithOperation {
 
         @Override
         <T> BuilderWithParameter<T> parameter(String name, Class<T> expected);
     }
 
-    public static interface BuilderWithParameter<T> extends ArgumentError.BuilderWithParameter<T> {
+    public static interface BuilderWithParameter<T> extends ArgumentErrorState.BuilderWithParameter<T> {
 
         <X extends Exception> BuilderCompleted<?, T, X> got(Object value, ExceptionType<? extends X> exceptionType);
 
@@ -42,12 +42,13 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
         <X extends Exception> BuilderCompleted<?, T, X> got(Object value, String error, Supplier<? extends X> exceptionSource);
     }
 
-    public static interface BuilderCompleted<S, T, X extends Exception> extends ArgumentError.BuilderCompleted<T, X> {
+    public static interface BuilderCompleted<S, T, X extends Exception> extends ArgumentErrorState.BuilderCompleted<T, X> {
 
+        @Override
         ConversionFailed<S, T, X> build();
     }
 
-    protected static class BuilderImpl extends ArgumentError.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object>, BuilderCompleted<Object, Object, Exception> {
+    protected static class BuilderImpl extends ArgumentErrorState.BuilderImpl implements Builder, BuilderWithOperation, BuilderWithParameter<Object>, BuilderCompleted<Object, Object, Exception> {
 
         @Override
         public BuilderWithOperation operation(Object context, String operation) {
@@ -76,7 +77,7 @@ public class ConversionFailed<S, T, X extends Exception> extends ArgumentError<T
         }
 
         @Override
-        protected ArgumentError<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
+        protected ArgumentErrorState<?, ?> build(Object context, String operation, String parameter, Class<?> expected, Object value, String error, Supplier<? extends Exception> exceptionSource) {
             return new ConversionFailed<>(context, operation, parameter, expected, value, error, exceptionSource);
         }
     }

@@ -1,5 +1,6 @@
 package org.cthul.monad.util;
 
+import org.cthul.monad.result.NoValueFactory;
 import org.cthul.monad.Status;
 import org.cthul.monad.Unsafe;
 

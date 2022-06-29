@@ -17,24 +17,32 @@ public class ScopedRuntimeException extends RuntimeException implements NoResult
 
     protected ScopedRuntimeException(Scope scope, Status status, String message) {
         super(message);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
     }
 
     protected ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause) {
         super(message, cause);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
     }
 
     protected ScopedRuntimeException(Scope scope, Status status, Throwable cause) {
         super(cause);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
     }
 
     protected ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+        if (scope == null) throw new NullPointerException("scope");
+        if (status == null) throw new NullPointerException("status");
         this.scope = scope;
         this.status = status;
     }

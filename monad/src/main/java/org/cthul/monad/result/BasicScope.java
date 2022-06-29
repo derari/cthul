@@ -2,9 +2,8 @@ package org.cthul.monad.result;
 
 import org.cthul.monad.ScopedException;
 import org.cthul.monad.ScopedRuntimeException;
-import org.cthul.monad.Status;
 
-public class BasicScope extends CustomScope {
+public class BasicScope extends NamedScope {
 
     private final ScopedException.Type checked = ScopedException.withScope(this);
     private final ScopedRuntimeException.Type unchecked = ScopedRuntimeException.withScope(this);
@@ -23,8 +22,8 @@ public class BasicScope extends CustomScope {
     }
 
     @Override
-    public NoResult noResult(Status status, String message, Throwable cause) {
-        return unchecked().noResult(status, message, cause);
+    public ScopedRuntimeException.Type uncheckedException() {
+        return unchecked;
     }
 
     @Override
