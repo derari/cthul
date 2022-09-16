@@ -1,19 +1,21 @@
 package org.cthul.observe.test;
 
-import org.cthul.observe.Notifier;
+import org.cthul.observe.Event;
+import org.cthul.observe.Herald;
 
 public interface NameDB {
 
     NameData getName(int i);
 
-    static Notifications notifications(Notifier notifier) {
-        return () -> notifier;
+    static Events events(Herald herald) {
+        return () -> herald;
     }
 
-    interface Notifications extends NameDB, Notifier.Notifications {
+    interface Events extends NameDB, Event.Definitions {
 
+        @Override
         default NameData getName(int i) {
-            return notifier().apply(NameDB.class, NameData.class, NameDB::getName, i);
+            return herald().enquire(NameDB.class, NameData.class, NameDB::getName, i);
         }
     }
 }

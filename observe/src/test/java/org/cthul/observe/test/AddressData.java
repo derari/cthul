@@ -1,6 +1,6 @@
 package org.cthul.observe.test;
 
-import org.cthul.observe.Notifier;
+import org.cthul.observe.Event;
 
 public interface AddressData {
     
@@ -8,16 +8,16 @@ public interface AddressData {
     
     void setCity(String city);
     
-    interface Notifications extends AddressData, Notifier.Notifications {
+    interface Events extends AddressData, Event.Definitions {
         
         @Override
         default void setStreet(String street) {
-            notifier().accept(AddressData.class, AddressData::setStreet, street);
+            herald().announce(AddressData.class, AddressData::setStreet, street);
         }
 
         @Override
         default void setCity(String city) {
-            notifier().accept(AddressData.class, AddressData::setCity, city);
+            herald().announce(AddressData.class, AddressData::setCity, city);
         }
     }
 }

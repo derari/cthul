@@ -1,17 +1,18 @@
 package org.cthul.observe;
 
 public interface Observer {
-
-    default <O, X extends Exception> void accept(Class<O> type, Notifier.C0<O, X> signal) throws X {
-        apply(type, o -> { signal.accept(o); return null; });
+    
+    static Observer cast(Object observer) {
+        if (observer instanceof Observer) return (Observer) observer;
+        return new ObserverBuilder(observer);
+    }
+    static ObserverBuilder wrap(Object observer) {
+        return new ObserverBuilder(observer);
     }
 
-    <O, R, X extends Exception> R apply(Class<O> type, Notifier.F0<O, R, X> signal) throws X;
-
-    interface Builder {
-
-        Builder include(Object... included);
-
-        Builder exclude(Object... excluded);
+    default <S, X extends Exception> void notify(Class<S> type, Event.C0<S, X> event) throws X {
+        notify(type, event.mapToNull());
     }
+
+    <S, R, X extends Exception> R notify(Class<S> type, Event.F0<S, R, X> event) throws X;
 }
