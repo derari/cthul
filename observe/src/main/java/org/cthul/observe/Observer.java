@@ -3,8 +3,8 @@ package org.cthul.observe;
 public interface Observer {
     
     static Observer cast(Object observer) {
-        if (observer instanceof Observer) return (Observer) observer;
-        return new ObserverBuilder(observer);
+        if (observer instanceof Observer actual) return actual;
+        return wrap(observer);
     }
     static ObserverBuilder wrap(Object observer) {
         return new ObserverBuilder(observer);

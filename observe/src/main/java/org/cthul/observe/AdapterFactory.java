@@ -66,8 +66,7 @@ public class AdapterFactory<E> {
         var opt1 = first.get();
         if (opt1.isPresent()) return opt1.get();
         var opt2 = second.get();
-        if (opt2.isPresent()) return opt2.get();
-        return third.get();
+        return opt2.orElseGet(third);
     }
 
     protected <T> Optional<T> adaptWithUntyped(E actual, Class<T> clazz, Consumer<Object> extraAdapterCallback) {
@@ -88,9 +87,10 @@ public class AdapterFactory<E> {
         if (untypedAdapterClasses.size() > 1024) {
             untypedAdapterClasses.clear();
         }
-        return Optional.ofNullable((T) result);
+        return Optional.of(clazz.cast(result));
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> Optional<T> adaptWithTyped(E actual, Class<T> clazz) {
         return getTyped(clazz).map(f -> (T) f.apply(actual));
     }
@@ -135,6 +135,7 @@ public class AdapterFactory<E> {
 
     public static class Self<A> {
         
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public static <A> Class<Self<A>> clazz() {
             return (Class) Self.class;
         }

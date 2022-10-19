@@ -21,13 +21,14 @@ public interface Adaptive {
         <T> This declare(Class<T> clazz, Function<? super A, ? extends T> intf);
 
         default <T> T as(Function<? super A, T> intf) {
-            return intf.apply(as(AdapterFactory.Self.<A>clazz(), AdapterFactory.Self.declaration()).getSelf());
+            return intf.apply(as(AdapterFactory.Self.clazz(), AdapterFactory.Self.declaration()).getSelf());
         }
 
         default This declare(Function<? super A, ?> intf) {
             return declare(null, intf);
         }
 
+        @SuppressWarnings("unchecked")
         default This declare(Function<? super A, ?>... intf) {
             Stream.of(intf).forEach(this::declare);
             return (This) this;
@@ -43,7 +44,7 @@ public interface Adaptive {
         }
         
         static <T> T cast(Object instance, Class<T> clazz) {
-            if (clazz.isInstance(instance)) return (T) instance;
+            if (clazz.isInstance(instance)) return clazz.cast(instance);
             if (clazz == void.class || clazz == Void.class) return null;
             throw new IllegalArgumentException(""+ clazz);
         }

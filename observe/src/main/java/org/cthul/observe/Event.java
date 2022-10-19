@@ -7,7 +7,7 @@ public interface Event {
         Herald herald();
     }
     
-    interface C0<S, X extends Exception> {
+    interface C0<S, X extends Exception> extends Event {
 
         void accept(S s) throws X;
 
@@ -19,7 +19,7 @@ public interface Event {
         }
     }
 
-    interface C1<S, A1, X extends Exception> {
+    interface C1<S, A1, X extends Exception> extends Event {
 
         void accept(S s, A1 a1) throws X;
 
@@ -28,7 +28,7 @@ public interface Event {
         }
     }
 
-    interface C2<S, A1, A2, X extends Exception> {
+    interface C2<S, A1, A2, X extends Exception> extends Event {
 
         void accept(S s, A1 a1, A2 a2) throws X;
 
@@ -37,7 +37,7 @@ public interface Event {
         }
     }
 
-    interface C3<S, A1, A2, A3, X extends Exception> {
+    interface C3<S, A1, A2, A3, X extends Exception> extends Event {
 
         void accept(S s, A1 a1, A2 a2, A3 a3) throws X;
 
@@ -46,7 +46,7 @@ public interface Event {
         }
     }
 
-    interface C4<S, A1, A2, A3, A4, X extends Exception> {
+    interface C4<S, A1, A2, A3, A4, X extends Exception> extends Event {
 
         void accept(S s, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
 
@@ -55,7 +55,7 @@ public interface Event {
         }
     }
 
-    interface C5<S, A1, A2, A3, A4, A5, X extends Exception> {
+    interface C5<S, A1, A2, A3, A4, A5, X extends Exception> extends Event {
 
         void accept(S s, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
 
@@ -64,7 +64,7 @@ public interface Event {
         }
     }
 
-    interface F0<S, R, X extends Exception> {
+    interface F0<S, R, X extends Exception> extends Event {
 
         R apply(S s) throws X;
         
@@ -73,7 +73,7 @@ public interface Event {
         }
     }
 
-    interface F1<S, A1, R, X extends Exception> {
+    interface F1<S, A1, R, X extends Exception> extends Event {
 
         R apply(S s, A1 a1) throws X;
 
@@ -82,7 +82,7 @@ public interface Event {
         }
     }
 
-    interface F2<S, A1, A2, R, X extends Exception> {
+    interface F2<S, A1, A2, R, X extends Exception> extends Event {
 
         R apply(S s, A1 a1, A2 a2) throws X;
 
@@ -91,7 +91,7 @@ public interface Event {
         }
     }
 
-    interface F3<S, A1, A2, A3, R, X extends Exception> {
+    interface F3<S, A1, A2, A3, R, X extends Exception> extends Event {
 
         R apply(S s, A1 a1, A2 a2, A3 a3) throws X;
 
@@ -100,7 +100,7 @@ public interface Event {
         }
     }
 
-    interface F4<S, A1, A2, A3, A4, R, X extends Exception> {
+    interface F4<S, A1, A2, A3, A4, R, X extends Exception> extends Event {
 
         R apply(S s, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
 
@@ -109,7 +109,7 @@ public interface Event {
         }
     }
 
-    interface F5<S, A1, A2, A3, A4, A5, R, X extends Exception> {
+    interface F5<S, A1, A2, A3, A4, A5, R, X extends Exception> extends Event {
 
         R apply(S s, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
 
