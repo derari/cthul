@@ -5,9 +5,10 @@ import org.cthul.monad.error.ErrorState;
 import org.cthul.monad.error.GeneralError;
 import org.cthul.monad.result.NoValue;
 import org.cthul.monad.result.ResultMessage;
+import org.cthul.monad.util.AbstractScopedException;
 import org.cthul.monad.util.ScopedExceptionType;
 
-public class ScopedException extends Exception implements NoValue<ScopedException>, CacheInfo.Delegator {
+public class ScopedException extends AbstractScopedException implements NoValue<ScopedException> {
 
     public static Type withScope(Scope scope) {
         return new Type(scope);
@@ -19,80 +20,29 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
         return new ScopedException(adhocScope, status, resultMessage.getMessage());
     }
 
-    private static final CacheInfo NO_STORE = CacheInfo.noStore();
-
-    private final Scope scope;
-    private final Status status;
-    private ScopedRuntimeException runtimeException;
-    private CacheInfo cachedMeta;
-    private ErrorState<?> errorState;
-
-    protected ScopedException(Scope scope, Status status, String message) {
-        super(message);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
-        this.cachedMeta = NO_STORE;
+    public ScopedException(Scope scope, Status status, String message) {
+        super(scope, status, message);
     }
 
-    protected ScopedException(Scope scope, Status status, String message, Throwable cause) {
-        super(message, cause);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
-        this.cachedMeta = NO_STORE;
+    public ScopedException(Scope scope, Status status, String message, Throwable cause) {
+        super(scope, status, message, cause);
     }
 
-    protected ScopedException(Scope scope, Status status, Throwable cause) {
-        super(cause);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
-        this.cachedMeta = NO_STORE;
+    public ScopedException(Scope scope, Status status, Throwable cause) {
+        super(scope, status, cause);
     }
 
-    protected ScopedException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
-        this.cachedMeta = NO_STORE;
+    public ScopedException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(scope, status, message, cause, enableSuppression, writableStackTrace);
     }
 
-    protected ScopedException(ScopedRuntimeException runtimeException) {
-        super(runtimeException.getMessage(), runtimeException);
-        this.runtimeException = runtimeException;
-        this.scope = runtimeException.getScope();
-        this.status = runtimeException.getStatus();
-        this.cachedMeta = runtimeException.getCacheInfo();
+    public ScopedException(ScopedRuntimeException runtimeException) {
+        super(runtimeException);
     }
 
     @Override
-    public CacheInfo getCacheInfo() {
-        return cachedMeta;
-    }
-
-    public ScopedException cacheControl(CacheInfo meta) {
-        this.cachedMeta = meta;
-        return this;
-    }
-
-    public void setCacheControl(CacheInfo cachedMeta) {
-        this.cachedMeta = cachedMeta;
-    }
-
-    @Override
-    public Scope getScope() {
-        return scope;
-    }
-
-    @Override
-    public Status getStatus() {
-        return status;
+    protected ScopedRuntimeException asScopedRuntimeException() {
+        return new ScopedRuntimeException(this);
     }
 
     @Override
@@ -100,34 +50,9 @@ public class ScopedException extends Exception implements NoValue<ScopedExceptio
         return this;
     }
 
-    public ScopedRuntimeException getRuntimeException() {
-        if (runtimeException == null) {
-            runtimeException = new ScopedRuntimeException(this);
-        }
-        return runtimeException;
-    }
-
     @Override
-    public ScopedRuntimeException unchecked() {
-        return getRuntimeException();
-    }
-
-    public ErrorState<?> getErrorState() {
-        if (errorState == null) {
-            errorState = new GeneralError<>((Exception) this);
-        }
-        return errorState;
-    }
-
     protected void setErrorState(ErrorState<?> errorState) {
-        this.errorState = errorState;
-    }
-
-    @Override
-    public String toString() {
-        String s = getScope() + " " + getStatus();
-        String message = getLocalizedMessage();
-        return (message != null) ? (s + ": " + message) : s;
+        super.setErrorState(errorState);
     }
 
     public static class Type extends ScopedExceptionType<ScopedException> {

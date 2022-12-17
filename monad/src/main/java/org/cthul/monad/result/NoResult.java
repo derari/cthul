@@ -13,8 +13,9 @@ public interface NoResult extends NoValue<RuntimeException>, Result<Object> {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     default <U> Result<U> result() {
-        return (Result) this;
+        return (Result<U>) this;
     }
 
     @Override

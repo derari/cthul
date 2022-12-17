@@ -5,9 +5,7 @@ import org.cthul.monad.util.SafeStrings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OkValue<T> extends AbstractUnsafe<T, RuntimeException> implements ValueResult<T> {
-
-    protected final T value;
+public class OkValue<T> extends AbstractOkValue<T, RuntimeException> implements ValueResult<T> {
 
     public OkValue(T value) {
         this(AnonymousScope.INSTANCE, value);
@@ -22,21 +20,10 @@ public class OkValue<T> extends AbstractUnsafe<T, RuntimeException> implements V
     }
 
     public OkValue(Scope scope, Status okStatus, T value) {
-        super(scope, okStatus);
+        super(scope, okStatus, value);
         if (!okStatus.isOk()) {
             throw scope.uncheckedException().internal("Value requires OK status");
         }
-        this.value = value;
-    }
-
-    @Override
-    public T get() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return SafeStrings.toString(value);
     }
 
     static class AnonymousScope implements Scope {

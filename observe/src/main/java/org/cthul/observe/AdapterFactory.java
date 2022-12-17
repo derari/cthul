@@ -72,12 +72,12 @@ public class AdapterFactory<E> {
     protected <T> Optional<T> adaptWithUntyped(E actual, Class<T> clazz, Consumer<Object> extraAdapterCallback) {
         if (newUntypedAdapters.isEmpty())
             return Optional.empty();
-        var result = NO_RESULT;
+        Object result = null;
         for (var adapter : newUntypedAdapters) {
             var adapted = adapter.apply(actual);
             if (putTypedAdapter(adapted, adapter)) {
                 extraAdapterCallback.accept(adapted);
-                if (result == NO_RESULT && clazz.isInstance(adapted)) {
+                if (result == null && clazz.isInstance(adapted)) {
                     result = adapted;
                 }
             }
@@ -87,7 +87,7 @@ public class AdapterFactory<E> {
         if (untypedAdapterClasses.size() > 1024) {
             untypedAdapterClasses.clear();
         }
-        return Optional.of(clazz.cast(result));
+        return Optional.ofNullable(clazz.cast(result));
     }
 
     @SuppressWarnings("unchecked")
@@ -133,25 +133,15 @@ public class AdapterFactory<E> {
     
     private static final Object NO_RESULT = new Object();
 
-    public static class Self<A> {
-        
+    public record Self<A>(A self) {
+
         @SuppressWarnings({"unchecked", "rawtypes"})
         public static <A> Class<Self<A>> clazz() {
             return (Class) Self.class;
         }
-        
+
         public static <A> Function<A, Self<A>> declaration() {
             return Self::new;
-        }
-        
-        private final A self;
-
-        public Self(A self) {
-            this.self = self;
-        }
-
-        public A getSelf() {
-            return self;
         }
     }
 }

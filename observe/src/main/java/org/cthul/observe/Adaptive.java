@@ -21,7 +21,7 @@ public interface Adaptive {
         <T> This declare(Class<T> clazz, Function<? super A, ? extends T> intf);
 
         default <T> T as(Function<? super A, T> intf) {
-            return intf.apply(as(AdapterFactory.Self.clazz(), AdapterFactory.Self.declaration()).getSelf());
+            return intf.apply(as(AdapterFactory.Self.clazz(), AdapterFactory.Self.declaration()).self());
         }
 
         default This declare(Function<? super A, ?> intf) {
