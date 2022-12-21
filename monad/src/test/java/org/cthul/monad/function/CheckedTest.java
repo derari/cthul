@@ -2,7 +2,7 @@ package org.cthul.monad.function;
 
 import java.io.IOException;
 import java.util.function.*;
-import org.cthul.monad.ScopeTest.CustomException;
+import org.cthul.monad.ScopeTest.MyRuntimeException;
 import org.cthul.monad.*;
 import org.cthul.monad.error.*;
 import org.cthul.monad.result.BasicScope;
@@ -27,8 +27,15 @@ public class CheckedTest {
     }
 
     @Test
+    public void testSafeChecked() {
+        Supplier<Unsafe<String, IOException>> safe = testScope.safe().supplier(this::throwIOException);
+        IOException ex = assertThrows(IOException.class, safe.get()::get);
+        assertThat(ex.getMessage(), is("io"));
+    }
+
+    @Test
     public void testSafeConsumer() {
-        Consumer<Integer> consumer = i -> System.out.println(i);
+        Consumer<Integer> consumer = System.out::println;
         CheckedConsumer<Integer, RuntimeException> cConsumer = CheckedConsumer.from(consumer);
         Function<Integer, Unsafe<?, RuntimeException>> safe = testScope.safe().consumer(cConsumer);
         assertThat(safe.apply(1).getStatus(), is(DefaultStatus.NO_VALUE));
@@ -52,8 +59,8 @@ public class CheckedTest {
 
     @Test
     public void testTypedUnchecked() {
-        Supplier<String> getString = CustomException.SCOPE.unchecked().wrap().supplier(this::throwIOException);
-        CustomException ex = assertThrows(CustomException.class, getString::get);
+        Supplier<String> getString = MyRuntimeException.SCOPE.unchecked().wrap().supplier(this::throwIOException);
+        MyRuntimeException ex = assertThrows(MyRuntimeException.class, getString::get);
         assertThat(ex.getCause(), instanceOf(IOException.class));
     }
 

@@ -82,7 +82,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U> BiFunction<T, U, Unsafe<?, X>> biconsumer(CheckedBiConsumer<T, U, ?> consumer) {
+        default <T, U> BiFunction<T, U, Unsafe<?, X>> biConsumer(CheckedBiConsumer<T, U, ?> consumer) {
             return (t, u) -> accept(t, u, consumer);
         }
 
@@ -110,7 +110,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U, R> BiFunction<T, U, Unsafe<R, X>> bifunction(CheckedBiFunction<T, U, R, ?> function) {
+        default <T, U, R> BiFunction<T, U, Unsafe<R, X>> biFunction(CheckedBiFunction<T, U, R, ?> function) {
             return (t, u) -> apply(t, u, function);
         }
 
@@ -138,7 +138,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U> BiFunction<T, U, Unsafe<Boolean, X>> bipredicate(CheckedBiPredicate<T, U, ?> predicate) {
+        default <T, U> BiFunction<T, U, Unsafe<Boolean, X>> biPredicate(CheckedBiPredicate<T, U, ?> predicate) {
             return (t, u) -> test(t, u, predicate);
         }
 
@@ -198,7 +198,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U> CheckedBiConsumer<T, U, X> biconsumer(CheckedBiConsumer<T, U, ?> consumer) {
+        default <T, U> CheckedBiConsumer<T, U, X> biConsumer(CheckedBiConsumer<T, U, ?> consumer) {
             return (t, u) -> accept(t, u, consumer);
         }
 
@@ -224,7 +224,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U, R> CheckedBiFunction<T, U, R, X> bifunction(CheckedBiFunction<T, U, R, ?> function) {
+        default <T, U, R> CheckedBiFunction<T, U, R, X> biFunction(CheckedBiFunction<T, U, R, ?> function) {
             return (t, u) -> apply(t, u, function);
         }
 
@@ -250,7 +250,7 @@ public interface ExceptionWrapper<X extends Exception> {
             }
         }
 
-        default <T, U> CheckedBiPredicate<T, U, X> bipredicate(CheckedBiPredicate<T, U, ?> predicate) {
+        default <T, U> CheckedBiPredicate<T, U, X> biPredicate(CheckedBiPredicate<T, U, ?> predicate) {
             return (t, u) -> test(t, u, predicate);
         }
 

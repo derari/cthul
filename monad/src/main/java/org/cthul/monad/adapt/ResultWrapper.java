@@ -1,8 +1,7 @@
 package org.cthul.monad.adapt;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
+
 import org.cthul.monad.*;
 import org.cthul.monad.function.*;
 import org.cthul.monad.result.NoResult;
@@ -82,6 +81,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         return unsafe(noResult).noValue().unchecked();
     }
 
+    @SuppressWarnings("unchecked")
     interface Safe {
 
         ResultWrapper resultWrapper();
@@ -103,7 +103,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         @SuppressWarnings("UseSpecificCatch")
-        default <T, U, X extends Exception> BiFunction<T, U, Unsafe<?, X>> biconsumer(CheckedBiConsumer<T, U, X> consumer) {
+        default <T, U, X extends Exception> BiFunction<T, U, Unsafe<?, X>> biConsumer(CheckedBiConsumer<T, U, X> consumer) {
             return (t, u) -> {
                 try {
                     consumer.accept(t, u);
@@ -115,7 +115,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         default <T, U, X extends Exception> Unsafe<?, X> accept(T value1, U value2, CheckedBiConsumer<T, U, X> consumer) {
-            return biconsumer(consumer).apply(value1, value2);
+            return biConsumer(consumer).apply(value1, value2);
         }
 
         @SuppressWarnings("UseSpecificCatch")
@@ -135,7 +135,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         @SuppressWarnings("UseSpecificCatch")
-        default <T, U, R, X extends Exception> BiFunction<T, U, Unsafe<R, X>> bifunction(CheckedBiFunction<T, U, R, X> function) {
+        default <T, U, R, X extends Exception> BiFunction<T, U, Unsafe<R, X>> biFunction(CheckedBiFunction<T, U, R, X> function) {
             return (t, u) -> {
                 try {
                     R r = function.apply(t, u);
@@ -147,7 +147,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         default <T, U, R, X extends Exception> Unsafe<R, X> apply(T value1, U value2, CheckedBiFunction<T, U, R, X> function) {
-            return bifunction(function).apply(value1, value2);
+            return biFunction(function).apply(value1, value2);
         }
 
         @SuppressWarnings("UseSpecificCatch")
@@ -167,7 +167,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         @SuppressWarnings("UseSpecificCatch")
-        default <T, U, X extends Exception> BiFunction<T, U, Unsafe<Boolean, X>> bipredicate(CheckedBiPredicate<T, U, X> predicate) {
+        default <T, U, X extends Exception> BiFunction<T, U, Unsafe<Boolean, X>> biPredicate(CheckedBiPredicate<T, U, X> predicate) {
             return (t, u) -> {
                 try {
                     Boolean r = predicate.test(t, u);
@@ -179,7 +179,7 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
 
         default <T, U, X extends Exception> Unsafe<Boolean, X> test(T value1, U value2, CheckedBiPredicate<T, U, X> predicate) {
-            return bipredicate(predicate).apply(value1, value2);
+            return biPredicate(predicate).apply(value1, value2);
         }
 
         @SuppressWarnings("UseSpecificCatch")
@@ -215,28 +215,29 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     interface Wrap {
 
         ResultWrapper resultWrapper();
 
         default <T, R extends Unsafe<?,?>> Function<T, R> function(Function<T, R> function) {
-            return t -> (R) resultWrapper().unsafe((Unsafe) function.apply(t));
+            return t -> (R) resultWrapper().unsafe((Unsafe<?, ?>) function.apply(t));
         }
 
         default <T, R extends Unsafe<?,?>> R apply(T value, Function<T, R> function) {
             return function(function).apply(value);
         }
 
-        default <T, U, R extends Unsafe<?,?>> BiFunction<T, U, R> bifunction(BiFunction<T, U, R> function) {
-            return (t, u) -> (R) resultWrapper().unsafe((Unsafe) function.apply(t, u));
+        default <T, U, R extends Unsafe<?,?>> BiFunction<T, U, R> biFunction(BiFunction<T, U, R> function) {
+            return (t, u) -> (R) resultWrapper().unsafe((Unsafe<?, ?>) function.apply(t, u));
         }
 
         default <T, U, R extends Unsafe<?,?>> R apply(T value1, U value2, BiFunction<T, U, R> function) {
-            return bifunction(function).apply(value1, value2);
+            return biFunction(function).apply(value1, value2);
         }
 
         default <R extends Unsafe<?,?>> Supplier<R> supplier(Supplier<R> supplier) {
-            return () -> (R) resultWrapper().unsafe((Unsafe) supplier.get());
+            return () -> (R) resultWrapper().unsafe((Unsafe<?, ?>) supplier.get());
         }
 
         default <R extends Unsafe<?,?>> R get(Supplier<R> supplier) {
@@ -248,7 +249,6 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         return setStatus(u -> status);
     }
 
-    @SuppressWarnings("Convert2Lambda")
     static UnsafeAdapter setStatus(Function<? super Unsafe<?,?>, ? extends Status> mapping) {
         return new UnsafeAdapter() {
             @Override
@@ -259,7 +259,6 @@ public interface ResultWrapper extends UnsafeAdapter, ExceptionAdapter {
         };
     }
 
-    @SuppressWarnings("Convert2Lambda")
     static UnsafeAdapter keep() {
         return new UnsafeAdapter() {
             @Override

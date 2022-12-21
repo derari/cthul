@@ -1,10 +1,13 @@
 package org.cthul.monad;
 
+import org.cthul.monad.adapt.ExceptionWrapper;
 import org.cthul.monad.adapt.ResultWrapper;
 import org.cthul.monad.result.*;
-import org.cthul.monad.util.CustomScopedException;
+import org.cthul.monad.util.AbstractScopedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -72,107 +75,129 @@ public class ScopeTest {
 
     @Test
     public void testCustomException() {
-        Result<String> result = new CustomException(DefaultStatus.BAD_GATEWAY, "nope").result();
-        CustomException ex = assertThrows(CustomException.class, result::get);
+        Result<String> result = new MyRuntimeException(DefaultStatus.BAD_GATEWAY, "nope").result();
+        MyRuntimeException ex = assertThrows(MyRuntimeException.class, result::get);
         assertThat(ex.getMessage(), is("nope"));
     }
 
     @Test
     public void testCustomExceptionType() {
-        assertThat(CustomException.SCOPE.unchecked().getScope(), is(CustomException.SCOPE));
-        Result<String> result = CustomException.SCOPE.unchecked().badRequest("nope").result();
-        CustomException ex = assertThrows(CustomException.class, result::get);
+        assertThat(MyRuntimeException.SCOPE.unchecked().getScope(), is(MyRuntimeException.SCOPE));
+        Result<String> result = MyRuntimeException.SCOPE.unchecked().badRequest("nope").result();
+        MyRuntimeException ex = assertThrows(MyRuntimeException.class, result::get);
         assertThat(ex.getMessage(), is("nope"));
     }
 
     @Test
-    public void testCustomResultType() throws CustomCheckedException {
-        CustomResult<Integer> result = customOperation(true);
+    public void testCustomResultType() throws MyResultException {
+        MyResult<Integer> result = myOperation(true);
         assertThat(result.get(), is(1));
     }
 
     @Test
     public void testCustomCheckedExceptionType() {
-        CustomResult<Integer> result = customOperation(false);
-        CustomCheckedException ex = assertThrows(CustomCheckedException.class, result::get);
+        MyResult<Integer> result = myOperation(false);
+        MyResultException ex = assertThrows(MyResultException.class, result::get);
         assertThat(ex.getMessage(), is("no success"));
     }
 
-    private CustomResult<Integer> customOperation(boolean success) {
-        if (success) {
-            return CustomResult.value(1);
-        }
-        return new CustomCheckedException(DefaultStatus.NOT_FOUND, "no success").result();
+    @Test
+    public void testCustomSafeWrapper() {
+        Unsafe<Integer, MyResultException> u = MyResultException.internal().safe().get(this::failing);
     }
 
-    public static class CustomException extends ScopedRuntimeException {
+    private int failing() throws IOException {
+        throw new IOException("io");
+    }
 
-        public static final TypedScope<CustomException> SCOPE = new TypedScope(CustomException::new);
+    private MyResult<Integer> myOperation(boolean success) {
+        if (success) {
+            return MyResult.value(1);
+        }
+        return new MyResultException(DefaultStatus.NOT_FOUND, "no success").result();
+    }
 
-        private CustomException(Scope scope, Status status, String message, Throwable cause) {
+    public static class MyRuntimeException extends ScopedRuntimeException {
+
+        public static final TypedScope<MyRuntimeException> SCOPE = new TypedScope<>(MyRuntimeException::new);
+
+        private MyRuntimeException(Scope scope, Status status, String message, Throwable cause) {
             super(scope, status, message, cause);
         }
 
-        public CustomException(Status status, String message) {
+        public MyRuntimeException(Status status, String message) {
             super(SCOPE, status, message);
         }
 
-        public CustomException(Status status, String message, Throwable cause) {
+        public MyRuntimeException(Status status, String message, Throwable cause) {
             super(SCOPE, status, message, cause);
         }
 
-        public CustomException(Status status, Throwable cause) {
+        public MyRuntimeException(Status status, Throwable cause) {
             super(SCOPE, status, cause);
         }
 
-        public CustomException(Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        public MyRuntimeException(Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(SCOPE, status, message, cause, enableSuppression, writableStackTrace);
+        }
+
+        public MyRuntimeException(ExceptionValue<?> exceptionValue) {
+            super(exceptionValue);
         }
     }
 
-    public interface CustomResult<T> extends Unsafe<T, CustomCheckedException> {
-        static <T> CustomResult<T> value(T value) {
-            class Ok extends AbstractOkValue<T, CustomCheckedException> implements CustomResult<T> {
+    public interface MyResult<T> extends Unsafe<T, MyResultException> {
+        static <T> MyResult<T> value(T value) {
+            class Ok extends AbstractOkValue<T, MyResultException> implements MyResult<T> {
                 public Ok(T value) {
-                    super(CustomCheckedException.SCOPE, value);
+                    super(MyResultException.SCOPE, value);
                 }
             }
             return new Ok(value);
         }
+
+        CheckedScope<MyResultException> SCOPE = new CheckedScope<>(MyResultException::new);
     }
 
-    public static class CustomCheckedException extends CustomScopedException implements NoValue<CustomCheckedException>, CustomResult<Object> {
+    public static class MyResultException extends AbstractScopedException implements ExceptionValue.Delegator<MyResultException>, MyResult<Object> {
 
-        public static final CheckedScope<CustomCheckedException> SCOPE = new CheckedScope<>(CustomCheckedException::new);
+        static ExceptionWrapper<MyResultException> internal() {
+            return SCOPE.checked().withStatus(DefaultStatus.INTERNAL_ERROR);
+        }
 
-        private CustomCheckedException(Scope scope, Status status, String message, Throwable cause) {
+        private MyResultException(Scope scope, Status status, String message, Throwable cause) {
             super(scope, status, message, cause);
         }
 
-        public CustomCheckedException(Status status, String message) {
+        public MyResultException(Status status, String message) {
             super(SCOPE, status, message);
         }
 
-        public CustomCheckedException(Status status, String message, Throwable cause) {
+        public MyResultException(Status status, String message, Throwable cause) {
             super(SCOPE, status, message, cause);
         }
 
-        public CustomCheckedException(Status status, Throwable cause) {
+        public MyResultException(Status status, Throwable cause) {
             super(SCOPE, status, cause);
         }
 
-        public CustomCheckedException(Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        public MyResultException(Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(SCOPE, status, message, cause, enableSuppression, writableStackTrace);
         }
 
         @Override
-        public CustomCheckedException getException() {
+        public MyResultException getException() {
             return this;
         }
 
         @SuppressWarnings("unchecked")
-        public <T> CustomResult<T> result() {
-            return (CustomResult<T>) this;
+        public <T> MyResult<T> result() {
+            return (MyResult<T>) this;
+        }
+
+        @Override
+        protected ScopedRuntimeException newScopedRuntimeException() {
+            return new MyRuntimeException(this);
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.cthul.monad.result;
 
 import org.cthul.monad.*;
+import org.cthul.monad.adapt.ResultWrapper;
 import org.cthul.monad.util.SafeStrings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,11 @@ public class OkValue<T> extends AbstractOkValue<T, RuntimeException> implements 
         @Override
         public String getName() {
             return "";
+        }
+
+        @Override
+        public Logger getLogger() {
+            return LOG;
         }
     }
 }

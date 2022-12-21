@@ -1,14 +1,10 @@
 package org.cthul.monad;
 
-import org.cthul.monad.cache.CacheInfo;
-import org.cthul.monad.error.ErrorState;
-import org.cthul.monad.error.GeneralError;
-import org.cthul.monad.result.NoValue;
-import org.cthul.monad.result.ResultMessage;
+import org.cthul.monad.result.*;
 import org.cthul.monad.util.AbstractScopedException;
 import org.cthul.monad.util.ScopedExceptionType;
 
-public class ScopedException extends AbstractScopedException implements NoValue<ScopedException> {
+public class ScopedException extends AbstractScopedException implements ExceptionValue.Delegator<ScopedException> {
 
     public static Type withScope(Scope scope) {
         return new Type(scope);
@@ -36,23 +32,23 @@ public class ScopedException extends AbstractScopedException implements NoValue<
         super(scope, status, message, cause, enableSuppression, writableStackTrace);
     }
 
-    public ScopedException(ScopedRuntimeException runtimeException) {
-        super(runtimeException);
+    public ScopedException(ExceptionValue<?> exceptionValue) {
+        super(exceptionValue);
     }
 
     @Override
-    protected ScopedRuntimeException asScopedRuntimeException() {
+    public ScopedException asScopedException() {
+        return this;
+    }
+
+    @Override
+    protected ScopedRuntimeException newScopedRuntimeException() {
         return new ScopedRuntimeException(this);
     }
 
     @Override
     public ScopedException getException() {
         return this;
-    }
-
-    @Override
-    protected void setErrorState(ErrorState<?> errorState) {
-        super.setErrorState(errorState);
     }
 
     public static class Type extends ScopedExceptionType<ScopedException> {

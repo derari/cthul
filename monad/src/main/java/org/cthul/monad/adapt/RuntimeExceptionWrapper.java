@@ -1,32 +1,13 @@
 package org.cthul.monad.adapt;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import org.cthul.monad.Result;
-import org.cthul.monad.Scope;
-import org.cthul.monad.Status;
-import org.cthul.monad.Unsafe;
-import org.cthul.monad.function.CheckedBiConsumer;
-import org.cthul.monad.function.CheckedBiFunction;
-import org.cthul.monad.function.CheckedBiPredicate;
-import org.cthul.monad.function.CheckedConsumer;
-import org.cthul.monad.function.CheckedFunction;
-import org.cthul.monad.function.CheckedPredicate;
-import org.cthul.monad.function.CheckedRunnable;
-import org.cthul.monad.function.CheckedSupplier;
-import org.cthul.monad.function.UncheckedBiConsumer;
-import org.cthul.monad.function.UncheckedBiFunction;
-import org.cthul.monad.function.UncheckedBiPredicate;
-import org.cthul.monad.function.UncheckedConsumer;
-import org.cthul.monad.function.UncheckedFunction;
-import org.cthul.monad.function.UncheckedPredicate;
-import org.cthul.monad.function.UncheckedRunnable;
-import org.cthul.monad.function.UncheckedSupplier;
+import org.cthul.monad.*;
+import org.cthul.monad.function.*;
 import org.cthul.monad.result.NoValue;
 import org.cthul.monad.switches.BasicSwitch;
 import org.cthul.monad.switches.Switch;
 import org.cthul.monad.util.ResultAdapter;
+
+import java.util.function.*;
 
 public interface RuntimeExceptionWrapper<X extends RuntimeException> {
 
@@ -216,7 +197,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         }
 
         @Override
-        default <T, U> UncheckedBiConsumer<T, U, X> biconsumer(CheckedBiConsumer<T, U, ?> consumer) {
+        default <T, U> UncheckedBiConsumer<T, U, X> biConsumer(CheckedBiConsumer<T, U, ?> consumer) {
             return (t, u) -> accept(t, u, consumer);
         }
 
@@ -226,7 +207,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         }
 
         @Override
-        default <T, U, R> UncheckedBiFunction<T, U, R, X> bifunction(CheckedBiFunction<T, U, R, ?> function) {
+        default <T, U, R> UncheckedBiFunction<T, U, R, X> biFunction(CheckedBiFunction<T, U, R, ?> function) {
             return (t, u) -> apply(t, u, function);
         }
 
@@ -236,7 +217,7 @@ public interface RuntimeExceptionWrapper<X extends RuntimeException> {
         }
 
         @Override
-        default <T, U> UncheckedBiPredicate<T, U, X> bipredicate(CheckedBiPredicate<T, U, ?> predicate) {
+        default <T, U> UncheckedBiPredicate<T, U, X> biPredicate(CheckedBiPredicate<T, U, ?> predicate) {
             return (t, u) -> test(t, u, predicate);
         }
 

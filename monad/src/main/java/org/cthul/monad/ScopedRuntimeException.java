@@ -2,83 +2,56 @@ package org.cthul.monad;
 
 import org.cthul.monad.cache.CacheInfo;
 import org.cthul.monad.error.ErrorState;
+import org.cthul.monad.result.ExceptionValue;
 import org.cthul.monad.result.NoResult;
 import org.cthul.monad.util.ScopedRuntimeExceptionType;
 
-public class ScopedRuntimeException extends RuntimeException implements NoResult, CacheInfo.Delegator {
+public class ScopedRuntimeException extends RuntimeException implements NoResult, ExceptionValue.Delegator<RuntimeException> {
 
     public static Type withScope(Scope scope) {
         return new Type(scope);
     }
 
-    private final Scope scope;
-    private final Status status;
-    private ScopedException checkedException;
+    private final ExceptionValue<?> value;
 
-    protected ScopedRuntimeException(Scope scope, Status status, String message) {
+    public ScopedRuntimeException(Scope scope, Status status, String message) {
         super(message);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
+        this.value = ExceptionValue.of(scope, status, this);
     }
 
-    protected ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause) {
+    public ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause) {
         super(message, cause);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
+        this.value = ExceptionValue.of(scope, status, this);
     }
 
-    protected ScopedRuntimeException(Scope scope, Status status, Throwable cause) {
+    public ScopedRuntimeException(Scope scope, Status status, Throwable cause) {
         super(cause);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
+        this.value = ExceptionValue.of(scope, status, this);
     }
 
-    protected ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public ScopedRuntimeException(Scope scope, Status status, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-        if (scope == null) throw new NullPointerException("scope");
-        if (status == null) throw new NullPointerException("status");
-        this.scope = scope;
-        this.status = status;
+        this.value = ExceptionValue.of(scope, status, this);
     }
 
-    protected ScopedRuntimeException(ScopedException checkedException) {
-        super(checkedException.getMessage(), checkedException);
-        this.checkedException = checkedException;
-        this.scope = checkedException.getScope();
-        this.status = checkedException.getStatus();
-    }
-
-    @Override
-    public CacheInfo getCacheInfo() {
-        return getCheckedException();
+    public ScopedRuntimeException(ExceptionValue<?> exceptionValue) {
+        super(exceptionValue.getMessage(), exceptionValue.getException());
+        this.value = exceptionValue;
     }
 
     public ScopedRuntimeException cacheControl(CacheInfo meta) {
-        getCheckedException().setCacheControl(meta);
+        value.setCacheControl(meta);
         return this;
     }
 
     @Override
-    public Scope getScope() {
-        return scope;
+    public ExceptionValue<?> getExceptionValue() {
+        return value;
     }
 
     @Override
-    public Status getStatus() {
-        return status;
-    }
-
-    public ScopedException getCheckedException() {
-        if (checkedException == null) {
-            checkedException = new ScopedException(this);
-        }
-        return checkedException;
+    public ScopedException asScopedException() {
+        return value.asScopedException();
     }
 
     @Override
@@ -87,15 +60,7 @@ public class ScopedRuntimeException extends RuntimeException implements NoResult
     }
 
     public ErrorState<?> getErrorState() {
-        return getCheckedException().getErrorState();
-    }
-
-    protected void setErrorState(ErrorState<?> errorState) {
-        getCheckedException().setErrorState(errorState);
-    }
-
-    public ScopedException checked() {
-        return getCheckedException();
+        return value.getErrorState();
     }
 
     @Override
