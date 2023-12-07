@@ -26,7 +26,8 @@ public class SubjectBuilder implements Subject.Builder {
     public SubjectBuilder copy() {
         return new SubjectBuilder(herald.copy(), observers);
     }
-    
+
+    @Override
     public Subject build() {
         return copy();
     }

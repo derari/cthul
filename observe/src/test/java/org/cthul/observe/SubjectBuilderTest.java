@@ -9,12 +9,12 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class SubjectBuilderTest {
+class SubjectBuilderTest {
 
     SubjectBuilder subject = new SubjectBuilder();
 
     @Test
-    void testMulticast() {
+    void herald_multicast() {
         var logger = new PersonDataLogger();
         var name = new NameModel();
 
@@ -29,7 +29,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testNestedMulticast() {
+    void herald_nestedMulticast() {
         var logger = new PersonDataLogger();
         var name0 = new NameModel();
         name0.setFirstName("Alice");
@@ -50,7 +50,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testNestedMulticastWithDuplication() {
+    void herald_nestedMulticastWithDuplication() {
         var logger = new NameDBLogger();
 
         subject.getHerald().declare(NameDB::events, PersonData::events);
@@ -62,7 +62,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testWithEventProxy() {
+    void herald_withEventProxy() {
         var logger = new NameDBLogger();
 
         subject.getHerald().declare(NameDB.class, PersonData.class);
@@ -74,7 +74,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testBuildInclude() {
+    void buildObserver_include() {
         var logger = new PersonDataLogger();
 
         subject.getHerald().declare(PersonData::events);
@@ -90,7 +90,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testBuildExclude() {
+    void buildObserver_exclude() {
         var logger = new PersonDataLogger();
 
         subject.getHerald().declare(PersonData::events);
@@ -106,7 +106,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testBuildIncludeExclude() {
+    void buildObserver_includeExclude() {
         var logger = new PersonDataLogger();
 
         subject.getHerald().declare(PersonData::events);
@@ -123,7 +123,7 @@ public class SubjectBuilderTest {
     }
 
     @Test
-    void testRemoveObserver() {
+    void removeObserver() {
         var logger = new PersonDataLogger();
         var herald = subject.getHerald().as(PersonData::events);
 

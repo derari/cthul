@@ -4,10 +4,11 @@ public interface Observer {
     
     static Observer cast(Object observer) {
         if (observer instanceof Observer actual) return actual;
-        return wrap(observer);
+        return new TypedObserver(observer);
     }
-    static ObserverBuilder wrap(Object observer) {
-        return new ObserverBuilder(observer);
+
+    static FilteringObserver filter(Object observer) {
+        return new FilteringObserver(observer);
     }
 
     default <S, X extends Exception> void notify(Class<S> type, Event.C0<S, X> event) throws X {

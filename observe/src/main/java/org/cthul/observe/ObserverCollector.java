@@ -10,7 +10,7 @@ import java.util.stream.Collector;
 public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.Acc<O>, R> {
 
     public static <R> Function<Subject, ObserverCollector<R, Object>> heraldAs(Class<R> resultType) {
-        return heraldAs(resultType, Observer::wrap);
+        return heraldAs(resultType, Observer::cast);
     }
 
     public static <R, O> Function<Subject, ObserverCollector<R, O>> heraldAs(Class<R> resultType, Function<? super O, ? extends Observer> toObserver) {

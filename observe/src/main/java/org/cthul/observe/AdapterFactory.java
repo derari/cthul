@@ -132,16 +132,4 @@ public class AdapterFactory<E> {
     }
     
     private static final Object NO_RESULT = new Object();
-
-    public record Self<A>(A self) {
-
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        public static <A> Class<Self<A>> clazz() {
-            return (Class) Self.class;
-        }
-
-        public static <A> Function<A, Self<A>> declaration() {
-            return Self::new;
-        }
-    }
 }

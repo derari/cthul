@@ -26,8 +26,9 @@ public class AdaptiveBuilder<E> implements Adaptive.Builder<E, AdaptiveBuilder<E
     public AdaptiveBuilder<E> copy() {
         return new AdaptiveBuilder<>(instance, adapterFactory.copy());
     }
-    
-    public Adaptive build() {
+
+    @Override
+    public Adaptive.Typed<E> build() {
         return copy();
     }
     

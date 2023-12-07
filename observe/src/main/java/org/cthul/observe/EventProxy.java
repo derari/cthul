@@ -8,48 +8,66 @@ public class EventProxy implements InvocationHandler {
     
     public static <T> Function<Herald, T> factory(Class<T> intf) {
         if (!intf.isInterface()) throw new IllegalArgumentException("interface required, got " + intf);
-        return herald -> intf.cast(Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, new EventProxy(herald)));
+        return herald -> new EventProxy(herald).as(intf);
     }
-    
+
     private final Herald herald;
 
     protected EventProxy(Herald herald) {
         this.herald = herald;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
-        return invoke(method.getDeclaringClass(), method.getReturnType(), method, args);
+    public <T> T as(Class<T> intf) {
+        var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this);
+        return intf.cast(proxy);
     }
 
-    private <T, R> Object invoke(Class<T> declaringClass, Class<R> returnType, Method method, Object[] args) throws Exception {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+        return invoke(method.getReturnType(), method, args);
+    }
+
+    private <R> Object invoke(Class<R> returnType, Method method, Object[] args) throws Exception {
         if (returnType == void.class || returnType == Void.class) {
-            herald.announce(declaringClass, event(declaringClass, Object.class, method, args).discardResult());
+            herald.announce(method.getDeclaringClass(), event(method, args));
             return null;
         }
-        return herald.enquire(declaringClass, returnType, event(declaringClass, returnType, method, args));
+        return herald.enquire(method.getDeclaringClass(), returnType, event(returnType, method, args));
     }
     
-    private <T, R> Event.F0<T, R, ?> event(Class<T> declaringClass, Class<R> returnType, Method method, Object[] args) {
+    private <T> Event.C0<T, Exception> event(Method method, Object[] args) {
         return subject -> {
             try {
-                return returnType.cast(method.invoke(subject, args));
-            } catch (Throwable e) {
+                method.invoke(subject, args);
+            } catch (InvocationTargetException e) {
                 throw asThrownException(e, method);
             }
         };
     }
 
-    private Exception asThrownException(Throwable throwable, Method method) {
-        var cause = throwable.getCause();
-        if (cause instanceof Exception ex) {
-            if (cause instanceof RuntimeException || Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(ex))) {
-                return ex;
+    private <T, R> Event.F0<T, R, Exception> event(Class<R> returnType, Method method, Object[] args) {
+        return subject -> {
+            try {
+                return returnType.cast(method.invoke(subject, args));
+            } catch (InvocationTargetException e) {
+                throw asThrownException(e, method);
             }
+        };
+    }
+
+    private Exception asThrownException(InvocationTargetException ite, Method method) {
+        var cause = ite.getCause();
+        if (cause instanceof RuntimeException || isDeclaredException(method, cause)) {
+            return (Exception) cause;
         }
-        if (throwable instanceof Error err) {
+        if (cause instanceof Error err) {
             throw err;
         }
-        return new IllegalArgumentException(throwable);
+        return ite;
+    }
+
+    private boolean isDeclaredException(Method method, Throwable cause) {
+        return cause instanceof Exception
+                && Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(cause));
     }
 }

@@ -14,5 +14,7 @@ public interface Subject extends ObserverList {
         
         @Override
         Herald.Builder getHerald();
+
+        Subject build();
     }
 }

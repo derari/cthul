@@ -4,7 +4,8 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-public interface Herald extends Adaptive {
+@SuppressWarnings({"unused", "java:S107"})
+public interface Herald extends Adaptive.Typed<Herald> {
     
     default <S, X extends Exception> void announce(Class<S> subject, Event.C0<S, X> event) throws X {
         enquire(subject, ObserverCollector.noResult(), event.mapToNull());

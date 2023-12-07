@@ -3,39 +3,43 @@ package org.cthul.observe;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ObserverBuilder implements Observer {
+public class FilteringObserver implements Observer {
 
-    private final Object observer;
+    private final Observer observer;
     private final Map<Class<?>, Boolean> observedTypes = new HashMap<>();
     private List<Class<?>> included;
     private List<Class<?>> excluded;
 
-    public ObserverBuilder(Object observer) {
+    public FilteringObserver(Object observer) {
+        this(Observer.cast(observer));
+    }
+
+    public FilteringObserver(Observer observer) {
         Objects.requireNonNull(observer, "observer");
         this.observer = observer;
     }
     
-    protected ObserverBuilder(ObserverBuilder source) {
+    protected FilteringObserver(FilteringObserver source) {
         this.observer = source.observer;
         this.observedTypes.putAll(source.observedTypes);
         if (source.included != null) included = new ArrayList<>(source.included);
         if (source.excluded != null) excluded = new ArrayList<>(source.excluded);
     }
     
-    public ObserverBuilder copy() {
-        return new ObserverBuilder(this);
+    public FilteringObserver copy() {
+        return new FilteringObserver(this);
     }
     
     public Observer build() {
         return copy();
     }
 
-    public ObserverBuilder include(Object... included) {
+    public FilteringObserver include(Object... included) {
         Stream.of(included).forEach(this::addInclude);
         return this;
     }
 
-    public ObserverBuilder exclude(Object... excluded) {
+    public FilteringObserver exclude(Object... excluded) {
         Stream.of(excluded).forEach(this::addExclude);
         return this;
     }
@@ -90,26 +94,10 @@ public class ObserverBuilder implements Observer {
     }
 
     private boolean isIncluded(Class<?> type) {
-        if (!type.isInstance(observer)) {
-            return false;
-        }
         return included == null || included.stream().anyMatch(type::isAssignableFrom);
     }
 
     private boolean isExcluded(Class<?> type) {
         return excluded != null && excluded.stream().anyMatch(type::isAssignableFrom);
-    }
-
-    @Override
-    public int hashCode() {
-        return observer.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ObserverBuilder) {
-            return observer.equals(((ObserverBuilder) obj).observer);
-        }
-        return observer.equals(obj);
     }
 }

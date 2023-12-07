@@ -18,8 +18,8 @@ public interface Observable {
         Stream.of(observer).forEach(this::addObserver);
     }
 
-    default ObserverBuilder buildObserver(Object observer) {
-        var builder = new ObserverBuilder(observer);
+    default FilteringObserver buildObserver(Object observer) {
+        var builder = new FilteringObserver(observer);
         addObserver(builder);
         return builder;
     }

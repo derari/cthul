@@ -26,7 +26,8 @@ public class HeraldBuilder implements Herald.Builder {
     public HeraldBuilder copy() {
         return new HeraldBuilder(subject, adaptive.copy());
     }
-    
+
+    @Override
     public Herald build() {
         return copy();
     }
