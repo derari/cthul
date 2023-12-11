@@ -59,10 +59,10 @@ public class AdaptiveBuilder<E> implements Adaptive.Builder<E, AdaptiveBuilder<E
     }
 
     private <T> T createAdapter(Class<T> clazz, Function<? super E, ? extends T> ifUndeclared) {
-        return adapterFactory.create(instance, clazz, ifUndeclared, this::addWrapper);
+        return adapterFactory.create(instance, clazz, ifUndeclared, this::addAdapter);
     }
 
-    private void addWrapper(Object wrapper) {
-        expandClass(wrapper, wrapper, adapters::putIfAbsent);
+    private void addAdapter(Object adapter) {
+        expandClass(adapter, adapter, adapters::putIfAbsent);
     }
 }

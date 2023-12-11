@@ -102,23 +102,27 @@ public interface Herald extends Adaptive.Typed<Herald> {
     }
     
     interface Builder extends Herald, Adaptive.Builder<Herald, Herald.Builder> {
-        
+
+        @Override
+        default <T> T as(Class<T> clazz) {
+            if (clazz.isInterface()) {
+                return as(clazz, HeraldInvocationProxy.factory(clazz));
+            }
+            return Adaptive.Builder.super.as(clazz);
+        }
+
         default Herald.Builder declare(Class<?>... classes) {
             Stream.of(classes).forEach(this::declare);
             return this;
         }
         
         default <T> Herald.Builder declare(Class<T> clazz) {
-            return declare(clazz, EventProxy.factory(clazz));
+            return declare(clazz, HeraldInvocationProxy.factory(clazz));
         }
 
         @Override
         default <T> T as(Function<? super Herald, T> intf) {
             return intf.apply(this);
-        }
-
-        default <T> T declaringAs(Class<T> clazz) {
-            return as(clazz, EventProxy.factory(clazz));
         }
     }
 }

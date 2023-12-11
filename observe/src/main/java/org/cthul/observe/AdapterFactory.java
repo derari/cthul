@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+@SuppressWarnings("java:S1452")
 public class AdapterFactory<E> {
 
     private final Map<Class<?>, Function<? super E, ?>> typedAdapters = new HashMap<>();
@@ -54,12 +55,12 @@ public class AdapterFactory<E> {
             return tryInOrder(
                     () -> adaptWithUntyped(actual, clazz, extraAdapterCallback),
                     () -> adaptWithTyped(actual, clazz),
-                    () -> adaptUndeclared(actual, clazz, ifUndeclared));
+                    () -> adaptUndeclared(actual, ifUndeclared));
         }
         return tryInOrder(
                     () -> adaptWithTyped(actual, clazz),
                     () -> adaptWithUntyped(actual, clazz, extraAdapterCallback),
-                    () -> adaptUndeclared(actual, clazz, ifUndeclared));
+                    () -> adaptUndeclared(actual, ifUndeclared));
     }
 
     protected <T> T tryInOrder(Supplier<Optional<T>> first, Supplier<Optional<T>> second, Supplier<T> third) {
@@ -107,7 +108,7 @@ public class AdapterFactory<E> {
                 .orElse(null);
     }
     
-    protected <T> T adaptUndeclared(E actual, Class<T> clazz, Function<? super E, ? extends T> ifUndeclared) {
+    protected <T> T adaptUndeclared(E actual, Function<? super E, ? extends T> ifUndeclared) {
         var result = ifUndeclared.apply(actual);
         putTypedAdapter(result, ifUndeclared);
         return result;
@@ -130,6 +131,4 @@ public class AdapterFactory<E> {
         action.accept(clazz.getSuperclass(), item);
         Stream.of(clazz.getInterfaces()).forEach(c -> action.accept(c, item));
     }
-    
-    private static final Object NO_RESULT = new Object();
 }

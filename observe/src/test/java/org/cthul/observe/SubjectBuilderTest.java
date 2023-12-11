@@ -62,7 +62,7 @@ class SubjectBuilderTest {
     }
 
     @Test
-    void herald_withEventProxy() {
+    void herald_withProxy() {
         var logger = new NameDBLogger();
 
         subject.getHerald().declare(NameDB.class, PersonData.class);

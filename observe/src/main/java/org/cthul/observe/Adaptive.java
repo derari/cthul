@@ -18,7 +18,6 @@ public interface Adaptive {
 
         <T> T as(Class<T> clazz, Function<? super A, ? extends T> ifUndeclared);
 
-
         default <T> T as(Function<? super A, T> intf) {
             return intf.apply(as(Self.clazz(), Self.declaration()).self());
         }
@@ -35,27 +34,22 @@ public interface Adaptive {
         }
     }
 
-    interface Builder<A, This> extends Adaptive.Typed<A> {
+    interface Builder<A, T0 extends Builder<A, T0>> extends Adaptive.Typed<A> {
 
         Adaptive.Typed<A> build();
 
-        <T> This declare(Class<T> clazz, Function<? super A, ? extends T> intf);
+        <T> T0 declare(Class<T> clazz, Function<? super A, ? extends T> intf);
 
-        default This declare(Function<? super A, ?> intf) {
+        default T0 declare(Function<? super A, ?> intf) {
             return declare(null, intf);
         }
 
         @SuppressWarnings("unchecked")
-        default This declare(Function<? super A, ?>... intf) {
+        default T0 declare(Function<? super A, ?>... intf) {
             Stream.of(intf).forEach(this::declare);
-            return (This) this;
+            return (T0) this;
         }
 
-        default <T> T declaringAs(Function<? super A, T> intf) {
-            declare(intf);
-            return as(intf);
-        }
-        
         static <T> Function<Object, T> cast(Class<T> clazz) {
             return o -> cast(o, clazz);
         }

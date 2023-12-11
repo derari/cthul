@@ -4,26 +4,25 @@ import java.lang.reflect.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class EventProxy implements InvocationHandler {
+public class HeraldInvocationProxy {
     
     public static <T> Function<Herald, T> factory(Class<T> intf) {
         if (!intf.isInterface()) throw new IllegalArgumentException("interface required, got " + intf);
-        return herald -> new EventProxy(herald).as(intf);
+        return herald -> herald.as(HeraldInvocationProxy.class, HeraldInvocationProxy::new).as(intf);
     }
 
     private final Herald herald;
 
-    protected EventProxy(Herald herald) {
+    protected HeraldInvocationProxy(Herald herald) {
         this.herald = herald;
     }
 
     public <T> T as(Class<T> intf) {
-        var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this);
+        var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this::invoke);
         return intf.cast(proxy);
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+    private Object invoke(Object proxy, Method method, Object[] args) throws Exception {
         return invoke(method.getReturnType(), method, args);
     }
 

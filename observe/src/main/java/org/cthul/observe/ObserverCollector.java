@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.Acc<O>, R> {
+public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.Results<O>, R> {
 
     public static <R> Function<Subject, ObserverCollector<R, Object>> heraldAs(Class<R> resultType) {
         return heraldAs(resultType, Observer::cast);
@@ -15,10 +15,6 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.A
 
     public static <R, O> Function<Subject, ObserverCollector<R, O>> heraldAs(Class<R> resultType, Function<? super O, ? extends Observer> toObserver) {
         return subject -> new ObserverCollector<>(subject, resultType, toObserver);
-    }
-
-    public static <R, O extends Observer> Function<Subject, ObserverCollector<R, O>> heraldObserverAs(Class<R> resultType) {
-        return subject -> new ObserverCollector<>(subject, resultType, Function.identity());
     }
 
     public static Collector<Object, Object, Object> noResult() {
@@ -36,24 +32,24 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.A
     }
 
     @Override
-    public Supplier<Acc<O>> supplier() {
-        return () -> new Acc<>(toObserver, subject.getObserverList());
+    public Supplier<Results<O>> supplier() {
+        return () -> new Results<>(toObserver, subject.getObserverList());
     }
 
     @Override
-    public BiConsumer<Acc<O>, O> accumulator() {
-        return Acc::add;
+    public BiConsumer<Results<O>, O> accumulator() {
+        return Results::add;
     }
 
     @Override
-    public BinaryOperator<Acc<O>> combiner() {
-        return Acc::addAll;
+    public BinaryOperator<Results<O>> combiner() {
+        return Results::addAll;
     }
 
     @Override
-    public Function<Acc<O>, R> finisher() {
-        return acc -> {
-            acc.bag.forEach(subject::addObserver);
+    public Function<Results<O>, R> finisher() {
+        return results -> {
+            results.bag.forEach(subject::addObserver);
             return subject.getHerald().as(resultType);
         };
     }
@@ -63,12 +59,12 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.A
         return Collections.emptySet();
     }
 
-    public static class Acc<O> {
-        private final List<Observer> bag = new ArrayList<>();
-        private final Function<? super O, ? extends Observer> toObserver;
+    public static class Results<O> {
         private final Set<Observer> existing;
+        private final Set<Observer> bag = new LinkedHashSet<>();
+        private final Function<? super O, ? extends Observer> toObserver;
 
-        private Acc(Function<? super O, ? extends Observer> toObserver, Collection<Observer> existing) {
+        private Results(Function<? super O, ? extends Observer> toObserver, Collection<Observer> existing) {
             this.toObserver = toObserver;
             this.existing = new HashSet<>(existing);
         }
@@ -78,17 +74,17 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.A
             add(toObserver.apply(value));
         }
         private void add(Observer observer) {
-            if (!existing.add(observer)) return;
+            if (existing.contains(observer)) return;
             bag.add(observer);
         }
 
-        private Acc<O> addAll(Acc<O> other) {
-            other.bag.forEach(this::add);
+        private Results<O> addAll(Results<O> other) {
+            bag.addAll(other.bag);
             return this;
         }
     }
 
-    private static final Collector<Object, Object, Object> NO_RESULT = new Collector<Object, Object, Object>() {
+    private static final Collector<Object, Object, Object> NO_RESULT = new Collector<>() {
         @Override
         public Supplier<Object> supplier() {
             return () -> null;

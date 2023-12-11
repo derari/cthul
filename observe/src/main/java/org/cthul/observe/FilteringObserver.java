@@ -73,14 +73,14 @@ public class FilteringObserver implements Observer {
     @Override
     public <O, X extends Exception> void notify(Class<O> type, Event.C0<O, X> event) throws X {
         if (isObserving(type)) {
-            event.accept(type.cast(observer));
+            observer.notify(type, event);
         }
     }
 
     @Override
     public <O, R, X extends Exception> R notify(Class<O> type, Event.F0<O, R, X> event) throws X {
         if (isObserving(type)) {
-            return event.apply(type.cast(observer));
+            return observer.notify(type, event);
         }
         return null;
     }
