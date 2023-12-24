@@ -1,12 +1,60 @@
 package org.cthul.observe;
 
 public interface Event {
-    
-    interface Definitions {
-        
-        Herald herald();
+
+    static <S, X extends Exception> C0<S, X> c(C0<S, X> event) {
+        return event;
     }
     
+    static <S, A1, X extends Exception> C0<S, X> c(C1<S, A1, X> event, A1 a1) {
+        return event.curry(a1);
+    }
+    
+    static <S, A1, A2, X extends Exception> C0<S, X> c(C2<S, A1, A2, X> event, A1 a1, A2 a2) {
+        return event.curry(a1, a2);
+    }
+    
+    static <S, A1, A2, A3, X extends Exception> C0<S, X> c(C3<S, A1, A2, A3, X> event, A1 a1, A2 a2, A3 a3) {
+        return event.curry(a1, a2, a3);
+    }
+    
+    static <S, A1, A2, A3, A4, X extends Exception> C0<S, X> c(C4<S, A1, A2, A3, A4, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
+        return event.curry(a1, a2, a3, a4);
+    }
+    
+    static <S, A1, A2, A3, A4, A5, X extends Exception> C0<S, X> c(C5<S, A1, A2, A3, A4, A5, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+        return event.curry(a1, a2, a3, a4, a5);
+    }
+    
+    static <S, R, X extends Exception> F0<S, R, X> f(F0<S, R, X> event) {
+        return event;
+    }
+    
+    static <S, A1, R, X extends Exception> F0<S, R, X> f(F1<S, A1, R, X> event, A1 a1) {
+        return event.curry(a1);
+    }
+    
+    static <S, A1, A2, R, X extends Exception> F0<S, R, X> f(F2<S, A1, A2, R, X> event, A1 a1, A2 a2) {
+        return event.curry(a1, a2);
+    }
+    
+    static <S, A1, A2, A3, R, X extends Exception> F0<S, R, X> f(F3<S, A1, A2, A3, R, X> event, A1 a1, A2 a2, A3 a3) {
+        return event.curry(a1, a2, a3);
+    }
+    
+    static <S, A1, A2, A3, A4, R, X extends Exception> F0<S, R, X> f(F4<S, A1, A2, A3, A4, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
+        return event.curry(a1, a2, a3, a4);
+    }
+    
+    static <S, A1, A2, A3, A4, A5, R, X extends Exception> F0<S, R, X> f(F5<S, A1, A2, A3, A4, A5, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+        return event.curry(a1, a2, a3, a4, a5);
+    }
+
+    interface Definitions {
+
+        Herald herald();
+    }
+
     interface C0<S, X extends Exception> extends Event {
 
         void accept(S s) throws X;

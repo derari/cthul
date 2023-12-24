@@ -9,26 +9,33 @@ import java.util.stream.Collector;
 
 public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.Results<O>, R> {
 
-    public static <R> Function<Subject, ObserverCollector<R, Object>> heraldAs(Class<R> resultType) {
-        return heraldAs(resultType, Observer::cast);
+    public static <O> Function<Subject, ObserverCollector<Subject, O>> toSubject() {
+        return toSubject(Observer::cast);
     }
 
-    public static <R, O> Function<Subject, ObserverCollector<R, O>> heraldAs(Class<R> resultType, Function<? super O, ? extends Observer> toObserver) {
-        return subject -> new ObserverCollector<>(subject, resultType, toObserver);
+    public static <O> Function<Subject, ObserverCollector<Subject, O>> toSubject(Function<? super O, ? extends Observer> toObserver) {
+        return subject -> new ObserverCollector<>(subject, toObserver, observeSubject(subject));
     }
 
-    public static Collector<Object, Object, Object> noResult() {
+    public static Collector<Void, Void, Void> noResult() {
         return NO_RESULT;
     }
 
-    private final Subject subject;
-    private final Class<R> resultType;
-    private final Function<? super O, ? extends Observer> toObserver;
+    private static Function<Collection<Observer>, Subject> observeSubject(Subject subject) {
+        return list -> {
+            list.forEach(subject::addObserver);
+            return subject;
+        };
+    }
 
-    public ObserverCollector(Subject subject, Class<R> resultType, Function<? super O, ? extends Observer> toObserver) {
+    private final Subject subject;
+    private final Function<? super O, ? extends Observer> toObserver;
+    private final Function<? super Collection<Observer>, R> finisher;
+
+    public ObserverCollector(Subject subject, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
         this.subject = subject;
-        this.resultType = resultType;
         this.toObserver = toObserver;
+        this.finisher = finisher;
     }
 
     @Override
@@ -48,10 +55,7 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.R
 
     @Override
     public Function<Results<O>, R> finisher() {
-        return results -> {
-            results.bag.forEach(subject::addObserver);
-            return subject.getHerald().as(resultType);
-        };
+        return results -> finisher.apply(results.bag);
     }
 
     @Override
@@ -84,24 +88,24 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.R
         }
     }
 
-    private static final Collector<Object, Object, Object> NO_RESULT = new Collector<>() {
+    private static final Collector<Void, Void, Void> NO_RESULT = new Collector<>() {
         @Override
-        public Supplier<Object> supplier() {
+        public Supplier<Void> supplier() {
             return () -> null;
         }
 
         @Override
-        public BiConsumer<Object, Object> accumulator() {
+        public BiConsumer<Void, Void> accumulator() {
             return (a, b) -> {};
         }
 
         @Override
-        public BinaryOperator<Object> combiner() {
+        public BinaryOperator<Void> combiner() {
             return (a, b) -> a;
         }
 
         @Override
-        public Function<Object, Object> finisher() {
+        public Function<Void, Void> finisher() {
             return Function.identity();
         }
 

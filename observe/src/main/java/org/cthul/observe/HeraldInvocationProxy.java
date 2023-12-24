@@ -6,9 +6,11 @@ import java.util.stream.Stream;
 
 public class HeraldInvocationProxy {
     
-    public static <T> Function<Herald, T> factory(Class<T> intf) {
-        if (!intf.isInterface()) throw new IllegalArgumentException("interface required, got " + intf);
-        return herald -> herald.as(HeraldInvocationProxy.class, HeraldInvocationProxy::new).as(intf);
+    public static <T> Function<Herald, T> castOrProxy(Class<T> clazz) {
+        return herald -> {
+            if (clazz.isInstance(herald)) return clazz.cast(herald);
+            return herald.as(HeraldInvocationProxy.class, HeraldInvocationProxy::new).as(clazz);
+        };
     }
 
     private final Herald herald;
@@ -26,7 +28,7 @@ public class HeraldInvocationProxy {
         return invoke(method.getReturnType(), method, args);
     }
 
-    private <R> Object invoke(Class<R> returnType, Method method, Object[] args) throws Exception {
+    private <R> R invoke(Class<R> returnType, Method method, Object[] args) throws Exception {
         if (returnType == void.class || returnType == Void.class) {
             herald.announce(method.getDeclaringClass(), event(method, args));
             return null;

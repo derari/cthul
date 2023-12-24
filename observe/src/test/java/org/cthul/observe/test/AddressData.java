@@ -12,12 +12,12 @@ public interface AddressData {
         
         @Override
         default void setStreet(String street) {
-            herald().announce(AddressData.class, AddressData::setStreet, street);
+            herald().announce(AddressData.class, Event.c(AddressData::setStreet, street));
         }
 
         @Override
         default void setCity(String city) {
-            herald().announce(AddressData.class, AddressData::setCity, city);
+            herald().announce(AddressData.class, Event.c(AddressData::setCity, city));
         }
     }
 }
