@@ -19,6 +19,21 @@ class SubjectBuilderTest {
         var name = new NameModel();
 
         subject.addObservers(logger, name);
+        var herald = subject.getHerald();
+        herald.announce(NameData.class, n -> n.setFirstName("Bob"));
+        herald.announce(NameData.class, n -> n.setLastName("Loblaw"));
+        herald.announce(AddressData.class, n -> n.setCity("Berlin"));
+
+        assertThat(name.getFullName(), is("Bob Loblaw"));
+        assertThat(logger.getLog(), contains("first name Bob", "last name Loblaw", "city Berlin"));
+    }
+
+    @Test
+    void herald_typedMulticast() {
+        var logger = new PersonDataLogger();
+        var name = new NameModel();
+
+        subject.addObservers(logger, name);
         var herald = subject.getHerald().as(PersonData::events);
         herald.setFirstName("Bob");
         herald.setLastName("Loblaw");
@@ -58,7 +73,8 @@ class SubjectBuilderTest {
 
         var herald = subject.getHerald().as(NameDB.class);
         herald.getName(0).setLastName("Noi");
-        assertThat(logger.getLog(), contains("last name Noi"));
+
+        assertThat(logger.getLog(), contains("get 0", "last name Noi"));
     }
 
     @Test
@@ -70,7 +86,20 @@ class SubjectBuilderTest {
 
         var herald = subject.getHerald().as(NameDB.class);
         herald.getName(0).setLastName("Noi");
-        assertThat(logger.getLog(), contains("last name Noi"));
+
+        assertThat(logger.getLog(), contains("get 0", "last name Noi"));
+    }
+
+    @Test
+    void herald_implicitProxy() {
+        var logger = new NameDBLogger();
+
+        subject.addObserver(logger);
+
+        var herald = subject.getHerald().as(NameDB.class);
+        herald.getName(0).setLastName("Noi");
+
+        assertThat(logger.getLog(), contains("get 0", "last name Noi"));
     }
 
     @Test
@@ -133,7 +162,8 @@ class SubjectBuilderTest {
         subject.removeObserver(logger);
         herald.setCity("Berlin");
 
-        assertThat(logger.getLog(), contains("city Amsterdam"));
+        assertThat(logger.getLog(), hasItem("city Amsterdam"));
+        assertThat(logger.getLog(), not(hasItem("city Berlin")));
     }
 
     static class PersonDataLogger implements PersonData {
@@ -188,6 +218,7 @@ class SubjectBuilderTest {
 
         @Override
         public NameData getName(int i) {
+            log.add("get " + i);
             return this;
         }
     }

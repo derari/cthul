@@ -5,42 +5,42 @@ import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
+import java.util.stream.*;
 
-public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.Results<O>, R> {
+public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.Results<O>, R> {
 
-    public static <O> Function<Subject, ObserverCollector<Subject, O>> toSubject() {
+    public static <S extends Subject, O> Function<S, ObserverCollector<O, S>> toSubject() {
         return toSubject(Observer::cast);
     }
 
-    public static <O> Function<Subject, ObserverCollector<Subject, O>> toSubject(Function<? super O, ? extends Observer> toObserver) {
-        return subject -> new ObserverCollector<>(subject, toObserver, observeSubject(subject));
+    public static <S extends Subject, O> Function<S, ObserverCollector<O, S>> toSubject(Function<? super O, ? extends Observer> toObserver) {
+        return subject -> new ObserverCollector<>(subject.getObserverList(), toObserver, observeSubject(subject));
     }
 
-    public static Collector<Void, Void, Void> noResult() {
+    public static Collector<Object, Void, Void> noResult() {
         return NO_RESULT;
     }
 
-    private static Function<Collection<Observer>, Subject> observeSubject(Subject subject) {
+    private static <S extends Subject> Function<Iterable<? extends Observer>, S> observeSubject(S subject) {
         return list -> {
             list.forEach(subject::addObserver);
             return subject;
         };
     }
 
-    private final Subject subject;
+    private final Set<Observer> ignored;
     private final Function<? super O, ? extends Observer> toObserver;
     private final Function<? super Collection<Observer>, R> finisher;
 
-    public ObserverCollector(Subject subject, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
-        this.subject = subject;
+    public ObserverCollector(Collection<Observer> ignored, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
+        this.ignored = new HashSet<>(ignored);
         this.toObserver = toObserver;
         this.finisher = finisher;
     }
 
     @Override
     public Supplier<Results<O>> supplier() {
-        return () -> new Results<>(toObserver, subject.getObserverList());
+        return () -> new Results<>(toObserver, ignored);
     }
 
     @Override
@@ -64,13 +64,14 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.R
     }
 
     public static class Results<O> {
-        private final Set<Observer> existing;
+
+        private final Set<Observer> ignored;
         private final Set<Observer> bag = new LinkedHashSet<>();
         private final Function<? super O, ? extends Observer> toObserver;
 
-        private Results(Function<? super O, ? extends Observer> toObserver, Collection<Observer> existing) {
+        private Results(Function<? super O, ? extends Observer> toObserver, Set<Observer> ignored) {
             this.toObserver = toObserver;
-            this.existing = new HashSet<>(existing);
+            this.ignored = ignored;
         }
 
         private void add(O value) {
@@ -78,7 +79,7 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.R
             add(toObserver.apply(value));
         }
         private void add(Observer observer) {
-            if (existing.contains(observer)) return;
+            if (ignored.contains(observer)) return;
             bag.add(observer);
         }
 
@@ -88,14 +89,14 @@ public class ObserverCollector<R, O> implements Collector<O, ObserverCollector.R
         }
     }
 
-    private static final Collector<Void, Void, Void> NO_RESULT = new Collector<>() {
+    private static final Collector<Object, Void, Void> NO_RESULT = new Collector<>() {
         @Override
         public Supplier<Void> supplier() {
             return () -> null;
         }
 
         @Override
-        public BiConsumer<Void, Void> accumulator() {
+        public BiConsumer<Void, Object> accumulator() {
             return (a, b) -> {};
         }
 

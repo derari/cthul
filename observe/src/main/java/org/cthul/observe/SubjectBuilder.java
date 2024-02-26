@@ -13,18 +13,14 @@ public class SubjectBuilder implements Subject.Builder {
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public SubjectBuilder(HeraldBuilder herald) {
-        this.herald = herald.forSubject(this);
-    }
-
-    public SubjectBuilder(HeraldBuilder herald, List<Observer> observers) {
-        this(herald);
-        this.observers.addAll(observers);
+    protected SubjectBuilder(SubjectBuilder source) {
+        this.herald = source.herald.copyForSubject(this);
+        this.observers.addAll(source.observers);
     }
 
     @Override
     public SubjectBuilder copy() {
-        return new SubjectBuilder(herald.copy(), observers);
+        return new SubjectBuilder(this);
     }
 
     @Override
@@ -40,5 +36,10 @@ public class SubjectBuilder implements Subject.Builder {
     @Override
     public List<Observer> getObserverList() {
         return observers;
+    }
+
+    @Override
+    public String toString() {
+        return "Subject@" + Integer.toHexString(System.identityHashCode(this)) + "[" + observers.size() + "]";
     }
 }

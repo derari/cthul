@@ -38,4 +38,9 @@ public class TypedObserver implements Observer {
         }
         return observer.equals(obj);
     }
+
+    @Override
+    public String toString() {
+        return observer.toString();
+    }
 }

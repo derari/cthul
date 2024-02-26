@@ -10,16 +10,20 @@ public interface Observable {
         addObserver(Observer.cast(observer));
     }
 
-    default void addObservers(Object... observer) {
-        Stream.of(observer).forEach(this::addObserver);
+    default void addObservers(Object... observers) {
+        Stream.of(observers).forEach(this::addObserver);
     }
 
-    default void addObservers(Observer... observer) {
-        Stream.of(observer).forEach(this::addObserver);
+    default void addObservers(Observer... observers) {
+        Stream.of(observers).forEach(this::addObserver);
+    }
+
+    default void addObservers(Iterable<?> observers) {
+        observers.forEach(this::addObserver);
     }
 
     default FilteringObserver buildObserver(Object observer) {
-        var builder = new FilteringObserver(observer);
+        var builder = Observer.filter(observer);
         addObserver(builder);
         return builder;
     }

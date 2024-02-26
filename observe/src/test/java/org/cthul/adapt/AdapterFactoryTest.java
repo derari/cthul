@@ -1,4 +1,4 @@
-package org.cthul.observe;
+package org.cthul.adapt;
 
 import org.junit.jupiter.api.Test;
 

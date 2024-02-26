@@ -67,6 +67,7 @@ public class FilteringObserver implements Observer {
     private void addTo(Class<?> item, List<Class<?>> list) {
         if (list.stream().noneMatch(c -> c.isAssignableFrom(item))) {
             list.add(item);
+            observedTypes.clear();
         }
     }
 
@@ -86,10 +87,10 @@ public class FilteringObserver implements Observer {
     }
 
     public boolean isObserving(Class<?> type) {
-        return observedTypes.computeIfAbsent(type, this::checkObserving);
+        return observedTypes.computeIfAbsent(type, this::testAgainstLists);
     }
 
-    private boolean checkObserving(Class<?> type) {
+    private boolean testAgainstLists(Class<?> type) {
         return isIncluded(type) && !isExcluded(type);
     }
 
@@ -99,5 +100,12 @@ public class FilteringObserver implements Observer {
 
     private boolean isExcluded(Class<?> type) {
         return excluded != null && excluded.stream().anyMatch(type::isAssignableFrom);
+    }
+
+    @Override
+    public String toString() {
+        return observer.toString() + "["
+                + (included == null ? "" : "+" + included.size())
+                + (excluded == null ? "" : "-" + excluded.size()) + "]";
     }
 }

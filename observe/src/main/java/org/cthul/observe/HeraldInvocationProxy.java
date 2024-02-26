@@ -1,65 +1,80 @@
 package org.cthul.observe;
 
+import org.cthul.adapt.Adaptive;
+
 import java.lang.reflect.*;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.Stream;
 
-public class HeraldInvocationProxy {
-    
+public class HeraldInvocationProxy implements Adaptive {
+
+    private static final BiFunction<Herald, Class<?>, HeraldInvocationProxy> NEW = (h, c) -> new HeraldInvocationProxy(h);
+    private static final BiFunction<Herald, Class<?>, ?> CAST_OR_PROXY = HeraldInvocationProxy::castOrProxy;
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T> BiFunction<Herald, Class<T>, T> castOrProxy() {
+        return (BiFunction) CAST_OR_PROXY;
+    }
+
     public static <T> Function<Herald, T> castOrProxy(Class<T> clazz) {
-        return herald -> {
-            if (clazz.isInstance(herald)) return clazz.cast(herald);
-            return herald.as(HeraldInvocationProxy.class, HeraldInvocationProxy::new).as(clazz);
-        };
+        return herald -> castOrProxy(herald, clazz);
+    }
+
+    public static <T> T castOrProxy(Herald herald, Class<T> clazz) {
+        if (clazz.isInstance(herald)) return clazz.cast(herald);
+        return herald.as(HeraldInvocationProxy.class, NEW).as(clazz);
     }
 
     private final Herald herald;
 
-    protected HeraldInvocationProxy(Herald herald) {
+    public HeraldInvocationProxy(Herald herald) {
         this.herald = herald;
     }
 
+    @Override
     public <T> T as(Class<T> intf) {
-        var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this::invoke);
+        var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this::herald);
         return intf.cast(proxy);
     }
 
-    private Object invoke(Object proxy, Method method, Object[] args) throws Exception {
-        return invoke(method.getReturnType(), method, args);
+    private Object herald(Object proxy, Method method, Object[] args) throws Exception {
+        if (method.getDeclaringClass().isInstance(herald)) {
+            return invoke(herald, method, args);
+        }
+        return herald(method.getReturnType(), method, args);
     }
 
-    private <R> R invoke(Class<R> returnType, Method method, Object[] args) throws Exception {
+    private <R> R herald(Class<R> returnType, Method method, Object[] args) throws Exception {
         if (returnType == void.class || returnType == Void.class) {
             herald.announce(method.getDeclaringClass(), event(method, args));
             return null;
         }
         return herald.enquire(method.getDeclaringClass(), returnType, event(returnType, method, args));
     }
-    
+
     private <T> Event.C0<T, Exception> event(Method method, Object[] args) {
-        return subject -> {
-            try {
-                method.invoke(subject, args);
-            } catch (InvocationTargetException e) {
-                throw asThrownException(e, method);
-            }
-        };
+        return target -> invoke(target, method, args);
     }
 
     private <T, R> Event.F0<T, R, Exception> event(Class<R> returnType, Method method, Object[] args) {
-        return subject -> {
-            try {
-                return returnType.cast(method.invoke(subject, args));
-            } catch (InvocationTargetException e) {
-                throw asThrownException(e, method);
-            }
-        };
+        return target -> returnType.cast(invoke(target, method, args));
     }
 
-    private Exception asThrownException(InvocationTargetException ite, Method method) {
+    private Object invoke(Object instance, Method method, Object[] args) throws Exception {
+        try {
+            return method.invoke(instance, args);
+        } catch (InvocationTargetException e) {
+            throw getThrownException(method, e);
+        }
+    }
+
+    private Exception getThrownException(Method method, InvocationTargetException ite) {
         var cause = ite.getCause();
-        if (cause instanceof RuntimeException || isDeclaredException(method, cause)) {
-            return (Exception) cause;
+        if (cause instanceof RuntimeException re) {
+            return re;
+        }
+        if (cause instanceof Exception ex && isThrown(method, ex)) {
+            return ex;
         }
         if (cause instanceof Error err) {
             throw err;
@@ -67,8 +82,7 @@ public class HeraldInvocationProxy {
         return ite;
     }
 
-    private boolean isDeclaredException(Method method, Throwable cause) {
-        return cause instanceof Exception
-                && Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(cause));
+    private boolean isThrown(Method method, Exception ex) {
+        return Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(ex));
     }
 }

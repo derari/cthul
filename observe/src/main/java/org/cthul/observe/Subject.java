@@ -1,6 +1,6 @@
 package org.cthul.observe;
 
-public interface Subject extends ObserverList, Adaptive {
+public interface Subject extends ObserverList {
 
     static Builder builder() {
         return new SubjectBuilder();
@@ -9,11 +9,6 @@ public interface Subject extends ObserverList, Adaptive {
     Herald getHerald();
 
     Subject.Builder copy();
-
-    @Override
-    default <T> T as(Class<T> clazz) {
-        return getHerald().as(clazz);
-    }
 
     interface Builder extends Subject {
         

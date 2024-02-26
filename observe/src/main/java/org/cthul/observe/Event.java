@@ -2,51 +2,51 @@ package org.cthul.observe;
 
 public interface Event {
 
-    static <S, X extends Exception> C0<S, X> c(C0<S, X> event) {
+    static <T, X extends Exception> C0<T, X> c(C0<T, X> event) {
         return event;
     }
     
-    static <S, A1, X extends Exception> C0<S, X> c(C1<S, A1, X> event, A1 a1) {
+    static <T, A1, X extends Exception> C0<T, X> c(C1<T, A1, X> event, A1 a1) {
         return event.curry(a1);
     }
     
-    static <S, A1, A2, X extends Exception> C0<S, X> c(C2<S, A1, A2, X> event, A1 a1, A2 a2) {
+    static <T, A1, A2, X extends Exception> C0<T, X> c(C2<T, A1, A2, X> event, A1 a1, A2 a2) {
         return event.curry(a1, a2);
     }
     
-    static <S, A1, A2, A3, X extends Exception> C0<S, X> c(C3<S, A1, A2, A3, X> event, A1 a1, A2 a2, A3 a3) {
+    static <T, A1, A2, A3, X extends Exception> C0<T, X> c(C3<T, A1, A2, A3, X> event, A1 a1, A2 a2, A3 a3) {
         return event.curry(a1, a2, a3);
     }
     
-    static <S, A1, A2, A3, A4, X extends Exception> C0<S, X> c(C4<S, A1, A2, A3, A4, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
+    static <T, A1, A2, A3, A4, X extends Exception> C0<T, X> c(C4<T, A1, A2, A3, A4, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
         return event.curry(a1, a2, a3, a4);
     }
     
-    static <S, A1, A2, A3, A4, A5, X extends Exception> C0<S, X> c(C5<S, A1, A2, A3, A4, A5, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+    static <T, A1, A2, A3, A4, A5, X extends Exception> C0<T, X> c(C5<T, A1, A2, A3, A4, A5, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
         return event.curry(a1, a2, a3, a4, a5);
     }
     
-    static <S, R, X extends Exception> F0<S, R, X> f(F0<S, R, X> event) {
+    static <T, R, X extends Exception> F0<T, R, X> f(F0<T, R, X> event) {
         return event;
     }
     
-    static <S, A1, R, X extends Exception> F0<S, R, X> f(F1<S, A1, R, X> event, A1 a1) {
+    static <T, A1, R, X extends Exception> F0<T, R, X> f(F1<T, A1, R, X> event, A1 a1) {
         return event.curry(a1);
     }
     
-    static <S, A1, A2, R, X extends Exception> F0<S, R, X> f(F2<S, A1, A2, R, X> event, A1 a1, A2 a2) {
+    static <T, A1, A2, R, X extends Exception> F0<T, R, X> f(F2<T, A1, A2, R, X> event, A1 a1, A2 a2) {
         return event.curry(a1, a2);
     }
     
-    static <S, A1, A2, A3, R, X extends Exception> F0<S, R, X> f(F3<S, A1, A2, A3, R, X> event, A1 a1, A2 a2, A3 a3) {
+    static <T, A1, A2, A3, R, X extends Exception> F0<T, R, X> f(F3<T, A1, A2, A3, R, X> event, A1 a1, A2 a2, A3 a3) {
         return event.curry(a1, a2, a3);
     }
     
-    static <S, A1, A2, A3, A4, R, X extends Exception> F0<S, R, X> f(F4<S, A1, A2, A3, A4, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
+    static <T, A1, A2, A3, A4, R, X extends Exception> F0<T, R, X> f(F4<T, A1, A2, A3, A4, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4) {
         return event.curry(a1, a2, a3, a4);
     }
     
-    static <S, A1, A2, A3, A4, A5, R, X extends Exception> F0<S, R, X> f(F5<S, A1, A2, A3, A4, A5, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+    static <T, A1, A2, A3, A4, A5, R, X extends Exception> F0<T, R, X> f(F5<T, A1, A2, A3, A4, A5, R, X> event, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
         return event.curry(a1, a2, a3, a4, a5);
     }
 
@@ -55,114 +55,114 @@ public interface Event {
         Herald herald();
     }
 
-    interface C0<S, X extends Exception> extends Event {
+    interface C0<T, X extends Exception> extends Event {
 
-        void accept(S s) throws X;
+        void accept(T s) throws X;
 
-        default F0<S, Void, X> mapToNull() {
-            return s -> {
-                accept(s);
+        default F0<T, Void, X> mapToNull() {
+            return t -> {
+                accept(t);
                 return null;
             };
         }
     }
 
-    interface C1<S, A1, X extends Exception> extends Event {
+    interface C1<T, A1, X extends Exception> extends Event {
 
-        void accept(S s, A1 a1) throws X;
+        void accept(T t, A1 a1) throws X;
 
-        default C0<S, X> curry(A1 a1) {
-            return s -> accept(s, a1);
+        default C0<T, X> curry(A1 a1) {
+            return t -> accept(t, a1);
         }
     }
 
-    interface C2<S, A1, A2, X extends Exception> extends Event {
+    interface C2<T, A1, A2, X extends Exception> extends Event {
 
-        void accept(S s, A1 a1, A2 a2) throws X;
+        void accept(T t, A1 a1, A2 a2) throws X;
 
-        default C0<S, X> curry(A1 a1, A2 a2) {
-            return s -> accept(s, a1, a2);
+        default C0<T, X> curry(A1 a1, A2 a2) {
+            return t -> accept(t, a1, a2);
         }
     }
 
-    interface C3<S, A1, A2, A3, X extends Exception> extends Event {
+    interface C3<T, A1, A2, A3, X extends Exception> extends Event {
 
-        void accept(S s, A1 a1, A2 a2, A3 a3) throws X;
+        void accept(T t, A1 a1, A2 a2, A3 a3) throws X;
 
-        default C0<S, X> curry(A1 a1, A2 a2, A3 a3) {
-            return s -> accept(s, a1, a2, a3);
+        default C0<T, X> curry(A1 a1, A2 a2, A3 a3) {
+            return t -> accept(t, a1, a2, a3);
         }
     }
 
-    interface C4<S, A1, A2, A3, A4, X extends Exception> extends Event {
+    interface C4<T, A1, A2, A3, A4, X extends Exception> extends Event {
 
-        void accept(S s, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
+        void accept(T t, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
 
-        default C0<S, X> curry(A1 a1, A2 a2, A3 a3, A4 a4) {
-            return s -> accept(s, a1, a2, a3, a4);
+        default C0<T, X> curry(A1 a1, A2 a2, A3 a3, A4 a4) {
+            return t -> accept(t, a1, a2, a3, a4);
         }
     }
 
-    interface C5<S, A1, A2, A3, A4, A5, X extends Exception> extends Event {
+    interface C5<T, A1, A2, A3, A4, A5, X extends Exception> extends Event {
 
-        void accept(S s, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
+        void accept(T t, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
 
-        default C0<S, X> curry(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            return s -> accept(s, a1, a2, a3, a4, a5);
+        default C0<T, X> curry(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+            return t -> accept(t, a1, a2, a3, a4, a5);
         }
     }
 
-    interface F0<S, R, X extends Exception> extends Event {
+    interface F0<T, R, X extends Exception> extends Event {
 
-        R apply(S s) throws X;
+        R apply(T s) throws X;
         
-        default C0<S, X> discardResult() {
+        default C0<T, X> discardResult() {
             return this::apply;
         }
     }
 
-    interface F1<S, A1, R, X extends Exception> extends Event {
+    interface F1<T, A1, R, X extends Exception> extends Event {
 
-        R apply(S s, A1 a1) throws X;
+        R apply(T t, A1 a1) throws X;
 
-        default F0<S, R, X> curry(A1 a1) {
-            return s -> apply(s, a1);
+        default F0<T, R, X> curry(A1 a1) {
+            return t -> apply(t, a1);
         }
     }
 
-    interface F2<S, A1, A2, R, X extends Exception> extends Event {
+    interface F2<T, A1, A2, R, X extends Exception> extends Event {
 
-        R apply(S s, A1 a1, A2 a2) throws X;
+        R apply(T t, A1 a1, A2 a2) throws X;
 
-        default F0<S, R, X> curry(A1 a1, A2 a2) {
-            return s -> apply(s, a1, a2);
+        default F0<T, R, X> curry(A1 a1, A2 a2) {
+            return t -> apply(t, a1, a2);
         }
     }
 
-    interface F3<S, A1, A2, A3, R, X extends Exception> extends Event {
+    interface F3<T, A1, A2, A3, R, X extends Exception> extends Event {
 
-        R apply(S s, A1 a1, A2 a2, A3 a3) throws X;
+        R apply(T t, A1 a1, A2 a2, A3 a3) throws X;
 
-        default F0<S, R, X> curry(A1 a1, A2 a2, A3 a3) {
-            return s -> apply(s, a1, a2, a3);
+        default F0<T, R, X> curry(A1 a1, A2 a2, A3 a3) {
+            return t -> apply(t, a1, a2, a3);
         }
     }
 
-    interface F4<S, A1, A2, A3, A4, R, X extends Exception> extends Event {
+    interface F4<T, A1, A2, A3, A4, R, X extends Exception> extends Event {
 
-        R apply(S s, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
+        R apply(T t, A1 a1, A2 a2, A3 a3, A4 a4) throws X;
 
-        default F0<S, R, X> curry(A1 a1, A2 a2, A3 a3, A4 a4) {
-            return s -> apply(s, a1, a2, a3, a4);
+        default F0<T, R, X> curry(A1 a1, A2 a2, A3 a3, A4 a4) {
+            return t -> apply(t, a1, a2, a3, a4);
         }
     }
 
-    interface F5<S, A1, A2, A3, A4, A5, R, X extends Exception> extends Event {
+    interface F5<T, A1, A2, A3, A4, A5, R, X extends Exception> extends Event {
 
-        R apply(S s, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
+        R apply(T t, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) throws X;
 
-        default F0<S, R, X> curry(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            return s -> apply(s, a1, a2, a3, a4, a5);
+        default F0<T, R, X> curry(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
+            return t -> apply(t, a1, a2, a3, a4, a5);
         }
     }
 }

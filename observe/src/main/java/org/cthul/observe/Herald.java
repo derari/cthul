@@ -1,5 +1,7 @@
 package org.cthul.observe;
 
+import org.cthul.adapt.Adaptive;
+
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
@@ -7,32 +9,32 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unused", "java:S107"})
 public interface Herald extends Adaptive.Typed<Herald> {
     
-    <S, T, R, X extends Exception> R enquire(Class<S> subject, Function<? super Subject.Builder, ? extends Collector<? super T, ?, ? extends R>> collector, Event.F0<S, T, X> event) throws X;
+    <T, R0, R, X extends Exception> R enquire(Class<T> target, Function<? super Subject.Builder, ? extends Collector<? super R0, ?, ? extends R>> collector, Event.F0<T, R0, X> event) throws X;
 
-    default <S, X extends Exception> void announce(Class<S> subject, Event.C0<S, X> event) throws X {
-        enquire(subject, ObserverCollector.noResult(), event.mapToNull());
+    default <T, X extends Exception> void announce(Class<T> target, Event.C0<T, X> event) throws X {
+        enquire(target, ObserverCollector.noResult(), event.mapToNull());
     }
 
-    default <S, R, X extends Exception> R enquire(Class<S> subject, Class<R> result, Event.F0<S, R, X> event) throws X {
-        return enquire(subject, event).as(result);
+    default <T, R, X extends Exception> R enquire(Class<T> target, Class<R> result, Event.F0<T, R, X> event) throws X {
+        return enquire(target, event).getHerald().as(result);
     }
 
-    default <S, X extends Exception> Subject enquire(Class<S> subject, Event.F0<S, ?, X> event) throws X {
-        return enquire(subject, ObserverCollector.toSubject(), event);
+    default <T, X extends Exception> Subject.Builder enquire(Class<T> target, Event.F0<T, ?, X> event) throws X {
+        return enquire(target, ObserverCollector.toSubject(), event);
     }
 
-    default <S, T, R, X extends Exception> R enquire(Class<S> subject, Collector<? super T, ?, ? extends R> collector, Event.F0<S, T, X> event) throws X {
-        return enquire(subject, s -> collector, event);
+    default <T, R0, R, X extends Exception> R enquire(Class<T> target, Collector<? super R0, ?, ? extends R> collector, Event.F0<T, R0, X> event) throws X {
+        return enquire(target, s -> collector, event);
     }
 
     @Override
     default <T> T as(Class<T> clazz) {
-        return as(clazz, HeraldInvocationProxy.castOrProxy(clazz));
+        return as(clazz, HeraldInvocationProxy.castOrProxy());
     }
 
     @Override
-    default <T> T as(Function<? super Herald, T> intf) {
-        return intf.apply(this);
+    default <T> T as(Function<? super Herald, T> adapt) {
+        return adapt.apply(this);
     }
 
     interface Builder extends Herald, Adaptive.Builder<Herald, Herald.Builder> {
