@@ -15,7 +15,7 @@ public interface NameDB {
 
         @Override
         default NameData getName(int i) {
-            return herald().enquire(NameDB.class, NameData.class, Event.f(NameDB::getName, i));
+            return herald().inquire(NameDB.class, NameData.class, Event.f(NameDB::getName, i));
         }
     }
 }

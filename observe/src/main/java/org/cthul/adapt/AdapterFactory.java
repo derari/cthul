@@ -12,12 +12,12 @@ public class AdapterFactory<A> {
     public AdapterFactory() {
     }
 
-    protected AdapterFactory(AdapterFactory<A> src) {
-        synchronized (src.newUntypedFactories) {
-            synchronized (src.typedFactories) {
-                typedFactories.putAll(src.typedFactories);
-                untypedFactoryClasses.addAll(src.untypedFactoryClasses);
-                newUntypedFactories.addAll(src.newUntypedFactories);
+    protected AdapterFactory(AdapterFactory<A> source) {
+        synchronized (source.newUntypedFactories) {
+            synchronized (source.typedFactories) {
+                typedFactories.putAll(source.typedFactories);
+                untypedFactoryClasses.addAll(source.untypedFactoryClasses);
+                newUntypedFactories.addAll(source.newUntypedFactories);
             }
         }
     }
@@ -54,12 +54,6 @@ public class AdapterFactory<A> {
         }
         return adaptWithUntyped(actual, clazz, newAdapterCallback)
                 .orElseGet(() -> adaptWithTyped(actual, clazz));
-    }
-
-    public <T> T createUndeclared(A actual, Class<T> clazz, BiFunction<? super A, ? super Class<T>, ? extends T> factory) {
-        var result = factory.apply(actual, clazz);
-        putTypedFactory(result, a -> factory.apply(a, clazz));
-        return result;
     }
 
     protected <T> Optional<T> adaptWithUntyped(A actual, Class<T> clazz, Consumer<Object> newAdapterCallback) {

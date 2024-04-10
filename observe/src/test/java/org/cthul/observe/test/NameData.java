@@ -12,12 +12,12 @@ public interface NameData {
         
         @Override
         default void setFirstName(String first) {
-            herald().announce(NameData.class, Event.c(NameData::setFirstName, first));
+            herald().announce(NameData.class, o -> o.setFirstName(first));
         }
 
         @Override
         default void setLastName(String last) {
-            herald().announce(NameData.class, Event.c(NameData::setLastName, last));
+            herald().announce(NameData.class, o -> o.setLastName(last));
         }
     }
 }

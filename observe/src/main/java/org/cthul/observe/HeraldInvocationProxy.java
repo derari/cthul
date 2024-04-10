@@ -1,14 +1,12 @@
 package org.cthul.observe;
 
-import org.cthul.adapt.Adaptive;
-
 import java.lang.reflect.*;
 import java.util.function.*;
 import java.util.stream.Stream;
 
-public class HeraldInvocationProxy implements Adaptive {
+public class HeraldInvocationProxy {
 
-    private static final BiFunction<Herald, Class<?>, HeraldInvocationProxy> NEW = (h, c) -> new HeraldInvocationProxy(h);
+    private static final BiFunction<Herald, Class<HeraldInvocationProxy>, HeraldInvocationProxy> NEW = (h, c) -> new HeraldInvocationProxy(h);
     private static final BiFunction<Herald, Class<?>, ?> CAST_OR_PROXY = HeraldInvocationProxy::castOrProxy;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -22,6 +20,7 @@ public class HeraldInvocationProxy implements Adaptive {
 
     public static <T> T castOrProxy(Herald herald, Class<T> clazz) {
         if (clazz.isInstance(herald)) return clazz.cast(herald);
+        if (clazz.isAssignableFrom(Observer.class)) return clazz.cast(new HeraldingObserver(herald));
         return herald.as(HeraldInvocationProxy.class, NEW).as(clazz);
     }
 
@@ -31,7 +30,6 @@ public class HeraldInvocationProxy implements Adaptive {
         this.herald = herald;
     }
 
-    @Override
     public <T> T as(Class<T> intf) {
         var proxy = Proxy.newProxyInstance(intf.getClassLoader(), new Class<?>[]{ intf }, this::herald);
         return intf.cast(proxy);
@@ -49,14 +47,14 @@ public class HeraldInvocationProxy implements Adaptive {
             herald.announce(method.getDeclaringClass(), event(method, args));
             return null;
         }
-        return herald.enquire(method.getDeclaringClass(), returnType, event(returnType, method, args));
+        return herald.inquire(method.getDeclaringClass(), returnType, event(returnType, method, args));
     }
 
-    private <T> Event.C0<T, Exception> event(Method method, Object[] args) {
+    private <T> Event.Announcement<T, Exception> event(Method method, Object[] args) {
         return target -> invoke(target, method, args);
     }
 
-    private <T, R> Event.F0<T, R, Exception> event(Class<R> returnType, Method method, Object[] args) {
+    private <T, R> Event.Inquiry<T, R, Exception> event(Class<R> returnType, Method method, Object[] args) {
         return target -> returnType.cast(invoke(target, method, args));
     }
 
@@ -85,4 +83,5 @@ public class HeraldInvocationProxy implements Adaptive {
     private boolean isThrown(Method method, Exception ex) {
         return Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(ex));
     }
+
 }

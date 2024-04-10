@@ -20,9 +20,9 @@ class SubjectBuilderTest {
 
         subject.addObservers(logger, name);
         var herald = subject.getHerald();
-        herald.announce(NameData.class, n -> n.setFirstName("Bob"));
-        herald.announce(NameData.class, n -> n.setLastName("Loblaw"));
-        herald.announce(AddressData.class, n -> n.setCity("Berlin"));
+        herald.announce(NameData.class, o -> o.setFirstName("Bob"));
+        herald.announce(NameData.class, o -> o.setLastName("Loblaw"));
+        herald.announce(AddressData.class, o -> o.setCity("Berlin"));
 
         assertThat(name.getFullName(), is("Bob Loblaw"));
         assertThat(logger.getLog(), contains("first name Bob", "last name Loblaw", "city Berlin"));
@@ -164,6 +164,19 @@ class SubjectBuilderTest {
 
         assertThat(logger.getLog(), hasItem("city Amsterdam"));
         assertThat(logger.getLog(), not(hasItem("city Berlin")));
+    }
+
+    @Test
+    void chained() {
+        var subject2 = new SubjectBuilder();
+        var logger = new PersonDataLogger();
+        subject2.addObservers(logger);
+        subject.addObservers(subject2.getHerald());
+
+        var herald = subject.getHerald().as(PersonData::events);
+        herald.setCity("Amsterdam");
+
+        assertThat(logger.getLog(), hasItem("city Amsterdam"));
     }
 
     static class PersonDataLogger implements PersonData {

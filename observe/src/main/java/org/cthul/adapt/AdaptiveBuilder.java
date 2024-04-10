@@ -2,44 +2,44 @@ package org.cthul.adapt;
 
 import java.util.function.*;
 
-public class AdaptiveBuilder<E> implements Adaptive.Builder<E, AdaptiveBuilder<E>> {
+public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A>> {
     
-    private final E instance;
+    private final A instance;
     private final TypeMap<Object> adapters = new TypeMap<>();
     private boolean copyOnWrite;
-    private AdapterFactory<E> adapterFactory;
+    private AdapterFactory<A> adapterFactory;
 
-    public AdaptiveBuilder(E instance) {
+    public AdaptiveBuilder(A instance) {
         this.instance = instance;
         this.adapterFactory = new AdapterFactory<>();
         this.copyOnWrite = false;
     }
 
-    protected AdaptiveBuilder(AdaptiveBuilder<E> source) {
+    protected AdaptiveBuilder(AdaptiveBuilder<A> source) {
         this(source.instance, source);
         adapters.putAll(source.adapters);
     }
 
-    protected AdaptiveBuilder(E instance, AdaptiveBuilder<E> source) {
+    protected AdaptiveBuilder(A instance, AdaptiveBuilder<A> source) {
         this.instance = instance;
         this.adapterFactory = source.adapterFactory;
         this.copyOnWrite = true;
     }
 
-    public AdaptiveBuilder<E> copy() {
+    public AdaptiveBuilder<A> copy() {
         return new AdaptiveBuilder<>(this);
     }
 
-    public AdaptiveBuilder<E> copyForInstance(E newInstance) {
+    public AdaptiveBuilder<A> copyForInstance(A newInstance) {
         return new AdaptiveBuilder<>(newInstance, this);
     }
 
     @Override
-    public Adaptive.Typed<E> build() {
+    public Adaptive.Typed<A> build() {
         return copy();
     }
 
-    private AdapterFactory<E> writableFactory() {
+    private AdapterFactory<A> writableFactory() {
         if (copyOnWrite) {
             adapterFactory = adapterFactory.copy();
             copyOnWrite = false;
@@ -48,28 +48,29 @@ public class AdaptiveBuilder<E> implements Adaptive.Builder<E, AdaptiveBuilder<E
     }
 
     @Override
-    public <T> AdaptiveBuilder<E> declare(Class<T> clazz, Function<? super E, ? extends T> adapt) {
+    public <T> AdaptiveBuilder<A> declare(Class<T> clazz, Function<? super A, ? extends T> adapt) {
         writableFactory().declare(clazz, adapt);
         return this;
     }
 
     @Override
     @SafeVarargs
-    public final AdaptiveBuilder<E> declare(Function<? super E, ?>... adapt) {
+    public final AdaptiveBuilder<A> declare(Function<? super A, ?>... adapt) {
         return Builder.super.declare(adapt);
     }
 
     @Override
-    public <T> T as(Class<T> clazz, BiFunction<? super E, ? super Class<T>, ? extends T> ifUndeclared) {
+    public <T> T as(Class<T> clazz, BiFunction<? super A, ? super Class<T>, ? extends T> ifUndeclared) {
         return adapters.computeIfAbsent(clazz, c -> createAdapter(c, ifUndeclared));
     }
 
-    private <T> T createAdapter(Class<T> clazz, BiFunction<? super E, ? super Class<T>, ? extends T> ifUndeclared) {
+    private <T> T createAdapter(Class<T> clazz, BiFunction<? super A, ? super Class<T>, ? extends T> ifUndeclared) {
         var adapter = adapterFactory.create(instance, clazz, this::addAdapter);
         if (adapter != null) {
             return adapter;
         }
-        return writableFactory().createUndeclared(instance, clazz, ifUndeclared);
+        writableFactory().declare(clazz, a -> ifUndeclared.apply(a, clazz));
+        return ifUndeclared.apply(instance, clazz);
     }
 
     private void addAdapter(Object adapter) {

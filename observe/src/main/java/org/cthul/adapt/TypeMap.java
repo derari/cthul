@@ -14,8 +14,8 @@ public class TypeMap<E> {
     }
 
     public <E2 extends E> E2 putIfAbsent(Class<?> clazz, E2 value) {
-        if (value == null) throw new NullPointerException("value");
-        if (clazz == null) throw new NullPointerException("class");
+        Objects.requireNonNull(value, "value");
+        Objects.requireNonNull(clazz, "class");
         if (clazz.isSynthetic()) return putSynthetic(clazz, value);
         return putDirty(clazz, value);
     }
