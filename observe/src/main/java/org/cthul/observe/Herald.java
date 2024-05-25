@@ -48,4 +48,9 @@ public interface Herald extends Adaptive.Typed<Herald> {
             return declare(clazz, HeraldInvocationProxy.castOrProxy(clazz));
         }
     }
+
+    interface EventDefinitions {
+
+        Herald herald();
+    }
 }

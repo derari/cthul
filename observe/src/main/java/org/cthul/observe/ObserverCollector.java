@@ -23,7 +23,7 @@ public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.R
 
     private static <S extends Subject> Function<Iterable<? extends Observer>, S> observeSubject(S subject) {
         return list -> {
-            list.forEach(subject::addObserver);
+            subject.addObservers(list);
             return subject;
         };
     }
@@ -32,7 +32,7 @@ public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.R
     private final Function<? super O, ? extends Observer> toObserver;
     private final Function<? super Collection<Observer>, R> finisher;
 
-    public ObserverCollector(Collection<Observer> ignored, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
+    public ObserverCollector(Collection<? extends Observer> ignored, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
         this.ignored = new HashSet<>(ignored);
         this.toObserver = toObserver;
         this.finisher = finisher;
@@ -65,9 +65,9 @@ public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.R
 
     public static class Results<O> {
 
+        private final Function<? super O, ? extends Observer> toObserver;
         private final Set<Observer> ignored;
         private final Set<Observer> bag = new LinkedHashSet<>();
-        private final Function<? super O, ? extends Observer> toObserver;
 
         private Results(Function<? super O, ? extends Observer> toObserver, Set<Observer> ignored) {
             this.toObserver = toObserver;
@@ -76,9 +76,7 @@ public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.R
 
         private void add(O value) {
             if (value == null) return;
-            add(toObserver.apply(value));
-        }
-        private void add(Observer observer) {
+            var observer = toObserver.apply(value);
             if (ignored.contains(observer)) return;
             bag.add(observer);
         }

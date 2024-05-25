@@ -83,5 +83,4 @@ public class HeraldInvocationProxy {
     private boolean isThrown(Method method, Exception ex) {
         return Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(ex));
     }
-
 }

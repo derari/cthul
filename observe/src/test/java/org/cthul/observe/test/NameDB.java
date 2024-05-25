@@ -1,6 +1,5 @@
 package org.cthul.observe.test;
 
-import org.cthul.observe.Event;
 import org.cthul.observe.Herald;
 
 public interface NameDB {
@@ -11,11 +10,11 @@ public interface NameDB {
         return () -> herald;
     }
 
-    interface Events extends NameDB, Event.Definitions {
+    interface Events extends NameDB, Herald.EventDefinitions {
 
         @Override
         default NameData getName(int i) {
-            return herald().inquire(NameDB.class, NameData.class, Event.f(NameDB::getName, i));
+            return herald().inquire(NameDB.class, NameData.class, o -> o.getName(i));
         }
     }
 }

@@ -25,12 +25,14 @@ public class HeraldingObserver implements Observer {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof HeraldingObserver to) {
-            return herald.equals(to.herald);
-        }
-        if (obj instanceof Observer o) {
-            return o.equals(herald);
+        if (obj instanceof HeraldingObserver ho) {
+            return herald.equals(ho.herald);
         }
         return herald.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return herald.toString();
     }
 }

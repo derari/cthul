@@ -1,6 +1,6 @@
 package org.cthul.observe.test;
 
-import org.cthul.observe.Event;
+import org.cthul.observe.*;
 
 public interface AddressData {
     
@@ -8,7 +8,7 @@ public interface AddressData {
     
     void setCity(String city);
     
-    interface Events extends AddressData, Event.Definitions {
+    interface Events extends AddressData, Herald.EventDefinitions {
         
         @Override
         default void setStreet(String street) {
