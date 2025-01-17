@@ -1,8 +1,8 @@
 package org.cthul.observe;
 
-import org.cthul.adapt.*;
+import org.cthul.adapt.TypedAdaptiveBase;
 
-import java.util.function.*;
+import java.util.function.Function;
 import java.util.stream.Collector;
 
 public class HeraldBuilder extends TypedAdaptiveBase<Herald, HeraldBuilder> implements Herald.Builder {
@@ -60,6 +60,6 @@ public class HeraldBuilder extends TypedAdaptiveBase<Herald, HeraldBuilder> impl
 
     @Override
     public String toString() {
-        return "Herald@" + Integer.toHexString(System.identityHashCode(this)) + "(" + subject + ")";
+        return "Herald@" + Integer.toHexString(hashCode()) + "(" + subject + ")";
     }
 }

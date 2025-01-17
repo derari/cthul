@@ -1,6 +1,7 @@
 package org.cthul.adapt;
 
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface Adaptive {

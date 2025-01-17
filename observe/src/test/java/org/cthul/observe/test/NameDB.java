@@ -6,11 +6,11 @@ public interface NameDB {
 
     NameData getName(int i);
 
-    static Events events(Herald herald) {
+    static HeraldAdapter herald(Herald herald) {
         return () -> herald;
     }
 
-    interface Events extends NameDB, Herald.EventDefinitions {
+    interface HeraldAdapter extends NameDB, Herald.EventAdapter {
 
         @Override
         default NameData getName(int i) {

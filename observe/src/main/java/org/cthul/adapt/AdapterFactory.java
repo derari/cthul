@@ -1,7 +1,10 @@
 package org.cthul.adapt;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static org.cthul.adapt.AdaptiveBuilder.idString;
 
 public class AdapterFactory<A> {
 
@@ -66,12 +69,12 @@ public class AdapterFactory<A> {
 
     private <T> T applyUntypedFactories(A actual, Class<T> clazz, Consumer<Object> newAdapterCallback) {
         T result = null;
-        for (var adapter: newUntypedFactories) {
-            var adapted = adapter.apply(actual);
-            if (putTypedFactory(adapted, adapter)) {
-                newAdapterCallback.accept(adapted);
-                if (result == null && clazz.isInstance(adapted)) {
-                    result = clazz.cast(adapted);
+        for (var factory: newUntypedFactories) {
+            var adapter = factory.apply(actual);
+            if (putTypedFactory(adapter, factory)) {
+                newAdapterCallback.accept(adapter);
+                if (result == null && clazz.isInstance(adapter)) {
+                    result = clazz.cast(adapter);
                 }
             }
         }
@@ -102,13 +105,14 @@ public class AdapterFactory<A> {
         return factory == null ? null : factory.apply(actual);
     }
 
-    protected String sizeString() {
-        if (newUntypedFactories.isEmpty()) return typedFactories.sizeString();
-        return typedFactories.sizeString() + "," + newUntypedFactories.size();
+    protected StringBuilder sizeString(StringBuilder sb) {
+        if (newUntypedFactories.isEmpty()) return typedFactories.sizeString(sb);
+        return typedFactories.sizeString(sb).append(',').append(newUntypedFactories.size());
     }
 
     @Override
     public String toString() {
-        return super.toString() + "[" + sizeString() + "]";
+        var sb = idString(this).append('[');
+        return sizeString(sb).append(']').toString();
     }
 }

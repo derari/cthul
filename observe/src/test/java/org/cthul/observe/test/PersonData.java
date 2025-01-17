@@ -4,10 +4,10 @@ import org.cthul.observe.Herald;
 
 public interface PersonData extends NameData, AddressData {
 
-    static Events events(Herald herald) {
+    static HeraldAdapter herald(Herald herald) {
         return () -> herald;
     }
 
-    interface Events extends PersonData, NameData.Events, AddressData.Events {
+    interface HeraldAdapter extends PersonData, NameData.HeraldAdapter, AddressData.HeraldAdapter {
     }
 }

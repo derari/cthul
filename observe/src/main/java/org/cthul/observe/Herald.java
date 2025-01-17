@@ -49,7 +49,7 @@ public interface Herald extends Adaptive.Typed<Herald> {
         }
     }
 
-    interface EventDefinitions {
+    interface EventAdapter {
 
         Herald herald();
     }

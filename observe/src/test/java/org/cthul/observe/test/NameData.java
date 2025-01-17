@@ -1,6 +1,6 @@
 package org.cthul.observe.test;
 
-import org.cthul.observe.*;
+import org.cthul.observe.Herald;
 
 public interface NameData {
     
@@ -8,7 +8,7 @@ public interface NameData {
     
     void setLastName(String last);
     
-    interface Events extends NameData, Herald.EventDefinitions {
+    interface HeraldAdapter extends NameData, Herald.EventAdapter {
         
         @Override
         default void setFirstName(String first) {

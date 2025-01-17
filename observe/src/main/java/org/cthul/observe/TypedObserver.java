@@ -1,6 +1,6 @@
 package org.cthul.observe;
 
-import java.util.*;
+import java.util.Objects;
 
 public class TypedObserver implements Observer {
 

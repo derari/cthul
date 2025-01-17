@@ -34,7 +34,7 @@ class SubjectBuilderTest {
         var name = new NameModel();
 
         subject.addObservers(logger, name);
-        var herald = subject.getHerald().as(PersonData::events);
+        var herald = subject.getHerald().as(PersonData::herald);
         herald.setFirstName("Bob");
         herald.setLastName("Loblaw");
         herald.setCity("Berlin");
@@ -52,7 +52,7 @@ class SubjectBuilderTest {
         name1.setFirstName("Bob");
         NameDB nameDB = List.of(name0, name1)::get;
 
-        subject.getHerald().declare(NameDB::events, PersonData::events);
+        subject.getHerald().declare(NameDB::herald, PersonData::herald);
         subject.addObservers(logger, nameDB);
 
         var herald = subject.getHerald().as(NameDB.class);
@@ -68,7 +68,7 @@ class SubjectBuilderTest {
     void herald_nestedMulticastWithDuplication() {
         var logger = new NameDBLogger();
 
-        subject.getHerald().declare(NameDB::events, PersonData::events);
+        subject.getHerald().declare(NameDB::herald, PersonData::herald);
         subject.addObserver(logger);
 
         var herald = subject.getHerald().as(NameDB.class);
@@ -106,7 +106,7 @@ class SubjectBuilderTest {
     void buildObserver_include() {
         var logger = new PersonDataLogger();
 
-        subject.getHerald().declare(PersonData::events);
+        subject.getHerald().declare(PersonData::herald);
         subject.buildObserver(logger)
                 .include(NameData.class);
 
@@ -122,7 +122,7 @@ class SubjectBuilderTest {
     void buildObserver_exclude() {
         var logger = new PersonDataLogger();
 
-        subject.getHerald().declare(PersonData::events);
+        subject.getHerald().declare(PersonData::herald);
         subject.buildObserver(logger)
                 .exclude(AddressData.class);
 
@@ -138,7 +138,7 @@ class SubjectBuilderTest {
     void buildObserver_includeExclude() {
         var logger = new PersonDataLogger();
 
-        subject.getHerald().declare(PersonData::events);
+        subject.getHerald().declare(PersonData::herald);
         subject.buildObserver(logger)
                 .include(PersonData.class)
                 .exclude(AddressData.class);
@@ -154,7 +154,7 @@ class SubjectBuilderTest {
     @Test
     void removeObserver() {
         var logger = new PersonDataLogger();
-        var herald = subject.getHerald().as(PersonData::events);
+        var herald = subject.getHerald().as(PersonData::herald);
 
         subject.addObserver(logger);
         herald.setCity("Amsterdam");
@@ -173,7 +173,7 @@ class SubjectBuilderTest {
         subject2.addObservers(logger);
         subject.addObservers(subject2.getHerald());
 
-        var herald = subject.getHerald().as(PersonData::events);
+        var herald = subject.getHerald().as(PersonData::herald);
         herald.setCity("Amsterdam");
 
         assertThat(logger.getLog(), hasItem("city Amsterdam"));

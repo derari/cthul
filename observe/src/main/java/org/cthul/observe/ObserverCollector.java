@@ -1,11 +1,8 @@
 package org.cthul.observe;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.*;
+import java.util.function.*;
+import java.util.stream.Collector;
 
 public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.Results<O>, R> {
 

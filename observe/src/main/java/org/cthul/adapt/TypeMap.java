@@ -1,7 +1,9 @@
 package org.cthul.adapt;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Function;
+
+import static org.cthul.adapt.AdaptiveBuilder.idString;
 
 public class TypeMap<E> {
 
@@ -82,10 +84,7 @@ public class TypeMap<E> {
     }
 
     private void putSupertypes(Class<?> clazz, E value) {
-        var sup = clazz.getSuperclass();
-        if (sup != null && map.putIfAbsent(sup, value) == null) {
-            putSupertypes(sup, value);
-        }
+        putClass(clazz.getSuperclass(), value);
         for (var i: clazz.getInterfaces()) {
             putInterface(i, value);
         }
@@ -99,14 +98,15 @@ public class TypeMap<E> {
         }
     }
 
-    protected String sizeString() {
-        if (dirty.isEmpty()) return Integer.toString(map.size());
-        return map.size() + "+" + dirty.size();
+    protected StringBuilder sizeString(StringBuilder sb) {
+        if (dirty.isEmpty()) return sb.append(map.size());
+        return sb.append(map.size()).append('+').append(dirty.size());
     }
 
     @Override
     public String toString() {
-        return super.toString() + "[" + sizeString() + "]";
+        var sb = idString(this).append('[');
+        return sizeString(sb).append(']').toString();
     }
 
     private static final Map<Class<?>, Class<?>> PRIMITIVES = Map.of(

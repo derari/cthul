@@ -1,7 +1,10 @@
 package org.cthul.adapt;
 
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static org.cthul.adapt.AdaptiveBuilder.idString;
 
 public abstract class TypedAdaptiveBase<A, T0 extends A> {
 
@@ -41,5 +44,10 @@ public abstract class TypedAdaptiveBase<A, T0 extends A> {
     public final T0 declare(Function<? super A, ?>... adapt) {
         Stream.of(adapt).forEach(this::declare);
         return self();
+    }
+
+    @Override
+    public String toString() {
+        return idString(this).toString();
     }
 }

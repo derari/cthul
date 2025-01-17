@@ -1,7 +1,8 @@
 package org.cthul.observe;
 
 import java.lang.reflect.*;
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class HeraldInvocationProxy {
@@ -82,5 +83,10 @@ public class HeraldInvocationProxy {
 
     private boolean isThrown(Method method, Exception ex) {
         return Stream.of(method.getExceptionTypes()).anyMatch(t -> t.isInstance(ex));
+    }
+
+    @Override
+    public String toString() {
+        return "HeraldInvocationProxy@" + Integer.toHexString(hashCode()) + "(" + herald + ")";
     }
 }

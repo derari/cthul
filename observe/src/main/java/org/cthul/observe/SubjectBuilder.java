@@ -40,6 +40,6 @@ public class SubjectBuilder implements Subject.Builder {
 
     @Override
     public String toString() {
-        return "Subject@" + Integer.toHexString(System.identityHashCode(this)) + "[" + observers.size() + "]";
+        return "Subject@" + Integer.toHexString(hashCode()) + "[" + observers.size() + "]";
     }
 }

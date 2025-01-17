@@ -1,6 +1,7 @@
 package org.cthul.adapt;
 
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A>> {
     
@@ -12,7 +13,6 @@ public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A
     public AdaptiveBuilder(A instance) {
         this.instance = instance;
         this.adapterFactory = new AdapterFactory<>();
-        this.copyOnWrite = false;
     }
 
     protected AdaptiveBuilder(AdaptiveBuilder<A> source) {
@@ -22,8 +22,9 @@ public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A
 
     protected AdaptiveBuilder(A instance, AdaptiveBuilder<A> source) {
         this.instance = instance;
-        this.adapterFactory = source.adapterFactory;
         this.copyOnWrite = true;
+        source.copyOnWrite = true;
+        this.adapterFactory = source.adapterFactory;
     }
 
     public AdaptiveBuilder<A> copy() {
@@ -69,7 +70,6 @@ public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A
         if (adapter != null) {
             return adapter;
         }
-        writableFactory().declare(clazz, a -> ifUndeclared.apply(a, clazz));
         return ifUndeclared.apply(instance, clazz);
     }
 
@@ -79,8 +79,15 @@ public class AdaptiveBuilder<A> implements Adaptive.Builder<A, AdaptiveBuilder<A
 
     @Override
     public String toString() {
-        return super.toString()
-                + "[" + adapterFactory.sizeString() + "]"
-                + "(" + instance + "[" + adapters.sizeString() + "])";
+        var sb = idString(this).append('[');
+        sb = adapterFactory.sizeString(sb).append("]")
+                .append('(').append(instance).append('[');
+        return adapters.sizeString(sb).append("])").toString();
+    }
+
+    protected static StringBuilder idString(Object o) {
+        return new StringBuilder(o.getClass().getSimpleName())
+                .append('@')
+                .append(Integer.toHexString(o.hashCode()));
     }
 }
