@@ -14,14 +14,14 @@ public class TypedObserver implements Observer {
     @Override
     public <O, X extends Exception> void notify(Class<O> type, Event.Announcement<O, X> event) throws X {
         if (type.isInstance(observer)) {
-            event.accept(type.cast(observer));
+            event.announceTo(type.cast(observer));
         }
     }
 
     @Override
     public <O, R, X extends Exception> R notify(Class<O> type, Event.Inquiry<O, R, X> event) throws X {
         if (type.isInstance(observer)) {
-            return event.apply(type.cast(observer));
+            return event.inquireFrom(type.cast(observer));
         }
         return null;
     }

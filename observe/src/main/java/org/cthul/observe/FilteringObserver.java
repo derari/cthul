@@ -11,7 +11,7 @@ public class FilteringObserver implements Observer {
     private List<Class<?>> excluded;
 
     public FilteringObserver(Object observer) {
-        this(Observer.cast(observer));
+        this(Observer.from(observer));
     }
 
     public FilteringObserver(Observer observer) {
@@ -58,8 +58,8 @@ public class FilteringObserver implements Observer {
     
     private Class<?> getClass(Object arg, String name) {
         Objects.requireNonNull(arg, name);
-        if (arg instanceof Class) {
-            return (Class<?>) arg;
+        if (arg instanceof Class<?> clazz) {
+            return clazz;
         }
         return arg.getClass();
     }
@@ -107,5 +107,39 @@ public class FilteringObserver implements Observer {
         return observer.toString() + "["
                 + (included == null ? "" : "+" + included.size())
                 + (excluded == null ? "" : "-" + excluded.size()) + "]";
+    }
+
+    public static class Builder extends FilteringObserver implements Observable.Subscription {
+
+        private Observable.Subscription subscription;
+
+        public Builder(Object observer) {
+            super(observer);
+        }
+
+        public Builder(FilteringObserver source, Observable.Subscription subscription) {
+            super(source);
+            this.subscription = subscription;
+        }
+
+        public Builder withSubscription(Observable.Subscription subscription) {
+            this.subscription = subscription;
+            return this;
+        }
+
+        @Override
+        public Observable observable() {
+            return subscription == null ? null : subscription.observable();
+        }
+
+        @Override
+        public Observer observer() {
+            return this;
+        }
+
+        @Override
+        public boolean unsubscribe() {
+            return subscription != null && subscription.unsubscribe();
+        }
     }
 }

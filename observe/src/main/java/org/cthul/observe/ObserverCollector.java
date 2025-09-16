@@ -7,18 +7,26 @@ import java.util.stream.Collector;
 public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.Results<O>, R> {
 
     public static <S extends Subject, O> Function<S, ObserverCollector<O, S>> toSubject() {
-        return toSubject(Observer::cast);
+        return ObserverCollector::addingTo;
     }
 
     public static <S extends Subject, O> Function<S, ObserverCollector<O, S>> toSubject(Function<? super O, ? extends Observer> toObserver) {
-        return subject -> new ObserverCollector<>(subject.getObserverList(), toObserver, observeSubject(subject));
+        return subject -> addingTo(subject, toObserver);
+    }
+
+    public static <S extends Subject, O> ObserverCollector<O, S> addingTo(S subject) {
+        return addingTo(subject, Observer::from);
+    }
+
+    public static <S extends Subject, O> ObserverCollector<O, S> addingTo(S subject, Function<? super O, ? extends Observer> toObserver) {
+        return new ObserverCollector<>(subject.getObserverList(), toObserver, addAllTo(subject));
     }
 
     public static Collector<Object, Void, Void> noResult() {
         return NO_RESULT;
     }
 
-    private static <S extends Subject> Function<Iterable<? extends Observer>, S> observeSubject(S subject) {
+    private static <S extends Subject> Function<Iterable<? extends Observer>, S> addAllTo(S subject) {
         return list -> {
             subject.addObservers(list);
             return subject;

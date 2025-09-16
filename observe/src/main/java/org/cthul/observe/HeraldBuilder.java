@@ -2,28 +2,47 @@ package org.cthul.observe;
 
 import org.cthul.adapt.TypedAdaptiveBase;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
-public class HeraldBuilder extends TypedAdaptiveBase<Herald, HeraldBuilder> implements Herald.Builder {
-    
+public class HeraldBuilder extends TypedAdaptiveBase<Herald, HeraldBuilder> implements Herald.Builder, Herald.EventAdapter {
+
     private final Subject subject;
+    private BiFunction<Herald, Class<Object>, Object> defaultAdapter;
 
     public HeraldBuilder(Subject subject) {
         this.subject = subject;
+        this.defaultAdapter = HeraldInvocationProxy.castOrProxy();
     }
     
-    protected HeraldBuilder(Subject subject, HeraldBuilder source) {
+    protected HeraldBuilder(HeraldBuilder source, Subject subject) {
         super(source);
+        this.defaultAdapter = source.defaultAdapter;
         this.subject = subject;
     }
 
     public HeraldBuilder copyForSubject(Subject newSubject) {
-        return new HeraldBuilder(newSubject, this);
+        return new HeraldBuilder(this, newSubject);
     }
 
     public HeraldBuilder copy() {
-        return new HeraldBuilder(subject, this);
+        return new HeraldBuilder(this, subject);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public <T> BiFunction<Herald, Class<T>, T> defaultAdapter() {
+        return (BiFunction) defaultAdapter;
+    }
+
+    public void setDefaultAdapter(BiFunction<Herald, Class<Object>, Object> defaultAdapter) {
+        this.defaultAdapter = defaultAdapter;
+    }
+
+    @Override
+    public Herald herald() {
+        return this;
     }
 
     @Override
@@ -39,8 +58,8 @@ public class HeraldBuilder extends TypedAdaptiveBase<Herald, HeraldBuilder> impl
     }
 
     @Override
-    public <T, R0, R, X extends Exception> R inquire(Class<T> target, Function<? super Subject.Builder, ? extends Collector<? super R0, ?, ? extends R>> collector, Event.Inquiry<T, R0, X> event) throws X {
-        return collect(target, collector.apply(subject.copy()), event);
+    public <T, R0, R, X extends Exception> R inquire(Class<T> target, Function<? super Subject.Builder, ? extends Collector<? super R0, ?, ? extends R>> collectorBuilder, Event.Inquiry<T, R0, X> event) throws X {
+        return collect(target, collectorBuilder.apply(subject.copy()), event);
     }
 
     @Override

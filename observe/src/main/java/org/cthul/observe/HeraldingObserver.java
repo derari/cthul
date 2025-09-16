@@ -10,12 +10,16 @@ public class HeraldingObserver implements Observer {
 
     @Override
     public <O, X extends Exception> void notify(Class<O> type, Event.Announcement<O, X> event) throws X {
-        herald.announce(type, event);
+        var typed = herald.as(type);
+        if (typed != null) {
+            event.announceTo(typed);
+        }
     }
 
     @Override
     public <O, R, X extends Exception> R notify(Class<O> type, Event.Inquiry<O, R, X> event) throws X {
-        return event.apply(herald.as(type));
+        var typed = herald.as(type);
+        return typed == null ? null : event.inquireFrom(typed);
     }
 
     @Override

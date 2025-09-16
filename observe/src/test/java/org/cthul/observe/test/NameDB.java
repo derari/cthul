@@ -4,7 +4,7 @@ import org.cthul.observe.Herald;
 
 public interface NameDB {
 
-    NameData getName(int i);
+    NameData getName(int id);
 
     static HeraldAdapter herald(Herald herald) {
         return () -> herald;
@@ -13,8 +13,8 @@ public interface NameDB {
     interface HeraldAdapter extends NameDB, Herald.EventAdapter {
 
         @Override
-        default NameData getName(int i) {
-            return herald().inquire(NameDB.class, NameData.class, o -> o.getName(i));
+        default NameData getName(int id) {
+            return herald().inquire(NameDB.class, NameData.class, o -> o.getName(id));
         }
     }
 }
