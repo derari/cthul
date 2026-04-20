@@ -31,7 +31,7 @@ public class HeraldInvocationProxy {
 
     private static <T> T castOrProxy(Herald herald, Class<T> clazz, Class<? extends HeraldInvocationProxy> proxy) {
         if (clazz.isInstance(herald)) return clazz.cast(herald);
-        if (clazz.isAssignableFrom(Observer.class)) return clazz.cast(new HeraldingObserver(herald));
+        if (clazz.isAssignableFrom(Observer.class)) return clazz.cast(new AdaptingObserver(herald));
         if (clazz.isAssignableFrom(HeraldInvocationProxy.WithDefaults.class)) return clazz.cast(new HeraldInvocationProxy.WithDefaults(herald));
         if (clazz.isAssignableFrom(HeraldInvocationProxy.WithoutDefaults.class)) return clazz.cast(new HeraldInvocationProxy.WithoutDefaults(herald));
         if (!clazz.isInterface()) return null;

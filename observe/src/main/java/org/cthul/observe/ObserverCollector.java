@@ -37,7 +37,9 @@ public class ObserverCollector<O, R> implements Collector<O, ObserverCollector.R
     private final Function<? super O, ? extends Observer> toObserver;
     private final Function<? super Collection<Observer>, R> finisher;
 
-    public ObserverCollector(Collection<? extends Observer> ignored, Function<? super O, ? extends Observer> toObserver, Function<? super Collection<Observer>, R> finisher) {
+    public ObserverCollector(Collection<? extends Observer> ignored,
+                             Function<? super O, ? extends Observer> toObserver,
+                             Function<? super Collection<Observer>, R> finisher) {
         this.ignored = new HashSet<>(ignored);
         this.toObserver = toObserver;
         this.finisher = finisher;

@@ -49,8 +49,8 @@ class SubjectBuilderTest {
         var logger = new PersonDataLogger();
         var name0 = new NameModel("Alice", "X");
         var name1 = new NameModel("Bob", "X");
-        NameDB nameDB = Map.of(0, name0, 1, name1)::get;
-        subject.addObservers(logger, nameDB);
+        NameDB nameDb = Map.of(0, name0, 1, name1)::get;
+        subject.addObservers(logger, nameDb);
 
         subject.getHerald().declare(NameDB::herald, PersonData::herald);
         var herald = subject.getHerald().as(NameDB.class);

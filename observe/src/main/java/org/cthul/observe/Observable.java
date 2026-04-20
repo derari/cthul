@@ -23,9 +23,9 @@ public interface Observable {
 
     default SubscriptionGroup addObservers(Iterable<?> observers) {
         var it = observers.spliterator();
-        var list = StreamSupport.stream(it, false).
-                map(Observer::from).
-                map(this::addObserver)
+        var list = StreamSupport.stream(it, false)
+                .map(Observer::from)
+                .map(this::addObserver)
                 .toList();
         return new SubscriptionGroup(this, list);
     }
@@ -45,10 +45,10 @@ public interface Observable {
         boolean unsubscribe();
     }
 
-    record SubscriptionGroup(Observable observable, List<Subscription> all) {
+    record SubscriptionGroup(Observable observable, List<Subscription> subscriptions) {
 
         public boolean unsubscribeAll() {
-            return all().stream().map(Subscription::unsubscribe).reduce(Boolean::logicalOr).orElse(false);
+            return subscriptions().stream().map(Subscription::unsubscribe).reduce(Boolean::logicalOr).orElse(false);
         }
     }
 }

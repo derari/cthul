@@ -1,16 +1,18 @@
 package org.cthul.observe;
 
-public class HeraldingObserver implements Observer {
+import org.cthul.adapt.Adaptive;
 
-    private final Herald herald;
+public class AdaptingObserver implements Observer {
 
-    public HeraldingObserver(Herald herald) {
-        this.herald = herald;
+    private final Adaptive target;
+
+    public AdaptingObserver(Adaptive target) {
+        this.target = target;
     }
 
     @Override
     public <O, X extends Exception> void notify(Class<O> type, Event.Announcement<O, X> event) throws X {
-        var typed = herald.as(type);
+        var typed = target.as(type);
         if (typed != null) {
             event.announceTo(typed);
         }
@@ -18,25 +20,25 @@ public class HeraldingObserver implements Observer {
 
     @Override
     public <O, R, X extends Exception> R notify(Class<O> type, Event.Inquiry<O, R, X> event) throws X {
-        var typed = herald.as(type);
+        var typed = target.as(type);
         return typed == null ? null : event.inquireFrom(typed);
     }
 
     @Override
     public int hashCode() {
-        return herald.hashCode();
+        return target.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof HeraldingObserver ho) {
-            return herald.equals(ho.herald);
+        if (obj instanceof AdaptingObserver ho) {
+            return target.equals(ho.target);
         }
-        return herald.equals(obj);
+        return target.equals(obj);
     }
 
     @Override
     public String toString() {
-        return herald.toString();
+        return target.toString();
     }
 }
