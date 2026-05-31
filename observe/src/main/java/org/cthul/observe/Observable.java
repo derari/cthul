@@ -24,7 +24,6 @@ public interface Observable {
     default SubscriptionGroup addObservers(Iterable<?> observers) {
         var it = observers.spliterator();
         var list = StreamSupport.stream(it, false)
-                .map(Observer::from)
                 .map(this::addObserver)
                 .toList();
         return new SubscriptionGroup(this, list);

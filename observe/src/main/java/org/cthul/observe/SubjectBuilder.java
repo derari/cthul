@@ -1,12 +1,13 @@
 package org.cthul.observe;
 
-import java.util.ArrayList;
+import org.cthul.util.CopyOnReadList;
+
 import java.util.List;
 
 public class SubjectBuilder implements Subject.Builder {
 
     private final HeraldBuilder herald;
-    private final List<Observer> observers = new ArrayList<>();
+    private final List<Observer> observers = new CopyOnReadList<>();
 
     public SubjectBuilder() {
         this.herald = new HeraldBuilder(this);

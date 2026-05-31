@@ -16,34 +16,30 @@ public class AdapterFactory<A> {
     }
 
     protected AdapterFactory(AdapterFactory<A> source) {
-        synchronized (source.newUntypedFactories) {
-            synchronized (source.typedFactories) {
-                typedFactories.putAll(source.typedFactories);
-                untypedFactoryClasses.addAll(source.untypedFactoryClasses);
-                newUntypedFactories.addAll(source.newUntypedFactories);
-            }
-        }
+        source.copyInto(this);
+    }
+
+    private synchronized void copyInto(AdapterFactory<A> copy) {
+        copy.typedFactories.putAll(typedFactories);
+        copy.untypedFactoryClasses.addAll(untypedFactoryClasses);
+        copy.newUntypedFactories.addAll(newUntypedFactories);
     }
 
     public AdapterFactory<A> copy() {
         return new AdapterFactory<>(this);
     }
 
-    public <T> void declare(Class<T> clazz, Function<? super A, ? extends T> factory) {
+    public synchronized <T> void declare(Class<T> clazz, Function<? super A, ? extends T> factory) {
         if (clazz == null) {
             declare(factory);
             return;
         }
-        synchronized (typedFactories) {
-            typedFactories.putIfAbsent(clazz, factory);
-        }
+        typedFactories.putIfAbsent(clazz, factory);
     }
 
-    public void declare(Function<? super A, ?> factory) {
-        synchronized (newUntypedFactories) {
-            if (untypedFactoryClasses.add(factory.getClass())) {
-                newUntypedFactories.add(factory);
-            }
+    public synchronized void declare(Function<? super A, ?> factory) {
+        if (untypedFactoryClasses.add(factory.getClass())) {
+            newUntypedFactories.add(factory);
         }
     }
 
@@ -59,12 +55,10 @@ public class AdapterFactory<A> {
                 .orElseGet(() -> adaptWithTyped(actual, clazz));
     }
 
-    protected <T> Optional<T> adaptWithUntyped(A actual, Class<T> clazz, Consumer<Object> newAdapterCallback) {
-        synchronized (newUntypedFactories) {
-            T result = applyUntypedFactories(actual, clazz, newAdapterCallback);
-            clearUntypedFactories();
-            return Optional.ofNullable(result);
-        }
+    protected synchronized <T> Optional<T> adaptWithUntyped(A actual, Class<T> clazz, Consumer<Object> newAdapterCallback) {
+        var result = applyUntypedFactories(actual, clazz, newAdapterCallback);
+        clearUntypedFactories();
+        return Optional.ofNullable(result);
     }
 
     private <T> T applyUntypedFactories(A actual, Class<T> clazz, Consumer<Object> newAdapterCallback) {
@@ -92,14 +86,14 @@ public class AdapterFactory<A> {
 
     protected boolean putTypedFactory(Object adapter, Function<? super A, ?> factory) {
         if (adapter == null) return false;
-        synchronized (typedFactories) {
+        synchronized (this) {
             return typedFactories.putIfAbsent(adapter.getClass(), factory) == null;
         }
     }
 
     protected <T> T adaptWithTyped(A actual, Class<T> clazz) {
         Function<? super A, T> factory;
-        synchronized (typedFactories) {
+        synchronized (this) {
             factory = typedFactories.get(clazz);
         }
         return factory == null ? null : factory.apply(actual);

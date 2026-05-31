@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import static org.cthul.adapt.AdaptiveBuilder.idString;
 
-public abstract class TypedAdaptiveBase<A, T0 extends A> {
+public abstract class TypedAdaptiveBase<A, T0 extends A> implements Adaptive.Typed<A> {
 
     private final AdaptiveBuilder<A> adaptiveBuilder;
 
